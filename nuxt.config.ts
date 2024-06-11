@@ -13,6 +13,9 @@ export default defineNuxtConfig({
 		layoutTransition: false,
 		pageTransition: false,
 	},
+	build: {
+		transpile: ["@heroicons/vue"],
+	},
 	colorMode: {
 		classSuffix: "",
 		dataValue: "ui-color-scheme",
@@ -23,7 +26,7 @@ export default defineNuxtConfig({
 		locales: Object.keys(localesMap),
 		markdown: {},
 	},
-	css: ["@fontsource-variable/inter/slnt.css", "tailwindcss/tailwind.css", "@/styles/index.css"],
+	css: ["@fontsource-variable/inter/slnt.css", "tailwindcss/tailwind.css", "@/assets/css/main.css"],
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
 	},
@@ -60,7 +63,14 @@ export default defineNuxtConfig({
 	imports: {
 		dirs: ["./config/"],
 	},
-	modules: ["@nuxt/content", "@nuxt/image", "@nuxtjs/color-mode", "@nuxtjs/i18n", "@vueuse/nuxt"],
+	modules: [
+		"@nuxt/content",
+		"@nuxt/image",
+		"@nuxtjs/color-mode",
+		"@nuxtjs/i18n",
+		"@vueuse/nuxt",
+		"shadcn-nuxt",
+	],
 	nitro: {
 		compressPublicAssets: true,
 		prerender: {
@@ -76,10 +86,13 @@ export default defineNuxtConfig({
 		NODE_ENV: process.env.NODE_ENV,
 		public: {
 			appBaseUrl: process.env.NUXT_PUBLIC_APP_BASE_URL,
+			apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL,
 			bots: process.env.NUXT_PUBLIC_BOTS,
 			matomoBaseUrl: process.env.NUXT_PUBLIC_MATOMO_BASE_URL,
 			matomoId: process.env.NUXT_PUBLIC_MATOMO_ID,
 			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,
+			NUXT_PUBLIC_MAP_BASELAYER_URL_DARK: process.env.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK,
+			NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT: process.env.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT,
 		},
 	},
 	typescript: {

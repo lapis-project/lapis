@@ -7,9 +7,17 @@
 	},
 	"AppHeader": {
 		"links": {
-			"home": "Home"
+			"articles": "Articles",
+			"db": "Browse data",
+			"research": "Mapping"
 		},
 		"navigation-main": "Main"
+	},
+	"ArticlesPage": {
+		"meta": {
+			"title": "Articles"
+		},
+		"title": "Articles"
 	},
 	"ColorSchemeToggle": {
 		"change-color-scheme": "Change color scheme",

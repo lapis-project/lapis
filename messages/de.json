@@ -7,9 +7,17 @@
 	},
 	"AppHeader": {
 		"links": {
-			"home": "Startseite"
+			"articles": "Artikel",
+			"db": "Belegdatenbank",
+			"research": "Kartierung"
 		},
 		"navigation-main": "Hauptnavigation"
+	},
+	"ArticlesPage": {
+		"meta": {
+			"title": "Artikel"
+		},
+		"title": "Artikel"
 	},
 	"ColorSchemeToggle": {
 		"change-color-scheme": "Farbschema ändern",

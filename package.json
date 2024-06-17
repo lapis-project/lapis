@@ -1,5 +1,5 @@
 {
-	"name": "@acdh-oeaw/app",
+	"name": "lapis",
 	"private": true,
 	"license": "MIT",
 	"type": "module",
@@ -59,6 +59,7 @@
 		"shadcn-nuxt": "^0.10.4",
 		"tailwind-merge": "^2.3.0",
 		"tailwindcss-animate": "^1.0.7",
+		"three": "^0.165.0",
 		"valibot": "^0.30.0",
 		"vue": "^3.4.27",
 		"vue-i18n": "^9.13.1",

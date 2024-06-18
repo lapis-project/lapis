@@ -17,6 +17,8 @@
 		"ignorePath": ".gitignore"
 	},
 	"eslint.validate": ["javascript", "typescript", "vue"],
+	"eslint.workingDirectories": [{ "mode": "auto" }],
+	// "eslint.workingDirectories": ["./apps/lexat"],
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},

@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import type { NavLinkProps } from "@/components/nav-link.vue";
+import type { NuxtLinkProps } from "#app";
 
 const t = useTranslations();
 
 const links = computed(() => {
 	return {
-		articles: { href: { path: "/articles" }, label: t("AppHeader.links.articles") },
-		db: { href: { path: "/db" }, label: t("AppHeader.links.db") },
-		research: { href: { path: "/maps" }, label: t("AppHeader.links.research") },
-	} satisfies Record<string, { href: NavLinkProps["href"]; label: string }>;
+		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
+		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
+		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
+	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
 });
 </script>
 
@@ -19,9 +19,9 @@ const links = computed(() => {
 			<nav :aria-label="t('AppHeader.navigation-main')">
 				<ul class="flex items-center gap-4" role="list">
 					<li v-for="(link, key) of links" :key="key">
-						<NavLink :href="link.href" class="uppercase">
+						<NuxtLinkLocale :to="link.to" class="uppercase">
 							{{ link.label }}
-						</NavLink>
+						</NuxtLinkLocale>
 					</li>
 				</ul>
 			</nav>

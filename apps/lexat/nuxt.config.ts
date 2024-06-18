@@ -101,7 +101,9 @@ export default defineNuxtConfig({
 		// https://github.com/nuxt/nuxt/issues/14816#issuecomment-1484918081
 		tsConfig: {
 			compilerOptions: {
+				baseUrl: ".",
 				paths: {
+					"@": ["."],
 					"@/*": ["./*"],
 				},
 			},

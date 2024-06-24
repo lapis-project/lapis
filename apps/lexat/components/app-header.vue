@@ -13,13 +13,17 @@ const links = computed(() => {
 </script>
 
 <template>
-	<header class="border-b">
-		<div class="container flex h-16 items-center justify-between gap-4 p-4">
+	<header class="container border-b">
+		<div class="flex h-16 items-center justify-between gap-4 py-4">
 			<img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" />
 			<nav :aria-label="t('AppHeader.navigation-main')">
 				<ul class="flex items-center gap-4" role="list">
 					<li v-for="(link, key) of links" :key="key">
-						<NuxtLinkLocale :to="link.to" class="uppercase">
+						<NuxtLinkLocale
+							:to="link.to"
+							class="uppercase"
+							exact-active-class="underline underline-offset-2"
+						>
 							{{ link.label }}
 						</NuxtLinkLocale>
 					</li>
@@ -27,7 +31,7 @@ const links = computed(() => {
 			</nav>
 
 			<div class="relative flex items-center gap-4">
-				<!-- <ColorSchemeSwitcher /> -->
+				<ColorSchemeSwitcher />
 				<LocaleSwitcher />
 			</div>
 		</div>

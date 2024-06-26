@@ -340,18 +340,19 @@ const resetSelection = (omit?: Array<"description" | "question" | "register">) =
 		activeRegister.value = "all";
 	}
 	activeTags.value = [];
+	popover.value = null;
 };
 
 watch(activeQuestion, () => {
 	resetSelection(["question"]);
 });
 watch(activeRegisterDescription, () => {
-	if (activeRegisterDescription.value !== "") {
+	if (activeRegisterDescription.value !== "all") {
 		resetSelection(["question", "description"]);
 	}
 });
 watch(activeRegister, () => {
-	if (activeRegister.value !== "") {
+	if (activeRegister.value !== "all") {
 		resetSelection(["question", "register"]);
 	}
 });

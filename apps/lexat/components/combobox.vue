@@ -14,59 +14,79 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/utils/styles";
 
-const frameworks = [
-	{ value: "next.js", label: "Next.js" },
-	{ value: "sveltekit", label: "SvelteKit" },
-	{ value: "nuxt.js", label: "Nuxt.js" },
-	{ value: "remix", label: "Remix" },
-	{ value: "astro", label: "Astro" },
-];
+import type { DropdownOption } from "./data-map-view.vue";
+
+const t = useTranslations();
+
+const model = defineModel<string>({ default: "" });
+
+export interface Props {
+	options: Array<DropdownOption>;
+	placeholder?: string;
+	hasSearch?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+	placeholder: "question",
+	hasSearch: false,
+});
+
+const emit = defineEmits<{
+	(event: "selected"): void;
+}>();
 
 const open = ref(false);
-const value = ref("");
 </script>
 
 <template>
 	<Popover v-model:open="open">
-		<PopoverTrigger as-child>
+		<PopoverTrigger as-child class="">
 			<Button
 				variant="outline"
 				role="combobox"
 				:aria-expanded="open"
 				aria-controls="popover-content"
-				class="w-[200px] justify-between"
+				class="w-64 justify-between"
 			>
-				{{
-					value
-						? frameworks.find((framework) => framework.value === value)?.label
-						: "Select question..."
-				}}
+				<span class="truncate">
+					{{
+						model
+							? props.options.find((question) => question.value === model)?.label
+							: t("Combobox.button", { placeholder: props.placeholder })
+					}}
+				</span>
 				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 			</Button>
 		</PopoverTrigger>
-		<PopoverContent id="popover-content" class="w-[200px] p-0" role="listbox">
+		<PopoverContent id="popover-content" class="w-64 p-0" role="listbox">
 			<Command>
-				<CommandInput class="h-9" placeholder="Search question..." />
-				<CommandEmpty>No question found.</CommandEmpty>
+				<template v-if="hasSearch">
+					<CommandInput
+						class="h-9"
+						:placeholder="t('Combobox.search', { placeholder: props.placeholder })"
+					/>
+					<CommandEmpty>{{ t("Combobox.empty", { placeholder: props.placeholder }) }}</CommandEmpty>
+				</template>
 				<CommandList>
 					<CommandGroup>
 						<CommandItem
-							v-for="framework in frameworks"
-							:key="framework.value"
-							:value="framework.value"
+							v-for="question in props.options"
+							:key="question.value"
+							:value="question.value"
 							@select="
 								(ev) => {
 									if (typeof ev.detail.value === 'string') {
-										value = ev.detail.value;
+										model = ev.detail.value;
 									}
 									open = false;
+									emit('selected');
 								}
 							"
 						>
-							{{ framework.label }}
+							{{ question.label }}
 							<Check
 								:class="
-									cn('ml-auto h-4 w-4', value === framework.value ? 'opacity-100' : 'opacity-0')
+									cn('ml-auto h-4 w-4', model === question.value ? 'opacity-100' : 'opacity-0')
 								"
 							/>
 						</CommandItem>

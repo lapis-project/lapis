@@ -19,13 +19,18 @@
 		},
 		"title": "Articles"
 	},
-	"ColorSchemeToggle": {
+	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Change color scheme",
 		"color-schemes": {
 			"dark": "Dark",
 			"light": "Light",
 			"system": "System"
 		}
+	},
+	"Combobox": {
+		"button": "Select {placeholder}...",
+		"empty": "No {placeholder} found",
+		"search": "Search {placeholder}..."
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -65,10 +70,47 @@
 		"short-name": "ACDH-CH App",
 		"description": "ACDH-CH App"
 	},
+	"MapsPage": {
+		"meta": {
+			"title": "Maps"
+		},
+		"title": "Maps",
+		"selection": {
+			"show-all-points": "Show all data points",
+			"show-regions": "Show regions",
+			"variable": {
+				"title": "Variable",
+				"placeholder": "variable",
+				"tooltip": "Concept in question"
+			},
+			"register-categories": {
+				"title": "Register category",
+				"placeholder": "register category",
+				"tooltip": "All register designations by relation to standard",
+				"show-all": "Show all"
+			},
+			"register-definition": {
+				"title": "Register name",
+				"placeholder": "register name",
+				"tooltip": "Designation of register / language level",
+				"show-all": "Show all"
+			},
+			"variants": {
+				"title": "Variants",
+				"placeholder": "Pick variants",
+				"tooltip": "Normalized answers"
+			},
+			"reset": "Reset selection"
+		}
+	},
 	"NotFoundPage": {
 		"meta": {
 			"title": "Page not found"
 		},
 		"title": "Page not found"
+	},
+	"TagsCombobox": {
+		"button": "{placeholder}...",
+		"empty": "No results found"
 	}
 }

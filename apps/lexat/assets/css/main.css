@@ -64,4 +64,9 @@
 		block-size: 100%;
 		isolation: isolate;
 	}
+
+	.italic-custom {
+		font-style: italic;
+		font-variation-settings: "slnt" -2;
+	}
 }

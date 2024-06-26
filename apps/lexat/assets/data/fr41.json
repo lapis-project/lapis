@@ -17295,7 +17295,10 @@
 			"type": "Feature",
 			"id": 201,
 			"title": "STREICHHOLZ",
-			"geometry": {},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [11.245794444444425, 46.413955555556]
+			},
 			"location": "Kaltern",
 			"PLZ": "",
 			"properties": [

@@ -14,6 +14,7 @@ WORKDIR /app
 USER node
 
 COPY --chown=node:node .npmrc package.json pnpm-lock.yaml ./
+
 RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
 
 RUN pnpm fetch
@@ -31,7 +32,7 @@ RUN pnpm install --frozen-lockfile --offline
 
 ENV NODE_ENV=production
 
-RUN pnpm run build
+RUN pnpm run build:lexat
 
 # serve
 FROM node:20-alpine AS serve
@@ -41,7 +42,7 @@ WORKDIR /app
 
 USER node
 
-COPY --from=build --chown=node:node /app/.output ./
+COPY --from=build --chown=node:node /app/apps/lexat/.output ./
 
 ENV NODE_ENV=production
 

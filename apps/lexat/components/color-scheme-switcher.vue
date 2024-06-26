@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { MonitorIcon, MoonIcon, SunIcon } from "lucide-vue-next";
+import { ComputerDesktopIcon, MoonIcon, SunIcon } from "@heroicons/vue/24/solid";
 
 const t = useTranslations();
 
 const colorMode = useColorMode();
 
 const colorSchemes = [
-	{ name: "system", icon: MonitorIcon },
+	{ name: "system", icon: ComputerDesktopIcon },
 	{ name: "light", icon: SunIcon },
 	{ name: "dark", icon: MoonIcon },
 ];

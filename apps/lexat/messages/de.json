@@ -19,13 +19,18 @@
 		},
 		"title": "Artikel"
 	},
-	"ColorSchemeToggle": {
+	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Farbschema ändern",
 		"color-schemes": {
 			"dark": "Dunkel",
 			"light": "Hell",
 			"system": "System"
 		}
+	},
+	"Combobox": {
+		"button": "{placeholder} wählen...",
+		"empty": "Keine {placeholder} gefunden",
+		"search": "{placeholder} suchen..."
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -65,10 +70,47 @@
 		"short-name": "ACDH-CH App",
 		"description": "ACDH-CH App"
 	},
+	"MapsPage": {
+		"meta": {
+			"title": "Kartierung"
+		},
+		"title": "Kartierung",
+		"selection": {
+			"show-all-points": "Zeige alle Datenpunkte",
+			"show-regions": "Regionen anzeigen",
+			"variable": {
+				"title": "Variable",
+				"placeholder": "Variable",
+				"tooltip": "Abgefragtes Konzept"
+			},
+			"register-categories": {
+				"title": "Registerkategorie",
+				"placeholder": "Registerkategorie",
+				"tooltip": "Alle Registerbezeichnungen nach Standardnähe",
+				"show-all": "Alle anzeigen"
+			},
+			"register-definition": {
+				"title": "Registerbezeichnung",
+				"placeholder": "Registerbezeichnung",
+				"tooltip": "Name des Registers / der Sprachebene",
+				"show-all": "Alle anzeigen"
+			},
+			"variants": {
+				"title": "Varianten wählen",
+				"placeholder": "Varianten wählen",
+				"tooltip": "Normalisierte Antworttypen"
+			},
+			"reset": "Auswahl zurücksetzen"
+		}
+	},
 	"NotFoundPage": {
 		"meta": {
 			"title": "Seite nicht gefunden"
 		},
 		"title": "Seite nicht gefunden"
+	},
+	"TagsCombobox": {
+		"button": "{placeholder}...",
+		"empty": "Keine Ergebnisse gefunden"
 	}
 }

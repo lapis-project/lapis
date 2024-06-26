@@ -37,7 +37,7 @@ const colorSchemes = [
 					"
 				>
 					<component :is="colorScheme.icon" class="size-4" />
-					{{ t(`ColorSchemeToggle.color-schemes.${colorScheme.name}`) }}
+					{{ t(`ColorSchemeSwitcher.color-schemes.${colorScheme.name}`) }}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

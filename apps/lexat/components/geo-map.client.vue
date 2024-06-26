@@ -42,7 +42,7 @@ const emit = defineEmits<{
 	): void;
 }>();
 
-interface WebGLContext {
+export interface WebGLContext {
 	renderer: THREE.WebGLRenderer;
 	scene: THREE.Scene;
 	camera: THREE.OrthographicCamera;

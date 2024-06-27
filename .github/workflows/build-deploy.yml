@@ -114,9 +114,8 @@ jobs:
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
       DOCKER_TAG:
-        "${{ needs.setup_workflow_env.outputs.registry }}/${{ needs.setup_workflow_env.outputs.image
-        }}"
-      APP_NAME: "${{ needs.setup_workflow_env.outputs.app_name }}"
+        "${{ needs.setup_workflow_env.outputs.registry_root }}"
+      APP_NAME: "${{ needs.setup_workflow_env.outputs.APP_NAME }}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID }}"
       PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.public_url }}"

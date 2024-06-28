@@ -441,7 +441,9 @@ watch(activeRegister, () => {
 		</div>
 		<VisualisationContainer v-slot="{ height, width }" class="border">
 			<div v-if="uniqueVariants.length" class="absolute bottom-12 right-0 z-10 mr-2">
-				<div class="rounded-md border-2 border-transparent bg-white p-3 text-sm shadow-md">
+				<div
+					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"
+				>
 					<ul class="space-y-1">
 						<li
 							v-for="variant in uniqueVariants"

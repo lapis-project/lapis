@@ -11,10 +11,10 @@ import { ArrowRightIcon } from "@heroicons/vue/24/solid";
 
 <template>
 	<div class="w-1/4 rounded-lg border bg-white shadow dark:border-neutral-700 dark:bg-neutral-800">
-		<ProseImg
+		<!-- <ProseImg
 			class="aspect-[16/10] rounded-t-lg"
 			src="/assets/images/posts/example-1-cropped.jpg"
-		/>
+		/> -->
 		<div class="p-5 dark:text-neutral-100">
 			<p
 				class="mb-2 inline-block rounded-full bg-secondary px-2.5 py-1 text-sm font-bold dark:bg-neutral-600"

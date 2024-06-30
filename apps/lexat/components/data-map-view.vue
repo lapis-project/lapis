@@ -6,6 +6,10 @@ import type { MapGeoJSONFeature } from "maplibre-gl";
 import data from "@/assets/data/dialektregionen.geojson.json";
 import * as fr1 from "@/assets/data/fr1.json";
 import * as fr2 from "@/assets/data/fr2.json";
+import * as fr3 from "@/assets/data/fr3.json";
+import * as fr4 from "@/assets/data/fr4.json";
+import * as fr5 from "@/assets/data/fr5.json";
+import * as fr6 from "@/assets/data/fr6.json";
 import * as fr41 from "@/assets/data/fr41.json";
 import type {
 	Property,
@@ -22,7 +26,9 @@ import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 
 const t = useTranslations();
 
-const popover = ref<{ coordinates: Array<number>; entities: Array<SurveyResponse> } | null>(null);
+const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyResponse> } | null>(
+	null,
+);
 
 const colors = [
 	"#ff8080",
@@ -52,6 +58,10 @@ export interface DropdownOption {
 const questions: Array<DropdownOption> = [
 	{ value: "augenlid", label: "Augenlid", data: fr1 },
 	{ value: "auswringen", label: "Auswringen", data: fr2 },
+	{ value: "backenzahn", label: "Backenzahn", data: fr3 },
+	{ value: "barfuß", label: "Barfuß", data: fr4 },
+	{ value: "bauchschmerzen", label: "Bauchschmerzen", data: fr5 },
+	{ value: "begräbnis", label: "Begräbnis", data: fr6 },
 	{ value: "streichholz", label: "Streichholz", data: fr41 },
 ];
 
@@ -220,22 +230,7 @@ const entitiesById = computed(() => {
 	});
 });
 
-// const uniqueVariants = computed((): Array<string> => {
-// 	const uniqueAnnos = new Set();
-
-// 	filteredPoints.value.forEach((p) => {
-// 		p.properties.forEach((property) => {
-// 			property.answers.forEach((answer) => {
-// 				uniqueAnnos.add(answer.anno);
-// 			});
-// 		});
-// 	});
-
-// 	const uniqueVariants = Array.from(uniqueAnnos);
-// 	return uniqueVariants as Array<string>;
-// });
-
-const uniqueVariants = computed(() => {
+const filteredUniqueVariants = computed(() => {
 	const annoCounts = new Map<string, number>();
 
 	filteredPoints.value.forEach((p) => {
@@ -252,6 +247,30 @@ const uniqueVariants = computed(() => {
 		});
 	});
 
+	// Convert the Map entries to an array and sort it by count in descending order
+	const sortedVariants = Array.from(annoCounts.entries())
+		.sort((a, b) => b[1] - a[1])
+		.map((entry) => ({ anno: entry[0], count: entry[1] }));
+
+	return sortedVariants;
+});
+
+const uniqueVariants = computed(() => {
+	const annoCounts = new Map<string, number>();
+
+	points.value.forEach((p) => {
+		p.properties.forEach((property) => {
+			property.answers.forEach((answer) => {
+				const anno = answer.anno;
+				if (annoCounts.has(anno)) {
+					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+					annoCounts.set(anno, annoCounts.get(anno)! + 1);
+				} else {
+					annoCounts.set(anno, 1);
+				}
+			});
+		});
+	});
 	// Convert the Map entries to an array and sort it by count in descending order
 	const sortedVariants = Array.from(annoCounts.entries())
 		.sort((a, b) => b[1] - a[1])
@@ -282,7 +301,7 @@ function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "
 	}
 	if (coordinates) {
 		popover.value = {
-			coordinates: coordinates,
+			coordinates: coordinates as [number, number],
 			entities,
 		};
 	}
@@ -309,13 +328,10 @@ const countOccurrences = (properties: Array<Property>) => {
 				counts[anno] = {};
 			}
 			const annoValue = counts[anno];
-			if (annoValue && !annoValue[reg]) {
+			if (!annoValue[reg]) {
 				annoValue[reg] = { reg, count: 0 };
 			}
-			const annoRegValue = annoValue?.[reg];
-			if (annoRegValue) {
-				annoRegValue.count++;
-			}
+			annoValue[reg].count++;
 		}
 	}
 	return counts;
@@ -440,13 +456,13 @@ watch(activeRegister, () => {
 			</div>
 		</div>
 		<VisualisationContainer v-slot="{ height, width }" class="border">
-			<div v-if="uniqueVariants.length" class="absolute bottom-12 right-0 z-10 mr-2">
+			<div v-if="filteredUniqueVariants.length" class="absolute bottom-12 right-0 z-10 mr-2">
 				<div
 					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"
 				>
 					<ul class="space-y-1">
 						<li
-							v-for="variant in uniqueVariants"
+							v-for="variant in filteredUniqueVariants"
 							:key="variant.anno"
 							:class="{ 'italic-custom': !['Sonstige', 'Sonstiges'].includes(variant.anno) }"
 						>
@@ -470,7 +486,7 @@ watch(activeRegister, () => {
 			>
 				<GeoMapPopup
 					v-if="popover !== null"
-					:coordinates="popover.coordinates as [number, number]"
+					:coordinates="popover.coordinates"
 					@close="popover = null"
 				>
 					<article class="grid gap-1">

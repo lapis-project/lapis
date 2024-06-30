@@ -11,16 +11,28 @@
 		"build:lexat": "cd apps/lexat && pnpm build",
 		"dev:lexat": "cd apps/lexat && pnpm dev"
 	},
-	"packageManager": "pnpm@9.1.0+sha512.67f5879916a9293e5cf059c23853d571beaf4f753c707f40cb22bed5fb1578c6aad3b6c4107ccb3ba0b35be003eb621a16471ac836c87beb53f9d54bb4612724",
+	"packageManager": "pnpm@9.4.0",
 	"devDependencies": {
 		"@acdh-oeaw/prettier-config": "^2.0.0",
-		"@types/node": "^20.12.10",
+		"@types/node": "^20.14.9",
 		"is-ci": "^3.0.1",
-		"lint-staged": "^15.2.2",
-		"npm-run-all2": "^6.1.2",
-		"prettier": "^3.2.5",
-		"simple-git-hooks": "^2.9.0",
-		"typescript": "^5.4.5"
+		"lint-staged": "^15.2.7",
+		"npm-run-all2": "^6.2.0",
+		"prettier": "^3.3.2",
+		"simple-git-hooks": "^2.11.1",
+		"typescript": "^5.5.2"
+	},
+	"browserslist": {
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		],
+		"production": [
+			">=0.75%",
+			"not dead",
+			"not op_mini all"
+		]
 	},
 	"prettier": "@acdh-oeaw/prettier-config",
 	"simple-git-hooks": {

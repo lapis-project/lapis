@@ -64,18 +64,18 @@ webglcontext.renderer.setSize(size, size);
 webglcontext.camera.position.z = 10;
 const pieChartCache = new Map();
 
-const env = useRuntimeConfig();
-const theme = useColorMode();
+// const env = useRuntimeConfig();
+// const theme = useColorMode();
 
 // const colors = {
 // 	default: project.colors.geojson,
 // };
 
-const mapStyle = computed(() => {
-	return theme.value === "dark"
-		? env.public.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK
-		: env.public.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT;
-});
+// const mapStyle = computed(() => {
+// 	return theme.value === "dark"
+// 		? env.public.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK
+// 		: env.public.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT;
+// });
 
 const elementRef = ref<HTMLElement | null>(null);
 
@@ -112,7 +112,7 @@ async function create() {
 		maxZoom: 11,
 		minZoom: 6.5, // a littler bigger than Austria
 		pitch: initialViewState.pitch,
-		style: mapStyle.value,
+		style: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
 		zoom: initialViewState.zoom,
 	});
 
@@ -262,7 +262,7 @@ function init() {
 	// 	});
 	// });
 
-	update();
+	updateScope();
 }
 
 function dispose() {
@@ -271,9 +271,9 @@ function dispose() {
 
 watch(() => {
 	return props.points;
-}, update);
+}, updateScope);
 
-function update() {
+function updateScope() {
 	assert(context.map != null);
 	const map = context.map;
 
@@ -355,11 +355,11 @@ function update() {
 	// 		},
 	// 	},
 	// ];
+
 	const source = map.getSource(sourcePointsId) as GeoJSONSource | undefined;
 	const source2 = map.getSource(sourcePolygonsId) as GeoJSONSource | undefined;
 	const geojson = createFeatureCollection(props.points);
 	const geojson2 = createFeatureCollection(props.features);
-
 	source?.setData(geojson);
 	source2?.setData(geojson2);
 

@@ -100,6 +100,8 @@ jobs:
           labels: "${{ steps.meta.outputs.labels }}"
           build-args: |
             "NUXT_PUBLIC_APP_BASE_URL=${{ needs.generate_workflow_vars.outputs.public_url }}"
+            "NUXT_PUBLIC_MAP_BASELAYER_URL_DARK=${{ vars.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK }}"
+            "NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT=${{ vars.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT }}"
             "NUXT_PUBLIC_REDMINE_ID=${{ vars.SERVICE_ID }}"
           cache-from: type=gha
           cache-to: "type=gha,mode=max"
@@ -113,8 +115,7 @@ jobs:
     secrets: inherit
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
-      DOCKER_TAG:
-        "${{ needs.setup_workflow_env.outputs.registry_root }}"
+      DOCKER_TAG: "${{ needs.setup_workflow_env.outputs.registry_root }}"
       APP_NAME: "${{ needs.setup_workflow_env.outputs.APP_NAME }}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID }}"

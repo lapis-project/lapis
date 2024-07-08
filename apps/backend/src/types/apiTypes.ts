@@ -36,12 +36,15 @@ interface Article {
 	cover: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ArticleCMS extends Article {
 	status: Status;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface ArticleTeaser extends Omit<Article, "biblography" | "content"> {}
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface QuestionResponse {
 	responseText: string;
 	timestampAudio: string;

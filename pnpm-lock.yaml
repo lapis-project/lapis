@@ -38,6 +38,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.12.0
         version: 1.12.0
+      '@hono/valibot-validator':
+        specifier: ^0.3.0
+        version: 0.3.0(hono@4.4.11)(valibot@0.35.0)
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -50,6 +53,9 @@ importers:
       pg:
         specifier: ^8.12.0
         version: 8.12.0
+      valibot:
+        specifier: ^0.35.0
+        version: 0.35.0
     devDependencies:
       '@types/node':
         specifier: ^20.11.17
@@ -842,6 +848,12 @@ packages:
   '@hono/node-server@1.12.0':
     resolution: {integrity: sha512-e6oHjNiErRxsZRZBmc2KucuvY3btlO/XPncIpP2X75bRdTilF9GLjm3NHvKKunpJbbJJj31/FoPTksTf8djAVw==}
     engines: {node: '>=18.14.1'}
+
+  '@hono/valibot-validator@0.3.0':
+    resolution: {integrity: sha512-EcGJKzLt11SK4K11yKHrhI93ECtKeSHAnnENHw5tCL0ZhyDIx96avc3Ua8/ri4fwVvRPuOzFQ2OBRsVvwZuqeQ==}
+    peerDependencies:
+      hono: '>=3.9.0'
+      valibot: '>=0.31.0 <1'
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -7374,6 +7386,11 @@ snapshots:
       vue: 3.4.31(typescript@5.5.2)
 
   '@hono/node-server@1.12.0': {}
+
+  '@hono/valibot-validator@0.3.0(hono@4.4.11)(valibot@0.35.0)':
+    dependencies:
+      hono: 4.4.11
+      valibot: 0.35.0
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:

@@ -9,7 +9,8 @@
 		"prepare": "run-s setup",
 		"setup": "is-ci || simple-git-hooks",
 		"build:lexat": "cd apps/lexat && pnpm build",
-		"dev:lexat": "cd apps/lexat && pnpm dev"
+		"dev:lexat": "cd apps/lexat && pnpm dev",
+		"start:lexat": "cd apps/lexat && pnpm start"
 	},
 	"packageManager": "pnpm@9.4.0",
 	"devDependencies": {

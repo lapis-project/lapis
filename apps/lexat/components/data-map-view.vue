@@ -11,6 +11,7 @@ import * as fr4 from "@/assets/data/fr4.json";
 import * as fr5 from "@/assets/data/fr5.json";
 import * as fr6 from "@/assets/data/fr6.json";
 import * as fr41 from "@/assets/data/fr41.json";
+import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import type {
 	Property,
 	RegionFeature,
@@ -230,10 +231,10 @@ const entitiesById = computed(() => {
 	});
 });
 
-const filteredUniqueVariants = computed(() => {
+function getSortedVariants(points: Array<SurveyResponse>, specialSortOrder = {}) {
 	const annoCounts = new Map<string, number>();
 
-	filteredPoints.value.forEach((p) => {
+	points.forEach((p) => {
 		p.properties.forEach((property) => {
 			property.answers.forEach((answer) => {
 				const anno = answer.anno;
@@ -247,36 +248,31 @@ const filteredUniqueVariants = computed(() => {
 		});
 	});
 
+	// Apply special sort order if provided
+	for (const [key, value] of Object.entries(specialSortOrder)) {
+		if (annoCounts.has(key)) {
+			annoCounts.set(key, value as number);
+		}
+	}
+
 	// Convert the Map entries to an array and sort it by count in descending order
 	const sortedVariants = Array.from(annoCounts.entries())
 		.sort((a, b) => b[1] - a[1])
 		.map((entry) => ({ anno: entry[0], count: entry[1] }));
 
 	return sortedVariants;
+}
+
+const filteredUniqueVariants = computed(() => {
+	return getSortedVariants(filteredPoints.value, {
+		"keine Angabe": -3,
+		Sonstiges: -2,
+		Sonstige: -1,
+	});
 });
 
 const uniqueVariants = computed(() => {
-	const annoCounts = new Map<string, number>();
-
-	points.value.forEach((p) => {
-		p.properties.forEach((property) => {
-			property.answers.forEach((answer) => {
-				const anno = answer.anno;
-				if (annoCounts.has(anno)) {
-					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					annoCounts.set(anno, annoCounts.get(anno)! + 1);
-				} else {
-					annoCounts.set(anno, 1);
-				}
-			});
-		});
-	});
-	// Convert the Map entries to an array and sort it by count in descending order
-	const sortedVariants = Array.from(annoCounts.entries())
-		.sort((a, b) => b[1] - a[1])
-		.map((entry) => ({ anno: entry[0], count: entry[1] }));
-
-	return sortedVariants;
+	return getSortedVariants(points.value);
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
@@ -359,6 +355,87 @@ const resetSelection = (omit?: Array<"description" | "question" | "register">) =
 	popover.value = null;
 };
 
+const tableData = computed(() => {
+	const result = [];
+	const countMap: Record<string, TableEntry> = {};
+
+	filteredPoints.value.forEach((feature) => {
+		const location = feature.location;
+
+		feature.properties.forEach((property) => {
+			property.answers.forEach((answer) => {
+				const reg = answer.reg;
+				const anno = answer.anno;
+
+				const key = `${location}-${reg}-${anno}`;
+
+				if (!countMap[key]) {
+					countMap[key] = {
+						location: location,
+						variant: anno,
+						count: 0,
+						register: reg,
+					};
+				}
+				if (countMap[key].count && typeof countMap[key].count === "number") {
+					// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+					countMap[key].count += 1;
+				}
+			});
+		});
+	});
+
+	for (const key in countMap) {
+		result.push(countMap[key]);
+	}
+
+	return result;
+});
+
+const tableDataForRegisters = computed(() => {
+	const variantMap: Record<string, TableEntry> = {};
+
+	filteredPoints.value.forEach((feature) => {
+		feature.properties.forEach((property) => {
+			property.answers.forEach((answer) => {
+				const variant = answer.anno;
+				if (!variantMap[variant]) {
+					variantMap[variant] = {
+						variant,
+						countDia: 0,
+						countSt: 0,
+						totalCount: 0,
+					};
+				}
+				if (registerGroups[0]?.values.includes(answer.reg)) {
+					variantMap[variant].countDia++;
+				}
+				if (registerGroups[1]?.values.includes(answer.reg)) {
+					variantMap[variant].countSt++;
+				}
+				// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+				variantMap[variant].totalCount = variantMap[variant].countDia + variantMap[variant].countSt;
+			});
+		});
+	});
+
+	return Object.values(variantMap);
+});
+
+const columnsLocations = ref<Array<TableColumn>>([
+	{ label: "Ort", value: "location", sortable: true, footer: "Summe" },
+	{ label: "Variante", value: "variant", sortable: false },
+	{ label: "Anzahl", value: "count", sortable: true, sum: true },
+	{ label: "Registerbezeichnung", value: "register", sortable: true, footer: "Alle Register" },
+]);
+
+const columnsRegisters = ref<Array<TableColumn>>([
+	{ label: "Variante", value: "variant", sortable: true, footer: "Summe" },
+	{ label: "Dialekt+UG", value: "countDia", sortable: true, sum: true },
+	{ label: "Standard", value: "countSt", sortable: true, sum: true },
+	{ label: "Gesamt", value: "totalCount", sortable: true, sum: true },
+]);
+
 watch(activeQuestion, () => {
 	resetSelection(["question"]);
 });
@@ -375,7 +452,7 @@ watch(activeRegister, () => {
 </script>
 
 <template>
-	<div class="relative grid grid-rows-[auto_1fr] gap-5">
+	<div class="relative grid grid-rows-[auto_600px_auto] gap-5">
 		<div class="rounded-lg border p-5">
 			<div class="mb-4 grid grid-flow-col gap-5">
 				<div>
@@ -464,7 +541,9 @@ watch(activeRegister, () => {
 						<li
 							v-for="variant in filteredUniqueVariants"
 							:key="variant.anno"
-							:class="{ 'italic-custom': !['Sonstige', 'Sonstiges'].includes(variant.anno) }"
+							:class="{
+								'italic-custom': !['Sonstige', 'Sonstiges', 'keine Angabe'].includes(variant.anno),
+							}"
 						>
 							<svg width="12" height="12" class="inline align-baseline">
 								<circle cx="6" cy="6" r="6" :fill="mappedColors[variant.anno]" />
@@ -511,5 +590,11 @@ watch(activeRegister, () => {
 				<LoadingIndicator class="text-neutral-950" size="lg" />
 			</Centered> -->
 		</VisualisationContainer>
+		<DataTable v-if="tableData.length" :data="tableData" :columns="columnsLocations"></DataTable>
+		<DataTable
+			v-if="tableData.length"
+			:data="tableDataForRegisters"
+			:columns="columnsRegisters"
+		></DataTable>
 	</div>
 </template>

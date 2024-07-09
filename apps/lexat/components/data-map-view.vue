@@ -10,6 +10,20 @@ import * as fr3 from "@/assets/data/fr3.json";
 import * as fr4 from "@/assets/data/fr4.json";
 import * as fr5 from "@/assets/data/fr5.json";
 import * as fr6 from "@/assets/data/fr6.json";
+import * as fr7 from "@/assets/data/fr7.json";
+import * as fr8 from "@/assets/data/fr8.json";
+import * as fr9 from "@/assets/data/fr9.json";
+import * as fr10 from "@/assets/data/fr10.json";
+import * as fr11 from "@/assets/data/fr11.json";
+import * as fr12 from "@/assets/data/fr12.json";
+import * as fr13 from "@/assets/data/fr13.json";
+import * as fr14 from "@/assets/data/fr14.json";
+import * as fr15 from "@/assets/data/fr15.json";
+import * as fr16 from "@/assets/data/fr16.json";
+// import * as fr17 from "@/assets/data/fr17.json";
+// import * as fr18 from "@/assets/data/fr18.json";
+// import * as fr19 from "@/assets/data/fr19.json";
+// import * as fr20 from "@/assets/data/fr20.json";
 import * as fr41 from "@/assets/data/fr41.json";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import type {
@@ -63,6 +77,20 @@ const questions: Array<DropdownOption> = [
 	{ value: "barfuß", label: "Barfuß", data: fr4 },
 	{ value: "bauchschmerzen", label: "Bauchschmerzen", data: fr5 },
 	{ value: "begräbnis", label: "Begräbnis", data: fr6 },
+	{ value: "brombeere", label: "Brombeere", data: fr7 },
+	{ value: "eidotter", label: "Eidotter", data: fr8 },
+	{ value: "walderdbeere", label: "Walderdbeere", data: fr9 },
+	{ value: "kehren", label: "Kehren", data: fr10 },
+	{ value: "ferkel", label: "Ferkel", data: fr11 },
+	{ value: "frühling", label: "Frühling", data: fr12 },
+	{ value: "gießkanne", label: "Gießkanne", data: fr13 },
+	{ value: "oma", label: "Oma", data: fr14 },
+	{ value: "opa", label: "Opa", data: fr15 },
+	{ value: "gurke", label: "Gurke", data: fr16 },
+	// { value: "hagebutte", label: "Hagebutte", data: fr17 },
+	// { value: "himbeere", label: "Himbeere", data: fr18 },
+	// { value: "knöchel", label: "Knöchel", data: fr19 },
+	// { value: "kopfschmerzen", label: "Kopfschmerzen", data: fr20 },
 	{ value: "streichholz", label: "Streichholz", data: fr41 },
 ];
 

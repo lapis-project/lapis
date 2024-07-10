@@ -405,10 +405,8 @@ const tableData = computed(() => {
 						register: reg,
 					};
 				}
-				if (countMap[key].count && typeof countMap[key].count === "number") {
-					// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-					countMap[key].count += 1;
-				}
+				// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+				countMap[key].count += 1;
 			});
 		});
 	});
@@ -480,7 +478,7 @@ watch(activeRegister, () => {
 </script>
 
 <template>
-	<div class="relative grid grid-rows-[auto_600px_auto] gap-5">
+	<div class="relative space-y-5">
 		<div class="rounded-lg border p-5">
 			<div class="mb-4 grid grid-flow-col gap-5">
 				<div>
@@ -560,7 +558,7 @@ watch(activeRegister, () => {
 				<Button @click="resetSelection()">{{ t("MapsPage.selection.reset") }}</Button>
 			</div>
 		</div>
-		<VisualisationContainer v-slot="{ height, width }" class="border">
+		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
 			<div v-if="filteredUniqueVariants.length" class="absolute bottom-12 right-0 z-10 mr-2">
 				<div
 					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"

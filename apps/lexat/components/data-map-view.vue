@@ -154,6 +154,14 @@ const activeTags = ref<Array<string>>([]);
 const showAllPoints = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
 
+const specialOrder = {
+	"keine Angabe": -3, // -3 indicates last key
+	Sonstiges: -2,
+	Sonstige: -1,
+};
+
+// const { counts } = useCountOccurrences(popover.value, specialOrder)
+
 const entities = computed((): Array<RegionFeature> => {
 	return data.features;
 });
@@ -259,7 +267,7 @@ const entitiesById = computed(() => {
 	});
 });
 
-function getSortedVariants(points: Array<SurveyResponse>, specialSortOrder = {}) {
+const getSortedVariants = (points: Array<SurveyResponse>, specialSortOrder = {}) => {
 	const annoCounts = new Map<string, number>();
 
 	points.forEach((p) => {
@@ -289,14 +297,10 @@ function getSortedVariants(points: Array<SurveyResponse>, specialSortOrder = {})
 		.map((entry) => ({ anno: entry[0], count: entry[1] }));
 
 	return sortedVariants;
-}
+};
 
 const filteredUniqueVariants = computed(() => {
-	return getSortedVariants(filteredPoints.value, {
-		"keine Angabe": -3,
-		Sonstiges: -2,
-		Sonstige: -1,
-	});
+	return getSortedVariants(filteredPoints.value, specialOrder);
 });
 
 const uniqueVariants = computed(() => {
@@ -331,34 +335,36 @@ function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "
 	}
 }
 
-type OccurrenceCount = Record<
-	string,
-	Record<
-		string,
-		{
-			reg: string;
-			count: number;
-		}
-	>
->;
+type OccurrenceCount = Record<string, Record<string, number>>;
 
 const countOccurrences = (properties: Array<Property>) => {
 	const counts: OccurrenceCount = {};
 	for (const property of properties) {
 		for (const answer of property.answers) {
-			const anno = answer.anno;
-			const reg = answer.reg;
+			const { anno, reg } = answer;
 			if (!counts[anno]) {
 				counts[anno] = {};
 			}
-			const annoValue = counts[anno];
-			if (!annoValue[reg]) {
-				annoValue[reg] = { reg, count: 0 };
+			if (!counts[anno][reg]) {
+				counts[anno][reg] = 0;
 			}
-			annoValue[reg].count++;
+			counts[anno][reg]++;
 		}
 	}
-	return counts;
+
+	const sortedCounts: OccurrenceCount = {};
+
+	Object.keys(counts)
+		.sort((a, b) => {
+			const orderA = specialOrder[a] ?? 0;
+			const orderB = specialOrder[b] ?? 0;
+			return orderB || a.localeCompare(b) - orderA;
+		})
+		.forEach((key) => {
+			sortedCounts[key] = counts[key];
+		});
+
+	return sortedCounts;
 };
 
 // watch(data2, () => {
@@ -447,6 +453,13 @@ const tableDataForRegisters = computed(() => {
 
 	return Object.values(variantMap);
 });
+
+const sanititzeReg = (reg: string) => {
+	if (reg === "Umgangssprache oder Alltagssprache") {
+		return "Ugs. oder Alltagssprache";
+	}
+	return reg;
+};
 
 const columnsLocations = ref<Array<TableColumn>>([
 	{ label: "Ort", value: "location", sortable: true, footer: "Summe" },
@@ -559,7 +572,11 @@ watch(activeRegister, () => {
 			</div>
 		</div>
 		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
-			<div v-if="filteredUniqueVariants.length" class="absolute bottom-12 right-0 z-10 mr-2">
+			<div
+				v-if="filteredUniqueVariants.length"
+				id="legend"
+				class="absolute bottom-12 right-0 z-10 mr-2"
+			>
 				<div
 					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"
 				>
@@ -568,7 +585,7 @@ watch(activeRegister, () => {
 							v-for="variant in filteredUniqueVariants"
 							:key="variant.anno"
 							:class="{
-								'italic-custom': !['Sonstige', 'Sonstiges', 'keine Angabe'].includes(variant.anno),
+								'italic-custom': !Object.keys(specialOrder).includes(variant.anno),
 							}"
 						>
 							<svg width="12" height="12" class="inline align-baseline">
@@ -594,17 +611,25 @@ watch(activeRegister, () => {
 					:coordinates="popover.coordinates"
 					@close="popover = null"
 				>
-					<article class="grid gap-1">
+					<article class="grid w-56 gap-1">
 						<div v-for="entity in popover.entities" :key="entity.id">
-							<p>{{ entity.location }}, {{ entity.PLZ }}</p>
+							<p>
+								<strong>{{ entity.location }}</strong
+								>, {{ entity.PLZ }}
+							</p>
 							<ul>
 								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">
-									<p v-for="(v, k) in value" :key="k" class="">
-										<svg width="12" height="12" class="mr-0.5 inline align-text-top">
-											<circle cx="6" cy="6" r="6" :fill="mappedColors[key]" />
-										</svg>
-										{{ key }}, {{ v.reg }}: {{ v.count }}
-									</p>
+									<details>
+										<summary>
+											<svg width="12" height="12" class="mr-0.5 inline align-text-top">
+												<circle cx="6" cy="6" r="6" :fill="mappedColors[key]" />
+											</svg>
+											{{ key }}
+										</summary>
+										<p v-for="(v, k) in value" :key="k" class="">
+											- {{ sanititzeReg(k) }}: {{ v }}
+										</p>
+									</details>
 								</li>
 							</ul>
 						</div>

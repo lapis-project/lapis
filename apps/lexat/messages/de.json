@@ -76,6 +76,7 @@
 		},
 		"title": "Kartierung",
 		"selection": {
+			"colors": "Farben wählen",
 			"show-all-points": "Zeige alle Datenpunkte",
 			"show-regions": "Regionen anzeigen",
 			"variable": {

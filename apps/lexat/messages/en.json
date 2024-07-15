@@ -76,6 +76,7 @@
 		},
 		"title": "Maps",
 		"selection": {
+			"colors": "Farben wählen",
 			"show-all-points": "Show all data points",
 			"show-regions": "Show regions",
 			"variable": {

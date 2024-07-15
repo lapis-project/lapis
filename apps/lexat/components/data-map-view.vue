@@ -45,7 +45,7 @@ const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyRespo
 	null,
 );
 
-const colors = [
+const colors = ref([
 	"#ff8080",
 	"#80ffa5",
 	"#ca80ff",
@@ -62,7 +62,7 @@ const colors = [
 	"#ff809a",
 	"#80ff8a",
 	"#b080ff",
-];
+]);
 
 export interface DropdownOption {
 	value: string;
@@ -223,7 +223,7 @@ const features = computed(() => {
 const mappedColors = computed(() => {
 	let colorMap: Record<string, string> = {};
 	uniqueVariants.value.forEach((u, i) => {
-		const color = colors[i];
+		const color = colors.value[i];
 		if (color) {
 			colorMap[u.anno] = color;
 		}
@@ -570,6 +570,16 @@ watch(activeRegister, () => {
 				</div>
 				<Button @click="resetSelection()">{{ t("MapsPage.selection.reset") }}</Button>
 			</div>
+			<div v-if="Object.values(mappedColors).length" class="mt-5 space-y-1 text-sm font-semibold">
+				<p>{{ t("MapsPage.selection.colors") }}:</p>
+				<div class="flex gap-2">
+					<ColorPicker
+						v-for="(color, index) in Object.values(mappedColors)"
+						:key="index"
+						v-model="colors[index]"
+					/>
+				</div>
+			</div>
 		</div>
 		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
 			<div
@@ -637,7 +647,7 @@ watch(activeRegister, () => {
 				</GeoMapPopup>
 			</GeoMap>
 
-			<!-- <Centered v-if="isLoading" class="pointer-events-none">
+			<!-- <Centered voading" class="pointer-events-none">
 				<LoadingIndicator class="text-neutral-950" size="lg" />
 			</Centered> -->
 		</VisualisationContainer>

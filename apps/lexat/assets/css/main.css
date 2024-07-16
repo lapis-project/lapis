@@ -65,8 +65,14 @@
 		isolation: isolate;
 	}
 
+	/* smoothen slant of Inter italic */
 	.italic-custom {
 		font-style: italic;
 		font-variation-settings: "slnt" -2;
+	}
+
+	/* https://hanki.dev/tailwind-html2canvas-text-shift-down/ */
+	img {
+		@apply inline-block;
 	}
 }

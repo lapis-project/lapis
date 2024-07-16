@@ -24,8 +24,6 @@
  * THE SOFTWARE.
  */
 
-import "js-loading-overlay";
-
 import { Map as MaplibreMap, type StyleSpecification } from "maplibre-gl";
 
 import {

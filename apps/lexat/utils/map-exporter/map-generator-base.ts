@@ -32,10 +32,7 @@
  * THE SOFTWARE.
  */
 
-import "js-loading-overlay";
-
 import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import type {
 	Map as MaplibreMap,
 	PointLike,
@@ -505,9 +502,6 @@ export abstract class MapGeneratorBase {
 			case Format.JPEG:
 				this.toJPEG(canvas, fileName);
 				break;
-			case Format.PDF:
-				this.toPDF(renderMap, fileName);
-				break;
 			case Format.SVG:
 				this.toSVG(canvas, fileName);
 				break;
@@ -556,42 +550,6 @@ export abstract class MapGeneratorBase {
 		a.download = fileName;
 		a.click();
 		a.remove();
-	}
-
-	/**
-	 * Convert Map object to PDF
-	 * @param map Map object
-	 * @param fileName file name
-	 */
-	private toPDF(map: MaplibreMap, fileName: string) {
-		const canvas = map.getCanvas();
-		const pdf = new jsPDF({
-			orientation: this.width > this.height ? "l" : "p",
-			unit: this.unit,
-			compress: true,
-			format: [this.width, this.height],
-		});
-
-		pdf.addImage(
-			canvas.toDataURL("image/png"),
-			"png",
-			0,
-			0,
-			this.width,
-			this.height,
-			undefined,
-			"FAST",
-		);
-
-		const { lng, lat } = map.getCenter();
-		pdf.setProperties({
-			title: map.getStyle().name,
-			subject: `center: [${lng}, ${lat}], zoom: ${map.getZoom()}`,
-			creator: "Mapbox GL Export Plugin",
-			author: "(c)Mapbox, (c)OpenStreetMap",
-		});
-
-		pdf.save(fileName);
 	}
 
 	/**

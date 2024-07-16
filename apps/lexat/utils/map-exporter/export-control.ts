@@ -63,7 +63,7 @@ export default class MaplibreExportControl implements IControl {
 	protected options: ControlOptions = {
 		PageSize: Size.A4 as SizeType,
 		PageOrientation: PageOrientation.Landscape,
-		Format: Format.PDF,
+		Format: Format.JPEG,
 		DPI: DPI[300],
 		PrintableArea: false,
 		AllowedSizes: Object.keys(Size) as Array<

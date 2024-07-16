@@ -184,26 +184,23 @@ export abstract class MapGeneratorBase {
 		// eslint-disable-next-line
 		const this_ = this;
 
-		// see documentation for JS Loading Overray library
-		// https://js-loading-overlay.muhdfaiz.com
-		// eslint-disable-next-line
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-		JsLoadingOverlay.show({
-			overlayBackgroundColor: "#5D5959",
-			overlayOpacity: "0.6",
-			spinnerIcon: "ball-spin",
-			spinnerColor: "#2400FD",
-			spinnerSize: "2x",
-			overlayIDName: "overlay",
-			spinnerIDName: "spinner",
-			offsetX: 0,
-			offsetY: 0,
-			containerID: null,
-			lockScroll: false,
-			overlayZIndex: 9998,
-			spinnerZIndex: 9999,
-		});
+		const mapCanvas = document.querySelector(".maplibregl-map");
+
+		if (mapCanvas) {
+			// Create the overlay div
+			const overlay = document.createElement("div");
+			overlay.className = "overlay";
+
+			// Create the spinner div
+			const spinner = document.createElement("div");
+			spinner.className = "spinner";
+
+			// Append the spinner to the overlay
+			overlay.appendChild(spinner);
+
+			// Append the overlay to the map canvas parent element
+			mapCanvas.appendChild(overlay);
+		}
 
 		// Calculate pixel ratio
 		const actualPixelRatio: number = window.devicePixelRatio;
@@ -238,33 +235,35 @@ export abstract class MapGeneratorBase {
 		let renderMap = this.getRenderedMap(container, style);
 
 		this.addLegend(renderMap).then(() => {
-			const isAttributionAdded = this.addAttributions(renderMap);
-			if (isAttributionAdded) {
-				renderMap.once("idle", () => {
+			renderMap.once("idle", () => {
+				const isAttributionAdded = this.addAttributions(renderMap);
+				if (isAttributionAdded) {
+					renderMap.once("idle", () => {
+						renderMap = this.renderMapPost(renderMap);
+						const markers = this.getMarkers();
+						if (markers.length === 0) {
+							this.exportImage(renderMap, hidden, actualPixelRatio);
+						} else {
+							renderMap = this.renderMarkers(renderMap);
+							renderMap.once("idle", () => {
+								this.exportImage(renderMap, hidden, actualPixelRatio);
+							});
+						}
+					});
+				} else {
 					renderMap = this.renderMapPost(renderMap);
 					const markers = this.getMarkers();
 					if (markers.length === 0) {
 						this.exportImage(renderMap, hidden, actualPixelRatio);
 					} else {
 						renderMap = this.renderMarkers(renderMap);
+
 						renderMap.once("idle", () => {
 							this.exportImage(renderMap, hidden, actualPixelRatio);
 						});
 					}
-				});
-			} else {
-				renderMap = this.renderMapPost(renderMap);
-				const markers = this.getMarkers();
-				if (markers.length === 0) {
-					this.exportImage(renderMap, hidden, actualPixelRatio);
-				} else {
-					renderMap = this.renderMarkers(renderMap);
-
-					renderMap.once("idle", () => {
-						this.exportImage(renderMap, hidden, actualPixelRatio);
-					});
 				}
-			}
+			});
 		});
 	}
 
@@ -526,10 +525,10 @@ export abstract class MapGeneratorBase {
 		});
 		hiddenDiv.remove();
 
-		// eslint-disable-next-line
-		// @ts-ignore
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-		JsLoadingOverlay.hide();
+		const overlay = document.querySelector(".overlay");
+		if (overlay?.parentNode) {
+			overlay.parentNode.removeChild(overlay);
+		}
 	}
 
 	/**

@@ -1,15 +1,7 @@
 <script lang="ts" setup>
 import "maplibre-gl/dist/maplibre-gl.css";
-import "@watergis/maplibre-gl-export/dist/maplibre-gl-export.css";
 
 import { assert } from "@acdh-oeaw/lib";
-import {
-	DPI,
-	Format,
-	MaplibreExportControl,
-	PageOrientation,
-	Size,
-} from "@watergis/maplibre-gl-export";
 import {
 	FullscreenControl,
 	type GeoJSONSource,
@@ -24,6 +16,7 @@ import { type GeoMapContext, geoMapContextKey } from "@/components/geo-map.conte
 import { initialViewState } from "@/config/geo-map.config";
 // import { project } from "@/config/project.config";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
+import { DPI, Format, MaplibreExportControl, PageOrientation, Size } from "@/utils/map-exporter";
 import { generatePieChartWebGL, parseString } from "@/utils/pie-chart-helper";
 
 const props = defineProps<{
@@ -49,7 +42,7 @@ export interface WebGLContext {
 	canvas: HTMLCanvasElement;
 }
 
-const size = 45;
+const size = 45; // size for pie chart width and height
 const canvas = document.createElement("canvas");
 canvas.width = size;
 canvas.height = size;
@@ -121,15 +114,10 @@ async function create() {
 	// reference: https://docs.mapbox.com/mapbox-gl-js/example/add-image-missing-generated/
 	map.on("styleimagemissing", (e) => {
 		const id = e.id; // id of the missing image
-
-		// // Check if this missing icon is
-		// // one this function can generate.
 		const prefix = "id-";
-		if (!id.includes(prefix) || id === prefix) return;
-		// // Get the color from the id.
-		// const uniqueCountsArray = id.replace(prefix, "").split("-").map(Number);
-		// const cleanId = id.replace(prefix, "");
-
+		if (!id.includes(prefix) || id === prefix) {
+			return;
+		}
 		const result = parseString(id);
 
 		const data = getPieChartTexture(result.ids, result.hexcodes, size, webglcontext);
@@ -165,10 +153,9 @@ function init() {
 		DPI: DPI[96],
 		Crosshair: false,
 		PrintableArea: false,
-		Local: "en",
 		Filename: "kartierung",
 	});
-	map.addControl(exportControl, "top-right");
+	map.addControl(exportControl, "top-left");
 	//
 
 	map.addSource(sourcePointsId, {
@@ -277,97 +264,12 @@ function updateScope() {
 	assert(context.map != null);
 	const map = context.map;
 
-	// const points = [
-	// 	{
-	// 		type: "Feature",
-	// 		id: "2",
-	// 		geometry: { type: "Point", coordinates: [9.74012588924973, 47.50305295] },
-	// 		properties: {
-	// 			chartData: "15,25,35,25",
-	// 			"0": {
-	// 				gender: "weiblich",
-	// 				age: "1992",
-	// 				under50: true,
-	// 				answers: [
-	// 					{ reg: "Dialekt (Mundart)", answer: "Zündhölzle", anno: "Zündholz" },
-	// 					{ reg: "Ihr österreichisches Hochdeutsch", answer: "Zündholz", anno: "Zündholz" },
-	// 				],
-	// 			},
-	// 			"1": {
-	// 				gender: "männlich",
-	// 				age: "1996",
-	// 				under50: true,
-	// 				answers: [
-	// 					{ reg: "Dialekt (Mundart)", answer: "Streichholz", anno: "Streichholz" },
-	// 					{ reg: "Ihr Hochdeutsch", answer: "Streichholz", anno: "Streichholz" },
-	// 				],
-	// 			},
-	// 			"2": {
-	// 				gender: "weiblich",
-	// 				age: "1989",
-	// 				under50: true,
-	// 				answers: [
-	// 					{ reg: "Dialekt (Mundart)", answer: "strichholz", anno: "Streichholz" },
-	// 					{ reg: "Ihr österreichisches Hochdeutsch", answer: "streichholz", anno: "Streichholz" },
-	// 				],
-	// 			},
-	// 			"3": {
-	// 				gender: "weiblich",
-	// 				age: "1990",
-	// 				under50: true,
-	// 				answers: [
-	// 					{ reg: "Dialekt (Mundart)", answer: "Streichhölzle", anno: "Streichholz" },
-	// 					{ reg: "Ihr Hochdeutsch", answer: "Streichholz", anno: "Streichholz" },
-	// 				],
-	// 			},
-	// 			"4": {
-	// 				gender: "männlich",
-	// 				age: "1990",
-	// 				under50: true,
-	// 				answers: [
-	// 					{ reg: "Dialekt (Mundart)", answer: "Zündhölzle", anno: "Zündholz" },
-	// 					{ reg: "Ihr Hochdeutsch", answer: "Zündhölzchen", anno: "Zündholz" },
-	// 				],
-	// 			},
-	// 			"5": {
-	// 				gender: "weiblich",
-	// 				age: "1980",
-	// 				under50: true,
-	// 				answers: [
-	// 					{
-	// 						reg: "Umgangssprache oder Alltagssprache",
-	// 						answer: "Streichholz",
-	// 						anno: "Streichholz",
-	// 					},
-	// 					{ reg: "bestes Hochdeutsch", answer: "Streichholz", anno: "Streichholz" },
-	// 				],
-	// 			},
-	// 			"6": {
-	// 				gender: "weiblich",
-	// 				age: "1992",
-	// 				under50: true,
-	// 				answers: [
-	// 					{ reg: "Dialekt (Mundart)", answer: "Striechholz", anno: "Streichholz" },
-	// 					{ reg: "bestes Hochdeutsch", answer: "Streichholz", anno: "Streichholz" },
-	// 				],
-	// 			},
-	// 			id: 134,
-	// 		},
-	// 	},
-	// ];
-
 	const source = map.getSource(sourcePointsId) as GeoJSONSource | undefined;
 	const source2 = map.getSource(sourcePolygonsId) as GeoJSONSource | undefined;
 	const geojson = createFeatureCollection(props.points);
 	const geojson2 = createFeatureCollection(props.features);
 	source?.setData(geojson);
 	source2?.setData(geojson2);
-
-	// STILL LAGGY :(
-	// if (geojson.features.length > 0) {
-	// 	const bounds = turf.bbox(geojson);
-	// 	map.fitBounds(bounds, { padding: 50 });
-	// }
 }
 
 const toggleLayer = (layer: "outline" | "polygons") => {
@@ -410,4 +312,8 @@ provide(geoMapContextKey, context);
 .maplibregl-marker {
 	@apply cursor-pointer;
 }
+</style>
+
+<style lang="css">
+@import url("@/assets/css/maplibre-gl-export.css");
 </style>

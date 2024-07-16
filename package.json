@@ -8,6 +8,7 @@
 	"scripts": {
 		"prepare": "run-s setup",
 		"setup": "is-ci || simple-git-hooks",
+		"format:check": "prettier . \"!./content/**\" --cache --check --ignore-path .prettierignore",
 		"build:lexat": "cd apps/lexat && pnpm build",
 		"dev:lexat": "cd apps/lexat && pnpm dev",
 		"start:lexat": "cd apps/lexat && pnpm start"

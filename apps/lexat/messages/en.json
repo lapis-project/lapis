@@ -84,10 +84,10 @@
 				"placeholder": "variable",
 				"tooltip": "Concept in question"
 			},
-			"register-categories": {
-				"title": "Register category",
-				"placeholder": "register category",
-				"tooltip": "All register designations by relation to standard",
+			"register": {
+				"title": "Register",
+				"placeholder": "register",
+				"tooltip": "Designation of register / language level",
 				"show-all": "Show all"
 			},
 			"register-definition": {

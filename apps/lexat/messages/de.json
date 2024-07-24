@@ -1,4 +1,10 @@
 {
+	"AdminPage": {
+		"meta": {
+			"title": "Admin"
+		},
+		"title": "Admin"
+	},
 	"AppFooter": {
 		"links": {
 			"imprint": "Impressum"
@@ -7,6 +13,7 @@
 	},
 	"AppHeader": {
 		"links": {
+			"admin": "Admin",
 			"articles": "Artikel",
 			"db": "Belegdatenbank",
 			"research": "Kartierung"

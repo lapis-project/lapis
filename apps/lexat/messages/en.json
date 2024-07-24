@@ -1,4 +1,10 @@
 {
+	"AdminPage": {
+		"meta": {
+			"title": "Admin"
+		},
+		"title": "Admin"
+	},
 	"AppFooter": {
 		"links": {
 			"imprint": "Imprint"
@@ -7,6 +13,7 @@
 	},
 	"AppHeader": {
 		"links": {
+			"admin": "Admin",
 			"articles": "Articles",
 			"db": "Browse data",
 			"research": "Mapping"

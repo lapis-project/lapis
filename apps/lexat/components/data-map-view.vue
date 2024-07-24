@@ -39,6 +39,8 @@ import type {
 // import { project } from "@/config/project.config";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 
+import MultiSelect from "./multi-select.vue";
+
 const t = useTranslations();
 
 const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyResponse> } | null>(
@@ -68,6 +70,8 @@ export interface DropdownOption {
 	value: string;
 	label: string;
 	data?: SurveyCollection;
+	level?: number;
+	group?: string;
 }
 
 const questions: Array<DropdownOption> = [
@@ -94,47 +98,70 @@ const questions: Array<DropdownOption> = [
 	{ value: "streichholz", label: "Streichholz", data: fr41 },
 ];
 
-const registerDescriptions: Array<DropdownOption> = [
+const registerOptions: Array<DropdownOption> = [
 	{
 		label: t("MapsPage.selection.register-definition.show-all"),
 		value: "all",
-	},
-	{
-		label: "Dialekt (Mundart)",
-		value: "dia",
-	},
-	{
-		label: "Ihr Hochdeutsch",
-		value: "hd",
-	},
-	{
-		label: "Ihr österreichisches Hochdeutsch",
-		value: "oehd",
-	},
-	{
-		label: "bestes Hochdeutsch",
-		value: "bhd",
-	},
-	{
-		label: "Umgangssprache oder Alltagssprache",
-		value: "usas",
-	},
-];
-
-const registerCategories: Array<DropdownOption> = [
-	{
-		label: t("MapsPage.selection.register-categories.show-all"),
-		value: "all",
-	},
-	{
-		label: "standardferne Register",
-		value: "dia",
+		level: 0,
 	},
 	{
 		label: "standardnahe Register",
 		value: "st",
+		level: 1,
+		group: "st",
+	},
+	{
+		label: "Ihr Hochdeutsch",
+		value: "hd",
+		level: 2,
+		group: "st",
+	},
+	{
+		label: "Ihr österreichisches Hochdeutsch",
+		value: "oehd",
+		level: 2,
+		group: "st",
+	},
+	{
+		label: "bestes Hochdeutsch",
+		value: "bhd",
+		level: 2,
+		group: "st",
+	},
+	{
+		label: "standardferne Register",
+		value: "diaf",
+		level: 1,
+		group: "dia",
+	},
+	{
+		label: "Dialekt (Mundart)",
+		value: "dia",
+		level: 2,
+		group: "dia",
+	},
+	{
+		label: "Umgangssprache oder Alltagssprache",
+		value: "usas",
+		level: 2,
+		group: "dia",
 	},
 ];
+
+// const registerOptions: Array<DropdownOption> = [
+// 	{
+// 		label: t("MapsPage.selection.register-categories.show-all"),
+// 		value: "all",
+// 	},
+// 	{
+// 		label: "standardferne Register",
+// 		value: "dia",
+// 	},
+// 	{
+// 		label: "standardnahe Register",
+// 		value: "st",
+// 	},
+// ];
 
 const registerGroups = [
 	{
@@ -148,8 +175,8 @@ const registerGroups = [
 ];
 
 const activeQuestion = ref<string>("");
-const activeRegisterDescription = ref<string>("all");
-const activeRegister = ref<string>("all");
+// const activeRegisterDescription = ref<string>("all");
+const activeRegisters = ref<Array<string>>(["all"]);
 const activeTags = ref<Array<string>>([]);
 const showAllPoints = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
@@ -171,15 +198,21 @@ const points = computed(() => {
 	let features = currentData?.features ?? [];
 	// only entries with coordinates are considered valid points
 	// let filteredFeatures = features.filter((f) => f.geometry.coordinates);
-	if (activeRegisterDescription.value && activeRegisterDescription.value !== "all") {
-		const register = registerDescriptions.find(
-			(r) => r.value === activeRegisterDescription.value,
-		)?.label;
+	if (!activeRegisters.value.includes("all")) {
+		let activeRegisterLabels: Array<string> = [];
+		for (const register of activeRegisters.value) {
+			const label = registerOptions.find((r) => r.value === register)?.label;
+			if (label) {
+				activeRegisterLabels.push(label);
+			}
+		}
 		features = features
 			.map((feature) => {
 				const filteredProperties = feature.properties
 					.map((property) => {
-						const filteredAnswers = property.answers.filter((answer) => answer.reg === register);
+						const filteredAnswers = property.answers.filter((answer) =>
+							activeRegisterLabels.includes(answer.reg),
+						);
 						return { ...property, answers: filteredAnswers };
 					})
 					.filter((property) => property.answers.length > 0);
@@ -187,25 +220,6 @@ const points = computed(() => {
 				return { ...feature, properties: filteredProperties };
 			})
 			.filter((feature) => feature.properties.length > 0);
-	}
-	if (activeRegister.value && activeRegister.value !== "all") {
-		const registerValues = registerGroups.find((r) => r.name === activeRegister.value)?.values;
-		if (registerValues?.length) {
-			features = features
-				.map((feature) => {
-					const filteredProperties = feature.properties
-						.map((property) => {
-							const filteredAnswers = property.answers.filter((answer) =>
-								registerValues.includes(answer.reg),
-							);
-							return { ...property, answers: filteredAnswers };
-						})
-						.filter((property) => property.answers.length > 0);
-
-					return { ...feature, properties: filteredProperties };
-				})
-				.filter((feature) => feature.properties.length > 0);
-		}
 	}
 	return features;
 });
@@ -379,11 +393,11 @@ const resetSelection = (omit?: Array<"description" | "question" | "register">) =
 	if (!omit?.includes("question")) {
 		activeQuestion.value = "";
 	}
-	if (!omit?.includes("description")) {
-		activeRegisterDescription.value = "all";
-	}
+	// if (!omit?.includes("description")) {
+	// 	activeRegisterDescription.value = "all";
+	// }
 	if (!omit?.includes("register")) {
-		activeRegister.value = "all";
+		activeRegisters.value = ["all"];
 	}
 	activeTags.value = [];
 	popover.value = null;
@@ -478,16 +492,15 @@ const columnsRegisters = ref<Array<TableColumn>>([
 watch(activeQuestion, () => {
 	resetSelection(["question"]);
 });
-watch(activeRegisterDescription, () => {
-	if (activeRegisterDescription.value !== "all") {
-		resetSelection(["question", "description"]);
-	}
-});
-watch(activeRegister, () => {
-	if (activeRegister.value !== "all") {
+watch(
+	activeRegisters,
+	() => {
 		resetSelection(["question", "register"]);
-	}
-});
+	},
+	{
+		deep: true,
+	},
+);
 </script>
 
 <template>
@@ -508,31 +521,17 @@ watch(activeRegister, () => {
 						has-search
 					/>
 				</div>
-
 				<div>
 					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.register-categories.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.register-categories.tooltip')">
+						{{ t("MapsPage.selection.register.title") }}
+						<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
 							<InformationCircleIcon class="size-5"></InformationCircleIcon>
 						</InfoTooltip>
 					</div>
-					<Combobox
-						v-model="activeRegister"
-						:options="registerCategories"
-						:placeholder="t('MapsPage.selection.register-categories.placeholder')"
-					/>
-				</div>
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.register-definition.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.register-definition.tooltip')">
-							<InformationCircleIcon class="size-5"></InformationCircleIcon>
-						</InfoTooltip>
-					</div>
-					<Combobox
-						v-model="activeRegisterDescription"
-						:options="registerDescriptions"
-						:placeholder="t('MapsPage.selection.register-definition.placeholder')"
+					<MultiSelect
+						v-model="activeRegisters"
+						:options="registerOptions"
+						:placeholder="t('MapsPage.selection.register.placeholder')"
 					/>
 				</div>
 				<div>
@@ -653,7 +652,7 @@ watch(activeRegister, () => {
 		</VisualisationContainer>
 		<DataTable v-if="tableData.length" :data="tableData" :columns="columnsLocations"></DataTable>
 		<DataTable
-			v-if="tableData.length"
+			v-if="tableDataForRegisters.length"
 			:data="tableDataForRegisters"
 			:columns="columnsRegisters"
 		></DataTable>

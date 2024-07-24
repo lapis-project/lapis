@@ -84,10 +84,10 @@
 				"placeholder": "Variable",
 				"tooltip": "Abgefragtes Konzept"
 			},
-			"register-categories": {
-				"title": "Registerkategorie",
-				"placeholder": "Registerkategorie",
-				"tooltip": "Alle Registerbezeichnungen nach Standardnähe",
+			"register": {
+				"title": "Register",
+				"placeholder": "Register",
+				"tooltip": "Name des Registers / der Sprachebene",
 				"show-all": "Alle anzeigen"
 			},
 			"register-definition": {

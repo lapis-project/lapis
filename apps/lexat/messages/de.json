@@ -90,16 +90,15 @@
 				"tooltip": "Name des Registers / der Sprachebene",
 				"show-all": "Alle anzeigen"
 			},
-			"register-definition": {
-				"title": "Registerbezeichnung",
-				"placeholder": "Registerbezeichnung",
-				"tooltip": "Name des Registers / der Sprachebene",
-				"show-all": "Alle anzeigen"
-			},
 			"variants": {
 				"title": "Varianten wählen",
 				"placeholder": "Varianten wählen",
 				"tooltip": "Normalisierte Antworttypen"
+			},
+			"age": {
+				"title": "Altersgruppe",
+				"placeholder": "Altersgruppe wählen",
+				"show-all": "Jedes Alter"
 			},
 			"reset": "Auswahl zurücksetzen"
 		}

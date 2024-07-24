@@ -435,13 +435,13 @@ const countOccurrences = (properties: Array<Property>) => {
 // 	popover.value = null;
 // });
 
-const resetSelection = (omit?: Array<"description" | "question" | "register">) => {
+const resetSelection = (omit?: Array<"age" | "question" | "register">) => {
+	if (!omit?.includes("age")) {
+		activeAgeGroup.value = "all";
+	}
 	if (!omit?.includes("question")) {
 		activeQuestion.value = "";
 	}
-	// if (!omit?.includes("description")) {
-	// 	activeRegisterDescription.value = "all";
-	// }
 	if (!omit?.includes("register")) {
 		activeRegisters.value = ["all"];
 	}
@@ -541,7 +541,7 @@ watch(activeQuestion, () => {
 watch(
 	activeRegisters,
 	() => {
-		resetSelection(["question", "register"]);
+		resetSelection(["age", "question", "register"]);
 	},
 	{
 		deep: true,

@@ -101,6 +101,11 @@
 				"placeholder": "Pick variants",
 				"tooltip": "Normalized answers"
 			},
+			"age": {
+				"title": "Age Group",
+				"placeholder": "age group",
+				"show-all": "All ages"
+			},
 			"reset": "Reset selection"
 		}
 	},

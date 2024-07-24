@@ -98,9 +98,36 @@ const questions: Array<DropdownOption> = [
 	{ value: "streichholz", label: "Streichholz", data: fr41 },
 ];
 
+const ageGroupOptions: Array<DropdownOption> = [
+	{
+		label: t("MapsPage.selection.age.show-all"),
+		value: "all",
+	},
+	{
+		label: "10 - 25",
+		value: "10-25",
+	},
+	{
+		label: "25 - 35",
+		value: "25-35",
+	},
+	{
+		label: "35 - 45",
+		value: "35-45",
+	},
+	{
+		label: "45 - 60",
+		value: "45-60",
+	},
+	{
+		label: "60+",
+		value: "60+",
+	},
+];
+
 const registerOptions: Array<DropdownOption> = [
 	{
-		label: t("MapsPage.selection.register-definition.show-all"),
+		label: t("MapsPage.selection.register.show-all"),
 		value: "all",
 		level: 0,
 	},
@@ -148,21 +175,6 @@ const registerOptions: Array<DropdownOption> = [
 	},
 ];
 
-// const registerOptions: Array<DropdownOption> = [
-// 	{
-// 		label: t("MapsPage.selection.register-categories.show-all"),
-// 		value: "all",
-// 	},
-// 	{
-// 		label: "standardferne Register",
-// 		value: "dia",
-// 	},
-// 	{
-// 		label: "standardnahe Register",
-// 		value: "st",
-// 	},
-// ];
-
 const registerGroups = [
 	{
 		name: "dia",
@@ -174,6 +186,7 @@ const registerGroups = [
 	},
 ];
 
+const activeAgeGroup = ref<string>("all");
 const activeQuestion = ref<string>("");
 // const activeRegisterDescription = ref<string>("all");
 const activeRegisters = ref<Array<string>>(["all"]);
@@ -245,6 +258,23 @@ const mappedColors = computed(() => {
 	return colorMap;
 });
 
+const isInAgeGroup = (age: number, ageGroup: string): boolean => {
+	switch (ageGroup) {
+		case "10-25":
+			return age >= 10 && age <= 25;
+		case "25-35":
+			return age >= 25 && age <= 35;
+		case "35-45":
+			return age >= 35 && age <= 45;
+		case "45-60":
+			return age >= 45 && age <= 60;
+		case "60+":
+			return age >= 60;
+		default:
+			return false;
+	}
+};
+
 const filteredPoints = computed(() => {
 	let filteredPoints = points.value;
 	if (activeTags.value.length) {
@@ -262,6 +292,22 @@ const filteredPoints = computed(() => {
 				return { ...entry, properties: filteredProperties };
 			})
 			.filter((entry) => entry.properties.length > 0);
+	}
+	if (activeAgeGroup.value !== "all") {
+		const currentYear = new Date().getFullYear();
+		filteredPoints = filteredPoints
+			.map((item) => {
+				const filteredProperties = item.properties.filter((prop) => {
+					const age = currentYear - parseInt(prop.age);
+					return isInAgeGroup(age, activeAgeGroup.value);
+				});
+
+				return {
+					...item,
+					properties: filteredProperties,
+				};
+			})
+			.filter((item) => item.properties.length > 0);
 	}
 	return filteredPoints;
 });
@@ -545,6 +591,16 @@ watch(
 						v-model="activeTags"
 						:options="uniqueVariantsOptions"
 						:placeholder="t('MapsPage.selection.variants.placeholder')"
+					/>
+				</div>
+				<div>
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.age.title") }}
+					</div>
+					<Combobox
+						v-model="activeAgeGroup"
+						:options="ageGroupOptions"
+						:placeholder="t('MapsPage.selection.age.placeholder')"
 					/>
 				</div>
 			</div>

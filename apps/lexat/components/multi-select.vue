@@ -91,13 +91,26 @@ const open = ref(false);
 				aria-controls="popover-content"
 				class="w-64 justify-between"
 			>
-				<span class="truncate">
+				<span class="grow truncate text-left">
 					{{
 						model
 							? props.options.find((question) => question.value === model[0])?.label
 							: t("Combobox.button", { placeholder: props.placeholder })
 					}}
 				</span>
+				<svg v-if="model.length > 1" width="20" height="20" class="ml-1 shrink-0">
+					<circle cx="10" cy="10" r="10" fill="currentColor" />
+					<text
+						text-anchor="middle"
+						dominant-baseline="central"
+						x="50%"
+						y="50%"
+						fill="currentColor"
+						class="text-xs text-primary-foreground"
+					>
+						+{{ model.length - 1 }}
+					</text>
+				</svg>
 				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 			</Button>
 		</PopoverTrigger>

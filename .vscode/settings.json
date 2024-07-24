@@ -37,6 +37,7 @@
 	"stylelint.snippet": ["css", "postcss", "tailwindcss", "vue"],
 	"stylelint.validate": ["css", "postcss", "tailwindcss", "vue"],
 	"tailwindCSS.validate": true,
+	"tailwindCSS.experimental.classRegex": ["class:\\s*?[\"'`]([^\"'`]*).*?,"], // https://tiptap.dev/docs/editor/getting-started/style-editor
 	"terminal.integrated.enablePersistentSessions": false,
 	"typescript.enablePromptUseWorkspaceTsdk": true,
 	"typescript.inlayHints.parameterNames.enabled": "all",

@@ -106,6 +106,10 @@
 				"placeholder": "age group",
 				"show-all": "All ages"
 			},
+			"basemap": {
+				"title": "Basemap",
+				"placeholder": "Choose basemap"
+			},
 			"reset": "Reset selection"
 		}
 	},

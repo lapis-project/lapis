@@ -100,6 +100,10 @@
 				"placeholder": "Altersgruppe wählen",
 				"show-all": "Jedes Alter"
 			},
+			"basemap": {
+				"title": "Kartenstil",
+				"placeholder": "Kartenstil wählen"
+			},
 			"reset": "Auswahl zurücksetzen"
 		}
 	},

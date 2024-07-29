@@ -26,6 +26,7 @@ const props = defineProps<{
 	width: number;
 	showAllPoints: boolean;
 	showRegions: boolean;
+	basemap: string;
 }>();
 
 const emit = defineEmits<{
@@ -64,12 +65,6 @@ const pieChartCache = new Map();
 // 	default: project.colors.geojson,
 // };
 
-// const mapStyle = computed(() => {
-// 	return theme.value === "dark"
-// 		? env.public.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK
-// 		: env.public.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT;
-// });
-
 const elementRef = ref<HTMLElement | null>(null);
 
 const context: GeoMapContext = {
@@ -105,7 +100,7 @@ async function create() {
 		maxZoom: 11,
 		minZoom: 6.5, // a littler bigger than Austria
 		pitch: initialViewState.pitch,
-		style: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+		style: props.basemap,
 		zoom: initialViewState.zoom,
 	});
 
@@ -283,9 +278,25 @@ const toggleLayer = (layer: "outline" | "polygons") => {
 	}
 };
 
-watch(() => {
-	return props.showAllPoints;
-}, create);
+watch(
+	() => {
+		return props.showAllPoints;
+	},
+	async () => {
+		dispose();
+		await create();
+	},
+);
+
+watch(
+	() => {
+		return props.basemap;
+	},
+	async () => {
+		dispose();
+		await create();
+	},
+);
 
 watch(
 	() => {

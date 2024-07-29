@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
 import { InformationCircleIcon } from "@heroicons/vue/20/solid";
+import { RotateCcwIcon } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 
 import data from "@/assets/data/dialektregionen.geojson.json";
@@ -125,6 +126,31 @@ const ageGroupOptions: Array<DropdownOption> = [
 	},
 ];
 
+// https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
+const basemapOptions: Array<DropdownOption> = [
+	{
+		label: "OpenStreetMaps",
+		value:
+			"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json",
+	},
+	{
+		label: "Light-themed (Positron)",
+		value: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+	},
+	{
+		label: "Detailed street map (Voyager)",
+		value: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+	},
+	{
+		label: "Dark-themed (Dark Matter)",
+		value: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+	},
+	{
+		label: "Hypsometry (ICGC)",
+		value: "https://geoserveis.icgc.cat/contextmaps/icgc_ombra_hipsometria_corbes.json",
+	},
+];
+
 const registerOptions: Array<DropdownOption> = [
 	{
 		label: t("MapsPage.selection.register.show-all"),
@@ -187,8 +213,8 @@ const registerGroups = [
 ];
 
 const activeAgeGroup = ref<string>("all");
+const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const activeQuestion = ref<string>("");
-// const activeRegisterDescription = ref<string>("all");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeTags = ref<Array<string>>([]);
 const showAllPoints = ref<boolean>(false);
@@ -538,6 +564,7 @@ const columnsRegisters = ref<Array<TableColumn>>([
 watch(activeQuestion, () => {
 	resetSelection(["question"]);
 });
+
 watch(
 	activeRegisters,
 	() => {
@@ -552,7 +579,7 @@ watch(
 <template>
 	<div class="relative space-y-5">
 		<div class="rounded-lg border p-5">
-			<div class="mb-4 grid grid-flow-col gap-5">
+			<div class="mb-4 grid grid-cols-4 gap-5">
 				<div>
 					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 						{{ t("MapsPage.selection.variable.title") }}
@@ -604,26 +631,43 @@ watch(
 					/>
 				</div>
 			</div>
-			<div class="flex gap-4">
-				<div class="flex space-x-2 self-center">
-					<Checkbox id="showData" v-model:checked="showAllPoints" />
-					<label
-						for="showData"
-						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						{{ t("MapsPage.selection.show-all-points") }}
-					</label>
+			<div class="grid grid-cols-4 gap-5">
+				<div>
+					<div class="mb-1 ml-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.basemap.title") }}
+					</div>
+					<Combobox
+						v-model="activeBasemap"
+						:options="basemapOptions"
+						:placeholder="t('MapsPage.selection.basemap.placeholder')"
+						has-search
+					/>
 				</div>
-				<div class="flex space-x-2 self-center">
-					<Checkbox id="showRegions" v-model:checked="showRegions" />
-					<label
-						for="showRegions"
-						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						{{ t("MapsPage.selection.show-regions") }}
-					</label>
+				<div class="col-span-2 mt-5 space-y-2">
+					<div class="flex space-x-2 self-center">
+						<Checkbox id="showData" v-model:checked="showAllPoints" />
+						<label
+							for="showData"
+							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
+							{{ t("MapsPage.selection.show-all-points") }}
+						</label>
+					</div>
+					<div class="flex space-x-2 self-center">
+						<Checkbox id="showRegions" v-model:checked="showRegions" />
+						<label
+							for="showRegions"
+							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
+							{{ t("MapsPage.selection.show-regions") }}
+						</label>
+					</div>
 				</div>
-				<Button @click="resetSelection()">{{ t("MapsPage.selection.reset") }}</Button>
+				<div class="mt-5">
+					<Button variant="outline" @click="resetSelection()"
+						><RotateCcwIcon class="mr-2 size-5" />{{ t("MapsPage.selection.reset") }}</Button
+					>
+				</div>
 			</div>
 			<div v-if="Object.values(mappedColors).length" class="mt-5 space-y-1 text-sm font-semibold">
 				<p>{{ t("MapsPage.selection.colors") }}:</p>
@@ -669,6 +713,7 @@ watch(
 				:width="width"
 				:show-all-points="showAllPoints"
 				:show-regions="showRegions"
+				:basemap="activeBasemap"
 				@layer-click="onLayerClick"
 			>
 				<GeoMapPopup

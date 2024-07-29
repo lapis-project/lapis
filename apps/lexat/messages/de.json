@@ -76,7 +76,7 @@
 		},
 		"title": "Kartierung",
 		"selection": {
-			"colors": "Farben wählen",
+			"colors": "Legendenfarben",
 			"show-all-points": "Zeige alle Datenpunkte",
 			"show-regions": "Regionen anzeigen",
 			"variable": {
@@ -92,7 +92,7 @@
 			},
 			"variants": {
 				"title": "Varianten wählen",
-				"placeholder": "Varianten wählen",
+				"placeholder": "Varianten",
 				"tooltip": "Normalisierte Antworttypen"
 			},
 			"age": {
@@ -100,7 +100,38 @@
 				"placeholder": "Altersgruppe wählen",
 				"show-all": "Jedes Alter"
 			},
-			"reset": "Auswahl zurücksetzen"
+			"basemap": {
+				"title": "Kartenstil",
+				"placeholder": "Kartenstil wählen"
+			},
+			"reset": "Auswahl zurücksetzen",
+			"advanced": {
+				"show": "Erweiterte Filter zeigen",
+				"hide": "Erweiterte Filter ausblenden"
+			}
+		},
+		"table": {
+			"locations": {
+				"location": {
+					"header": "Ort",
+					"footer": "Summe"
+				},
+				"variant": "Variante",
+				"count": "Anzahl",
+				"register": {
+					"header": "Register",
+					"footer": "Alle Register"
+				}
+			},
+			"registers": {
+				"variant": {
+					"header": "Variante",
+					"footer": "Summe"
+				},
+				"countDia": "Dialekt+UG",
+				"countSt": "Standard",
+				"totalCount": "Gesamt"
+			}
 		}
 	},
 	"NotFoundPage": {

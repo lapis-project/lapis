@@ -16,10 +16,12 @@ const model = defineModel<Array<string>>({ default: [""] });
 export interface Props {
 	options: Array<DropdownOption>;
 	placeholder?: string;
+	singleLevel?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	placeholder: "question",
+	singleLevel: false,
 });
 
 const emit = defineEmits<{
@@ -93,7 +95,7 @@ const open = ref(false);
 			>
 				<span class="grow truncate text-left">
 					{{
-						model
+						model.length
 							? props.options.find((question) => question.value === model[0])?.label
 							: t("Combobox.button", { placeholder: props.placeholder })
 					}}
@@ -135,7 +137,10 @@ const open = ref(false);
 									cn('mr-2 h-4 w-4', model.includes(question.value) ? 'opacity-100' : 'opacity-0')
 								"
 							/>
-							<div class="flex-1" :class="{ 'font-semibold': question.level === 1 }">
+							<div
+								class="flex-1"
+								:class="{ 'font-semibold': question.level === 1 && !props.singleLevel }"
+							>
 								<span v-if="question.level === 2" class="opacity-50">- </span>{{ question.label }}
 							</div>
 						</CommandItem>

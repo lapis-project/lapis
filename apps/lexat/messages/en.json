@@ -76,7 +76,7 @@
 		},
 		"title": "Maps",
 		"selection": {
-			"colors": "Farben wählen",
+			"colors": "Legend colors",
 			"show-all-points": "Show all data points",
 			"show-regions": "Show regions",
 			"variable": {
@@ -98,7 +98,7 @@
 			},
 			"variants": {
 				"title": "Variants",
-				"placeholder": "Pick variants",
+				"placeholder": "variants",
 				"tooltip": "Normalized answers"
 			},
 			"age": {
@@ -110,7 +110,34 @@
 				"title": "Basemap",
 				"placeholder": "Choose basemap"
 			},
-			"reset": "Reset selection"
+			"reset": "Reset selection",
+			"advanced": {
+				"show": "Show advanced filters",
+				"hide": "Hide advanced filters"
+			}
+		},
+		"table": {
+			"locations": {
+				"location": {
+					"header": "Location",
+					"footer": "Sum"
+				},
+				"variant": "Variant",
+				"count": "Count",
+				"register": {
+					"header": "Register",
+					"footer": "All registers"
+				}
+			},
+			"registers": {
+				"variant": {
+					"header": "Variant",
+					"footer": "Sum"
+				},
+				"countDia": "Dialekt+UG",
+				"countSt": "Standard",
+				"totalCount": "Total"
+			}
 		}
 	},
 	"NotFoundPage": {

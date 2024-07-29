@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
-import { InformationCircleIcon } from "@heroicons/vue/20/solid";
-import { RotateCcwIcon } from "lucide-vue-next";
+// import { InfoIcon } from "@heroicons/vue/20/solid";
+import { ChevronDownIcon, InfoIcon, RotateCcwIcon } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 
 import data from "@/assets/data/dialektregionen.geojson.json";
@@ -216,9 +216,10 @@ const activeAgeGroup = ref<string>("all");
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const activeQuestion = ref<string>("");
 const activeRegisters = ref<Array<string>>(["all"]);
-const activeTags = ref<Array<string>>([]);
+const activeVariants = ref<Array<string>>([]);
 const showAllPoints = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
+const showAdvancedFilters = ref<boolean>(false);
 
 const specialOrder = {
 	"keine Angabe": -3, // -3 indicates last key
@@ -303,13 +304,13 @@ const isInAgeGroup = (age: number, ageGroup: string): boolean => {
 
 const filteredPoints = computed(() => {
 	let filteredPoints = points.value;
-	if (activeTags.value.length) {
+	if (activeVariants.value.length) {
 		filteredPoints = filteredPoints
 			.map((entry) => {
 				const filteredProperties = entry.properties
 					.map((property) => {
 						const filteredAnswers = property.answers.filter((answer) =>
-							activeTags.value.includes(answer.anno),
+							activeVariants.value.includes(answer.anno),
 						);
 						return { ...property, answers: filteredAnswers };
 					})
@@ -395,8 +396,10 @@ const uniqueVariants = computed(() => {
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 	return uniqueVariants.value.map((variant) => ({
-		value: variant.anno.toLocaleLowerCase(),
 		label: variant.anno,
+		value: variant.anno,
+		level: 1,
+		group: variant.anno.toLocaleLowerCase(),
 	}));
 });
 
@@ -471,7 +474,7 @@ const resetSelection = (omit?: Array<"age" | "question" | "register">) => {
 	if (!omit?.includes("register")) {
 		activeRegisters.value = ["all"];
 	}
-	activeTags.value = [];
+	activeVariants.value = [];
 	popover.value = null;
 };
 
@@ -548,17 +551,37 @@ const sanititzeReg = (reg: string) => {
 };
 
 const columnsLocations = ref<Array<TableColumn>>([
-	{ label: "Ort", value: "location", sortable: true, footer: "Summe" },
-	{ label: "Variante", value: "variant", sortable: false },
-	{ label: "Anzahl", value: "count", sortable: true, sum: true },
-	{ label: "Registerbezeichnung", value: "register", sortable: true, footer: "Alle Register" },
+	{
+		label: t("MapsPage.table.locations.location.header"),
+		value: "location",
+		sortable: true,
+		footer: t("MapsPage.table.locations.location.footer"),
+	},
+	{ label: t("MapsPage.table.locations.variant"), value: "variant", sortable: false },
+	{ label: t("MapsPage.table.locations.count"), value: "count", sortable: true, sum: true },
+	{
+		label: t("MapsPage.table.locations.register.header"),
+		value: "register",
+		sortable: true,
+		footer: t("MapsPage.table.locations.register.footer"),
+	},
 ]);
 
 const columnsRegisters = ref<Array<TableColumn>>([
-	{ label: "Variante", value: "variant", sortable: true, footer: "Summe" },
-	{ label: "Dialekt+UG", value: "countDia", sortable: true, sum: true },
-	{ label: "Standard", value: "countSt", sortable: true, sum: true },
-	{ label: "Gesamt", value: "totalCount", sortable: true, sum: true },
+	{
+		label: t("MapsPage.table.registers.variant.header"),
+		value: "variant",
+		sortable: true,
+		footer: t("MapsPage.table.registers.variant.footer"),
+	},
+	{ label: t("MapsPage.table.registers.countDia"), value: "countDia", sortable: true, sum: true },
+	{ label: t("MapsPage.table.registers.countSt"), value: "countSt", sortable: true, sum: true },
+	{
+		label: t("MapsPage.table.registers.totalCount"),
+		value: "totalCount",
+		sortable: true,
+		sum: true,
+	},
 ]);
 
 watch(activeQuestion, () => {
@@ -578,108 +601,136 @@ watch(
 
 <template>
 	<div class="relative space-y-5">
-		<div class="rounded-lg border p-5">
-			<div class="mb-4 grid grid-cols-4 gap-5">
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.variable.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
-							<InformationCircleIcon class="size-5"></InformationCircleIcon>
-						</InfoTooltip>
+		<Collapsible v-model:open="showAdvancedFilters">
+			<div class="flex gap-2">
+				<div class="grow rounded-lg border p-5">
+					<div class="grid grid-cols-4 gap-5">
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.variable.title") }}
+								<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon>
+								</InfoTooltip>
+							</div>
+							<Combobox
+								v-model="activeQuestion"
+								:options="questions"
+								:placeholder="t('MapsPage.selection.variable.placeholder')"
+								has-search
+							/>
+						</div>
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.register.title") }}
+								<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon>
+								</InfoTooltip>
+							</div>
+							<MultiSelect
+								v-model="activeRegisters"
+								:options="registerOptions"
+								:placeholder="t('MapsPage.selection.register.placeholder')"
+							/>
+						</div>
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.variants.title") }}
+								<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon>
+								</InfoTooltip>
+							</div>
+							<!-- <TagsCombobox
+								v-model="activeVariants"
+								:options="uniqueVariantsOptions"
+								:placeholder="t('MapsPage.selection.variants.placeholder')"
+							/> -->
+							<MultiSelect
+								v-model="activeVariants"
+								:options="uniqueVariantsOptions"
+								:placeholder="t('MapsPage.selection.variants.placeholder')"
+								single-level
+							/>
+						</div>
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.age.title") }}
+							</div>
+							<Combobox
+								v-model="activeAgeGroup"
+								:options="ageGroupOptions"
+								:placeholder="t('MapsPage.selection.age.placeholder')"
+							/>
+						</div>
 					</div>
-					<Combobox
-						v-model="activeQuestion"
-						:options="questions"
-						:placeholder="t('MapsPage.selection.variable.placeholder')"
-						has-search
-					/>
+					<CollapsibleContent>
+						<hr class="mt-5" />
+						<div class="mt-4 grid grid-cols-4 gap-5">
+							<div>
+								<div class="mb-1 ml-1 text-sm font-semibold">
+									{{ t("MapsPage.selection.basemap.title") }}
+								</div>
+								<Combobox
+									v-model="activeBasemap"
+									:options="basemapOptions"
+									:placeholder="t('MapsPage.selection.basemap.placeholder')"
+									has-search
+								/>
+							</div>
+							<div class="">
+								<div class="mb-1 ml-1 text-sm font-semibold">Anzeigeoptionen</div>
+								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									<Checkbox id="showData" v-model:checked="showAllPoints" />
+									<label
+										for="showData"
+										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+									>
+										{{ t("MapsPage.selection.show-all-points") }}
+									</label>
+								</div>
+								<div class="flex w-64 space-x-2 self-center rounded border p-2">
+									<Checkbox id="showRegions" v-model:checked="showRegions" />
+									<label
+										for="showRegions"
+										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+									>
+										{{ t("MapsPage.selection.show-regions") }}
+									</label>
+								</div>
+							</div>
+							<div
+								v-if="Object.values(mappedColors).length"
+								class="col-span-2 space-y-1 text-sm font-semibold"
+							>
+								<p>{{ t("MapsPage.selection.colors") }}</p>
+								<div class="flex gap-2">
+									<ColorPicker
+										v-for="(color, index) in Object.values(mappedColors)"
+										:key="index"
+										v-model="colors[index]"
+									/>
+								</div>
+							</div>
+							<!-- <div class="mt-5">
+							<Button variant="outline" @click="resetSelection()"
+								><RotateCcwIcon class="mr-2 size-5" />{{ t("MapsPage.selection.reset") }}</Button
+							>
+						</div> -->
+						</div>
+					</CollapsibleContent>
 				</div>
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.register.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
-							<InformationCircleIcon class="size-5"></InformationCircleIcon>
-						</InfoTooltip>
-					</div>
-					<MultiSelect
-						v-model="activeRegisters"
-						:options="registerOptions"
-						:placeholder="t('MapsPage.selection.register.placeholder')"
-					/>
-				</div>
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.variants.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
-							<InformationCircleIcon class="size-5"></InformationCircleIcon>
-						</InfoTooltip>
-					</div>
-					<TagsCombobox
-						v-model="activeTags"
-						:options="uniqueVariantsOptions"
-						:placeholder="t('MapsPage.selection.variants.placeholder')"
-					/>
-				</div>
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.age.title") }}
-					</div>
-					<Combobox
-						v-model="activeAgeGroup"
-						:options="ageGroupOptions"
-						:placeholder="t('MapsPage.selection.age.placeholder')"
-					/>
+				<div class="flex flex-col gap-2">
+					<Button variant="outline" size="icon" @click="resetSelection()"
+						><RotateCcwIcon class="size-4"
+					/></Button>
+					<CollapsibleTrigger
+						><Button variant="outline" size="icon"
+							><ChevronDownIcon
+								class="size-4"
+								:class="{ 'rotate-180': showAdvancedFilters }" /></Button
+					></CollapsibleTrigger>
 				</div>
 			</div>
-			<div class="grid grid-cols-4 gap-5">
-				<div>
-					<div class="mb-1 ml-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.basemap.title") }}
-					</div>
-					<Combobox
-						v-model="activeBasemap"
-						:options="basemapOptions"
-						:placeholder="t('MapsPage.selection.basemap.placeholder')"
-						has-search
-					/>
-				</div>
-				<div class="col-span-2 mt-5 space-y-2">
-					<div class="flex space-x-2 self-center">
-						<Checkbox id="showData" v-model:checked="showAllPoints" />
-						<label
-							for="showData"
-							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						>
-							{{ t("MapsPage.selection.show-all-points") }}
-						</label>
-					</div>
-					<div class="flex space-x-2 self-center">
-						<Checkbox id="showRegions" v-model:checked="showRegions" />
-						<label
-							for="showRegions"
-							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						>
-							{{ t("MapsPage.selection.show-regions") }}
-						</label>
-					</div>
-				</div>
-				<div class="mt-5">
-					<Button variant="outline" @click="resetSelection()"
-						><RotateCcwIcon class="mr-2 size-5" />{{ t("MapsPage.selection.reset") }}</Button
-					>
-				</div>
-			</div>
-			<div v-if="Object.values(mappedColors).length" class="mt-5 space-y-1 text-sm font-semibold">
-				<p>{{ t("MapsPage.selection.colors") }}:</p>
-				<div class="flex gap-2">
-					<ColorPicker
-						v-for="(color, index) in Object.values(mappedColors)"
-						:key="index"
-						v-model="colors[index]"
-					/>
-				</div>
-			</div>
-		</div>
+		</Collapsible>
 		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
 			<div
 				v-if="filteredUniqueVariants.length"

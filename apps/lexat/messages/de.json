@@ -1,4 +1,34 @@
 {
+	"AdminPage": {
+		"meta": {
+			"title": "Admin"
+		},
+		"editor": {
+			"abstract": "Abstrakt",
+			"actions": {
+				"save": "Speichern",
+				"delete": "Löschen"
+			},
+			"authors": "Autoren",
+			"category": "Kategorie",
+			"citation": "Zitiervorschlag",
+			"content": "Inhalt",
+			"created-at": "Erstellt am",
+			"published-at": "Veröffentlicht am",
+			"references": "Bibliographie",
+			"status": {
+				"status": "Status",
+				"draft": "Draft",
+				"published": "Veröffentlich"
+			},
+			"title": "Titel",
+			"updated-at": "Modifiziert am"
+		},
+		"navigation": {
+			"collections": "Sammlungen"
+		},
+		"title": "Admin"
+	},
 	"AppFooter": {
 		"links": {
 			"imprint": "Impressum"
@@ -7,6 +37,7 @@
 	},
 	"AppHeader": {
 		"links": {
+			"admin": "Admin",
 			"articles": "Artikel",
 			"db": "Belegdatenbank",
 			"research": "Kartierung"

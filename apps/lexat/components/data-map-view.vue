@@ -589,6 +589,20 @@ watch(activeQuestion, () => {
 });
 
 watch(
+	activeVariants,
+	() => {
+		popover.value = null;
+	},
+	{
+		deep: true,
+	},
+);
+
+watch(activeAgeGroup, () => {
+	popover.value = null;
+});
+
+watch(
 	activeRegisters,
 	() => {
 		resetSelection(["age", "question", "register"]);
@@ -698,7 +712,7 @@ watch(
 								</div>
 							</div>
 							<div
-								v-if="Object.values(mappedColors).length"
+								v-if="mappedColors && Object.values(mappedColors).length"
 								class="col-span-2 space-y-1 text-sm font-semibold"
 							>
 								<p>{{ t("MapsPage.selection.colors") }}</p>
@@ -710,11 +724,6 @@ watch(
 									/>
 								</div>
 							</div>
-							<!-- <div class="mt-5">
-							<Button variant="outline" @click="resetSelection()"
-								><RotateCcwIcon class="mr-2 size-5" />{{ t("MapsPage.selection.reset") }}</Button
-							>
-						</div> -->
 						</div>
 					</CollapsibleContent>
 				</div>

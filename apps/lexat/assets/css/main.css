@@ -1,3 +1,4 @@
+/* stylelint-disable selector-class-pattern */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -74,5 +75,135 @@
 	/* https://hanki.dev/tailwind-html2canvas-text-shift-down/ */
 	img {
 		@apply inline-block;
+	}
+}
+
+@layer base {
+	#text-editor .toolbar > button {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 32px;
+		height: 32px;
+		margin: 0.5em 4px;
+		border: none;
+		border-radius: 2px;
+		background: #fff;
+		color: #333;
+		font-size: 20px;
+		cursor: pointer;
+		appearance: none;
+	}
+
+	#text-editor .toolbar > button.active {
+		background: #333;
+		color: #fff;
+	}
+
+	#text-editor .align-dropdown > button {
+		height: 32px;
+		border: none;
+		border-radius: 2px;
+		background: #fff;
+		color: #333;
+		cursor: pointer;
+		appearance: none;
+	}
+
+	#text-editor .align-dropdown > .dropdown-content {
+		position: absolute;
+		right: 0;
+		left: 0;
+		z-index: 1;
+		border: 1px solid #333;
+		border-radius: 2px;
+		background-color: #fff;
+		outline: 1px solid #fff;
+	}
+
+	#text-editor .align-dropdown > .dropdown-content a {
+		display: block;
+		padding: 6px 12px;
+		text-align: center;
+		cursor: pointer;
+	}
+
+	#text-editor .align-dropdown > .dropdown-content a:hover,
+	#text-editor .align-dropdown > .dropdown-content a.active {
+		background: #333;
+		color: #fff;
+	}
+
+	/* #text-editor .align-dropdown:hover .dropdown-content {
+		display: block;
+	} */
+
+	#text-editor .divider {
+		width: 1px;
+		height: 24px;
+		margin-right: 6px;
+		background: #333;
+	}
+
+	#text-editor .ProseMirror {
+		overflow-y: auto;
+		height: 300px;
+		padding-right: 0.5em;
+		padding-left: 0.5em;
+		outline: none;
+	}
+
+	#text-editor ul p,
+	#text-editor ol p {
+		display: inline;
+	}
+
+	#text-editor .ProseMirror > p:first-child {
+		margin-top: 0.5em;
+	}
+
+	#text-editor h1 {
+		margin: 0.67em 0;
+		font-size: 2em;
+	}
+
+	#text-editor h2 {
+		margin: 0.75em 0;
+		font-size: 1.5em;
+	}
+
+	#text-editor h3 {
+		margin: 0.83em 0;
+		font-size: 1.17em;
+	}
+
+	#text-editor h4 {
+		margin: 1.12em 0;
+		font-size: 1em;
+	}
+
+	#text-editor h5 {
+		margin: 1.5em 0;
+		font-size: 0.83em;
+	}
+
+	#text-editor h6 {
+		margin: 1.67em 0;
+		font-size: 0.75em;
+	}
+
+	#text-editor .ProseMirror > h1:first-child,
+	#text-editor .ProseMirror > h2:first-child,
+	#text-editor .ProseMirror > h3:first-child,
+	#text-editor .ProseMirror > h4:first-child,
+	#text-editor .ProseMirror > h5:first-child,
+	#text-editor .ProseMirror > h6:first-child {
+		margin-top: 0.5em;
+	}
+
+	#text-editor ul,
+	#text-editor ol {
+		list-style-position: inside;
+		list-style-type: disc;
 	}
 }

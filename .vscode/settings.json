@@ -4,6 +4,7 @@
 		"source.fixAll": "explicit"
 	},
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSaveMode": "file", // required to format on save
 	"editor.formatOnSave": true,
 	"editor.inlayHints.enabled": "offUnlessPressed",
 	"editor.linkedEditing": true,

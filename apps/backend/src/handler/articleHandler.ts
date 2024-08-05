@@ -20,7 +20,7 @@ const articleRoute = articles.get(
 	},
 );
 
-const articleDetail = articles.get("/article/:alias", (c) => {
+const articleDetail = articles.get("/detail/:alias", (c) => {
 	return c.json("OK", 201);
 });
 

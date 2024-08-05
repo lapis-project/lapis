@@ -18,7 +18,7 @@ app.route("/questions", questions);
 app.route("/cms", cms);
 
 export type HealthType = typeof hc;
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 // eslint-disable-next-line no-console
 console.log("Server is running on port: %s", port);
 

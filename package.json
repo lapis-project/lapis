@@ -10,8 +10,10 @@
 		"setup": "is-ci || simple-git-hooks",
 		"format:check": "prettier . \"!./content/**\" --cache --check --ignore-path .prettierignore",
 		"build:lexat": "cd apps/lexat && pnpm build",
+		"build:backend": "cd apps/backend && pnpm build",
 		"dev:lexat": "cd apps/lexat && pnpm dev",
-		"start:lexat": "cd apps/lexat && pnpm start"
+		"start:lexat": "cd apps/lexat && pnpm start",
+		"start:backend": "cd apps/backend && pnpm start"
 	},
 	"packageManager": "pnpm@9.4.0",
 	"devDependencies": {

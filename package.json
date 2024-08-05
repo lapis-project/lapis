@@ -12,6 +12,12 @@
 		"build:lexat": "cd apps/lexat && pnpm build",
 		"build:backend": "cd apps/backend && pnpm build",
 		"dev:lexat": "cd apps/lexat && pnpm dev",
+		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
+		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
+		"lint:code:check": "eslint . --cache --ext .js,.ts,.vue --ignore-path ./.gitignore",
+		"lint:code:fix": "pnpm run lint:code:check --fix",
+		"lint:styles:check": "stylelint \"./**/*.@(css|vue)\" --cache --ignore-path ./.gitignore",
+		"lint:styles:fix": "pnpm run lint:styles:check --fix",
 		"start:lexat": "cd apps/lexat && pnpm start",
 		"start:backend": "cd apps/backend && pnpm start"
 	},

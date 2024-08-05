@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import { Kysely, PostgresDialect } from "kysely";
 import { Pool } from "pg";
 
-import { type DB, Users } from "../types/db";
+// import { type DB, Users } from "../types/db";
 
 dotenv.config();
 
@@ -18,4 +18,4 @@ const dialect = new PostgresDialect({
 	pool,
 });
 
-export const db = new Kysely<DB>({ dialect });
+// export const db = new Kysely<DB>({ dialect });

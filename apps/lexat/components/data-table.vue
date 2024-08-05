@@ -45,8 +45,7 @@ const sortedData = computed(() => {
 });
 
 const totalCount = (columnValue: string) => {
-	// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-	return sortedData.value.reduce((sum, item) => sum + item[columnValue] ?? 0, 0);
+	return sortedData.value.reduce((sum, item) => sum + Number(item[columnValue] ?? 0), 0);
 };
 
 const setSortCriterion = (label: string) => {

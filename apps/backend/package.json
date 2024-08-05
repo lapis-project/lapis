@@ -6,7 +6,9 @@
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
 		"generate-types-kysely": "kysely-codegen",
-		"test": "tsx --test src/**/*.spec.ts"
+		"test": "tsx --test src/**/*.spec.ts",
+		"start": "tsx src/index.ts",
+		"build": "tsc"
 	},
 	"dependencies": {
 		"@hono/node-server": "^1.12.0",

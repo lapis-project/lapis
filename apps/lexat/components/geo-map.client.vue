@@ -173,8 +173,8 @@ function init() {
 		source: sourcePolygonsId,
 		filter: ["==", "$type", "Polygon"],
 		paint: {
-			"fill-color": "#6495ED",
-			"fill-opacity": 0.3,
+			"fill-color": ["get", "color"], // palette https://coolors.co/palette/f8f9fa-e9ecef-dee2e6-ced4da-adb5bd-6c757d-495057-343a40-212529
+			"fill-opacity": 0.6,
 		},
 	});
 	map.setLayoutProperty("polygons", "visibility", "visible"); // has to be set once before being toggle-able
@@ -185,7 +185,7 @@ function init() {
 		source: sourcePolygonsId,
 		layout: {},
 		paint: {
-			"line-color": "#6495ED",
+			"line-color": "#212529",
 			"line-width": 1,
 		},
 	});

@@ -4,7 +4,7 @@ import { ChevronDownIcon, InfoIcon, RotateCcwIcon } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
 
-import data from "@/assets/data/dialektregionen.geojson.json";
+import data from "@/assets/data/dialektregionen-trimmed.geojson.json";
 import * as fr1 from "@/assets/data/fr1.json";
 import * as fr2 from "@/assets/data/fr2.json";
 import * as fr3 from "@/assets/data/fr3.json";

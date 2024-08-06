@@ -3,6 +3,10 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll": "explicit"
 	},
+	"search.exclude": {
+		"**/node_modules": true,
+		"pnpm-lock.yaml": true
+	},
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.formatOnSaveMode": "file", // required to format on save
 	"editor.formatOnSave": true,

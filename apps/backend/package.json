@@ -5,7 +5,7 @@
 	"packageManager": "pnpm@9.4.0",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
-		"generate-types-kysely": "kysely-codegen",
+		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test": "tsx --test src/**/*.spec.ts",
 		"start": "tsx src/index.ts",
 		"build": "tsc"

@@ -9,6 +9,7 @@ export type GeoJsonFeature = Feature<
 	{
 		id: number;
 		chartData?: string;
+		color?: string;
 		colors?: string;
 		answerCount?: number;
 	}
@@ -70,6 +71,7 @@ export function createSimpleGeoJsonFeature(entity: RegionFeature): GeoJsonFeatur
 		geometry: entity.geometry as Polygon,
 		properties: {
 			id: Date.now(),
+			color: entity.properties.color,
 		},
 	};
 }

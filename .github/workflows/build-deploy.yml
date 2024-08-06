@@ -65,6 +65,14 @@ jobs:
       - setup_workflow_env
       - generate_workflow_vars
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./Dockerfile_frontend
+            image: ghcr.io/${{ github.repository }}-frontend
+          - dockerfile: ./Dockerfile_backend
+            image: ghcr.io/${{ github.repository }}-backend
     permissions:
       contents: read
       packages: write
@@ -84,8 +92,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: >
-            ghcr.io/${{ github.repository }} # The container is located at the repository registry
-            root at the moment.
+            ${{ matrix.image }} # The container is located at the repository registry root at the
+            moment.
           flavor: |
             latest=auto
           tags: |
@@ -95,6 +103,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: "${{ steps.meta.outputs.tags }}"
           labels: "${{ steps.meta.outputs.labels }}"
@@ -106,6 +115,13 @@ jobs:
           cache-from: type=gha
           cache-to: "type=gha,mode=max"
   deploy:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: ${{ needs.setup_workflow_env.outputs.registry_root }}-frontend
+          - image: ${{ needs.setup_workflow_env.outputs.registry_root }}-backend
+    permissions:
     name: Deploy docker image
     needs:
       - setup_workflow_env
@@ -115,7 +131,7 @@ jobs:
     secrets: inherit
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
-      DOCKER_TAG: "${{ needs.setup_workflow_env.outputs.registry_root }}"
+      DOCKER_TAG: "${{ matrix.image }}"
       APP_NAME: "${{ needs.setup_workflow_env.outputs.APP_NAME }}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID }}"

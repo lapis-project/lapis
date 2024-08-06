@@ -109,7 +109,6 @@ onBeforeUnmount(() => {
 });
 
 const toggleDropdown = () => {
-	console.log("toggle");
 	dropdownOpen.value = !dropdownOpen.value;
 };
 

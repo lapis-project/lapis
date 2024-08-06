@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1
+
+# using alpine base image to avoid `sharp` memory leaks.
+# @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
+
+# build
+FROM node:20-alpine AS build
+
+RUN corepack enable
+
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+
+USER node
+
+ENV BACKEND_PORT 3000
+ENV NODE_ENV=production
+
+COPY --chown=node:node .npmrc package.json pnpm-lock.yaml ./
+
+RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
+
+RUN pnpm fetch
+
+COPY --chown=node:node ./apps/backend ./
+RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
+
+RUN pnpm install --frozen-lockfile --offline
+
+RUN pnpm run build:backend
+
+# serve
+FROM node:20-alpine AS serve
+
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+
+USER node
+# Copy Command for the backend code
+COPY --from=build --chown=node:node /app/apps/backend/dist ./
+
+ENV NODE_ENV=production
+
+EXPOSE $BACKEND_PORT
+
+CMD ["node", "./index.js"]

@@ -122,6 +122,8 @@ jobs:
           - image: ${{ needs.setup_workflow_env.outputs.registry_root }}-frontend
           - image: ${{ needs.setup_workflow_env.outputs.registry_root }}-backend
     permissions:
+      contents: read
+      packages: write
     name: Deploy docker image
     needs:
       - setup_workflow_env

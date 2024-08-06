@@ -109,6 +109,7 @@
 		"selection": {
 			"colors": "Legend colors",
 			"show-all-points": "Show all data points",
+			"show-region-names": "Show region names",
 			"show-regions": "Show regions",
 			"variable": {
 				"title": "Variable",

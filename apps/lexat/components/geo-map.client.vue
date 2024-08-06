@@ -25,6 +25,7 @@ const props = defineProps<{
 	height: number;
 	width: number;
 	showAllPoints: boolean;
+	showRegionNames: boolean;
 	showRegions: boolean;
 	basemap: string;
 }>();
@@ -236,13 +237,57 @@ function init() {
 	// 	map.getCanvas().style.cursor = "";
 	// });
 
-	// map.on("zoom", () => {
-	// 	const zoom = map.getZoom();
-	// 	pointsData.forEach((pointData) => {
-	// 		const size = calculateIconSize(zoom, pointData.answerCount);
-	// 		pointData.mesh.scale.set(size, size, size);
-	// 	});
-	// });
+	// bug: multiple labels on certain zoom levels https://github.com/mapbox/mapbox-gl-js/issues/5583#issuecomment-341840524
+	map.addLayer({
+		id: "polygon-labels",
+		type: "symbol",
+		source: sourcePolygonsId,
+		layout: {
+			"text-field": ["get", "name"],
+			"text-size": 20,
+			"text-anchor": "center",
+		},
+		paint: {
+			"text-color": "#000000",
+			"text-halo-color": "#FFFFFF",
+			"text-halo-width": 2,
+		},
+	});
+	map.setLayoutProperty("polygon-labels", "visibility", props.showRegionNames ? "visible" : "none");
+
+	let hoveredPolygonName: string | null = null;
+
+	map.on("mousemove", "polygons", (e) => {
+		if (!props.showRegionNames) {
+			if (e.features?.length && e.features.length > 0) {
+				const newHoveredPolygonName = e.features[0]?.properties.name;
+
+				if (hoveredPolygonName !== newHoveredPolygonName) {
+					hoveredPolygonName = newHoveredPolygonName;
+
+					// Update the filter to show the label for the current polygon
+					map.setFilter("polygon-labels", ["==", "name", e.features[0]?.properties.name]);
+					map.setLayoutProperty("polygon-labels", "visibility", "visible");
+				}
+			} else {
+				// Reset the hovered polygon ID when moving out of any polygon
+				hoveredPolygonName = null;
+
+				// Hide the labels when no polygon is under the cursor
+				map.setLayoutProperty("polygon-labels", "visibility", "none");
+			}
+		}
+	});
+
+	map.on("mouseleave", "polygons", () => {
+		if (!props.showRegionNames) {
+			map.getCanvas().style.cursor = "";
+			hoveredPolygonName = null;
+
+			// Ensure labels are hidden when leaving the polygon layer
+			map.setLayoutProperty("polygon-labels", "visibility", "none");
+		}
+	});
 
 	updateScope();
 }
@@ -267,10 +312,11 @@ function updateScope() {
 	source2?.setData(geojson2);
 }
 
-const toggleLayer = (layer: "outline" | "polygons") => {
+const toggleLayer = (layer: "outline" | "polygon-labels" | "polygons") => {
 	assert(context.map != null);
 	const map = context.map;
 	const visibility = map.getLayoutProperty(layer, "visibility");
+	map.setFilter(layer, null);
 	if (visibility === "visible") {
 		map.setLayoutProperty(layer, "visibility", "none");
 	} else {
@@ -295,6 +341,15 @@ watch(
 	async () => {
 		dispose();
 		await create();
+	},
+);
+
+watch(
+	() => {
+		return props.showRegionNames;
+	},
+	() => {
+		toggleLayer("polygon-labels");
 	},
 );
 

@@ -222,6 +222,7 @@ const activeQuestion = ref<string>("");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
 const showAllPoints = ref<boolean>(false);
+const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
 const showAdvancedFilters = ref<boolean>(false);
 
@@ -740,6 +741,15 @@ const fullRoute = computed(() => {
 										{{ t("MapsPage.selection.show-all-points") }}
 									</label>
 								</div>
+								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									<Checkbox id="showRegionNames" v-model:checked="showRegionNames" />
+									<label
+										for="showRegionNames"
+										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+									>
+										{{ t("MapsPage.selection.show-region-names") }}
+									</label>
+								</div>
 								<div class="flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showRegions" v-model:checked="showRegions" />
 									<label
@@ -811,6 +821,7 @@ const fullRoute = computed(() => {
 				:height="height"
 				:width="width"
 				:show-all-points="showAllPoints"
+				:show-region-names="showRegionNames"
 				:show-regions="showRegions"
 				:basemap="activeBasemap"
 				@layer-click="onLayerClick"

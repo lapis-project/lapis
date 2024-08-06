@@ -109,6 +109,7 @@
 		"selection": {
 			"colors": "Legendenfarben",
 			"show-all-points": "Zeige alle Datenpunkte",
+			"show-region-names": "Regionen einblenden",
 			"show-regions": "Regionen anzeigen",
 			"variable": {
 				"title": "Variable",

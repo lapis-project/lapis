@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
-// import { InfoIcon } from "@heroicons/vue/20/solid";
 import { ChevronDownIcon, InfoIcon, RotateCcwIcon } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
+import { useRoute, useRouter } from "nuxt/app";
 
 import data from "@/assets/data/dialektregionen.geojson.json";
 import * as fr1 from "@/assets/data/fr1.json";
@@ -40,9 +40,13 @@ import type {
 // import { project } from "@/config/project.config";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 
+import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
 
 const t = useTranslations();
+const router = useRouter();
+const route = useRoute();
+const env = useRuntimeConfig();
 
 const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyResponse> } | null>(
 	null,
@@ -464,20 +468,6 @@ const countOccurrences = (properties: Array<Property>) => {
 // 	popover.value = null;
 // });
 
-const resetSelection = (omit?: Array<"age" | "question" | "register">) => {
-	if (!omit?.includes("age")) {
-		activeAgeGroup.value = "all";
-	}
-	if (!omit?.includes("question")) {
-		activeQuestion.value = "";
-	}
-	if (!omit?.includes("register")) {
-		activeRegisters.value = ["all"];
-	}
-	activeVariants.value = [];
-	popover.value = null;
-};
-
 const tableData = computed(() => {
 	const result = [];
 	const countMap: Record<string, TableEntry> = {};
@@ -584,8 +574,48 @@ const columnsRegisters = ref<Array<TableColumn>>([
 	},
 ]);
 
-watch(activeQuestion, () => {
-	resetSelection(["question"]);
+const updateUrlParams = async () => {
+	await router.replace({
+		query: {
+			...route.query,
+			ageGroup: activeAgeGroup.value,
+			question: activeQuestion.value,
+			registers: activeRegisters.value.join(","),
+			variants: activeVariants.value.join(","),
+		},
+	});
+};
+
+const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
+	if (!omit?.includes("age")) {
+		activeAgeGroup.value = "all";
+	}
+	if (!omit?.includes("question")) {
+		activeQuestion.value = "";
+	}
+	if (!omit?.includes("register")) {
+		activeRegisters.value = ["all"];
+	}
+	activeVariants.value = [];
+	popover.value = null;
+	await updateUrlParams();
+};
+
+// Function to initialize states from URL parameters
+const initializeFromUrl = () => {
+	const { ageGroup, question, registers, variants } = route.query;
+
+	if (ageGroup) activeAgeGroup.value = String(ageGroup);
+	if (question) activeQuestion.value = String(question);
+	if (registers) activeRegisters.value = String(registers).split(",");
+	if (variants) activeVariants.value = String(variants).split(",");
+};
+
+// Call the initialize function on component mount
+initializeFromUrl();
+
+watch(activeQuestion, async () => {
+	await resetSelection(["question"]);
 });
 
 watch(
@@ -598,19 +628,28 @@ watch(
 	},
 );
 
-watch(activeAgeGroup, () => {
+watch(activeAgeGroup, async () => {
 	popover.value = null;
+	await updateUrlParams();
 });
 
 watch(
 	activeRegisters,
-	() => {
-		resetSelection(["age", "question", "register"]);
+	async () => {
+		await resetSelection(["age", "question", "register"]);
 	},
 	{
 		deep: true,
 	},
 );
+
+watch(activeVariants, updateUrlParams, {
+	deep: true,
+});
+
+const fullRoute = computed(() => {
+	return env.public.appBaseUrl + route.fullPath;
+});
 </script>
 
 <template>
@@ -811,6 +850,7 @@ watch(
 				<LoadingIndicator class="text-neutral-950" size="lg" />
 			</Centered> -->
 		</VisualisationContainer>
+		<CopyToClipboard :text="fullRoute" />
 		<DataTable v-if="tableData.length" :data="tableData" :columns="columnsLocations"></DataTable>
 		<DataTable
 			v-if="tableDataForRegisters.length"

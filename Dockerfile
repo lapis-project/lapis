@@ -56,4 +56,4 @@ ENV NODE_ENV=production
 
 EXPOSE $BACKEND_PORT
 
-CMD ["node", "./server/index.mjs && ./index.js"]
+CMD ["node", "./server/index.mjs"]

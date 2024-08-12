@@ -2,6 +2,10 @@
 import { useElementSize } from "@vueuse/core";
 import { ref } from "vue";
 
+const props = defineProps<{
+	fullscreen: boolean;
+}>();
+
 const elementRef = ref<HTMLElement | null>(null);
 
 const { width, height } = useElementSize(elementRef);
@@ -10,7 +14,8 @@ const { width, height } = useElementSize(elementRef);
 <template>
 	<div
 		ref="elementRef"
-		class="relative isolate grid size-full overflow-hidden"
+		class="isolate grid size-full overflow-hidden"
+		:class="props.fullscreen ? 'fixed z-50 top-0 left-0' : 'relative'"
 		data-visualisation-container
 	>
 		<slot v-if="width && height" :width="width" :height="height" />

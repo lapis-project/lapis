@@ -3,7 +3,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { assert } from "@acdh-oeaw/lib";
 import {
-	FullscreenControl,
 	type GeoJSONSource,
 	Map as GeoMap,
 	type MapGeoJSONFeature,
@@ -131,11 +130,6 @@ function init() {
 
 	const nav = new NavigationControl({});
 	map.addControl(nav, "top-left");
-	//
-
-	const fullscreen = new FullscreenControl({});
-	map.addControl(fullscreen, "top-right");
-
 	//
 
 	const scale = new ScaleControl({});

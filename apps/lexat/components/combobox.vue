@@ -18,7 +18,7 @@ import type { DropdownOption } from "./data-map-view.vue";
 
 const t = useTranslations();
 
-const model = defineModel<string>({ default: "" });
+const model = defineModel<string | null>({ default: "" });
 
 export interface Props {
 	options: Array<DropdownOption>;

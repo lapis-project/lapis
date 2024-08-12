@@ -1,7 +1,13 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
 import { refDebounced } from "@vueuse/core";
-import { ChevronDownIcon, InfoIcon, RotateCcwIcon } from "lucide-vue-next";
+import {
+	ChevronDownIcon,
+	InfoIcon,
+	Maximize2Icon,
+	Minimize2Icon,
+	RotateCcwIcon,
+} from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
 
@@ -175,6 +181,7 @@ const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-
 const activeQuestion = ref<string | null>(null);
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
+const mapExpanded = ref<boolean>(false);
 const showAllPoints = ref<boolean>(false);
 const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
@@ -572,7 +579,7 @@ watch(activeVariants, updateUrlParams, {
 </script>
 
 <template>
-	<div class="relative space-y-5">
+	<div class="relative flex flex-col gap-5">
 		<Collapsible v-model:open="showAdvancedFilters">
 			<div class="flex gap-2">
 				<div class="grow rounded-lg border p-5">
@@ -712,7 +719,12 @@ watch(activeVariants, updateUrlParams, {
 				</div>
 			</div>
 		</Collapsible>
-		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
+		<VisualisationContainer
+			v-slot="{ height, width }"
+			class="border"
+			:class="{ 'h-[600px]': !mapExpanded }"
+			:fullscreen="mapExpanded"
+		>
 			<div
 				v-if="filteredUniqueVariants.length"
 				id="legend"
@@ -736,6 +748,15 @@ watch(activeVariants, updateUrlParams, {
 						</li>
 					</ul>
 				</div>
+			</div>
+			<div id="expand" class="absolute right-2 top-2 z-10">
+				<Button
+					variant="outline"
+					size="icon"
+					aria-label="Fullscreen"
+					@click="mapExpanded = !mapExpanded"
+					><component :is="mapExpanded ? Minimize2Icon : Maximize2Icon" class="size-4"
+				/></Button>
 			</div>
 			<GeoMap
 				v-if="height && width"

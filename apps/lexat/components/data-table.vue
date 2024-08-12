@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-vue-next";
 
-// import { truncateText } from "@/utils/string-helper.ts";
-
 const props = defineProps<{
 	data: Array<TableEntry>;
 	columns: Array<TableColumn>;

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
+import { refDebounced } from "@vueuse/core";
 import { ChevronDownIcon, InfoIcon, RotateCcwIcon } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
@@ -79,33 +80,6 @@ const questions: Array<DropdownOption> = [
 	// { value: "knoechel", label: "Knöchel" },
 	// { value: "kopfschmerzen", label: "Kopfschmerzen" },
 	{ value: "streichholz", label: "Streichholz" },
-];
-
-const ageGroupOptions: Array<DropdownOption> = [
-	{
-		label: t("MapsPage.selection.age.show-all"),
-		value: "all",
-	},
-	{
-		label: "10 - 25",
-		value: "10-25",
-	},
-	{
-		label: "25 - 35",
-		value: "25-35",
-	},
-	{
-		label: "35 - 45",
-		value: "35-45",
-	},
-	{
-		label: "45 - 60",
-		value: "45-60",
-	},
-	{
-		label: "60+",
-		value: "60+",
-	},
 ];
 
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
@@ -194,7 +168,8 @@ const registerGroups = [
 	},
 ];
 
-const activeAgeGroup = ref<string>("all");
+const activeAgeGroup = ref([10, 100]);
+const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const activeQuestion = ref<string | null>(null);
 const activeRegisters = ref<Array<string>>(["all"]);
@@ -273,23 +248,6 @@ const mappedColors = computed(() => {
 	return colorMap;
 });
 
-const isInAgeGroup = (age: number, ageGroup: string): boolean => {
-	switch (ageGroup) {
-		case "10-25":
-			return age >= 10 && age <= 25;
-		case "25-35":
-			return age >= 25 && age <= 35;
-		case "35-45":
-			return age >= 35 && age <= 45;
-		case "45-60":
-			return age >= 45 && age <= 60;
-		case "60+":
-			return age >= 60;
-		default:
-			return false;
-	}
-};
-
 const filteredPoints = computed(() => {
 	let filteredPoints = points.value;
 	if (activeVariants.value.length) {
@@ -308,22 +266,24 @@ const filteredPoints = computed(() => {
 			})
 			.filter((entry) => entry.properties.length > 0);
 	}
-	if (activeAgeGroup.value !== "all") {
-		const currentYear = new Date().getFullYear();
-		filteredPoints = filteredPoints
-			.map((item) => {
-				const filteredProperties = item.properties.filter((prop) => {
-					const age = currentYear - parseInt(prop.age);
-					return isInAgeGroup(age, activeAgeGroup.value);
-				});
+	const currentYear = new Date().getFullYear();
+	filteredPoints = filteredPoints
+		.map((item) => {
+			const filteredProperties = item.properties.filter((prop) => {
+				const age = currentYear - parseInt(prop.age);
+				return (
+					age >= (debouncedActiveAgeGroup.value[0] ?? 10) &&
+					age <= (debouncedActiveAgeGroup.value[1] ?? 100)
+				);
+			});
 
-				return {
-					...item,
-					properties: filteredProperties,
-				};
-			})
-			.filter((item) => item.properties.length > 0);
-	}
+			return {
+				...item,
+				properties: filteredProperties,
+			};
+		})
+		.filter((item) => item.properties.length > 0);
+
 	return filteredPoints;
 });
 
@@ -517,6 +477,10 @@ const tableDataForRegisters = computed(() => {
 	return Object.values(variantMap);
 });
 
+const fullRoute = computed(() => {
+	return env.public.appBaseUrl + route.fullPath;
+});
+
 const sanititzeReg = (reg: string) => {
 	if (reg === "Umgangssprache oder Alltagssprache") {
 		return "Ugs. oder Alltagssprache";
@@ -562,7 +526,7 @@ const updateUrlParams = async () => {
 	await router.replace({
 		query: {
 			...route.query,
-			ageGroup: activeAgeGroup.value,
+			ageGroup: activeAgeGroup.value.join(","),
 			question: activeQuestion.value,
 			registers: activeRegisters.value.join(","),
 			variants: activeVariants.value.join(","),
@@ -572,7 +536,7 @@ const updateUrlParams = async () => {
 
 const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
 	if (!omit?.includes("age")) {
-		activeAgeGroup.value = "all";
+		activeAgeGroup.value = [10, 100];
 	}
 	if (!omit?.includes("question")) {
 		activeQuestion.value = "";
@@ -589,10 +553,14 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 const initializeFromUrl = () => {
 	const { ageGroup, question, registers, variants } = route.query;
 
-	if (ageGroup) activeAgeGroup.value = String(ageGroup);
+	if (ageGroup) activeAgeGroup.value = String(ageGroup).split(",").map(Number);
 	if (question) activeQuestion.value = String(question);
 	if (registers) activeRegisters.value = String(registers).split(",");
 	if (variants) activeVariants.value = String(variants).split(",");
+};
+
+const setAgeGroup = (newValues: Array<number>) => {
+	activeAgeGroup.value = newValues;
 };
 
 // Call the initialize function on component mount
@@ -629,10 +597,6 @@ watch(
 
 watch(activeVariants, updateUrlParams, {
 	deep: true,
-});
-
-const fullRoute = computed(() => {
-	return env.public.appBaseUrl + route.fullPath;
 });
 </script>
 
@@ -689,13 +653,23 @@ const fullRoute = computed(() => {
 							/>
 						</div>
 						<div>
-							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.age.title") }}
 							</div>
-							<Combobox
+							<!-- <MultiSelect
 								v-model="activeAgeGroup"
 								:options="ageGroupOptions"
 								:placeholder="t('MapsPage.selection.age.placeholder')"
+								single-level
+							/> -->
+							<DualRangeSlider
+								:label="(value) => value"
+								:value="activeAgeGroup"
+								:min="10"
+								:max="100"
+								step="5"
+								accessibility-label="Age Group"
+								@update:value="setAgeGroup"
 							/>
 						</div>
 					</div>
@@ -772,6 +746,7 @@ const fullRoute = computed(() => {
 				</div>
 			</div>
 		</Collapsible>
+		<div>mouseup: {{ mouseup }}</div>
 		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
 			<div
 				v-if="filteredUniqueVariants.length"

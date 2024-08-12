@@ -244,7 +244,7 @@ function init() {
 		source: sourcePolygonsId,
 		layout: {
 			"text-field": ["get", "name"],
-			"text-size": 20,
+			"text-size": 16,
 			"text-anchor": "center",
 		},
 		paint: {

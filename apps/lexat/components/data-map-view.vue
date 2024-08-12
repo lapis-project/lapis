@@ -19,6 +19,7 @@ import type {
 // import { categories } from "@/composables/use-get-search-results";
 // import { project } from "@/config/project.config";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
+import { countUniqueVariants, getSortedVariants } from "@/utils/variant-helper";
 
 import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
@@ -302,44 +303,14 @@ const entitiesById = computed(() => {
 	});
 });
 
-const getSortedVariants = (points: Array<SurveyResponse>, specialSortOrder = {}) => {
-	const annoCounts = new Map<string, number>();
-
-	points.forEach((p) => {
-		p.properties.forEach((property) => {
-			property.answers.forEach((answer) => {
-				const anno = answer.anno;
-				if (annoCounts.has(anno)) {
-					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					annoCounts.set(anno, annoCounts.get(anno)! + 1);
-				} else {
-					annoCounts.set(anno, 1);
-				}
-			});
-		});
-	});
-
-	// Apply special sort order if provided
-	for (const [key, value] of Object.entries(specialSortOrder)) {
-		if (annoCounts.has(key)) {
-			annoCounts.set(key, value as number);
-		}
-	}
-
-	// Convert the Map entries to an array and sort it by count in descending order
-	const sortedVariants = Array.from(annoCounts.entries())
-		.sort((a, b) => b[1] - a[1])
-		.map((entry) => ({ anno: entry[0], count: entry[1] }));
-
-	return sortedVariants;
-};
-
 const filteredUniqueVariants = computed(() => {
-	return getSortedVariants(filteredPoints.value, specialOrder);
+	const countedUniqueVariants = countUniqueVariants(filteredPoints.value);
+	return getSortedVariants(countedUniqueVariants, specialOrder);
 });
 
 const uniqueVariants = computed(() => {
-	return getSortedVariants(points.value);
+	const countedUniqueVariants = countUniqueVariants(points.value);
+	return getSortedVariants(countedUniqueVariants);
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
@@ -640,11 +611,6 @@ watch(activeVariants, updateUrlParams, {
 									<InfoIcon class="size-4"></InfoIcon>
 								</InfoTooltip>
 							</div>
-							<!-- <TagsCombobox
-								v-model="activeVariants"
-								:options="uniqueVariantsOptions"
-								:placeholder="t('MapsPage.selection.variants.placeholder')"
-							/> -->
 							<MultiSelect
 								v-model="activeVariants"
 								:options="uniqueVariantsOptions"
@@ -746,7 +712,6 @@ watch(activeVariants, updateUrlParams, {
 				</div>
 			</div>
 		</Collapsible>
-		<div>mouseup: {{ mouseup }}</div>
 		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
 			<div
 				v-if="filteredUniqueVariants.length"

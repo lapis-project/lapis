@@ -20,31 +20,31 @@ import * as fr41 from "@/assets/data/fr41.json";
 import type { SurveyCollection } from "@/types/feature-collection";
 
 const questionData: Record<string, SurveyCollection> = {
-	augenlid: fr1.default,
-	auswringen: fr2.default,
-	backenzahn: fr3.default,
-	barfuss: fr4.default,
-	bauchschmerzen: fr5.default,
-	begraebnis: fr6.default,
-	brombeere: fr7.default,
-	eidotter: fr8.default,
-	walderdbeere: fr9.default,
-	kehren: fr10.default,
-	ferkel: fr11.default,
-	fruehling: fr12.default,
-	giesskanne: fr13.default,
-	oma: fr14.default,
-	opa: fr15.default,
-	gurke: fr16.default,
-	streichholz: fr41.default,
+	1: fr1.default, // augenlid
+	2: fr2.default, // auswringen
+	3: fr3.default, // backenzahn
+	4: fr4.default, // barfuss
+	5: fr5.default, // bauchschmerzen
+	6: fr6.default, // begraebnis
+	7: fr7.default, // brombeere
+	8: fr8.default, // eidotter
+	9: fr9.default, // walderdbeere
+	10: fr10.default, // kehren
+	11: fr11.default, // ferkel
+	12: fr12.default, // fruehling
+	13: fr13.default, // giesskanne
+	14: fr14.default, // oma
+	15: fr15.default, // opa
+	16: fr16.default, // gurke
+	17: fr41.default, // streichholz
 };
 
 export default defineEventHandler((event) => {
 	const query = getQuery(event);
-	const question = query.question as string | undefined;
+	const id = query.id as string | undefined;
 
-	if (question && question in questionData) {
-		return questionData[question];
+	if (id && id in questionData) {
+		return questionData[id];
 	}
 	throw createError({
 		statusCode: 404,

@@ -178,12 +178,11 @@ const { data: questionData } = await useFetch<SurveyCollection>("/api/questions"
 });
 
 const specialOrder = {
-	"keine Angabe": -3, // -3 indicates last key
+	"keine Angabe": -4, // -4 indicates key to be sorted last
+	Irrelevant: -3,
 	Sonstiges: -2,
 	Sonstige: -1,
 };
-
-// const { counts } = useCountOccurrences(popover.value, specialOrder)
 
 const entities = computed((): Array<RegionFeature> => {
 	return data.features;

@@ -59,35 +59,12 @@ const colors = ref([
 ]);
 
 export interface DropdownOption {
+	id?: number;
 	value: string;
 	label: string;
 	level?: number;
 	group?: string;
 }
-
-const questions: Array<DropdownOption> = [
-	{ value: "augenlid", label: "Augenlid" },
-	{ value: "auswringen", label: "Auswringen" },
-	{ value: "backenzahn", label: "Backenzahn" },
-	{ value: "barfuss", label: "Barfuß" },
-	{ value: "bauchschmerzen", label: "Bauchschmerzen" },
-	{ value: "begraebnis", label: "Begräbnis" },
-	{ value: "brombeere", label: "Brombeere" },
-	{ value: "eidotter", label: "Eidotter" },
-	{ value: "walderdbeere", label: "Walderdbeere" },
-	{ value: "kehren", label: "Kehren" },
-	{ value: "ferkel", label: "Ferkel" },
-	{ value: "fruehling", label: "Frühling" },
-	{ value: "giesskanne", label: "Gießkanne" },
-	{ value: "oma", label: "Oma" },
-	{ value: "opa", label: "Opa" },
-	{ value: "gurke", label: "Gurke" },
-	// { value: "hagebutte", label: "Hagebutte" },
-	// { value: "himbeere", label: "Himbeere"},
-	// { value: "knoechel", label: "Knöchel" },
-	// { value: "kopfschmerzen", label: "Kopfschmerzen" },
-	{ value: "streichholz", label: "Streichholz" },
-];
 
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 const basemapOptions: Array<DropdownOption> = [
@@ -175,6 +152,10 @@ const registerGroups = [
 	},
 ];
 
+const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/questions/survey/lexat`, {
+	method: "get",
+});
+
 const activeAgeGroup = ref([10, 100]);
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
@@ -187,8 +168,12 @@ const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
 const showAdvancedFilters = ref<boolean>(false);
 
+const activeQuestionId = computed(() => {
+	return questions.value?.find((q) => q.value === activeQuestion.value)?.id;
+});
+
 const { data: questionData } = await useFetch<SurveyCollection>("/api/questions", {
-	params: { question: activeQuestion },
+	query: { id: activeQuestionId, project: "lexat" },
 	method: "get",
 });
 
@@ -635,15 +620,17 @@ watch(activeVariants, updateUrlParams, {
 								:placeholder="t('MapsPage.selection.age.placeholder')"
 								single-level
 							/> -->
-							<DualRangeSlider
-								:label="(value) => value"
-								:value="activeAgeGroup"
-								:min="10"
-								:max="100"
-								step="5"
-								accessibility-label="Age Group"
-								@update:value="setAgeGroup"
-							/>
+							<div class="max-w-64 pl-1">
+								<DualRangeSlider
+									:label="(value) => value"
+									:value="activeAgeGroup"
+									:min="10"
+									:max="100"
+									step="5"
+									accessibility-label="Age Group"
+									@update:value="setAgeGroup"
+								/>
+							</div>
 						</div>
 					</div>
 					<CollapsibleContent>
@@ -800,10 +787,6 @@ watch(activeVariants, updateUrlParams, {
 					</article>
 				</GeoMapPopup>
 			</GeoMap>
-
-			<!-- <Centered voading" class="pointer-events-none">
-				<LoadingIndicator class="text-neutral-950" size="lg" />
-			</Centered> -->
 		</VisualisationContainer>
 		<CopyToClipboard :text="fullRoute" />
 		<DataTable v-if="tableData.length" :data="tableData" :columns="columnsLocations"></DataTable>

@@ -1,7 +1,5 @@
 /* stylelint-disable selector-class-pattern */
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer base {
 	:root {
@@ -207,3 +205,6 @@
 		list-style-type: disc;
 	}
 }
+
+@tailwind components;
+@tailwind utilities;

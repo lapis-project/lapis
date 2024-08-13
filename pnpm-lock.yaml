@@ -78,9 +78,6 @@ importers:
       '@fontsource-variable/inter':
         specifier: ^5.0.19
         version: 5.0.19
-      '@heroicons/vue':
-        specifier: ^2.1.5
-        version: 2.1.5(vue@3.4.34(typescript@5.5.4))
       '@nuxt/content':
         specifier: ^2.13.2
         version: 2.13.2(ioredis@5.4.1)(magicast@0.3.4)(nuxt@3.12.4(@parcel/watcher@2.4.1)(@types/node@20.14.13)(encoding@0.1.13)(eslint@8.57.0)(ioredis@5.4.1)(magicast@0.3.4)(optionator@0.9.4)(rollup@4.19.1)(stylelint@16.7.0(typescript@5.5.4))(terser@5.31.3)(typescript@5.5.4)(vite@5.3.5(@types/node@20.14.13)(terser@5.31.3))(vue-tsc@2.0.29(typescript@5.5.4)))(rollup@4.19.1)(vue@3.4.34(typescript@5.5.4))
@@ -1065,11 +1062,6 @@ packages:
 
   '@fontsource-variable/inter@5.0.19':
     resolution: {integrity: sha512-V5KPpF5o0sI1uNWAdFArC87NDOb/ZJDPXLomEiKmDCYMlDUCTn2flkuAZkyME2rtGOKO7vzCuDJAND0m/5PhDA==}
-
-  '@heroicons/vue@2.1.5':
-    resolution: {integrity: sha512-IpqR72sFqFs55kyKfFS7tN+Ww6odFNeH/7UxycIOrlVYfj4WUGAdzQtLBnJspucSeqWFQsKM0g0YrgU655BEfA==}
-    peerDependencies:
-      vue: '>= 3'
 
   '@hono/node-server@1.12.0':
     resolution: {integrity: sha512-e6oHjNiErRxsZRZBmc2KucuvY3btlO/XPncIpP2X75bRdTilF9GLjm3NHvKKunpJbbJJj31/FoPTksTf8djAVw==}
@@ -7989,10 +7981,6 @@ snapshots:
       - vue
 
   '@fontsource-variable/inter@5.0.19': {}
-
-  '@heroicons/vue@2.1.5(vue@3.4.34(typescript@5.5.4))':
-    dependencies:
-      vue: 3.4.34(typescript@5.5.4)
 
   '@hono/node-server@1.12.0': {}
 

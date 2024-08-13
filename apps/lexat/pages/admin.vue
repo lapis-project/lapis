@@ -5,11 +5,9 @@ const { toast } = useToast();
 
 const t = useTranslations();
 
-const content = ref<string>("<p>Hello Tiptap</p>");
-
-const title = ref<string>("");
-
 const abstract = ref<string>("");
+const content = ref<string>("<p>Hello Tiptap</p>");
+const title = ref<string>("");
 
 const saveArticle = () => {
 	// do something

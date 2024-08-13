@@ -108,6 +108,12 @@
 		appearance: none;
 	}
 
+	#text-editor a {
+		color: #aa336a;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
 	#text-editor .align-dropdown > .dropdown-content {
 		position: absolute;
 		right: 0;

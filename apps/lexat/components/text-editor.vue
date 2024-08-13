@@ -1,6 +1,7 @@
 <!-- eslint-disable import-x/no-named-as-default -->
 <script setup lang="ts">
 import CharacterCount from "@tiptap/extension-character-count";
+import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import type { Level } from "@tiptap/pm";
@@ -13,6 +14,7 @@ import {
 	AlignRightIcon,
 	BoldIcon,
 	ItalicIcon,
+	LinkIcon,
 	ListIcon,
 	ListOrderedIcon,
 	RedoIcon,
@@ -31,8 +33,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const dropdownOpen = ref(false);
-
 const dropbtn = ref<HTMLButtonElement | null>(null);
+const isOpen = ref<boolean>(false);
+const urlInput = ref<string>("");
 
 const emit = defineEmits<{
 	(e: "update:modelValue", value: string): void;
@@ -48,6 +51,7 @@ const editor = ref(
 				types: ["heading", "paragraph"],
 			}),
 			CharacterCount,
+			Link,
 		],
 		onUpdate: () => {
 			emit("update:modelValue", editor.value.getHTML());
@@ -88,6 +92,7 @@ const textActions = ref([
 	{ slug: "orderedList", icon: ListOrderedIcon, active: "orderedList" },
 	{ slug: "undo", icon: UndoIcon, active: "undo" },
 	{ slug: "redo", icon: RedoIcon, active: "redo" },
+	{ slug: "link", icon: LinkIcon, active: "link" },
 ]);
 
 const wordsCount = computed(() => {
@@ -146,6 +151,28 @@ type ActionSlug =
 	| "underline"
 	| "undo";
 
+const setLink = () => {
+	isOpen.value = false;
+	// const previousUrl = editor.value.getAttributes("link").href;
+	// const url = window.prompt("URL", previousUrl);
+
+	// cancelled
+	// if (urlInput.value === null) {
+	// 	return;
+	// }
+
+	// empty
+	if (urlInput.value === "") {
+		editor.value.chain().focus().extendMarkRange("link").unsetLink().run();
+
+		return;
+	}
+
+	// update link
+
+	editor.value.chain().focus().extendMarkRange("link").setLink({ href: urlInput.value }).run();
+};
+
 const onActionClick = (slug: ActionSlug, option = "left") => {
 	const vm = editor.value.chain().focus();
 	const actionTriggers = {
@@ -163,6 +190,9 @@ const onActionClick = (slug: ActionSlug, option = "left") => {
 			vm.unsetAllMarks().run();
 		},
 		code: () => vm.toggleCodeBlock().run(),
+		link: () => {
+			isOpen.value = true;
+		},
 	};
 
 	actionTriggers[slug]();
@@ -230,5 +260,21 @@ const onHeadingClick = (index: Level) => {
 		<div v-if="editor" class="p-2 text-right text-sm">
 			<span class="words-count"> {{ wordsCount }} words </span>
 		</div>
+
+		<Dialog :open="isOpen">
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Add Link</DialogTitle>
+				</DialogHeader>
+				<div class="grid grid-cols-4 items-center gap-4 py-4">
+					<Label for="url" class="text-right"> URL </Label>
+					<Input id="url" v-model="urlInput" class="col-span-3" />
+				</div>
+
+				<DialogFooter>
+					<Button :disabled="!urlInput" @click="setLink">Save changes</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
 	</div>
 </template>

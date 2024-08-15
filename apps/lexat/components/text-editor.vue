@@ -153,23 +153,12 @@ type ActionSlug =
 
 const setLink = () => {
 	isOpen.value = false;
-	// const previousUrl = editor.value.getAttributes("link").href;
-	// const url = window.prompt("URL", previousUrl);
-
-	// cancelled
-	// if (urlInput.value === null) {
-	// 	return;
-	// }
-
-	// empty
 	if (urlInput.value === "") {
 		editor.value.chain().focus().extendMarkRange("link").unsetLink().run();
 
 		return;
 	}
-
 	// update link
-
 	editor.value.chain().focus().extendMarkRange("link").setLink({ href: urlInput.value }).run();
 };
 
@@ -261,7 +250,7 @@ const onHeadingClick = (index: Level) => {
 			<span class="words-count"> {{ wordsCount }} words </span>
 		</div>
 
-		<Dialog :open="isOpen">
+		<Dialog :open="isOpen" @update:open="(newVal) => (isOpen = newVal)">
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Add Link</DialogTitle>

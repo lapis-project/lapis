@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useToast } from "@/components/ui/toast/use-toast";
+import type { DropdownOption } from "@/types/dropdown-option";
 
 const { toast } = useToast();
 
@@ -17,6 +18,28 @@ const saveArticle = () => {
 	});
 };
 
+export type Status = "draft" | "published" | "ready";
+
+const activeStatus = ref<Status>("draft");
+
+const statusOptions: Array<DropdownOption<Status>> = [
+	{
+		value: "draft",
+		label: t("AdminPage.status.draft"),
+		color: "#cc3232",
+	},
+	{
+		value: "ready",
+		label: t("AdminPage.status.ready"),
+		color: "#e7b416",
+	},
+	{
+		value: "published",
+		label: t("AdminPage.status.published"),
+		color: "#2dc937",
+	},
+];
+
 const collections = [
 	{
 		name: "Article",
@@ -25,6 +48,10 @@ const collections = [
 	{
 		name: "User",
 		alias: "user",
+	},
+	{
+		name: "Categories",
+		alias: "categories",
 	},
 ];
 
@@ -56,7 +83,13 @@ usePageMetadata({
 						<h3 class="text-3xl font-semibold">Untitled</h3>
 						<p class="text-foreground/70">ID: 1231231</p>
 					</div>
-					<div>
+					<div class="space-x-3">
+						<Combobox
+							v-model="activeStatus"
+							:options="statusOptions"
+							:placeholder="t('MapsPage.selection.variable.placeholder')"
+							width="w-40"
+						/>
 						<Button @click="saveArticle">Save</Button>
 					</div>
 				</div>

@@ -13,6 +13,7 @@ import { useRoute, useRouter } from "nuxt/app";
 
 import data from "@/assets/data/dialektregionen-trimmed.geojson.json";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
+import type { DropdownOption } from "@/types/dropdown-option";
 import type {
 	Property,
 	RegionFeature,
@@ -57,14 +58,6 @@ const colors = ref([
 	"#80ff8a",
 	"#b080ff",
 ]);
-
-export interface DropdownOption {
-	id?: number;
-	value: string;
-	label: string;
-	level?: number;
-	group?: string;
-}
 
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 const basemapOptions: Array<DropdownOption> = [

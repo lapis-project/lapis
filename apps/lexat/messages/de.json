@@ -27,6 +27,11 @@
 		"navigation": {
 			"collections": "Sammlungen"
 		},
+		"status": {
+			"draft": "Draft",
+			"ready": "Fertig",
+			"published": "Veröffentlicht"
+		},
 		"title": "Admin"
 	},
 	"AppFooter": {

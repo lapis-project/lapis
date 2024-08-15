@@ -12,9 +12,8 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DropdownOption } from "@/types/dropdown-option";
 import { cn } from "@/utils/styles";
-
-import type { DropdownOption } from "./data-map-view.vue";
 
 const t = useTranslations();
 
@@ -24,11 +23,13 @@ export interface Props {
 	options: Array<DropdownOption>;
 	placeholder?: string;
 	hasSearch?: boolean;
+	width?: "w-40" | "w-60" | "w-64";
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	placeholder: "question",
 	hasSearch: false,
+	width: "w-64",
 });
 
 const emit = defineEmits<{
@@ -46,19 +47,30 @@ const open = ref(false);
 				role="combobox"
 				:aria-expanded="open"
 				aria-controls="popover-content"
-				class="w-64 justify-between"
+				class="justify-between"
+				:class="[props.width]"
 			>
-				<span class="truncate">
-					{{
-						model
-							? props.options.find((question) => question.value === model)?.label
-							: t("Combobox.button", { placeholder: props.placeholder })
-					}}
-				</span>
+				<div class="flex items-center">
+					<svg v-if="model" width="12" height="12" class="mr-2">
+						<circle
+							cx="6"
+							cy="6"
+							r="6"
+							:fill="props.options.find((question) => question.value === model)?.color"
+						/>
+					</svg>
+					<span class="truncate">
+						{{
+							model
+								? props.options.find((question) => question.value === model)?.label
+								: t("Combobox.button", { placeholder: props.placeholder })
+						}}
+					</span>
+				</div>
 				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 			</Button>
 		</PopoverTrigger>
-		<PopoverContent id="popover-content" class="w-64 p-0" role="listbox">
+		<PopoverContent id="popover-content" class="p-0" :class="[props.width]" role="listbox">
 			<Command>
 				<template v-if="hasSearch">
 					<CommandInput
@@ -83,7 +95,9 @@ const open = ref(false);
 								}
 							"
 						>
-							{{ question.label }}
+							<svg v-if="question.color" width="12" height="12" class="mr-2 inline align-baseline">
+								<circle cx="6" cy="6" r="6" :fill="question.color" /></svg
+							>{{ question.label }}
 							<Check
 								:class="
 									cn('ml-auto h-4 w-4', model === question.value ? 'opacity-100' : 'opacity-0')

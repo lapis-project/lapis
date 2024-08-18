@@ -6,7 +6,12 @@ const { toast } = useToast();
 
 const t = useTranslations();
 
+const { data: categoryOptions } = await useFetch<Array<DropdownOption>>(`/api/categories`, {
+	method: "get",
+});
+
 const abstract = ref<string>("");
+const activeCategory = ref<string | null>(null);
 const alias = ref<string>("");
 const content = ref<string>("<p>Hello Tiptap</p>");
 const title = ref<string>("");
@@ -138,11 +143,20 @@ usePageMetadata({
 							:placeholder="t('AdminPage.editor.abstract')"
 						/>
 					</div>
-					<div class="grid w-full items-center gap-1.5">
+					<div class="mb-6 grid w-full items-center gap-1.5">
 						<Label for="content">{{ t("AdminPage.editor.content") }}</Label>
 						<ClientOnly>
 							<TextEditor v-model="content" class="w-full" />
 						</ClientOnly>
+					</div>
+					<div v-if="categoryOptions" class="mb-6 grid w-full max-w-sm items-center gap-1.5">
+						<Label for="category">{{ t("AdminPage.editor.category") }}</Label>
+						<Combobox
+							id="category"
+							v-model="activeCategory"
+							:options="categoryOptions"
+							:placeholder="t('MapsPage.selection.variable.placeholder')"
+						/>
 					</div>
 				</div>
 			</div>

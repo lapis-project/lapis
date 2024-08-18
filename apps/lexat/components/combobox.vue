@@ -37,6 +37,10 @@ const emit = defineEmits<{
 }>();
 
 const open = ref(false);
+
+const hasColor = computed(() => {
+	return props.options.find((o) => o.color);
+});
 </script>
 
 <template>
@@ -51,7 +55,7 @@ const open = ref(false);
 				:class="[props.width]"
 			>
 				<div class="flex items-center">
-					<svg v-if="model" width="12" height="12" class="mr-2">
+					<svg v-if="hasColor && model" width="12" height="12" class="mr-2">
 						<circle
 							cx="6"
 							cy="6"
@@ -95,7 +99,12 @@ const open = ref(false);
 								}
 							"
 						>
-							<svg v-if="question.color" width="12" height="12" class="mr-2 inline align-baseline">
+							<svg
+								v-if="hasColor && question.color"
+								width="12"
+								height="12"
+								class="mr-2 inline align-baseline"
+							>
 								<circle cx="6" cy="6" r="6" :fill="question.color" /></svg
 							>{{ question.label }}
 							<Check

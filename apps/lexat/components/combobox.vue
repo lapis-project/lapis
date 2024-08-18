@@ -23,7 +23,7 @@ export interface Props {
 	options: Array<DropdownOption>;
 	placeholder?: string;
 	hasSearch?: boolean;
-	width?: "w-40" | "w-60" | "w-64";
+	width?: "w-44" | "w-60" | "w-64";
 }
 
 const props = withDefaults(defineProps<Props>(), {

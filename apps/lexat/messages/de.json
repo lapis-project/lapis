@@ -5,6 +5,7 @@
 		},
 		"editor": {
 			"abstract": "Abstrakt",
+			"alias": "Artikel-URL",
 			"actions": {
 				"save": "Speichern",
 				"delete": "Löschen"

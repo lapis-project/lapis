@@ -7,8 +7,20 @@ const { toast } = useToast();
 const t = useTranslations();
 
 const abstract = ref<string>("");
+const alias = ref<string>("");
 const content = ref<string>("<p>Hello Tiptap</p>");
 const title = ref<string>("");
+
+const generateAlias = (title: string) => {
+	return title
+		.toLowerCase()
+		.replace(/ä/gi, "ae")
+		.replace(/ö/gi, "oe")
+		.replace(/ü/gi, "ue")
+		.replace(/ß/g, "ss")
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-+|-+$/g, "");
+};
 
 const saveArticle = () => {
 	// do something
@@ -22,21 +34,22 @@ export type Status = "draft" | "published" | "ready";
 
 const activeStatus = ref<Status>("draft");
 
+// color palette reference: https://www.color-hex.com/color-palette/35021
 const statusOptions: Array<DropdownOption<Status>> = [
 	{
 		value: "draft",
 		label: t("AdminPage.status.draft"),
-		color: "#cc3232",
+		color: "#cc3232", // red
 	},
 	{
 		value: "ready",
 		label: t("AdminPage.status.ready"),
-		color: "#e7b416",
+		color: "#e7b416", // yellow
 	},
 	{
 		value: "published",
 		label: t("AdminPage.status.published"),
-		color: "#2dc937",
+		color: "#2dc937", // green
 	},
 ];
 
@@ -54,6 +67,10 @@ const collections = [
 		alias: "categories",
 	},
 ];
+
+watch(title, (newValue) => {
+	alias.value = generateAlias(newValue);
+});
 
 usePageMetadata({
 	title: t("AdminPage.meta.title"),
@@ -88,7 +105,7 @@ usePageMetadata({
 							v-model="activeStatus"
 							:options="statusOptions"
 							:placeholder="t('MapsPage.selection.variable.placeholder')"
-							width="w-40"
+							width="w-44"
 						/>
 						<Button @click="saveArticle">Save</Button>
 					</div>
@@ -101,6 +118,15 @@ usePageMetadata({
 							v-model="title"
 							type="text"
 							:placeholder="t('AdminPage.editor.title')"
+						/>
+					</div>
+					<div class="mb-6 grid w-full max-w-sm items-center gap-1.5">
+						<Label for="alias">{{ t("AdminPage.editor.alias") }}</Label>
+						<Input
+							id="alias"
+							v-model="alias"
+							type="text"
+							:placeholder="t('AdminPage.editor.alias')"
 						/>
 					</div>
 					<div class="mb-6 grid w-full max-w-sm items-center gap-1.5">

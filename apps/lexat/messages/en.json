@@ -76,6 +76,9 @@
 		"empty": "No {placeholder} found",
 		"search": "Search {placeholder}..."
 	},
+	"DataTable": {
+		"download": "Download as CSV"
+	},
 	"DefaultLayout": {
 		"meta": {
 			"description": "ACDH-CH App",

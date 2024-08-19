@@ -10,12 +10,22 @@
 				"save": "Speichern",
 				"delete": "Löschen"
 			},
-			"authors": "Autoren",
-			"category": "Kategorie",
+			"authors": {
+				"label": "Autoren",
+				"placeholder": "Autoren hinzufügen"
+			},
+			"category": {
+				"label": "Kategorie",
+				"placeholder": "Kategorie"
+			},
 			"citation": "Zitiervorschlag",
 			"content": "Inhalt",
 			"created-at": "Erstellt am",
 			"published-at": "Veröffentlicht am",
+			"question": {
+				"label": "Phänomen",
+				"placeholder": "Phänomen"
+			},
 			"references": "Bibliographie",
 			"status": {
 				"draft": "Draft",

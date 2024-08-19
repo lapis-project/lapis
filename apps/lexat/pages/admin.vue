@@ -10,10 +10,20 @@ const { data: categoryOptions } = await useFetch<Array<DropdownOption>>(`/api/ca
 	method: "get",
 });
 
+const { data: users } = await useFetch(`/api/users`, {
+	method: "get",
+});
+
+const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/questions/survey/lexat`, {
+	method: "get",
+});
+
 const abstract = ref<string>("");
-const activeCategory = ref<string | null>(null);
 const alias = ref<string>("");
 const content = ref<string>("<p>Hello Tiptap</p>");
+const selectedAuthors = ref<Array<string>>([]);
+const selectedCategory = ref<string | null>(null);
+const selectedQuestion = ref<string | null>(null);
 const title = ref<string>("");
 
 const generateAlias = (title: string) => {
@@ -77,6 +87,19 @@ const collections = [
 		alias: "categories",
 	},
 ];
+
+const authorsOptions = computed((): Array<DropdownOption> => {
+	return (
+		users.value?.map((u) => ({
+			value: u.id.toString(),
+			label: nameShortener(u.firstName, u.lastName),
+		})) ?? []
+	);
+});
+
+const nameShortener = (firstName: string, lastName: string): string => {
+	return `${firstName.charAt(0)}. ${lastName}`;
+};
 
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
@@ -150,13 +173,35 @@ usePageMetadata({
 							<TextEditor v-model="content" class="w-full" />
 						</ClientOnly>
 					</div>
-					<div v-if="categoryOptions" class="mb-6 grid w-full max-w-sm items-center gap-1.5">
-						<Label for="category">{{ t("AdminPage.editor.category") }}</Label>
-						<Combobox
-							id="category"
-							v-model="activeCategory"
-							:options="categoryOptions"
-							:placeholder="t('AdminPage.editor.category')"
+					<div class="mb-6 flex items-baseline gap-8">
+						<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">
+							<Label for="category">{{ t("AdminPage.editor.category.label") }}</Label>
+							<Combobox
+								id="category"
+								v-model="selectedCategory"
+								:options="categoryOptions"
+								:placeholder="t('AdminPage.editor.category.placeholder')"
+							/>
+						</div>
+
+						<div v-if="questions" class="grid max-w-sm items-center gap-1.5">
+							<Label for="category">{{ t("AdminPage.editor.question.label") }}</Label>
+							<Combobox
+								v-model="selectedQuestion"
+								:options="questions"
+								:placeholder="t('AdminPage.editor.question.placeholder')"
+								has-search
+							/>
+						</div>
+					</div>
+					<div v-if="authorsOptions" class="grid w-full max-w-xl items-center gap-1.5">
+						<Label for="authors">{{ t("AdminPage.editor.authors.label") }}</Label>
+						<TagsCombobox
+							id="authors"
+							v-model="selectedAuthors"
+							:options="authorsOptions"
+							:placeholder="t('AdminPage.editor.authors.placeholder')"
+							moveable
 						/>
 					</div>
 				</div>

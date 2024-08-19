@@ -5,9 +5,8 @@ import { ref } from "vue";
 import { Button } from "@/components/ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DropdownOption } from "@/types/dropdown-option";
 import { cn } from "@/utils/styles";
-
-import type { DropdownOption } from "./data-map-view.vue";
 
 const t = useTranslations();
 

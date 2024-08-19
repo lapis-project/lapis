@@ -18,20 +18,17 @@
 			"published-at": "Veröffentlicht am",
 			"references": "Bibliographie",
 			"status": {
-				"status": "Status",
 				"draft": "Draft",
-				"published": "Veröffentlich"
+				"published": "Veröffentlicht",
+				"ready": "Fertig",
+				"status": "Status",
+				"unpublished": "Unveröffentlicht"
 			},
 			"title": "Titel",
 			"updated-at": "Modifiziert am"
 		},
 		"navigation": {
 			"collections": "Sammlungen"
-		},
-		"status": {
-			"draft": "Draft",
-			"ready": "Fertig",
-			"published": "Veröffentlicht"
 		},
 		"title": "Admin"
 	},

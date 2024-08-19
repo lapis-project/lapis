@@ -35,7 +35,7 @@ const saveArticle = () => {
 	});
 };
 
-export type Status = "draft" | "published" | "ready";
+export type Status = "draft" | "published" | "ready" | "unpublished";
 
 const activeStatus = ref<Status>("draft");
 
@@ -43,18 +43,23 @@ const activeStatus = ref<Status>("draft");
 const statusOptions: Array<DropdownOption<Status>> = [
 	{
 		value: "draft",
-		label: t("AdminPage.status.draft"),
+		label: t("AdminPage.editor.status.draft"),
 		color: "#cc3232", // red
 	},
 	{
 		value: "ready",
-		label: t("AdminPage.status.ready"),
+		label: t("AdminPage.editor.status.ready"),
 		color: "#e7b416", // yellow
 	},
 	{
 		value: "published",
-		label: t("AdminPage.status.published"),
+		label: t("AdminPage.editor.status.published"),
 		color: "#2dc937", // green
+	},
+	{
+		value: "unpublished",
+		label: t("AdminPage.editor.status.unpublished"),
+		color: "#d3d3d3", // grey
 	},
 ];
 
@@ -105,13 +110,9 @@ usePageMetadata({
 						<h3 class="text-3xl font-semibold">Untitled</h3>
 						<p class="text-foreground/70">ID: 1231231</p>
 					</div>
-					<div class="space-x-3">
-						<Combobox
-							v-model="activeStatus"
-							:options="statusOptions"
-							:placeholder="t('MapsPage.selection.variable.placeholder')"
-							width="w-44"
-						/>
+					<div class="flex items-center gap-3">
+						<Label for="status" class="sr-only">{{ t("AdminPage.editor.status.status") }}</Label>
+						<Combobox id="status" v-model="activeStatus" :options="statusOptions" width="w-44" />
 						<Button @click="saveArticle">Save</Button>
 					</div>
 				</div>
@@ -155,7 +156,7 @@ usePageMetadata({
 							id="category"
 							v-model="activeCategory"
 							:options="categoryOptions"
-							:placeholder="t('MapsPage.selection.variable.placeholder')"
+							:placeholder="t('AdminPage.editor.category')"
 						/>
 					</div>
 				</div>

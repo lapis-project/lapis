@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ChevronLeft, ChevronRight } from "lucide-vue-next";
 import { ComboboxAnchor, ComboboxInput, ComboboxPortal, ComboboxRoot } from "radix-vue";
 import { computed, ref } from "vue";
 
@@ -10,14 +11,14 @@ import {
 	TagsInputItemDelete,
 	TagsInputItemText,
 } from "@/components/ui/tags-input";
-
-import type { DropdownOption } from "./data-map-view.vue";
+import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();
 
 const props = defineProps<{
 	options: Array<DropdownOption>;
 	placeholder: string;
+	moveable?: boolean;
 }>();
 
 const modelValue = defineModel<Array<string>>({ default: () => [] });
@@ -29,13 +30,37 @@ const searchTerm = ref("");
 const filteredOptions = computed(() =>
 	props.options.filter((i) => !modelValue.value.includes(i.label)),
 );
+
+const emit = defineEmits<{
+	(e: "update:modelValue", value: Array<string>): void;
+}>();
+
+const moveItem = (index: number, direction: "left" | "right") => {
+	const newArray = [...modelValue.value];
+	if (direction === "left" && index > 0) {
+		// Swap the item with the one before it
+		[newArray[index - 1], newArray[index]] = [newArray[index], newArray[index - 1]];
+	} else if (direction === "right" && index < modelValue.value.length - 1) {
+		// Swap the item with the one after it
+		[newArray[index + 1], newArray[index]] = [newArray[index], newArray[index + 1]];
+	}
+	emit("update:modelValue", newArray);
+};
 </script>
 
 <template>
-	<TagsInput class="w-80 gap-0 px-0" :model-value="modelValue">
+	<TagsInput class="gap-0 px-0" :model-value="modelValue">
 		<div class="flex flex-wrap items-center gap-2 px-3">
-			<TagsInputItem v-for="item in modelValue" :key="item" :value="item">
+			<TagsInputItem v-for="(item, index) in modelValue" :key="item" :value="item">
 				<TagsInputItemText />
+				<template v-if="moveable">
+					<ChevronLeft v-if="index > 0" class="size-4" @click="moveItem(index, 'left')" />
+					<ChevronRight
+						v-if="index !== modelValue.length - 1"
+						class="size-4"
+						@click="moveItem(index, 'right')"
+					/>
+				</template>
 				<TagsInputItemDelete />
 			</TagsInputItem>
 		</div>
@@ -55,6 +80,7 @@ const filteredOptions = computed(() =>
 						class="w-full px-3"
 						:class="modelValue.length > 0 ? 'mt-2' : ''"
 						@keydown.enter.prevent
+						@focus="open = true"
 					/>
 				</ComboboxInput>
 			</ComboboxAnchor>

@@ -10,28 +10,35 @@
 				"save": "Save",
 				"delete": "Delete"
 			},
-			"authors": "Authors",
-			"category": "Category",
+			"authors": {
+				"label": "Authors",
+				"placeholder": "Add authors"
+			},
+			"category": {
+				"label": "Category",
+				"placeholder": "category"
+			},
 			"citation": "Citation",
 			"content": "Content",
 			"created-at": "Created at",
 			"published-at": "Published at",
+			"question": {
+				"label": "Phenomenon",
+				"placeholder": "phenomenon"
+			},
 			"references": "Bibliography",
 			"status": {
-				"status": "Status",
 				"draft": "Draft",
-				"published": "Published"
+				"published": "Published",
+				"ready": "Ready",
+				"status": "Status",
+				"unpublished": "Unpublished"
 			},
 			"title": "Title",
 			"updated-at": "Updated at"
 		},
 		"navigation": {
 			"collections": "Collections"
-		},
-		"status": {
-			"draft": "Draft",
-			"ready": "Ready",
-			"published": "Published"
 		},
 		"title": "Admin"
 	},

@@ -10,10 +10,20 @@ const { data: categoryOptions } = await useFetch<Array<DropdownOption>>(`/api/ca
 	method: "get",
 });
 
+const { data: users } = await useFetch(`/api/users`, {
+	method: "get",
+});
+
+const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/questions/survey/lexat`, {
+	method: "get",
+});
+
 const abstract = ref<string>("");
-const activeCategory = ref<string | null>(null);
 const alias = ref<string>("");
 const content = ref<string>("<p>Hello Tiptap</p>");
+const selectedAuthors = ref<Array<string>>([]);
+const selectedCategory = ref<string | null>(null);
+const selectedQuestion = ref<string | null>(null);
 const title = ref<string>("");
 
 const generateAlias = (title: string) => {
@@ -35,7 +45,7 @@ const saveArticle = () => {
 	});
 };
 
-export type Status = "draft" | "published" | "ready";
+export type Status = "draft" | "published" | "ready" | "unpublished";
 
 const activeStatus = ref<Status>("draft");
 
@@ -43,18 +53,23 @@ const activeStatus = ref<Status>("draft");
 const statusOptions: Array<DropdownOption<Status>> = [
 	{
 		value: "draft",
-		label: t("AdminPage.status.draft"),
+		label: t("AdminPage.editor.status.draft"),
 		color: "#cc3232", // red
 	},
 	{
 		value: "ready",
-		label: t("AdminPage.status.ready"),
+		label: t("AdminPage.editor.status.ready"),
 		color: "#e7b416", // yellow
 	},
 	{
 		value: "published",
-		label: t("AdminPage.status.published"),
+		label: t("AdminPage.editor.status.published"),
 		color: "#2dc937", // green
+	},
+	{
+		value: "unpublished",
+		label: t("AdminPage.editor.status.unpublished"),
+		color: "#d3d3d3", // grey
 	},
 ];
 
@@ -72,6 +87,19 @@ const collections = [
 		alias: "categories",
 	},
 ];
+
+const authorsOptions = computed((): Array<DropdownOption> => {
+	return (
+		users.value?.map((u) => ({
+			value: u.id.toString(),
+			label: nameShortener(u.firstName, u.lastName),
+		})) ?? []
+	);
+});
+
+const nameShortener = (firstName: string, lastName: string): string => {
+	return `${firstName.charAt(0)}. ${lastName}`;
+};
 
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
@@ -105,13 +133,9 @@ usePageMetadata({
 						<h3 class="text-3xl font-semibold">Untitled</h3>
 						<p class="text-foreground/70">ID: 1231231</p>
 					</div>
-					<div class="space-x-3">
-						<Combobox
-							v-model="activeStatus"
-							:options="statusOptions"
-							:placeholder="t('MapsPage.selection.variable.placeholder')"
-							width="w-44"
-						/>
+					<div class="flex items-center gap-3">
+						<Label for="status" class="sr-only">{{ t("AdminPage.editor.status.status") }}</Label>
+						<Combobox id="status" v-model="activeStatus" :options="statusOptions" width="w-44" />
 						<Button @click="saveArticle">Save</Button>
 					</div>
 				</div>
@@ -149,13 +173,35 @@ usePageMetadata({
 							<TextEditor v-model="content" class="w-full" />
 						</ClientOnly>
 					</div>
-					<div v-if="categoryOptions" class="mb-6 grid w-full max-w-sm items-center gap-1.5">
-						<Label for="category">{{ t("AdminPage.editor.category") }}</Label>
-						<Combobox
-							id="category"
-							v-model="activeCategory"
-							:options="categoryOptions"
-							:placeholder="t('MapsPage.selection.variable.placeholder')"
+					<div class="mb-6 flex items-baseline gap-8">
+						<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">
+							<Label for="category">{{ t("AdminPage.editor.category.label") }}</Label>
+							<Combobox
+								id="category"
+								v-model="selectedCategory"
+								:options="categoryOptions"
+								:placeholder="t('AdminPage.editor.category.placeholder')"
+							/>
+						</div>
+
+						<div v-if="questions" class="grid max-w-sm items-center gap-1.5">
+							<Label for="category">{{ t("AdminPage.editor.question.label") }}</Label>
+							<Combobox
+								v-model="selectedQuestion"
+								:options="questions"
+								:placeholder="t('AdminPage.editor.question.placeholder')"
+								has-search
+							/>
+						</div>
+					</div>
+					<div v-if="authorsOptions" class="grid w-full max-w-xl items-center gap-1.5">
+						<Label for="authors">{{ t("AdminPage.editor.authors.label") }}</Label>
+						<TagsCombobox
+							id="authors"
+							v-model="selectedAuthors"
+							:options="authorsOptions"
+							:placeholder="t('AdminPage.editor.authors.placeholder')"
+							moveable
 						/>
 					</div>
 				</div>

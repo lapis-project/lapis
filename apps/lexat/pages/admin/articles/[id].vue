@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { ArrowLeft } from "lucide-vue-next";
+
 import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
 
@@ -82,10 +84,6 @@ const authorsOptions = computed((): Array<DropdownOption> => {
 	);
 });
 
-const nameShortener = (firstName: string, lastName: string): string => {
-	return `${firstName.charAt(0)}. ${lastName}`;
-};
-
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
 });
@@ -99,6 +97,9 @@ usePageMetadata({
 	<MainContent class="container w-full content-start py-8">
 		<PageTitle class="sr-only">{{ t("AdminPage.title") }}</PageTitle>
 		<div class="col-span-4 rounded border p-8">
+			<NuxtLinkLocale class="mb-4 flex items-center gap-1" to="/admin/articles"
+				><ArrowLeft class="size-4" />Back</NuxtLinkLocale
+			>
 			<div class="mb-8 flex justify-between border-b pb-8">
 				<div>
 					<h3 class="text-3xl font-semibold">Untitled</h3>

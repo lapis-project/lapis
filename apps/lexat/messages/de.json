@@ -3,6 +3,12 @@
 		"meta": {
 			"title": "Admin"
 		},
+		"categories": {
+			"articles": {
+				"title": "Artikel",
+				"new": "Neuer Artikel"
+			}
+		},
 		"editor": {
 			"abstract": "Abstrakt",
 			"alias": "Artikel-URL",

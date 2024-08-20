@@ -172,7 +172,7 @@ function init() {
 			"fill-opacity": 0.6,
 		},
 	});
-	map.setLayoutProperty("polygons", "visibility", "visible"); // has to be set once before being toggle-able
+	map.setLayoutProperty("polygons", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
 	map.addLayer({
 		id: "outline",
@@ -184,7 +184,7 @@ function init() {
 			"line-width": 1,
 		},
 	});
-	map.setLayoutProperty("outline", "visibility", "visible"); // has to be set once before being toggle-able
+	map.setLayoutProperty("outline", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
 	map.addLayer({
 		id: "points",

@@ -762,7 +762,7 @@ watch(activeVariants, updateUrlParams, {
 							</p>
 							<ul>
 								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">
-									<details>
+									<details :name="value">
 										<summary>
 											<svg width="12" height="12" class="mr-0.5 inline align-text-top">
 												<circle cx="6" cy="6" r="6" :fill="mappedColors[key]" />

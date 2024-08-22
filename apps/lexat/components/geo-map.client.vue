@@ -18,6 +18,8 @@ import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 import { DPI, Format, MaplibreExportControl, PageOrientation, Size } from "@/utils/map-exporter";
 import { generatePieChartWebGL, parseString } from "@/utils/pie-chart-helper";
 
+import { ResetViewControl } from "./reset-view-control";
+
 const props = defineProps<{
 	features: Array<GeoJsonFeature>;
 	points: Array<GeoJsonFeature>;
@@ -126,14 +128,17 @@ function init() {
 	assert(context.map != null);
 	const map = context.map;
 
-	//
-
 	const nav = new NavigationControl({});
 	map.addControl(nav, "top-left");
-	//
 
 	const scale = new ScaleControl({});
 	map.addControl(scale, "bottom-left");
+
+	const resetViewControl = new ResetViewControl(
+		[initialViewState.longitude, initialViewState.latitude],
+		initialViewState.zoom,
+	);
+	map.addControl(resetViewControl, "top-left");
 
 	// initiate image exporter https://maplibre-gl-export.water-gis.com/
 	const exportControl = new MaplibreExportControl({

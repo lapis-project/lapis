@@ -2,6 +2,8 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, number, object, string } from "valibot";
 
+import { getAllPhenomenon } from "../db/questionRepository";
+
 const questions = new Hono();
 
 const saveMapSchema = object({
@@ -26,11 +28,13 @@ const searchResponseQuerySchema = object({
 	pageSize: number(),
 });
 
-const questionsForSurvey = questions.get("/survey/:project", (c) => {
-	return c.json("OK", 201);
+const questionsForSurvey = questions.get("/survey/:project", async (c) => {
+	const projectId = c.req.param("project");
+	const allQuestions = await getAllPhenomenon(projectId);
+	return c.json(allQuestions, 201);
 });
 
-const mapAlias = questions.get("/question/:id", (c) => {
+const mapAlias = questions.get("/:id", (c) => {
 	return c.json("OK", 201);
 });
 

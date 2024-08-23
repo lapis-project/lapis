@@ -5,7 +5,7 @@
 	"packageManager": "pnpm@9.4.0",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
-		"generate-types-kysely": "kysely-codegen",
+		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test": "tsx --test src/**/*.spec.ts",
 		"start": "tsx src/index.ts",
 		"build": "tsc"
@@ -23,7 +23,9 @@
 		"@types/node": "^20.11.17",
 		"@types/pg": "^8.11.6",
 		"kysely-codegen": "^0.15.0",
-		"tsx": "^4.7.1"
+		"tsx": "^4.7.1",
+		"vite": "^5.3.5",
+		"vitest": "^2.0.5"
 	},
 	"eslintConfig": {
 		"extends": [

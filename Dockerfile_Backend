@@ -6,6 +6,12 @@
 # build
 FROM node:20-alpine AS build
 
+ARG PGHOST
+ARG PGUSER
+ARG PGPASSWORD
+ARG PGDATABASE
+ARG PGPORT
+
 RUN corepack enable
 
 RUN mkdir /app && chown -R node:node /app
@@ -40,6 +46,11 @@ USER node
 COPY --from=build --chown=node:node /app/apps/backend/dist ./
 
 ENV NODE_ENV=production
+ENV PGHOST $PGHOST
+ENV PGUSER $PGUSER
+ENV PGPASSWORD $PGPASSWORD
+ENV PGDATABASE $PGDATABASE
+ENV PGPORT $PGPORT
 
 EXPOSE $BACKEND_PORT
 

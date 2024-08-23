@@ -7,7 +7,7 @@ export async function getAllPhenomenon(projectId: string) {
 			.selectFrom("phenomenon")
 			.orderBy("phenomenon.phenomenon_name")
 			.distinct()
-			.select(["phenomenon.phenomenon_name", "phenomenon.description"])
+			.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon.description"])
 			.execute();
 	}
 	return await db
@@ -18,6 +18,6 @@ export async function getAllPhenomenon(projectId: string) {
 		.where("project_tagset.project_id", "=", projectIdParsed)
 		.orderBy("phenomenon.phenomenon_name")
 		.distinct()
-		.select(["phenomenon.phenomenon_name", "phenomenon.description"])
+		.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon.description"])
 		.execute();
 }

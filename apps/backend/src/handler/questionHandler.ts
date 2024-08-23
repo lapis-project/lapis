@@ -34,7 +34,7 @@ const questionsForSurvey = questions.get("/survey/:project", async (c) => {
 	return c.json(allQuestions, 201);
 });
 
-const mapAlias = questions.get("/question/:id", (c) => {
+const mapAlias = questions.get("/:id", (c) => {
 	return c.json("OK", 201);
 });
 

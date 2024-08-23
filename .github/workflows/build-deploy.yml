@@ -70,9 +70,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./Dockerfile_frontend
-            image: ghcr.io/${{ github.repository }}-frontend
+            image: ghcr.io/${{ github.repository }}-Frontend
           - dockerfile: ./Dockerfile_backend
-            image: ghcr.io/${{ github.repository }}-backend
+            image: ghcr.io/${{ github.repository }}-Backend
     permissions:
       contents: read
       packages: write

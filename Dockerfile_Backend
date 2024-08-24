@@ -31,7 +31,7 @@ RUN pnpm fetch
 COPY --chown=node:node ./apps/backend ./
 RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
 
-RUN pnpm install --frozen-lockfile --offline
+RUN pnpm install --no-frozen-lockfile --offline
 
 RUN pnpm run build:backend
 

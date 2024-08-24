@@ -32,7 +32,6 @@ ARG NUXT_PUBLIC_REDMINE_ID
 
 RUN pnpm install --frozen-lockfile --offline
 
-
 RUN pnpm run build:lexat
 
 # serve

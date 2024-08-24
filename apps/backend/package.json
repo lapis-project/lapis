@@ -2,7 +2,7 @@
 	"name": "lapis-backend",
 	"license": "MIT",
 	"type": "module",
-	"packageManager": "pnpm@9.4.0",
+	"packageManager": "pnpm@9.8.0",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
@@ -11,7 +11,7 @@
 		"build": "tsc"
 	},
 	"dependencies": {
-		"@hono/node-server": "^1.12.0",
+		"@hono/node-server": "^1.12.1",
 		"@hono/valibot-validator": "^0.3.0",
 		"dotenv": "^16.4.5",
 		"hono": "^4.4.11",
@@ -20,10 +20,11 @@
 		"valibot": "^0.35.0"
 	},
 	"devDependencies": {
-		"@types/node": "^20.11.17",
+		"@types/node": "^20.14.13",
 		"@types/pg": "^8.11.6",
 		"kysely-codegen": "^0.15.0",
 		"tsx": "^4.7.1",
+		"typescript": "^5.5.4",
 		"vite": "^5.3.5",
 		"vitest": "^2.0.5"
 	},

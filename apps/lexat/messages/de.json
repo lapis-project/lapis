@@ -3,23 +3,42 @@
 		"meta": {
 			"title": "Admin"
 		},
+		"categories": {
+			"articles": {
+				"title": "Artikel",
+				"new": "Neuer Artikel"
+			}
+		},
 		"editor": {
 			"abstract": "Abstrakt",
+			"alias": "Artikel-URL",
 			"actions": {
 				"save": "Speichern",
 				"delete": "Löschen"
 			},
-			"authors": "Autoren",
-			"category": "Kategorie",
+			"authors": {
+				"label": "Autoren",
+				"placeholder": "Autoren hinzufügen"
+			},
+			"category": {
+				"label": "Kategorie",
+				"placeholder": "Kategorie"
+			},
 			"citation": "Zitiervorschlag",
 			"content": "Inhalt",
 			"created-at": "Erstellt am",
 			"published-at": "Veröffentlicht am",
+			"question": {
+				"label": "Phänomen",
+				"placeholder": "Phänomen"
+			},
 			"references": "Bibliographie",
 			"status": {
-				"status": "Status",
 				"draft": "Draft",
-				"published": "Veröffentlich"
+				"published": "Veröffentlicht",
+				"ready": "Fertig",
+				"status": "Status",
+				"unpublished": "Unveröffentlicht"
 			},
 			"title": "Titel",
 			"updated-at": "Modifiziert am"
@@ -62,6 +81,9 @@
 		"button": "{placeholder} wählen...",
 		"empty": "Keine {placeholder} gefunden",
 		"search": "{placeholder} suchen..."
+	},
+	"DataTable": {
+		"download": "Als CSV herunterladen"
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -109,6 +131,7 @@
 		"selection": {
 			"colors": "Legendenfarben",
 			"show-all-points": "Zeige alle Datenpunkte",
+			"show-region-names": "Regionen einblenden",
 			"show-regions": "Regionen anzeigen",
 			"variable": {
 				"title": "Variable",

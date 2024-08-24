@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 const t = useTranslations();
 </script>
 
@@ -8,10 +8,8 @@ const t = useTranslations();
 
 		<AppHeader />
 		<ErrorBoundary>
-			<slot />
+			<div class="container flex gap-8 py-8"><AdminNavigation class="w-1/4" /><slot /></div>
 		</ErrorBoundary>
 		<AppFooter />
-
-		<RouteAnnouncer />
 	</div>
 </template>

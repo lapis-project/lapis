@@ -5,9 +5,8 @@ import { ref } from "vue";
 import { Button } from "@/components/ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DropdownOption } from "@/types/dropdown-option";
 import { cn } from "@/utils/styles";
-
-import type { DropdownOption } from "./data-map-view.vue";
 
 const t = useTranslations();
 
@@ -28,21 +27,27 @@ const emit = defineEmits<{
 	(event: "selected"): void;
 }>();
 
+const levelZeroElement = computed(() => props.options.find((o) => o.level === 0));
+
+const showAll = computed(
+	() => model.value.length === 1 && model.value[0] === levelZeroElement.value?.value,
+);
+
 const toggelSelection = (selection: string) => {
 	const option = props.options.find((o) => o.value === selection);
-	const levelZeroElement = props.options.find((o) => o.level === 0);
 	let modifiedModel: Array<string> = [];
 	if (option?.level === 0) {
 		// level 0 elements cannot be deselected and when toggled, deselect all other options
 		model.value = [selection];
+		// model.value = props.options.map((o) => o.value);
 	} else if (!model.value.includes(selection)) {
-		if (levelZeroElement && model.value.includes(levelZeroElement.value)) {
+		if (levelZeroElement.value && model.value.includes(levelZeroElement.value.value)) {
 			model.value.shift(); // level 0 elements are always on the first index
 		}
 		let group = props.options.filter((o) => o.group === option?.group).map((g) => g.value);
 		if (option?.level === 1) {
 			group = group.filter((i) => !model.value.includes(i)); // remove group elements that are already selected
-			model.value.push(...group);
+			modifiedModel.push(...model.value, ...group);
 		} else if (option?.level === 2) {
 			let groupChilds: Array<string> = [];
 			let groupParent = "";
@@ -58,8 +63,15 @@ const toggelSelection = (selection: string) => {
 			if (groupChilds.every((g) => modifiedModel.includes(g))) {
 				modifiedModel.push(groupParent);
 			}
-			model.value = modifiedModel;
 		}
+		const allNonLevelZeroSelected = props.options
+			.filter((o) => o.level !== 0)
+			.every((o) => modifiedModel.includes(o.value));
+		if (allNonLevelZeroSelected && levelZeroElement.value) {
+			// Automatically select level 0 option if all others are selected
+			modifiedModel = [levelZeroElement.value.value];
+		}
+		model.value = modifiedModel;
 	} else {
 		let modifiedModel: Array<string> = [];
 		if (option?.level === 1) {
@@ -71,8 +83,8 @@ const toggelSelection = (selection: string) => {
 			modifiedModel = model.value.filter((l) => l !== parentElement?.value && l !== selection);
 		}
 		// in case no option is selected, add back the level 0 element
-		if (levelZeroElement && modifiedModel.length === 0) {
-			modifiedModel.push(levelZeroElement.value);
+		if (levelZeroElement.value && modifiedModel.length === 0) {
+			modifiedModel.push(levelZeroElement.value.value);
 		}
 		model.value = modifiedModel;
 	}
@@ -134,7 +146,10 @@ const open = ref(false);
 						>
 							<Check
 								:class="
-									cn('mr-2 h-4 w-4', model.includes(question.value) ? 'opacity-100' : 'opacity-0')
+									cn(
+										'mr-2 h-4 w-4',
+										model.includes(question.value) || showAll ? 'opacity-100' : 'opacity-0',
+									)
 								"
 							/>
 							<div

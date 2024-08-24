@@ -1,32 +1,19 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
-import { ChevronDownIcon, InfoIcon, RotateCcwIcon } from "lucide-vue-next";
+import { refDebounced } from "@vueuse/core";
+import {
+	ChevronDownIcon,
+	InfoIcon,
+	Maximize2Icon,
+	Minimize2Icon,
+	RotateCcwIcon,
+} from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
 
 import data from "@/assets/data/dialektregionen-trimmed.geojson.json";
-import * as fr1 from "@/assets/data/fr1.json";
-import * as fr2 from "@/assets/data/fr2.json";
-import * as fr3 from "@/assets/data/fr3.json";
-import * as fr4 from "@/assets/data/fr4.json";
-import * as fr5 from "@/assets/data/fr5.json";
-import * as fr6 from "@/assets/data/fr6.json";
-import * as fr7 from "@/assets/data/fr7.json";
-import * as fr8 from "@/assets/data/fr8.json";
-import * as fr9 from "@/assets/data/fr9.json";
-import * as fr10 from "@/assets/data/fr10.json";
-import * as fr11 from "@/assets/data/fr11.json";
-import * as fr12 from "@/assets/data/fr12.json";
-import * as fr13 from "@/assets/data/fr13.json";
-import * as fr14 from "@/assets/data/fr14.json";
-import * as fr15 from "@/assets/data/fr15.json";
-import * as fr16 from "@/assets/data/fr16.json";
-// import * as fr17 from "@/assets/data/fr17.json";
-// import * as fr18 from "@/assets/data/fr18.json";
-// import * as fr19 from "@/assets/data/fr19.json";
-// import * as fr20 from "@/assets/data/fr20.json";
-import * as fr41 from "@/assets/data/fr41.json";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
+import type { DropdownOption } from "@/types/dropdown-option";
 import type {
 	Property,
 	RegionFeature,
@@ -39,6 +26,7 @@ import type {
 // import { categories } from "@/composables/use-get-search-results";
 // import { project } from "@/config/project.config";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
+import { countUniqueVariants, getSortedVariants } from "@/utils/variant-helper";
 
 import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
@@ -70,65 +58,6 @@ const colors = ref([
 	"#80ff8a",
 	"#b080ff",
 ]);
-
-export interface DropdownOption {
-	value: string;
-	label: string;
-	data?: SurveyCollection;
-	level?: number;
-	group?: string;
-}
-
-const questions: Array<DropdownOption> = [
-	{ value: "augenlid", label: "Augenlid", data: fr1 },
-	{ value: "auswringen", label: "Auswringen", data: fr2 },
-	{ value: "backenzahn", label: "Backenzahn", data: fr3 },
-	{ value: "barfuß", label: "Barfuß", data: fr4 },
-	{ value: "bauchschmerzen", label: "Bauchschmerzen", data: fr5 },
-	{ value: "begräbnis", label: "Begräbnis", data: fr6 },
-	{ value: "brombeere", label: "Brombeere", data: fr7 },
-	{ value: "eidotter", label: "Eidotter", data: fr8 },
-	{ value: "walderdbeere", label: "Walderdbeere", data: fr9 },
-	{ value: "kehren", label: "Kehren", data: fr10 },
-	{ value: "ferkel", label: "Ferkel", data: fr11 },
-	{ value: "frühling", label: "Frühling", data: fr12 },
-	{ value: "gießkanne", label: "Gießkanne", data: fr13 },
-	{ value: "oma", label: "Oma", data: fr14 },
-	{ value: "opa", label: "Opa", data: fr15 },
-	{ value: "gurke", label: "Gurke", data: fr16 },
-	// { value: "hagebutte", label: "Hagebutte", data: fr17 },
-	// { value: "himbeere", label: "Himbeere", data: fr18 },
-	// { value: "knöchel", label: "Knöchel", data: fr19 },
-	// { value: "kopfschmerzen", label: "Kopfschmerzen", data: fr20 },
-	{ value: "streichholz", label: "Streichholz", data: fr41 },
-];
-
-const ageGroupOptions: Array<DropdownOption> = [
-	{
-		label: t("MapsPage.selection.age.show-all"),
-		value: "all",
-	},
-	{
-		label: "10 - 25",
-		value: "10-25",
-	},
-	{
-		label: "25 - 35",
-		value: "25-35",
-	},
-	{
-		label: "35 - 45",
-		value: "35-45",
-	},
-	{
-		label: "45 - 60",
-		value: "45-60",
-	},
-	{
-		label: "60+",
-		value: "60+",
-	},
-];
 
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 const basemapOptions: Array<DropdownOption> = [
@@ -216,29 +145,44 @@ const registerGroups = [
 	},
 ];
 
-const activeAgeGroup = ref<string>("all");
+const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/questions/survey/lexat`, {
+	method: "get",
+});
+
+const activeAgeGroup = ref([10, 100]);
+const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
-const activeQuestion = ref<string>("");
+const activeQuestion = ref<string | null>(null);
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
+const mapExpanded = ref<boolean>(false);
 const showAllPoints = ref<boolean>(false);
+const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
 const showAdvancedFilters = ref<boolean>(false);
 
+const activeQuestionId = computed(() => {
+	return questions.value?.find((q) => q.value === activeQuestion.value)?.id;
+});
+
+const { data: questionData } = await useFetch<SurveyCollection>("/api/questions", {
+	query: { id: activeQuestionId, project: "lexat" },
+	method: "get",
+});
+
 const specialOrder = {
-	"keine Angabe": -3, // -3 indicates last key
+	"keine Angabe": -4, // -4 indicates key to be sorted last
+	Irrelevant: -3,
 	Sonstiges: -2,
 	Sonstige: -1,
 };
-
-// const { counts } = useCountOccurrences(popover.value, specialOrder)
 
 const entities = computed((): Array<RegionFeature> => {
 	return data.features;
 });
 
 const points = computed(() => {
-	const currentData = questions.find((q) => q.value === activeQuestion.value)?.data;
+	const currentData = questionData.value;
 	let features = currentData?.features ?? [];
 	// only entries with coordinates are considered valid points
 	// let filteredFeatures = features.filter((f) => f.geometry.coordinates);
@@ -289,23 +233,6 @@ const mappedColors = computed(() => {
 	return colorMap;
 });
 
-const isInAgeGroup = (age: number, ageGroup: string): boolean => {
-	switch (ageGroup) {
-		case "10-25":
-			return age >= 10 && age <= 25;
-		case "25-35":
-			return age >= 25 && age <= 35;
-		case "35-45":
-			return age >= 35 && age <= 45;
-		case "45-60":
-			return age >= 45 && age <= 60;
-		case "60+":
-			return age >= 60;
-		default:
-			return false;
-	}
-};
-
 const filteredPoints = computed(() => {
 	let filteredPoints = points.value;
 	if (activeVariants.value.length) {
@@ -324,22 +251,24 @@ const filteredPoints = computed(() => {
 			})
 			.filter((entry) => entry.properties.length > 0);
 	}
-	if (activeAgeGroup.value !== "all") {
-		const currentYear = new Date().getFullYear();
-		filteredPoints = filteredPoints
-			.map((item) => {
-				const filteredProperties = item.properties.filter((prop) => {
-					const age = currentYear - parseInt(prop.age);
-					return isInAgeGroup(age, activeAgeGroup.value);
-				});
+	const currentYear = new Date().getFullYear();
+	filteredPoints = filteredPoints
+		.map((item) => {
+			const filteredProperties = item.properties.filter((prop) => {
+				const age = currentYear - parseInt(prop.age);
+				return (
+					age >= (debouncedActiveAgeGroup.value[0] ?? 10) &&
+					age <= (debouncedActiveAgeGroup.value[1] ?? 100)
+				);
+			});
 
-				return {
-					...item,
-					properties: filteredProperties,
-				};
-			})
-			.filter((item) => item.properties.length > 0);
-	}
+			return {
+				...item,
+				properties: filteredProperties,
+			};
+		})
+		.filter((item) => item.properties.length > 0);
+
 	return filteredPoints;
 });
 
@@ -358,44 +287,14 @@ const entitiesById = computed(() => {
 	});
 });
 
-const getSortedVariants = (points: Array<SurveyResponse>, specialSortOrder = {}) => {
-	const annoCounts = new Map<string, number>();
-
-	points.forEach((p) => {
-		p.properties.forEach((property) => {
-			property.answers.forEach((answer) => {
-				const anno = answer.anno;
-				if (annoCounts.has(anno)) {
-					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-					annoCounts.set(anno, annoCounts.get(anno)! + 1);
-				} else {
-					annoCounts.set(anno, 1);
-				}
-			});
-		});
-	});
-
-	// Apply special sort order if provided
-	for (const [key, value] of Object.entries(specialSortOrder)) {
-		if (annoCounts.has(key)) {
-			annoCounts.set(key, value as number);
-		}
-	}
-
-	// Convert the Map entries to an array and sort it by count in descending order
-	const sortedVariants = Array.from(annoCounts.entries())
-		.sort((a, b) => b[1] - a[1])
-		.map((entry) => ({ anno: entry[0], count: entry[1] }));
-
-	return sortedVariants;
-};
-
 const filteredUniqueVariants = computed(() => {
-	return getSortedVariants(filteredPoints.value, specialOrder);
+	const countedUniqueVariants = countUniqueVariants(filteredPoints.value);
+	return getSortedVariants(countedUniqueVariants, specialOrder);
 });
 
 const uniqueVariants = computed(() => {
-	return getSortedVariants(points.value);
+	const countedUniqueVariants = countUniqueVariants(points.value);
+	return getSortedVariants(countedUniqueVariants);
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
@@ -533,6 +432,10 @@ const tableDataForRegisters = computed(() => {
 	return Object.values(variantMap);
 });
 
+const fullRoute = computed(() => {
+	return env.public.appBaseUrl + route.fullPath;
+});
+
 const sanititzeReg = (reg: string) => {
 	if (reg === "Umgangssprache oder Alltagssprache") {
 		return "Ugs. oder Alltagssprache";
@@ -578,7 +481,7 @@ const updateUrlParams = async () => {
 	await router.replace({
 		query: {
 			...route.query,
-			ageGroup: activeAgeGroup.value,
+			ageGroup: activeAgeGroup.value.join(","),
 			question: activeQuestion.value,
 			registers: activeRegisters.value.join(","),
 			variants: activeVariants.value.join(","),
@@ -588,7 +491,7 @@ const updateUrlParams = async () => {
 
 const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
 	if (!omit?.includes("age")) {
-		activeAgeGroup.value = "all";
+		activeAgeGroup.value = [10, 100];
 	}
 	if (!omit?.includes("question")) {
 		activeQuestion.value = "";
@@ -605,10 +508,14 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 const initializeFromUrl = () => {
 	const { ageGroup, question, registers, variants } = route.query;
 
-	if (ageGroup) activeAgeGroup.value = String(ageGroup);
+	if (ageGroup) activeAgeGroup.value = String(ageGroup).split(",").map(Number);
 	if (question) activeQuestion.value = String(question);
 	if (registers) activeRegisters.value = String(registers).split(",");
 	if (variants) activeVariants.value = String(variants).split(",");
+};
+
+const setAgeGroup = (newValues: Array<number>) => {
+	activeAgeGroup.value = newValues;
 };
 
 // Call the initialize function on component mount
@@ -646,14 +553,10 @@ watch(
 watch(activeVariants, updateUrlParams, {
 	deep: true,
 });
-
-const fullRoute = computed(() => {
-	return env.public.appBaseUrl + route.fullPath;
-});
 </script>
 
 <template>
-	<div class="relative space-y-5">
+	<div class="relative flex flex-col gap-5">
 		<Collapsible v-model:open="showAdvancedFilters">
 			<div class="flex gap-2">
 				<div class="grow rounded-lg border p-5">
@@ -692,11 +595,6 @@ const fullRoute = computed(() => {
 									<InfoIcon class="size-4"></InfoIcon>
 								</InfoTooltip>
 							</div>
-							<!-- <TagsCombobox
-								v-model="activeVariants"
-								:options="uniqueVariantsOptions"
-								:placeholder="t('MapsPage.selection.variants.placeholder')"
-							/> -->
 							<MultiSelect
 								v-model="activeVariants"
 								:options="uniqueVariantsOptions"
@@ -705,14 +603,26 @@ const fullRoute = computed(() => {
 							/>
 						</div>
 						<div>
-							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.age.title") }}
 							</div>
-							<Combobox
+							<!-- <MultiSelect
 								v-model="activeAgeGroup"
 								:options="ageGroupOptions"
 								:placeholder="t('MapsPage.selection.age.placeholder')"
-							/>
+								single-level
+							/> -->
+							<div class="max-w-64 pl-1">
+								<DualRangeSlider
+									:label="(value) => value"
+									:value="activeAgeGroup"
+									:min="10"
+									:max="100"
+									step="5"
+									accessibility-label="Age Group"
+									@update:value="setAgeGroup"
+								/>
+							</div>
 						</div>
 					</div>
 					<CollapsibleContent>
@@ -738,6 +648,15 @@ const fullRoute = computed(() => {
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 									>
 										{{ t("MapsPage.selection.show-all-points") }}
+									</label>
+								</div>
+								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									<Checkbox id="showRegionNames" v-model:checked="showRegionNames" />
+									<label
+										for="showRegionNames"
+										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+									>
+										{{ t("MapsPage.selection.show-region-names") }}
 									</label>
 								</div>
 								<div class="flex w-64 space-x-2 self-center rounded border p-2">
@@ -779,7 +698,12 @@ const fullRoute = computed(() => {
 				</div>
 			</div>
 		</Collapsible>
-		<VisualisationContainer v-slot="{ height, width }" class="h-[600px] border">
+		<VisualisationContainer
+			v-slot="{ height, width }"
+			class="border"
+			:class="{ 'h-[600px]': !mapExpanded }"
+			:fullscreen="mapExpanded"
+		>
 			<div
 				v-if="filteredUniqueVariants.length"
 				id="legend"
@@ -804,6 +728,15 @@ const fullRoute = computed(() => {
 					</ul>
 				</div>
 			</div>
+			<div id="expand" class="absolute right-2 top-2 z-10">
+				<Button
+					variant="outline"
+					size="icon"
+					aria-label="Fullscreen"
+					@click="mapExpanded = !mapExpanded"
+					><component :is="mapExpanded ? Minimize2Icon : Maximize2Icon" class="size-4"
+				/></Button>
+			</div>
 			<GeoMap
 				v-if="height && width"
 				:features="features"
@@ -811,6 +744,7 @@ const fullRoute = computed(() => {
 				:height="height"
 				:width="width"
 				:show-all-points="showAllPoints"
+				:show-region-names="showRegionNames"
 				:show-regions="showRegions"
 				:basemap="activeBasemap"
 				@layer-click="onLayerClick"
@@ -828,7 +762,7 @@ const fullRoute = computed(() => {
 							</p>
 							<ul>
 								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">
-									<details>
+									<details :name="value">
 										<summary>
 											<svg width="12" height="12" class="mr-0.5 inline align-text-top">
 												<circle cx="6" cy="6" r="6" :fill="mappedColors[key]" />
@@ -845,10 +779,6 @@ const fullRoute = computed(() => {
 					</article>
 				</GeoMapPopup>
 			</GeoMap>
-
-			<!-- <Centered voading" class="pointer-events-none">
-				<LoadingIndicator class="text-neutral-950" size="lg" />
-			</Centered> -->
 		</VisualisationContainer>
 		<CopyToClipboard :text="fullRoute" />
 		<DataTable v-if="tableData.length" :data="tableData" :columns="columnsLocations"></DataTable>

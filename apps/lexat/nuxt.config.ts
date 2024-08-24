@@ -13,9 +13,6 @@ export default defineNuxtConfig({
 		layoutTransition: false,
 		pageTransition: false,
 	},
-	build: {
-		transpile: ["@heroicons/vue"],
-	},
 	colorMode: {
 		classSuffix: "",
 		dataValue: "ui-color-scheme",

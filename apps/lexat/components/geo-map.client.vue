@@ -3,7 +3,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { assert } from "@acdh-oeaw/lib";
 import {
-	FullscreenControl,
 	type GeoJSONSource,
 	Map as GeoMap,
 	type MapGeoJSONFeature,
@@ -19,12 +18,15 @@ import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 import { DPI, Format, MaplibreExportControl, PageOrientation, Size } from "@/utils/map-exporter";
 import { generatePieChartWebGL, parseString } from "@/utils/pie-chart-helper";
 
+import { ResetViewControl } from "./reset-view-control";
+
 const props = defineProps<{
 	features: Array<GeoJsonFeature>;
 	points: Array<GeoJsonFeature>;
 	height: number;
 	width: number;
 	showAllPoints: boolean;
+	showRegionNames: boolean;
 	showRegions: boolean;
 	basemap: string;
 }>();
@@ -126,19 +128,17 @@ function init() {
 	assert(context.map != null);
 	const map = context.map;
 
-	//
-
 	const nav = new NavigationControl({});
 	map.addControl(nav, "top-left");
-	//
-
-	const fullscreen = new FullscreenControl({});
-	map.addControl(fullscreen, "top-right");
-
-	//
 
 	const scale = new ScaleControl({});
 	map.addControl(scale, "bottom-left");
+
+	const resetViewControl = new ResetViewControl(
+		[initialViewState.longitude, initialViewState.latitude],
+		initialViewState.zoom,
+	);
+	map.addControl(resetViewControl, "top-left");
 
 	// initiate image exporter https://maplibre-gl-export.water-gis.com/
 	const exportControl = new MaplibreExportControl({
@@ -177,7 +177,7 @@ function init() {
 			"fill-opacity": 0.6,
 		},
 	});
-	map.setLayoutProperty("polygons", "visibility", "visible"); // has to be set once before being toggle-able
+	map.setLayoutProperty("polygons", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
 	map.addLayer({
 		id: "outline",
@@ -189,7 +189,7 @@ function init() {
 			"line-width": 1,
 		},
 	});
-	map.setLayoutProperty("outline", "visibility", "visible"); // has to be set once before being toggle-able
+	map.setLayoutProperty("outline", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
 	map.addLayer({
 		id: "points",
@@ -236,13 +236,57 @@ function init() {
 	// 	map.getCanvas().style.cursor = "";
 	// });
 
-	// map.on("zoom", () => {
-	// 	const zoom = map.getZoom();
-	// 	pointsData.forEach((pointData) => {
-	// 		const size = calculateIconSize(zoom, pointData.answerCount);
-	// 		pointData.mesh.scale.set(size, size, size);
-	// 	});
-	// });
+	// bug: multiple labels on certain zoom levels https://github.com/mapbox/mapbox-gl-js/issues/5583#issuecomment-341840524
+	map.addLayer({
+		id: "polygon-labels",
+		type: "symbol",
+		source: sourcePolygonsId,
+		layout: {
+			"text-field": ["get", "name"],
+			"text-size": 16,
+			"text-anchor": "center",
+		},
+		paint: {
+			"text-color": "#000000",
+			"text-halo-color": "#FFFFFF",
+			"text-halo-width": 2,
+		},
+	});
+	map.setLayoutProperty("polygon-labels", "visibility", props.showRegionNames ? "visible" : "none");
+
+	let hoveredPolygonName: string | null = null;
+
+	map.on("mousemove", "polygons", (e) => {
+		if (!props.showRegionNames) {
+			if (e.features?.length && e.features.length > 0) {
+				const newHoveredPolygonName = e.features[0]?.properties.name;
+
+				if (hoveredPolygonName !== newHoveredPolygonName) {
+					hoveredPolygonName = newHoveredPolygonName;
+
+					// Update the filter to show the label for the current polygon
+					map.setFilter("polygon-labels", ["==", "name", e.features[0]?.properties.name]);
+					map.setLayoutProperty("polygon-labels", "visibility", "visible");
+				}
+			} else {
+				// Reset the hovered polygon ID when moving out of any polygon
+				hoveredPolygonName = null;
+
+				// Hide the labels when no polygon is under the cursor
+				map.setLayoutProperty("polygon-labels", "visibility", "none");
+			}
+		}
+	});
+
+	map.on("mouseleave", "polygons", () => {
+		if (!props.showRegionNames) {
+			map.getCanvas().style.cursor = "";
+			hoveredPolygonName = null;
+
+			// Ensure labels are hidden when leaving the polygon layer
+			map.setLayoutProperty("polygon-labels", "visibility", "none");
+		}
+	});
 
 	updateScope();
 }
@@ -267,10 +311,11 @@ function updateScope() {
 	source2?.setData(geojson2);
 }
 
-const toggleLayer = (layer: "outline" | "polygons") => {
+const toggleLayer = (layer: "outline" | "polygon-labels" | "polygons") => {
 	assert(context.map != null);
 	const map = context.map;
 	const visibility = map.getLayoutProperty(layer, "visibility");
+	map.setFilter(layer, null);
 	if (visibility === "visible") {
 		map.setLayoutProperty(layer, "visibility", "none");
 	} else {
@@ -295,6 +340,15 @@ watch(
 	async () => {
 		dispose();
 		await create();
+	},
+);
+
+watch(
+	() => {
+		return props.showRegionNames;
+	},
+	() => {
+		toggleLayer("polygon-labels");
 	},
 );
 

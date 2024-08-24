@@ -1,7 +1,5 @@
 /* stylelint-disable selector-class-pattern */
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 @layer base {
 	:root {
@@ -20,7 +18,7 @@
 		--secondary: 210 40% 96.1%;
 		--secondary-foreground: 222.2 47.4% 11.2%;
 		--accent: 210 40% 96.1%;
-		--accent-foreground: 222.2 47.4% 11.2%;
+		--accent-foreground: 332, 54%, 43%;
 		--destructive: 0 84.2% 60.2%;
 		--destructive-foreground: 210 40% 98%;
 		--ring: 222.2 84% 4.9%;
@@ -108,6 +106,13 @@
 		color: #333;
 		cursor: pointer;
 		appearance: none;
+	}
+
+	#text-editor a {
+		@apply text-accent-foreground;
+
+		text-decoration: underline;
+		cursor: pointer;
 	}
 
 	#text-editor .align-dropdown > .dropdown-content {
@@ -207,3 +212,6 @@
 		list-style-type: disc;
 	}
 }
+
+@tailwind components;
+@tailwind utilities;

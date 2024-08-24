@@ -8,7 +8,7 @@ const links = computed(() => {
 		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
 		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
 		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
-		admin: { to: { path: "/admin" }, label: t("AppHeader.links.admin") },
+		admin: { to: { path: "/admin/articles" }, label: t("AppHeader.links.admin") },
 	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
 });
 </script>

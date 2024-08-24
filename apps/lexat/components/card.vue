@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArrowRightIcon } from "@heroicons/vue/24/solid";
+import { ArrowRightIcon } from "lucide-vue-next";
 
 // const props = defineProps<{
 // 	title?: string;

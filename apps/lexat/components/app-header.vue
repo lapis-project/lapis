@@ -47,6 +47,7 @@ const links = computed(() => {
 			<div class="relative flex items-center gap-4">
 				<ColorSchemeSwitcher />
 				<LocaleSwitcher />
+				<UserPanel />
 			</div>
 		</div>
 	</header>

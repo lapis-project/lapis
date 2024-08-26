@@ -120,7 +120,13 @@ jobs:
       matrix:
         include:
           - image: ${{ needs.setup_workflow_env.outputs.registry_root }}-frontend
+            serviceid: ${{ vars.SERVICE_ID_FRONTEND }}
+            publicurl: ${{ vars.PUBLIC_URL_FRONTEND }}
+            appname: ${{ needs.setup_workflow_env.outputs.APP_NAME }}-frontend
           - image: ${{ needs.setup_workflow_env.outputs.registry_root }}-backend
+            serviceid: ${{ vars.SERVICE_ID_BACKEND }}
+            publicurl: ${{ vars.PUBLIC_URL_BACKEND }}
+            appname: ${{ needs.setup_workflow_env.outputs.APP_NAME }}-backend
     permissions:
       contents: read
       packages: write
@@ -134,10 +140,10 @@ jobs:
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
       DOCKER_TAG: "${{ matrix.image }}"
-      APP_NAME: "${{ needs.setup_workflow_env.outputs.APP_NAME }}"
+      APP_NAME: "${{ matrix.appname}}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
-      SERVICE_ID: "${{ vars.SERVICE_ID }}"
-      PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.public_url }}"
+      SERVICE_ID: "${{ matrix.serviceid }}"
+      PUBLIC_URL: "${{ matrix.publicurl }}"
       default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
   clean_up_cache:
     needs:

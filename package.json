@@ -4,6 +4,7 @@
 	"description": "Monorepo for Lapis",
 	"keywords": [],
 	"author": "Kilian Kukelka",
+	"type": "module",
 	"license": "MIT",
 	"scripts": {
 		"prepare": "run-s setup",

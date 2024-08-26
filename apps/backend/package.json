@@ -33,5 +33,11 @@
 			"@acdh-oeaw/eslint-config",
 			"@acdh-oeaw/eslint-config/strict"
 		]
+	},
+	"lint-staged": {
+		"*.@(js|ts)": [
+			"eslint --cache --fix",
+			"prettier --cache --write"
+		]
 	}
 }

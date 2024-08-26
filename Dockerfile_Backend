@@ -29,12 +29,10 @@ RUN pnpm fetch
 COPY --chown=node:node ./ ./
 RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
 
-
-RUN pnpm install --no-frozen-lockfile --prefer-offline --filter "apps/backend"
-
-RUN ls -la apps/backend/node_modules/@types
+RUN pnpm install --frozen-lockfile --prefer-offline --filter "./apps/backend/**"
 
 RUN pnpm run build:backend
+
 
 ENV BACKEND_PORT 3000
 ENV NODE_ENV=production
@@ -57,4 +55,4 @@ ENV PGPORT $PGPORT
 
 EXPOSE $BACKEND_PORT
 
-CMD ["node", "./index.js"]
+CMD ["node", "./src/index.js"]

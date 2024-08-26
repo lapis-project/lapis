@@ -19,8 +19,6 @@ WORKDIR /app
 
 USER node
 
-ENV BACKEND_PORT 3000
-ENV NODE_ENV=production
 
 COPY --chown=node:node .npmrc package.json pnpm-lock.yaml ./
 
@@ -28,13 +26,18 @@ RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
 
 RUN pnpm fetch
 
-COPY --chown=node:node ./apps/backend ./
+COPY --chown=node:node ./ ./
 RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
 
-RUN pnpm install --no-frozen-lockfile --offline
+
+RUN pnpm install --no-frozen-lockfile --prefer-offline --filter "apps/backend"
+
+RUN ls -la apps/backend/node_modules/@types
 
 RUN pnpm run build:backend
 
+ENV BACKEND_PORT 3000
+ENV NODE_ENV=production
 # serve
 FROM node:20-alpine AS serve
 

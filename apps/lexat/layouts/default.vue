@@ -11,7 +11,5 @@ const t = useTranslations();
 			<slot />
 		</ErrorBoundary>
 		<AppFooter />
-
-		<RouteAnnouncer />
 	</div>
 </template>

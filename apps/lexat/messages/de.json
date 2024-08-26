@@ -194,8 +194,21 @@
 		},
 		"title": "Seite nicht gefunden"
 	},
+	"ProfilePage": {
+		"meta": {
+			"title": "Profileseite"
+		},
+		"title": "Profileseite"
+	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
 		"empty": "Keine Ergebnisse gefunden"
+	},
+	"UserPanel": {
+		"admin": "Admin",
+		"login": "Einloggen",
+		"logout": "Ausloggen",
+		"profile": "Profil",
+		"settings": "Einstellungen"
 	}
 }

@@ -200,8 +200,21 @@
 		},
 		"title": "Page not found"
 	},
+	"ProfilePage": {
+		"meta": {
+			"title": "Profile"
+		},
+		"title": "Profile"
+	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
 		"empty": "No results found"
+	},
+	"UserPanel": {
+		"admin": "Admin",
+		"login": "Log in",
+		"logout": "Log out",
+		"profile": "Profile",
+		"settings": "Settings"
 	}
 }

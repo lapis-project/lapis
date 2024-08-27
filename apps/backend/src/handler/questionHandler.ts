@@ -2,7 +2,7 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, number, object, string } from "valibot";
 
-import { getAllPhenomenon } from "../db/questionRepository";
+import { getAllPhenomenon, getAllPhenomenonById } from "../db/questionRepository";
 
 const questions = new Hono();
 
@@ -30,8 +30,24 @@ const searchResponseQuerySchema = object({
 
 const questionsForSurvey = questions.get("/survey/:project", async (c) => {
 	const projectId = c.req.param("project");
+	if (!projectId) {
+		return c.json("Project Id is required", 400);
+	}
 	const allQuestions = await getAllPhenomenon(projectId);
 	return c.json(allQuestions, 201);
+});
+
+const questionsByIdAndProject = questions.get("/", async (c) => {
+	const projectId = c.req.query("project");
+	const phenomenonId = c.req.query("id");
+	/*
+	 * Would also work by using the deconstructed object
+	 */
+	if (!projectId || !phenomenonId) {
+		return c.json("Project Id and Phenomenon Id are required", 400);
+	}
+	const questionById = await getAllPhenomenonById(projectId, phenomenonId);
+	return c.json(questionById, 201);
 });
 
 const mapAlias = questions.get("/:id", (c) => {
@@ -59,5 +75,6 @@ export type MapAliasType = typeof mapAlias;
 export type ResponsesByQueryType = typeof responsesByQuery;
 export type SaveMapType = typeof saveMap;
 export type GetSavedMapType = typeof getSavedMap;
+export type QuestionsByIdAndProjectType = typeof questionsByIdAndProject;
 
 export default questions;

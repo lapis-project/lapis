@@ -23,7 +23,7 @@ jobs:
       submodules: "true"
       PUBLIC_URL: "${{ vars.PUBLIC_URL_BACKEND }}"
       APP_NAME: lapis-backend
-      APP_ROOT: /
+      APP_ROOT: /health
     steps:
       - name: Get environment from git ref
         id: get_environment_from_git_ref

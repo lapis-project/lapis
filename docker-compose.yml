@@ -1,0 +1,23 @@
+version: "3"
+services:
+  backend:
+    image: lapis-dev-backend:latest
+    environment:
+      - PGDATABASE=oeaw
+      - PGUSER=oeaw
+      - PGPASSWORD=mysupersecretpassword
+      - PGHOST=postgres
+      - PGPORT=5432
+      - ALLOWED_ORIGINS=http://localhost:3000
+    ports:
+      - "3000:3000"
+    links:
+      - database:postgres
+  database:
+    image: postgres:14
+    environment:
+      - POSTGRES_PASSWORD=mysupersecretpassword
+      - POSTGRES_USER=oeaw
+      - POSTGRES_DB=oeaw
+    ports:
+      - "5432:5432"

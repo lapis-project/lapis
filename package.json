@@ -21,7 +21,8 @@
 		"lint:styles:check": "stylelint \"./**/*.@(css|vue)\" --cache --ignore-path ./.gitignore",
 		"lint:styles:fix": "pnpm run lint:styles:check --fix",
 		"start:lexat": "cd apps/lexat && pnpm start",
-		"start:backend": "cd apps/backend && pnpm start"
+		"start:backend": "cd apps/backend && pnpm start",
+		"start:devSetup": "cd apps/backend && pnpm run build:types"
 	},
 	"packageManager": "pnpm@9.4.0",
 	"devDependencies": {

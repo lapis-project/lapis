@@ -21,9 +21,9 @@ jobs:
       default_port: "3000"
       fetch-depth: 10
       submodules: "true"
+      PUBLIC_URL: "${{ vars.PUBLIC_URL_BACKEND }}"
       APP_NAME: lapis-backend
       APP_ROOT: /
-      PUBLIC_URL: "${{ vars.PUBLIC_URL_BACKEND }}"
     steps:
       - name: Get environment from git ref
         id: get_environment_from_git_ref

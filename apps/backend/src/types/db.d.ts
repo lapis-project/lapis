@@ -233,6 +233,7 @@ export interface Response {
 	response_text: string | null;
 	task_id: number | null;
 	timestamp_audio: string | null;
+	variety_id: number | null;
 }
 
 export interface Source {

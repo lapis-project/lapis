@@ -6,13 +6,15 @@
 	"packageManager": "pnpm@9.8.0",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "tsup --watch",
+		"dev": "tsx watch src/index.ts",
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test": "tsx --test src/**/*.spec.ts",
 		"start": "tsx ./dist/index.js",
-		"build": "tsup --dts-resolve"
+		"build": "tsup --dts",
+		"build:types": "tsup --dts-only ./src/**/*.ts --out-dir ./../../backend-types"
 	},
 	"dependencies": {
+		"@acdh-oeaw/lib": "^0.1.12",
 		"@hono/node-server": "^1.2.0",
 		"@hono/valibot-validator": "^0.3.0",
 		"dotenv": "^16.4.5",

@@ -23,6 +23,7 @@ jobs:
       submodules: "true"
       APP_NAME: lexat
       APP_ROOT: /
+      PUBLIC_URL: "${{ vars.PUBLIC_URL_FRONTEND }}"
     steps:
       - name: Get environment from git ref
         id: get_environment_from_git_ref

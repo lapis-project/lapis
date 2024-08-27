@@ -1,17 +1,16 @@
 {
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "@acdh-oeaw/tsconfig",
 	"compilerOptions": {
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"strict": true,
-		"skipLibCheck": true,
-		"types": ["node"],
+		/** @see https://github.com/egoist/tsup/issues/615 */
+		"incremental": false,
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx",
-		"outDir": "./dist",
-		"allowSyntheticDefaultImports": true,
+		"paths": {
+			"@/*": ["./src/*"]
+		},
 		"esModuleInterop": true,
-		"resolveJsonModule": true,
-		"typeRoots": ["./node_modules/@types"]
-	}
+		"allowSyntheticDefaultImports": true
+	},
+	"exclude": ["dist", "node_modules"]
 }

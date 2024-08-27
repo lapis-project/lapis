@@ -1,0 +1,137 @@
+name: Build and deploy the Frontend
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
+  cancel-in-progress: true
+"on":
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/frontend/**"
+  workflow_call: null
+  workflow_dispatch: null
+jobs:
+  setup_workflow_env:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: "${{ steps.get_environment_from_git_ref.outputs.environment }}"
+      environment_short: "${{ steps.get_environment_from_git_ref.outputs.environment_short }}"
+      image_name: ""
+      registry_root: "ghcr.io/${{ github.repository }}"
+      default_port: "3000"
+      fetch-depth: 10
+      submodules: "true"
+      APP_NAME: lexat
+      APP_ROOT: /
+    steps:
+      - name: Get environment from git ref
+        id: get_environment_from_git_ref
+        run: |
+          echo "Running on branch ${{ github.ref_name }}"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=production"
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "environment_short=prod" >> $GITHUB_OUTPUT
+          else
+            echo "environment=review/${{ github.ref_name }}"
+            echo "environment=review/${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "environment_short=$(echo -n ${{ github.ref_name }} | sed 's/feat\(ure\)\{0,1\}[_/]//' | tr '_' '-' | tr '[:upper:]' '[:lower:]' )" >> $GITHUB_OUTPUT
+          fi
+  generate_workflow_vars:
+    needs:
+      - setup_workflow_env
+    environment:
+      name: "${{ needs.setup_workflow_env.outputs.environment }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate PUBLIC_URL if not set
+        id: generate_public_url
+        run: >
+          kube_ingress_base_domain="${{ vars.KUBE_INGRESS_BASE_DOMAIN }}"
+
+          public_url="${{ needs.setup_workflow_env.outputs.PUBLIC_URL || vars.PUBLIC_URL }}"
+
+          if [ "${public_url}x" == 'x' ]
+
+          then public_url=https://${{ needs.setup_workflow_env.outputs.environment_short
+          }}.${kube_ingress_base_domain}
+
+          fi
+
+          echo "public_url=$public_url" >> $GITHUB_OUTPUT
+    outputs:
+      PUBLIC_URL: "${{ steps.generate_public_url.outputs.public_url }}"
+  build-and-push-image:
+    name: Build and push docker image
+    needs:
+      - setup_workflow_env
+      - generate_workflow_vars
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: "${{ github.repository_owner }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+      - name: "Extract metadata (tags, labels) for Docker"
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: >
+            ghcr.io/${{ github.repository }}-frontend # The container is located at the repository
+            registry root at the moment.
+          flavor: |
+            latest=auto
+          tags: |
+            type=raw,value={{sha}}
+            type=ref,event=branch
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile_Frontend
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: "${{ steps.meta.outputs.tags }}"
+          labels: "${{ steps.meta.outputs.labels }}"
+          build-args: |
+            "NUXT_PUBLIC_APP_BASE_URL=${{ needs.generate_workflow_vars.outputs.public_url }}"
+            "NUXT_PUBLIC_MAP_BASELAYER_URL_DARK=${{ vars.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK }}"
+            "NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT=${{ vars.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT }}"
+            "NUXT_PUBLIC_REDMINE_ID=${{ vars.SERVICE_ID }}"
+          cache-from: type=gha
+          cache-to: "type=gha,mode=max"
+  deploy:
+    permissions:
+      contents: read
+      packages: write
+    name: Deploy docker image
+    needs:
+      - setup_workflow_env
+      - generate_workflow_vars
+      - build-and-push-image
+    uses: lapis-project/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
+    secrets: inherit
+    with:
+      environment: "${{ needs.setup_workflow_env.outputs.environment }}"
+      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-frontend
+      APP_NAME: "${{ needs.setup_workflow_env.outputs.app_name }}"
+      APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
+      SERVICE_ID: "${{ vars.SERVICE_ID_FRONTEND }}"
+      PUBLIC_URL: "${{ vars.PUBLIC_URL_FRONTEND }}"
+      default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
+  clean_up_cache:
+    needs:
+      - build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: MyAlbum/purge-cache@v2
+        with:
+          max-age: 604800

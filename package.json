@@ -1,8 +1,6 @@
 {
 	"name": "lapis",
-	"version": "1.0.0",
 	"description": "Monorepo for Lapis",
-	"keywords": [],
 	"author": "Kilian Kukelka",
 	"type": "module",
 	"license": "MIT",

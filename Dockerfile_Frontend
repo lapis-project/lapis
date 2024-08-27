@@ -30,7 +30,7 @@ ARG NUXT_PUBLIC_MATOMO_BASE_URL
 ARG NUXT_PUBLIC_MATOMO_ID
 ARG NUXT_PUBLIC_REDMINE_ID
 
-RUN pnpm install --frozen-lockfile --offline
+RUN pnpm install --frozen-lockfile --offline --filter "lexat"
 
 RUN pnpm run build:lexat
 

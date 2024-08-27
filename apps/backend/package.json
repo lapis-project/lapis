@@ -9,7 +9,7 @@
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test": "tsx --test src/**/*.spec.ts",
 		"start": "tsx ./dist/index.js",
-		"build": "tsup --dts-resolve"
+		"build": "tsup --dts"
 	},
 	"dependencies": {
 		"@acdh-oeaw/lib": "^0.1.12",

@@ -50,7 +50,8 @@ jobs:
         run: >
           kube_ingress_base_domain="${{ vars.KUBE_INGRESS_BASE_DOMAIN }}"
 
-          public_url="${{ needs.setup_workflow_env.outputs.PUBLIC_URL || vars.PUBLIC_URL }}"
+          public_url="${{ needs.setup_workflow_env.outputs.PUBLIC_URL || vars.PUBLIC_URL_FRONTEND
+          }}"
 
           if [ "${public_url}x" == 'x' ]
 

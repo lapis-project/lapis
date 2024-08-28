@@ -150,7 +150,8 @@ export interface Place {
 	id: Generated<number>;
 	place_name: string | null;
 	plz: number | null;
-	position: Point | null;
+	lat: number | null;
+	lon: number | null;
 	shape: string | null;
 }
 

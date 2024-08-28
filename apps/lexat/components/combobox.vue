@@ -105,8 +105,9 @@ const hasColor = computed(() => {
 								height="12"
 								class="mr-2 inline align-baseline"
 							>
-								<circle cx="6" cy="6" r="6" :fill="question.color" /></svg
-							>{{ question.label }}
+								<circle cx="6" cy="6" r="6" :fill="question.color" />
+							</svg>
+							{{ question.label }}
 							<Check
 								:class="
 									cn('ml-auto h-4 w-4', model === question.value ? 'opacity-100' : 'opacity-0')

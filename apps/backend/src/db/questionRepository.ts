@@ -36,22 +36,40 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 		.innerJoin("annotation", "annotation_tagset.annotation_id", "annotation.id")
 		.innerJoin("annotation_response", "annotation.id", "annotation_response.annotation_id")
 		.innerJoin("response", "annotation_response.response_id", "response.id")
+		.innerJoin("phenomenon_task", "phenomenon.id", "phenomenon_task.phenomenon_id")
+		.innerJoin("task", (join) =>
+			join
+				.onRef("phenomenon_task.task_id", "=", "task.id")
+				.onRef("task.id", "=", "response.task_id"),
+		)
 		.innerJoin("variety", "response.variety_id", "variety.id")
 		.innerJoin("informant", "response.informant_id", "informant.id")
 		.innerJoin("age_group", "informant.age_group_id", "age_group.id")
 		.innerJoin("informant_lives_in_place", "informant.id", "informant_lives_in_place.informant_id")
 		.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
+		.groupBy([
+			"place.plz",
+			"place.lat",
+			"place.lon",
+			"place.place_name",
+			"variety.variety_name",
+			"age_group.age_group_name",
+			"informant.gender",
+			"response.response_text",
+			"annotation.annotation_name",
+			"phenomenon.phenomenon_name",
+		])
 		.where("phenomenon.id", "=", phenomenonIdParsed)
 		.select([
-			"phenomenon.id",
 			"phenomenon.phenomenon_name",
 			"annotation.annotation_name",
 			"response.response_text",
 			"informant.gender",
 			"age_group.age_group_name",
 			"place.place_name",
-			"place.position",
 			"place.plz",
+			"place.lat",
+			"place.lon",
 			"variety.variety_name",
 		]);
 	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {

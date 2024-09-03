@@ -93,6 +93,7 @@ export interface Informant {
 	gender: string | null;
 	id: Generated<number>;
 	survey_id: number | null;
+	comment: string | null;
 }
 
 export interface InformantLivesInPlace {
@@ -234,7 +235,6 @@ export interface Response {
 	response_text: string | null;
 	task_id: number | null;
 	timestamp_audio: string | null;
-	variety_id: number | null;
 }
 
 export interface Source {

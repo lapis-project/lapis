@@ -349,6 +349,7 @@ export interface UserRoles {
 
 export interface UserSession {
 	created_at: Timestamp | null;
+	expires_at: Timestamp | null;
 	id: Generated<number>;
 	session_id: string | null;
 	user_id: number | null;

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArrowLeft } from "lucide-vue-next";
+import { ArrowLeft, WandSparkles } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
@@ -23,10 +23,14 @@ const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/question
 const abstract = ref<string>("");
 const alias = ref<string>("");
 const content = ref<string>("<p>Hello Tiptap</p>");
+const citation = ref<string>("");
 const selectedAuthors = ref<Array<string>>([]);
 const selectedCategory = ref<string | null>(null);
+const selectedLanguage = ref<"de" | "en">("de");
 const selectedQuestion = ref<string | null>(null);
 const title = ref<string>("");
+
+const baseURL = "https://lexat.acdh-ch-dev.oeaw.ac.at/";
 
 const generateAlias = (title: string) => {
 	return title
@@ -45,6 +49,31 @@ const saveArticle = () => {
 		title: "Article Saved",
 		description: "Your changes have successfully been saved.",
 	});
+};
+
+const generateCitation = () => {
+	// Filter the authors that are selected
+	const filteredAuthors = authorsOptions.value.filter((author) =>
+		selectedAuthors.value.includes(author.label),
+	);
+
+	// Map the authors to the "<lastName>, <firstName>" format
+	const authorNames = filteredAuthors.map((author) => `${author.lastName}, ${author.firstName}`);
+
+	// Join the authors with commas and handle the last author with "and" if needed
+	let authorsString = "";
+	if (authorNames.length > 1) {
+		// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+		authorsString = `${authorNames.slice(0, -1).join(", ")} / ${authorNames[authorNames.length - 1]}`;
+	} else if (authorNames.length === 1) {
+		authorsString = authorNames[0] ?? "";
+	}
+
+	// Construct the citation string
+	const year = new Date().getFullYear(); // Get the current year dynamically
+	const url = `${baseURL}${selectedLanguage.value}/article/${alias.value}`;
+
+	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT. [URL: ${url}].`;
 };
 
 export type Status = "draft" | "published" | "ready" | "unpublished";
@@ -75,14 +104,17 @@ const statusOptions: Array<DropdownOption<Status>> = [
 	},
 ];
 
-const authorsOptions = computed((): Array<DropdownOption> => {
-	return (
-		users.value?.map((u) => ({
-			value: u.id.toString(),
-			label: nameShortener(u.firstName, u.lastName),
-		})) ?? []
-	);
-});
+const authorsOptions = computed(
+	(): Array<DropdownOption & { firstName: string; lastName: string }> => {
+		return (
+			users.value?.map((u) => ({
+				value: u.id.toString(),
+				label: nameShortener(u.firstName, u.lastName),
+				...u,
+			})) ?? []
+		);
+	},
+);
 
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
@@ -97,7 +129,7 @@ usePageMetadata({
 	<MainContent class="container w-full content-start py-8">
 		<PageTitle class="sr-only">{{ t("AdminPage.title") }}</PageTitle>
 		<div class="col-span-4 rounded border p-8">
-			<NuxtLinkLocale class="mb-4 flex items-center gap-1" to="/admin/articles"
+			<NuxtLinkLocale class="mb-4 inline-flex items-center gap-1" to="/admin/articles"
 				><ArrowLeft class="size-4" />Back</NuxtLinkLocale
 			>
 			<div class="mb-8 flex justify-between border-b pb-8">
@@ -166,7 +198,7 @@ usePageMetadata({
 						/>
 					</div>
 				</div>
-				<div v-if="authorsOptions" class="grid w-full max-w-xl items-center gap-1.5">
+				<div v-if="authorsOptions" class="mb-6 grid w-full max-w-xl items-center gap-1.5">
 					<Label for="authors">{{ t("AdminPage.editor.authors.label") }}</Label>
 					<TagsCombobox
 						id="authors"
@@ -175,6 +207,25 @@ usePageMetadata({
 						:placeholder="t('AdminPage.editor.authors.placeholder')"
 						moveable
 					/>
+				</div>
+				<div class="mb-6 flex w-full items-start gap-4">
+					<div class="grid w-1/2 gap-1.5">
+						<Label for="citation">{{ t("AdminPage.editor.citation.label") }}</Label>
+						<Textarea
+							id="citation"
+							v-model="citation"
+							type="text"
+							:placeholder="t('AdminPage.editor.citation.placeholder')"
+						/>
+						<div class="flex w-full justify-end gap-1.5">
+							<Button variant="outline" @click="generateCitation"
+								><WandSparkles class="mr-2 size-4" />{{
+									t("AdminPage.editor.citation.generate")
+								}}</Button
+							>
+							<CopyToClipboard :text="citation" />
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

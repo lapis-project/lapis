@@ -19,21 +19,23 @@ const t = useTranslations();
 
 const model = defineModel<string | null>({ default: "" });
 
-export interface Props {
-	options: Array<DropdownOption>;
+export interface Props<T = string> {
+	options: Array<DropdownOption<T>>;
 	placeholder?: string;
 	hasSearch?: boolean;
-	width?: "w-44" | "w-60" | "w-64";
+	width?: "w-44" | "w-60" | "w-64" | "w-80";
+	selectOnly?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	placeholder: "question",
 	hasSearch: false,
 	width: "w-64",
+	selectOnly: false,
 });
 
 const emit = defineEmits<{
-	(event: "selected"): void;
+	(event: "selected", value: string): void;
 }>();
 
 const open = ref(false);
@@ -92,10 +94,12 @@ const hasColor = computed(() => {
 							@select="
 								(ev) => {
 									if (typeof ev.detail.value === 'string') {
-										model = ev.detail.value;
+										if (!selectOnly) {
+											model = ev.detail.value;
+										}
+										emit('selected', ev.detail.value);
 									}
 									open = false;
-									emit('selected');
 								}
 							"
 						>

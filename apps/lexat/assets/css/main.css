@@ -78,19 +78,10 @@
 
 @layer base {
 	#text-editor .toolbar > button {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		width: 32px;
-		height: 32px;
-		margin: 0.5em 4px;
-		border: none;
-		border-radius: 2px;
+		@apply flex justify-center items-center text-xl  size-8 border-none my-2 mx-1 rounded-md cursor-pointer appearance-none;
+
 		background: #fff;
 		color: #333;
-		font-size: 20px;
-		cursor: pointer;
-		appearance: none;
 	}
 
 	#text-editor .toolbar > button.active {
@@ -99,38 +90,26 @@
 	}
 
 	#text-editor .align-dropdown > button {
-		height: 32px;
-		border: none;
-		border-radius: 2px;
+		@apply h-8 border-none cursor-pointer rounded-md appearance-none;
+
 		background: #fff;
 		color: #333;
-		cursor: pointer;
-		appearance: none;
 	}
 
 	#text-editor a {
-		@apply text-accent-foreground;
-
-		text-decoration: underline;
-		cursor: pointer;
+		@apply text-accent-foreground underline cursor-pointer;
 	}
 
 	#text-editor .align-dropdown > .dropdown-content {
-		position: absolute;
-		right: 0;
-		left: 0;
-		z-index: 1;
+		@apply absolute right-0 left-0 z-10 rounded-md;
+
 		border: 1px solid #333;
-		border-radius: 2px;
 		background-color: #fff;
 		outline: 1px solid #fff;
 	}
 
 	#text-editor .align-dropdown > .dropdown-content a {
-		display: block;
-		padding: 6px 12px;
-		text-align: center;
-		cursor: pointer;
+		@apply block cursor-pointer text-center py-1.5 px-3;
 	}
 
 	#text-editor .align-dropdown > .dropdown-content a:hover,
@@ -144,27 +123,31 @@
 	} */
 
 	#text-editor .divider {
-		width: 1px;
-		height: 24px;
-		margin-right: 6px;
+		@apply w-0.5 h-6 mr-1.5;
+
 		background: #333;
 	}
 
 	#text-editor .ProseMirror {
-		overflow-y: auto;
-		height: 300px;
-		padding-right: 0.5em;
-		padding-left: 0.5em;
-		outline: none;
+		@apply px-2 outline-none;
 	}
 
 	#text-editor ul p,
 	#text-editor ol p {
-		display: inline;
+		@apply inline;
 	}
 
 	#text-editor .ProseMirror > p:first-child {
-		margin-top: 0.5em;
+		@apply mt-2;
+	}
+
+	#text-editor h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply font-bold;
 	}
 
 	#text-editor h1 {
@@ -203,13 +186,20 @@
 	#text-editor .ProseMirror > h4:first-child,
 	#text-editor .ProseMirror > h5:first-child,
 	#text-editor .ProseMirror > h6:first-child {
-		margin-top: 0.5em;
+		@apply mt-2;
 	}
 
 	#text-editor ul,
 	#text-editor ol {
-		list-style-position: inside;
-		list-style-type: disc;
+		@apply list-inside;
+	}
+
+	#text-editor ul {
+		@apply list-disc;
+	}
+
+	#text-editor ol {
+		@apply list-decimal;
 	}
 }
 

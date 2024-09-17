@@ -88,8 +88,7 @@ export default defineNuxtConfig({
 			matomoBaseUrl: process.env.NUXT_PUBLIC_MATOMO_BASE_URL,
 			matomoId: process.env.NUXT_PUBLIC_MATOMO_ID,
 			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,
-			NUXT_PUBLIC_MAP_BASELAYER_URL_DARK: process.env.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK,
-			NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT: process.env.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT,
+			zoteroBaseUrl: process.env.NUXT_PUBLIC_ZOTERO_BASE_URL,
 		},
 	},
 	typescript: {

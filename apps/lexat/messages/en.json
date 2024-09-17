@@ -20,6 +20,11 @@
 				"label": "Authors",
 				"placeholder": "Add authors"
 			},
+			"bibliography": {
+				"label": "Bibliography",
+				"edit": "Bearbeiten",
+				"placeholder": "entry"
+			},
 			"category": {
 				"label": "Category",
 				"placeholder": "category"

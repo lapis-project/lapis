@@ -20,6 +20,11 @@
 				"label": "Autoren",
 				"placeholder": "Autoren hinzufügen"
 			},
+			"bibliography": {
+				"label": "Bibliographie",
+				"edit": "Bearbeiten",
+				"placeholder": "Eintrag"
+			},
 			"category": {
 				"label": "Kategorie",
 				"placeholder": "Kategorie"

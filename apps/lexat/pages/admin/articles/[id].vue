@@ -1,8 +1,11 @@
 <script lang="ts" setup>
-import { ArrowLeft, WandSparkles } from "lucide-vue-next";
+import { ArrowLeft, Trash, WandSparkles } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
+import type { BibliographyItem } from "@/types/zotero";
+
+const env = useRuntimeConfig();
 
 const { toast } = useToast();
 
@@ -22,12 +25,15 @@ const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/question
 
 const abstract = ref<string>("");
 const alias = ref<string>("");
+const bibliographyItems = ref<Array<BibliographyItem>>([]);
+const collectionId = "5540614";
 const content = ref<string>("<p>Hello Tiptap</p>");
 const citation = ref<string>("");
 const selectedAuthors = ref<Array<string>>([]);
 const selectedCategory = ref<string | null>(null);
 const selectedLanguage = ref<"de" | "en">("de");
 const selectedQuestion = ref<string | null>(null);
+const selectedBibliographyItems = ref<Array<BibliographyItem>>([]);
 const title = ref<string>("");
 
 const baseURL = "https://lexat.acdh-ch-dev.oeaw.ac.at/";
@@ -75,6 +81,44 @@ const generateCitation = () => {
 
 	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT. [URL: ${url}].`;
 };
+
+const fetchBibliographyItems = async () => {
+	const result = await $fetch(`/groups/${collectionId}/items`, {
+		baseURL: env.public.zoteroBaseUrl,
+		method: "GET",
+	});
+	if (result) {
+		bibliographyItems.value = result.map((i) => i.data).filter((i) => i.itemType !== "note");
+	}
+};
+
+const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
+	return bibliographyItems.value.map((i) => ({
+		value: i.key,
+		label: truncateString(i.title, 60),
+	}));
+});
+
+const addBibliographyItem = (value: string) => {
+	const alreadySelected = Boolean(selectedBibliographyItems.value.some((i) => i.key === value));
+	if (alreadySelected) {
+		return;
+	}
+	const itemToAdd = bibliographyItems.value.find((i) => i.key === value);
+	if (itemToAdd) {
+		selectedBibliographyItems.value.push(itemToAdd);
+	}
+};
+
+const removeBibliographyItem = (key: string) => {
+	selectedBibliographyItems.value = selectedBibliographyItems.value.filter((i) => i.key !== key);
+};
+
+onMounted(async () => {
+	if (!bibliographyItems.value.length) {
+		await fetchBibliographyItems();
+	}
+});
 
 export type Status = "draft" | "published" | "ready" | "unpublished";
 
@@ -226,6 +270,39 @@ usePageMetadata({
 							<CopyToClipboard :text="citation" />
 						</div>
 					</div>
+				</div>
+				<div class="mb-6 grid w-1/2 gap-4">
+					<Label for="content"
+						>{{ t("AdminPage.editor.bibliography.label")
+						}}<template v-if="selectedBibliographyItems.length">
+							({{ selectedBibliographyItems.length }})</template
+						></Label
+					>
+					<Combobox
+						:options="bibliographyOptions"
+						:placeholder="t('AdminPage.editor.bibliography.placeholder')"
+						has-search
+						select-only
+						width="w-80"
+						@selected="addBibliographyItem"
+					/>
+					<ul v-if="selectedBibliographyItems.length" class="space-y-2">
+						<li
+							v-for="item in selectedBibliographyItems"
+							:key="item.key"
+							class="flex items-center gap-2"
+						>
+							<span class="line-clamp-1 grow overflow-hidden rounded-lg border px-2 py-0.5">{{
+								item.title
+							}}</span>
+							<div>
+								<Trash
+									class="size-5 cursor-pointer hover:text-accent-foreground"
+									@click="removeBibliographyItem(item.key)"
+								></Trash>
+							</div>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</div>

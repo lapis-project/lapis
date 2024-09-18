@@ -3,7 +3,7 @@ import { createMiddleware } from "hono/factory";
 import type { Context } from "@/lib/context";
 
 // eslint-disable-next-line consistent-return
-export const restricedRoute = createMiddleware<Context>(async (c, next) => {
+export const restrictedRoute = createMiddleware<Context>(async (c, next) => {
 	const sessionCookie = c.get("session");
 	const userObject = c.get("user");
 

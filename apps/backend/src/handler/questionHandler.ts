@@ -2,9 +2,12 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, number, object, string } from "valibot";
 
+// import { restrictedRoute } from "@/lib/authHelper";
+import type { Context } from "@/lib/context";
+
 import { getAllPhenomenon, getAllPhenomenonById } from "../db/questionRepository";
 
-const questions = new Hono();
+const questions = new Hono<Context>();
 
 const saveMapSchema = object({
 	project: string(),
@@ -27,6 +30,9 @@ const searchResponseQuerySchema = object({
 	offset: number(),
 	pageSize: number(),
 });
+
+// Enable in order to restrict the route only to signed in users
+// questions.use("*", restricedRoute);
 
 const questionsForSurvey = questions.get("/survey/:project", async (c) => {
 	const projectId = c.req.param("project");

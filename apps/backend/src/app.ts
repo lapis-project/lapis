@@ -5,6 +5,7 @@ import { prettyJSON } from "hono/pretty-json";
 import { verifyRequestOrigin } from "lucia";
 
 import { lucia } from "@/auth/auth";
+import auth from "@/handler/authHandler";
 import type { Context } from "@/lib/context";
 
 import articles from "./handler/articleHandler";
@@ -79,6 +80,7 @@ app.route("/health", healthCheck);
 app.route("/articles", articles);
 app.route("/questions", questions);
 app.route("/cms", cms);
+app.route("/auth", auth);
 
 // Export type for the health check route
 export type HealthType = typeof hc;

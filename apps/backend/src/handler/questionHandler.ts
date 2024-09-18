@@ -2,9 +2,12 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, number, object, string } from "valibot";
 
+// import { restrictedRoute } from "@/lib/authHelper";
+import type { Context } from "@/lib/context";
+
 import { getAllPhenomenon, getAllPhenomenonById } from "../db/questionRepository";
 
-const questions = new Hono();
+const questions = new Hono<Context>();
 
 const saveMapSchema = object({
 	project: string(),
@@ -28,13 +31,16 @@ const searchResponseQuerySchema = object({
 	pageSize: number(),
 });
 
+// Enable in order to restrict the route only to signed in users
+// questions.use("*", restricedRoute);
+
 const questionsForSurvey = questions.get("/survey/:project", async (c) => {
 	const projectId = c.req.param("project");
 	if (!projectId) {
 		return c.json("Project Id is required", 400);
 	}
 	const allQuestions = await getAllPhenomenon(projectId);
-	return c.json(allQuestions, 201);
+	return c.json(allQuestions, 200);
 });
 
 const questionsByIdAndProject = questions.get("/", async (c) => {
@@ -43,11 +49,11 @@ const questionsByIdAndProject = questions.get("/", async (c) => {
 	/*
 	 * Would also work by using the deconstructed object
 	 */
-	if (!projectId || !phenomenonId) {
-		return c.json("Project Id and Phenomenon Id are required", 400);
+	if (!phenomenonId) {
+		return c.json("Phenomenon Id is required", 400);
 	}
-	const questionById = await getAllPhenomenonById(projectId, phenomenonId);
-	return c.json(questionById, 201);
+	const questionById = await getAllPhenomenonById(projectId ?? "", phenomenonId);
+	return c.json(questionById, 200);
 });
 
 const mapAlias = questions.get("/:id", (c) => {
@@ -56,7 +62,7 @@ const mapAlias = questions.get("/:id", (c) => {
 
 const responsesByQuery = questions.get(
 	"/responses",
-	vValidator("query", searchResponseQuerySchema),
+	vValidator("json", searchResponseQuerySchema),
 	(c) => {
 		return c.json("OK", 201);
 	},

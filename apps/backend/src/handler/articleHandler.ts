@@ -14,7 +14,7 @@ const articleRouteSchmema = object({
 
 const articleRoute = articles.get(
 	"/articles/:project",
-	vValidator("query", articleRouteSchmema),
+	vValidator("json", articleRouteSchmema),
 	(c) => {
 		return c.json("OK", 201);
 	},

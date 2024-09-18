@@ -89,6 +89,7 @@ export interface Informant {
 	gender: string | null;
 	id: Generated<number>;
 	survey_id: number | null;
+	comment: string | null;
 }
 
 export interface InformantLivesInPlace {
@@ -348,9 +349,11 @@ export interface UserRoles {
 
 export interface UserSession {
 	created_at: Timestamp | null;
+	expires_at: Timestamp | null;
 	id: Generated<number>;
 	session_id: string | null;
 	user_id: number | null;
+	exipres_at: Timestamp | null;
 }
 
 export interface Variety {

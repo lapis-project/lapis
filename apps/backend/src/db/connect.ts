@@ -8,7 +8,7 @@ dotenv.config();
 
 // eslint-disable-next-line import-x/no-named-as-default-member
 const { Pool } = pg;
-const pool = new Pool({
+export const pool = new Pool({
 	database: process.env.PGDATABASE,
 	host: process.env.PGHOST,
 	port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,

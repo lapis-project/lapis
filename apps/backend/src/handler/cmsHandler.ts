@@ -33,7 +33,7 @@ const editArticle = cms.put("/cms/:id", (c) => {
 	return c.json("OK", 201);
 });
 
-const cmsRoute = cms.get("/search/:project", vValidator("query", searchArticleSchema), (c) => {
+const cmsRoute = cms.get("/search/:project", vValidator("json", searchArticleSchema), (c) => {
 	return c.json("OK", 201);
 });
 
@@ -43,7 +43,7 @@ const articleCMSDetail = cms.get("/cms/:id", (c) => {
 
 const createNewArticle = cms.post(
 	"/newArticle",
-	vValidator("query", createNewArticleSchema),
+	vValidator("json", createNewArticleSchema),
 	(c) => {
 		return c.json("OK", 201);
 	},

@@ -17,6 +17,11 @@ export const lucia = new Lucia(dbAdapterAuth, {
 			secure: process.env.NODE_ENV === "production",
 		},
 	},
+	getUserAttributes: (attributes) => {
+		return {
+			username: attributes.username,
+		};
+	},
 });
 
 declare module "lucia" {

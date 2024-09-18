@@ -56,7 +56,7 @@ const mapAlias = questions.get("/:id", (c) => {
 
 const responsesByQuery = questions.get(
 	"/responses",
-	vValidator("query", searchResponseQuerySchema),
+	vValidator("json", searchResponseQuerySchema),
 	(c) => {
 		return c.json("OK", 201);
 	},

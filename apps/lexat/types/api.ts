@@ -23,3 +23,9 @@ export interface User {
 	lastName: string;
 	id: number;
 }
+
+export interface AuthUser {
+	id: number;
+	role_id: number | null;
+	username: string | null;
+}

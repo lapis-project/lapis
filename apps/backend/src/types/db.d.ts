@@ -7,11 +7,6 @@ export type Generated<T> =
 
 export type Inactivetype = "active" | "inactive";
 
-export interface Point {
-	x: number;
-	y: number;
-}
-
 export type Poststatus = "Draft" | "Published" | "ReadyToPublish" | "Unpublished";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
@@ -56,8 +51,9 @@ export interface AnnotationResponse {
 }
 
 export interface AnnotationTagset {
-	annotation_id: number;
-	tagset_id: number;
+	annotation_id: number | null;
+	id: Generated<number>;
+	tagset_id: number | null;
 }
 
 export interface AnnotationToken {
@@ -149,10 +145,10 @@ export interface Place {
 	alternate_names: string | null;
 	geoname_id: number | null;
 	id: Generated<number>;
-	place_name: string | null;
-	plz: number | null;
 	lat: number | null;
 	lon: number | null;
+	place_name: string | null;
+	plz: number | null;
 	shape: string | null;
 }
 
@@ -287,6 +283,7 @@ export interface Tagset {
 }
 
 export interface Task {
+	comment: string | null;
 	id: Generated<number>;
 	order_stimulus: number | null;
 	stimulus_media: string | null;
@@ -317,8 +314,11 @@ export interface Token {
 
 export interface UserAccount {
 	association: string | null;
+	email: string | null;
+	firstname: string | null;
 	id: Generated<number>;
 	inactive: Inactivetype | null;
+	lastname: string | null;
 	orcid_id: string | null;
 	password: string | null;
 	project_member: boolean | null;
@@ -360,6 +360,7 @@ export interface Variety {
 	comment: string | null;
 	id: Generated<number>;
 	iso_code: string | null;
+	variety_id: number | null;
 	variety_name: string | null;
 }
 

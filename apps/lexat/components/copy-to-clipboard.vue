@@ -25,15 +25,12 @@ const copyToClipboard = async (text: string) => {
 </script>
 
 <template>
-	<div class="flex w-full gap-3">
-		<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ props.text }}</p>
-		<template v-if="isSupported">
-			<Button variant="outline" @click="copyToClipboard(props.text)">
-				<ClipboardIcon class="mr-2 size-4" />
-				<span v-if="!copied">Copy</span>
-				<span v-else>Copied!</span>
-			</Button>
-		</template>
+	<div>
+		<Button v-if="isSupported" variant="outline" @click="copyToClipboard(props.text)">
+			<ClipboardIcon class="mr-2 size-4" />
+			<span v-if="!copied">Copy</span>
+			<span v-else>Copied!</span>
+		</Button>
 		<Toaster />
 	</div>
 </template>

@@ -780,7 +780,10 @@ watch(activeVariants, updateUrlParams, {
 				</GeoMapPopup>
 			</GeoMap>
 		</VisualisationContainer>
-		<CopyToClipboard :text="fullRoute" />
+		<div class="flex w-full gap-3">
+			<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ fullRoute }}</p>
+			<CopyToClipboard :text="fullRoute" />
+		</div>
 		<DataTable v-if="tableData.length" :data="tableData" :columns="columnsLocations"></DataTable>
 		<DataTable
 			v-if="tableDataForRegisters.length"

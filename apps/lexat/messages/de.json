@@ -20,11 +20,20 @@
 				"label": "Autoren",
 				"placeholder": "Autoren hinzufügen"
 			},
+			"bibliography": {
+				"label": "Bibliographie",
+				"edit": "Bearbeiten",
+				"placeholder": "Eintrag"
+			},
 			"category": {
 				"label": "Kategorie",
 				"placeholder": "Kategorie"
 			},
-			"citation": "Zitiervorschlag",
+			"citation": {
+				"label": "Zitiervorschlag",
+				"placeholder": "Zitiervorschlag einfügen",
+				"generate": "Generieren"
+			},
 			"content": "Inhalt",
 			"created-at": "Erstellt am",
 			"published-at": "Veröffentlicht am",

@@ -36,7 +36,9 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 		.innerJoin("annotation", "annotation_tagset.annotation_id", "annotation.id")
 		.innerJoin("annotation_response", "annotation.id", "annotation_response.annotation_id")
 		.innerJoin("response", "annotation_response.response_id", "response.id")
-		.innerJoin("variety", "response.variety_id", "variety.id")
+		.innerJoin("task", "response.task_id", "task.id")
+		.innerJoin("task_variety", "task.id", "task_variety.task_id")
+		.innerJoin("variety", "task_variety.variety_id", "variety.id")
 		.innerJoin("informant", "response.informant_id", "informant.id")
 		.innerJoin("age_group", "informant.age_group_id", "age_group.id")
 		.innerJoin("informant_lives_in_place", "informant.id", "informant_lives_in_place.informant_id")
@@ -50,7 +52,8 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 			"informant.gender",
 			"age_group.age_group_name",
 			"place.place_name",
-			"place.position",
+			"place.lat",
+			"place.lon",
 			"place.plz",
 			"variety.variety_name",
 		]);

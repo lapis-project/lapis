@@ -7,7 +7,7 @@ concurrency:
     branches:
       - main
     paths:
-      - "apps/frontend/**"
+      - "apps/lexat/**"
   workflow_call: null
   workflow_dispatch: null
 jobs:

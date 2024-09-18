@@ -353,6 +353,7 @@ export interface UserSession {
 	id: Generated<number>;
 	session_id: string | null;
 	user_id: number | null;
+	exipres_at: Timestamp | null;
 }
 
 export interface Variety {

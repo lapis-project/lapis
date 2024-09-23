@@ -78,6 +78,12 @@
 		},
 		"title": "Artikel"
 	},
+	"Auth": {
+		"username": "Benutzername",
+		"password": "Passwort",
+		"signup": "Registrieren",
+		"signin": "Einloggen"
+	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Farbschema ändern",
 		"color-schemes": {

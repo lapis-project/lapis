@@ -51,6 +51,8 @@
 		"@tiptap/vue-3": "^2.5.5",
 		"@turf/turf": "^7.0.0",
 		"@types/three": "^0.166.0",
+		"@vee-validate/zod": "^4.13.2",
+		"@vue/devtools-api": "^7.4.5",
 		"@vueuse/core": "^10.11.0",
 		"@vueuse/nuxt": "^10.11.0",
 		"class-variance-authority": "^0.7.0",
@@ -69,10 +71,12 @@
 		"tailwindcss-animate": "^1.0.7",
 		"three": "^0.166.1",
 		"valibot": "^0.35.0",
+		"vee-validate": "^4.13.2",
 		"vue": "^3.4.34",
 		"vue-i18n": "^9.13.1",
 		"vue-i18n-routing": "^1.2.0",
-		"vue-router": "^4.4.0"
+		"vue-router": "^4.4.0",
+		"zod": "^3.23.8"
 	},
 	"devDependencies": {
 		"@acdh-oeaw/eslint-config": "^1.0.10",

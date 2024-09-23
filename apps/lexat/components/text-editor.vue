@@ -202,7 +202,6 @@ const onHeadingClick = (index: Level) => {
 					ref="dropbtn"
 					aria-label="Submenu of headings"
 					:aria-expanded="dropdownOpen"
-					class="dropbtn"
 					aria-haspopup="true"
 					@click="toggleDropdown"
 					@keydown.enter.prevent="toggleDropdown"
@@ -244,7 +243,7 @@ const onHeadingClick = (index: Level) => {
 			</button>
 		</div>
 
-		<EditorContent :editor="editor" class="px-3" />
+		<EditorContent :editor="editor" class="h-[500px] overflow-y-auto px-3" />
 
 		<div v-if="editor" class="p-2 text-right text-sm">
 			<span class="words-count"> {{ wordsCount }} words </span>

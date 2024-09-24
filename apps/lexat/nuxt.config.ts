@@ -17,7 +17,12 @@ export default defineNuxtConfig({
 		dataValue: "ui-color-scheme",
 	},
 	components: [{ path: "@/components", extensions: [".vue"], pathPrefix: false }],
-	css: ["@fontsource-variable/inter", "tailwindcss/tailwind.css", "@/assets/css/main.css"],
+	css: [
+		"@fontsource-variable/inter/standard.css",
+		"@fontsource-variable/inter/standard-italic.css",
+		"tailwindcss/tailwind.css",
+		"@/assets/css/main.css",
+	],
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
 		componentInspector: false, // temporary fix https://github.com/nuxt/devtools/issues/722

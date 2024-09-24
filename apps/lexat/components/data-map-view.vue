@@ -187,7 +187,7 @@ const points = computed(() => {
 	// only entries with coordinates are considered valid points
 	// let filteredFeatures = features.filter((f) => f.geometry.coordinates);
 	if (!activeRegisters.value.includes("all")) {
-		let activeRegisterLabels: Array<string> = [];
+		const activeRegisterLabels: Array<string> = [];
 		for (const register of activeRegisters.value) {
 			const label = registerOptions.find((r) => r.value === register)?.label;
 			if (label) {
@@ -223,7 +223,7 @@ const features = computed(() => {
 });
 
 const mappedColors = computed(() => {
-	let colorMap: Record<string, string> = {};
+	const colorMap: Record<string, string> = {};
 	uniqueVariants.value.forEach((u, i) => {
 		const color = colors.value[i];
 		if (color) {
@@ -277,7 +277,6 @@ const dataPoints = computed(() => {
 		return createGeoJsonFeature(entity, mappedColors.value);
 	});
 
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	return geoJsonPoints.sort((a, b) => b.properties.answerCount! - a.properties.answerCount!);
 });
 
@@ -389,7 +388,7 @@ const tableData = computed(() => {
 						register: reg,
 					};
 				}
-				// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
 				countMap[key].count += 1;
 			});
 		});
@@ -423,7 +422,7 @@ const tableDataForRegisters = computed(() => {
 				if (registerGroups[1]?.values.includes(answer.reg)) {
 					variantMap[variant].countSt++;
 				}
-				// eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+
 				variantMap[variant].totalCount = variantMap[variant].countDia + variantMap[variant].countSt;
 			});
 		});
@@ -570,9 +569,9 @@ watch(activeVariants, updateUrlParams, {
 							</div>
 							<Combobox
 								v-model="activeQuestion"
+								has-search
 								:options="questions"
 								:placeholder="t('MapsPage.selection.variable.placeholder')"
-								has-search
 							/>
 						</div>
 						<div>
@@ -614,12 +613,12 @@ watch(activeVariants, updateUrlParams, {
 							/> -->
 							<div class="max-w-64 pl-1">
 								<DualRangeSlider
-									:label="(value) => value"
-									:value="activeAgeGroup"
-									:min="10"
-									:max="100"
-									step="5"
 									accessibility-label="Age Group"
+									:label="(value) => value"
+									:max="100"
+									:min="10"
+									step="5"
+									:value="activeAgeGroup"
 									@update:value="setAgeGroup"
 								/>
 							</div>
@@ -634,9 +633,9 @@ watch(activeVariants, updateUrlParams, {
 								</div>
 								<Combobox
 									v-model="activeBasemap"
+									has-search
 									:options="basemapOptions"
 									:placeholder="t('MapsPage.selection.basemap.placeholder')"
-									has-search
 								/>
 							</div>
 							<div class="">
@@ -644,8 +643,8 @@ watch(activeVariants, updateUrlParams, {
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showData" v-model:checked="showAllPoints" />
 									<label
-										for="showData"
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+										for="showData"
 									>
 										{{ t("MapsPage.selection.show-all-points") }}
 									</label>
@@ -653,8 +652,8 @@ watch(activeVariants, updateUrlParams, {
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showRegionNames" v-model:checked="showRegionNames" />
 									<label
-										for="showRegionNames"
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+										for="showRegionNames"
 									>
 										{{ t("MapsPage.selection.show-region-names") }}
 									</label>
@@ -662,8 +661,8 @@ watch(activeVariants, updateUrlParams, {
 								<div class="flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showRegions" v-model:checked="showRegions" />
 									<label
-										for="showRegions"
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+										for="showRegions"
 									>
 										{{ t("MapsPage.selection.show-regions") }}
 									</label>
@@ -686,11 +685,11 @@ watch(activeVariants, updateUrlParams, {
 					</CollapsibleContent>
 				</div>
 				<div class="flex flex-col gap-2">
-					<Button variant="outline" size="icon" @click="resetSelection()"
+					<Button size="icon" variant="outline" @click="resetSelection()"
 						><RotateCcwIcon class="size-4"
 					/></Button>
 					<CollapsibleTrigger
-						><Button variant="outline" size="icon"
+						><Button size="icon" variant="outline"
 							><ChevronDownIcon
 								class="size-4"
 								:class="{ 'rotate-180': showAdvancedFilters }" /></Button
@@ -717,11 +716,11 @@ watch(activeVariants, updateUrlParams, {
 							v-for="variant in filteredUniqueVariants"
 							:key="variant.anno"
 							:class="{
-								'italic-custom': !Object.keys(specialOrder).includes(variant.anno),
+								italic: !Object.keys(specialOrder).includes(variant.anno),
 							}"
 						>
-							<svg width="12" height="12" class="inline align-baseline">
-								<circle cx="6" cy="6" r="6" :fill="mappedColors[variant.anno]" />
+							<svg class="inline align-baseline" height="12" width="12">
+								<circle cx="6" cy="6" :fill="mappedColors[variant.anno]" r="6" />
 							</svg>
 							{{ variant.anno }}
 						</li>
@@ -730,23 +729,23 @@ watch(activeVariants, updateUrlParams, {
 			</div>
 			<div id="expand" class="absolute right-2 top-2 z-10">
 				<Button
-					variant="outline"
-					size="icon"
 					aria-label="Fullscreen"
+					size="icon"
+					variant="outline"
 					@click="mapExpanded = !mapExpanded"
 					><component :is="mapExpanded ? Minimize2Icon : Maximize2Icon" class="size-4"
 				/></Button>
 			</div>
 			<GeoMap
 				v-if="height && width"
+				:basemap="activeBasemap"
 				:features="features"
-				:points="dataPoints"
 				:height="height"
-				:width="width"
+				:points="dataPoints"
 				:show-all-points="showAllPoints"
 				:show-region-names="showRegionNames"
 				:show-regions="showRegions"
-				:basemap="activeBasemap"
+				:width="width"
 				@layer-click="onLayerClick"
 			>
 				<GeoMapPopup
@@ -764,8 +763,8 @@ watch(activeVariants, updateUrlParams, {
 								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">
 									<details :name="value">
 										<summary>
-											<svg width="12" height="12" class="mr-0.5 inline align-text-top">
-												<circle cx="6" cy="6" r="6" :fill="mappedColors[key]" />
+											<svg class="mr-0.5 inline align-text-top" height="12" width="12">
+												<circle cx="6" cy="6" :fill="mappedColors[key]" r="6" />
 											</svg>
 											{{ key }}
 										</summary>
@@ -784,11 +783,11 @@ watch(activeVariants, updateUrlParams, {
 			<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ fullRoute }}</p>
 			<CopyToClipboard :text="fullRoute" />
 		</div>
-		<DataTable v-if="tableData.length" :data="tableData" :columns="columnsLocations"></DataTable>
+		<DataTable v-if="tableData.length" :columns="columnsLocations" :data="tableData"></DataTable>
 		<DataTable
 			v-if="tableDataForRegisters.length"
-			:data="tableDataForRegisters"
 			:columns="columnsRegisters"
+			:data="tableDataForRegisters"
 		></DataTable>
 	</div>
 </template>

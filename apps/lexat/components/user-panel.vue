@@ -2,7 +2,8 @@
 import { LogOut, PanelLeft, User, UserRound } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
-import type { AuthUser } from "@/types/api";
+
+const localePath = useLocalePath();
 
 const t = useTranslations();
 
@@ -11,13 +12,14 @@ const user = useUser();
 const { toast } = useToast();
 
 const login = async () => {
-	const data: AuthUser | null = await useRequestFetch()("/api/user");
-	if (data) {
-		user.value = data;
-		toast({
-			title: `Successfully logged in as ${user.value.username ?? ""}`,
-		});
-	}
+	await navigateTo(localePath("/login"));
+	// const data: AuthUser | null = await useRequestFetch()("/api/user");
+	// if (data) {
+	// 	user.value = data;
+	// 	toast({
+	// 		title: `Successfully logged in as ${user.value.username ?? ""}`,
+	// 	});
+	// }
 };
 
 const logout = () => {
@@ -39,7 +41,7 @@ const firstLetterUppercase = (value: string) => {
 <template>
 	<DropdownMenu>
 		<DropdownMenuTrigger as-child>
-			<Button size="icon" class="size-8 rounded-full">
+			<Button class="size-8 rounded-full" size="icon">
 				<div v-if="user?.username">{{ firstLetterUppercase(user.username) }}</div>
 				<UserRound v-else class="size-5" />
 			</Button>

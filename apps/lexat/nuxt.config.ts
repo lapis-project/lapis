@@ -23,9 +23,10 @@ export default defineNuxtConfig({
 		locales: Object.keys(localesMap),
 		markdown: {},
 	},
-	css: ["@fontsource-variable/inter/slnt.css", "tailwindcss/tailwind.css", "@/assets/css/main.css"],
+	css: ["@fontsource-variable/inter", "tailwindcss/tailwind.css", "@/assets/css/main.css"],
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
+		componentInspector: false, // temporary fix https://github.com/nuxt/devtools/issues/722
 	},
 	experimental: {
 		componentIslands: {

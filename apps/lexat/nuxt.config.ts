@@ -2,7 +2,6 @@ import { fileURLToPath } from "node:url";
 
 import { defaultLocale, localesMap } from "./config/i18n.config";
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
 export default defineNuxtConfig({
@@ -18,14 +17,15 @@ export default defineNuxtConfig({
 		dataValue: "ui-color-scheme",
 	},
 	components: [{ path: "@/components", extensions: [".vue"], pathPrefix: false }],
-	content: {
-		defaultLocale,
-		locales: Object.keys(localesMap),
-		markdown: {},
-	},
-	css: ["@fontsource-variable/inter/slnt.css", "tailwindcss/tailwind.css", "@/assets/css/main.css"],
+	css: [
+		"@fontsource-variable/inter/standard.css",
+		"@fontsource-variable/inter/standard-italic.css",
+		"tailwindcss/tailwind.css",
+		"@/assets/css/main.css",
+	],
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
+		componentInspector: false, // temporary fix https://github.com/nuxt/devtools/issues/722
 	},
 	experimental: {
 		componentIslands: {
@@ -61,7 +61,7 @@ export default defineNuxtConfig({
 		dirs: ["./config/"],
 	},
 	modules: [
-		"@nuxt/content",
+		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",

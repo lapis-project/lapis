@@ -11,7 +11,11 @@
 		},
 		"editor": {
 			"abstract": "Abstract",
-			"alias": "Article URL",
+			"alias": {
+				"label": "Article URL",
+				"placeholder": "Article URL (automatically generated)",
+				"tooltip": "Is automatically generated from article title (special symbols are removed)"
+			},
 			"actions": {
 				"save": "Save",
 				"delete": "Delete"
@@ -36,6 +40,12 @@
 			},
 			"content": "Content",
 			"created-at": "Created at",
+			"language": {
+				"label": "Language",
+				"placeholder": "language",
+				"german": "German",
+				"english": "English"
+			},
 			"published-at": "Published at",
 			"question": {
 				"label": "Phenomenon",

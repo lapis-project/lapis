@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ArrowLeft, Trash, WandSparkles } from "lucide-vue-next";
+import { ArrowLeft, InfoIcon, Trash, WandSparkles } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
@@ -7,20 +7,35 @@ import type { BibliographyItem } from "@/types/zotero";
 
 const env = useRuntimeConfig();
 
+const currentLocale = useLocale();
+
 const { toast } = useToast();
 
 const t = useTranslations();
 
 const { data: categoryOptions } = await useFetch<Array<DropdownOption>>(`/api/categories`, {
-	method: "get",
+	method: "GET",
 });
 
 const { data: users } = await useFetch(`/api/users`, {
-	method: "get",
+	method: "GET",
 });
 
-const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/questions/survey/lexat`, {
-	method: "get",
+const { data: questions } = await useFetch<
+	Array<{ id: number; phenomenon_name: string; description: string | null }>
+>("/questions/survey/1", {
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+});
+
+const mappedQuestions = computed(() => {
+	return (
+		questions.value?.map((q) => ({
+			id: q.id,
+			value: q.id.toString(),
+			label: q.phenomenon_name,
+		})) ?? null
+	);
 });
 
 const abstract = ref<string>("");
@@ -29,9 +44,13 @@ const bibliographyItems = ref<Array<BibliographyItem>>([]);
 const collectionId = "5540614";
 const content = ref<string>("<p>Hello Tiptap</p>");
 const citation = ref<string>("");
+const languageOptions = [
+	{ value: "en", label: t("AdminPage.editor.language.english") },
+	{ value: "de", label: t("AdminPage.editor.language.german") },
+];
 const selectedAuthors = ref<Array<string>>([]);
 const selectedCategory = ref<string | null>(null);
-const selectedLanguage = ref<"de" | "en">("de");
+const selectedLanguage = ref<"de" | "en">(currentLocale.value);
 const selectedQuestion = ref<string | null>(null);
 const selectedBibliographyItems = ref<Array<BibliographyItem>>([]);
 const title = ref<string>("");
@@ -50,7 +69,16 @@ const generateAlias = (title: string) => {
 };
 
 const saveArticle = () => {
-	// do something
+	// const article = {
+	// 	abstract: abstract.value,
+	// 	alias: alias.value,
+	// 	content: content.value,
+	// 	title: title.value,
+	// 	category: selectedCategory.value,
+	// 	phenomenonId: selectedQuestion.value,
+	// 	bibliographyItems: selectedBibliographyItems.value?.map((q) => q.key),
+	// 	language: selectedLanguage.value,
+	// };
 	toast({
 		title: "Article Saved",
 		description: "Your changes have successfully been saved.",
@@ -69,7 +97,6 @@ const generateCitation = () => {
 	// Join the authors with commas and handle the last author with "and" if needed
 	let authorsString = "";
 	if (authorNames.length > 1) {
-		// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
 		authorsString = `${authorNames.slice(0, -1).join(", ")} / ${authorNames[authorNames.length - 1]}`;
 	} else if (authorNames.length === 1) {
 		authorsString = authorNames[0] ?? "";
@@ -182,38 +209,55 @@ usePageMetadata({
 					<p class="text-foreground/70">ID: 1231231</p>
 				</div>
 				<div class="flex items-center gap-3">
-					<Label for="status" class="sr-only">{{ t("AdminPage.editor.status.status") }}</Label>
+					<Label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</Label>
 					<Combobox id="status" v-model="activeStatus" :options="statusOptions" width="w-44" />
 					<Button @click="saveArticle">Save</Button>
 				</div>
 			</div>
 			<div class="bg-background">
-				<div class="mb-6 grid w-full max-w-sm items-center gap-1.5">
-					<Label for="title">{{ t("AdminPage.editor.title") }}</Label>
-					<Input
-						id="title"
-						v-model="title"
-						type="text"
-						:placeholder="t('AdminPage.editor.title')"
-					/>
+				<div class="mb-6 grid grid-cols-3 gap-5">
+					<div class="grid w-full items-center gap-1.5">
+						<Label for="title">{{ t("AdminPage.editor.title") }}</Label>
+						<Input
+							id="title"
+							v-model="title"
+							:placeholder="t('AdminPage.editor.title')"
+							type="text"
+						/>
+					</div>
+					<div class="grid w-full items-center gap-1.5">
+						<Label class="flex items-center gap-1" for="alias"
+							>{{ t("AdminPage.editor.alias.label") }}
+							<InfoTooltip :content="t('AdminPage.editor.alias.tooltip')">
+								<InfoIcon class="size-4"></InfoIcon> </InfoTooltip
+						></Label>
+						<Input
+							id="alias"
+							v-model="alias"
+							:placeholder="t('AdminPage.editor.alias.placeholder')"
+							type="text"
+						/>
+					</div>
 				</div>
-				<div class="mb-6 grid w-full max-w-sm items-center gap-1.5">
-					<Label for="alias">{{ t("AdminPage.editor.alias") }}</Label>
-					<Input
-						id="alias"
-						v-model="alias"
-						type="text"
-						:placeholder="t('AdminPage.editor.alias')"
-					/>
-				</div>
-				<div class="mb-6 grid w-full max-w-sm items-center gap-1.5">
-					<Label for="abstract">{{ t("AdminPage.editor.abstract") }}</Label>
-					<Textarea
-						id="abstract"
-						v-model="abstract"
-						type="text"
-						:placeholder="t('AdminPage.editor.abstract')"
-					/>
+				<div class="mb-6 grid grid-cols-3 items-start gap-5">
+					<div class="grid w-full gap-1.5">
+						<Label for="abstract">{{ t("AdminPage.editor.abstract") }}</Label>
+						<Textarea
+							id="abstract"
+							v-model="abstract"
+							:placeholder="t('AdminPage.editor.abstract')"
+							type="text"
+						/>
+					</div>
+					<div v-if="languageOptions" class="grid items-center gap-1.5">
+						<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
+						<Combobox
+							id="language"
+							v-model="selectedLanguage"
+							:options="languageOptions"
+							:placeholder="t('AdminPage.editor.language.placeholder')"
+						/>
+					</div>
 				</div>
 				<div class="mb-6 grid w-full items-center gap-1.5">
 					<Label for="content">{{ t("AdminPage.editor.content") }}</Label>
@@ -232,13 +276,14 @@ usePageMetadata({
 						/>
 					</div>
 
-					<div v-if="questions" class="grid max-w-sm items-center gap-1.5">
-						<Label for="category">{{ t("AdminPage.editor.question.label") }}</Label>
+					<div v-if="mappedQuestions" class="grid max-w-sm items-center gap-1.5">
+						<Label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</Label>
 						<Combobox
+							id="phenomenon"
 							v-model="selectedQuestion"
-							:options="questions"
-							:placeholder="t('AdminPage.editor.question.placeholder')"
 							has-search
+							:options="mappedQuestions"
+							:placeholder="t('AdminPage.editor.question.placeholder')"
 						/>
 					</div>
 				</div>
@@ -247,9 +292,9 @@ usePageMetadata({
 					<TagsCombobox
 						id="authors"
 						v-model="selectedAuthors"
+						moveable
 						:options="authorsOptions"
 						:placeholder="t('AdminPage.editor.authors.placeholder')"
-						moveable
 					/>
 				</div>
 				<div class="mb-6 flex w-full items-start gap-4">
@@ -258,8 +303,8 @@ usePageMetadata({
 						<Textarea
 							id="citation"
 							v-model="citation"
-							type="text"
 							:placeholder="t('AdminPage.editor.citation.placeholder')"
+							type="text"
 						/>
 						<div class="flex w-full justify-end gap-1.5">
 							<Button variant="outline" @click="generateCitation"
@@ -271,38 +316,41 @@ usePageMetadata({
 						</div>
 					</div>
 				</div>
-				<div class="mb-6 grid w-1/2 gap-4">
-					<Label for="content"
-						>{{ t("AdminPage.editor.bibliography.label")
-						}}<template v-if="selectedBibliographyItems.length">
-							({{ selectedBibliographyItems.length }})</template
-						></Label
-					>
-					<Combobox
-						:options="bibliographyOptions"
-						:placeholder="t('AdminPage.editor.bibliography.placeholder')"
-						has-search
-						select-only
-						width="w-80"
-						@selected="addBibliographyItem"
-					/>
-					<ul v-if="selectedBibliographyItems.length" class="space-y-2">
-						<li
-							v-for="item in selectedBibliographyItems"
-							:key="item.key"
-							class="flex items-center gap-2"
+				<div class="grid grid-cols-2 gap-5">
+					<div class="mb-6 grid gap-4">
+						<Label for="content"
+							>{{ t("AdminPage.editor.bibliography.label")
+							}}<template v-if="selectedBibliographyItems.length">
+								({{ selectedBibliographyItems.length }})</template
+							></Label
 						>
-							<span class="line-clamp-1 grow overflow-hidden rounded-lg border px-2 py-0.5">{{
-								item.title
-							}}</span>
-							<div>
-								<Trash
-									class="size-5 cursor-pointer hover:text-accent-foreground"
-									@click="removeBibliographyItem(item.key)"
-								></Trash>
-							</div>
-						</li>
-					</ul>
+						<Combobox
+							has-search
+							:options="bibliographyOptions"
+							:placeholder="t('AdminPage.editor.bibliography.placeholder')"
+							select-only
+							width="w-80"
+							@selected="addBibliographyItem"
+						/>
+						<ul v-if="selectedBibliographyItems.length" class="space-y-2">
+							<li
+								v-for="item in selectedBibliographyItems"
+								:key="item.key"
+								class="flex items-center gap-2"
+							>
+								<span class="line-clamp-1 grow overflow-hidden rounded-lg border px-2 py-0.5">{{
+									item.title
+								}}</span>
+								<div>
+									<Trash
+										class="size-5 cursor-pointer hover:text-accent-foreground"
+										@click="removeBibliographyItem(item.key)"
+									></Trash>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div class="mb-6 grid gap-4"></div>
 				</div>
 			</div>
 		</div>

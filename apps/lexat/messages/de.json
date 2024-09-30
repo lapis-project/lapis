@@ -11,7 +11,11 @@
 		},
 		"editor": {
 			"abstract": "Abstrakt",
-			"alias": "Artikel-URL",
+			"alias": {
+				"label": "Artikel-URL",
+				"placeholder": "Artikel-URL (automatisch generiert)",
+				"tooltip": "Wird automatisch aus dem Titel generiert (Sonderzeichen werden entfernt)"
+			},
 			"actions": {
 				"save": "Speichern",
 				"delete": "Löschen"
@@ -36,6 +40,12 @@
 			},
 			"content": "Inhalt",
 			"created-at": "Erstellt am",
+			"language": {
+				"label": "Sprache",
+				"placeholder": "Sprache",
+				"german": "Deutsch",
+				"english": "Englisch"
+			},
 			"published-at": "Veröffentlicht am",
 			"question": {
 				"label": "Phänomen",

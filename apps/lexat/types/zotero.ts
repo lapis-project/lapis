@@ -6,8 +6,9 @@ interface BibliographyItemCreator {
 
 export interface BibliographyItem {
 	key: string;
+	bookTitle?: string;
 	version: number;
-	itemType: string;
+	itemType: "book" | "bookSection" | "journalArticle" | "thesis";
 	title: string;
 	creators: Array<BibliographyItemCreator>;
 	abstractNote: string;
@@ -36,4 +37,6 @@ export interface BibliographyItem {
 	relations: Record<string, unknown>;
 	dateAdded: string;
 	dateModified: string;
+	university?: string;
+	publicationTitle?: string;
 }

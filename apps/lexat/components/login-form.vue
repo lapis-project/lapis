@@ -17,6 +17,8 @@ const props = withDefaults(defineProps<Props>(), {
 	isSignUp: false,
 });
 
+const localePath = useLocalePath();
+
 const env = useRuntimeConfig();
 
 const { toast } = useToast();
@@ -58,14 +60,13 @@ const onSubmit = handleSubmit(async (formValues) => {
 
 		const response = await $fetch(apiUrl, {
 			baseURL: env.public.apiBaseUrl,
-			method: "post",
-
+			method: "POST",
 			body: {
 				...formValues,
 			},
 		});
 		if (response) {
-			await navigateTo("/admin");
+			await navigateTo(localePath("/admin/articles"));
 		}
 	} catch (error) {
 		toast({

@@ -41,7 +41,18 @@ app.use("*", async (c, next) => {
 	const originHeader = c.req.header("Origin") ?? null;
 	const hostHeader = c.req.header("Host") ?? null;
 
-	if (!originHeader || !hostHeader || !verifyRequestOrigin(originHeader, [hostHeader])) {
+	if (
+		!originHeader ||
+		!hostHeader ||
+		!verifyRequestOrigin(
+			originHeader,
+			process.env.ALLOWED_ORIGINS
+				? process.env.ALLOWED_ORIGINS.trim()
+						.split(",")
+						.map((el) => el.trim())
+				: [],
+		)
+	) {
 		return c.body(null, 403);
 	}
 	return next();

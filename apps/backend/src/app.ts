@@ -27,7 +27,7 @@ app.use(
 					.map((el) => el.trim())
 			: "",
 		allowMethods: ["GET", "POST", "PUT", "DELETE"],
-		allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
+		allowHeaders: ["Content-Type", "X-Custom-Header", "Upgrade-Insecure-Requests"],
 		exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
 		maxAge: 600,
 		credentials: true,

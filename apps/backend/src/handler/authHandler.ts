@@ -2,17 +2,31 @@ import { log } from "@acdh-oeaw/lib";
 import { vValidator } from "@hono/valibot-validator";
 import { hash, verify } from "@node-rs/argon2";
 import { Hono } from "hono";
-import { object, string } from "valibot";
+import { check, email, endsWith, minLength, object, optional, pipe, string, trim } from "valibot";
 
 import { lucia } from "@/auth/auth";
 import { createUser, getUser } from "@/db/authRepository";
 import type { Context } from "@/lib/context";
+import type { Userroles } from "@/types/db";
 
 const auth = new Hono<Context>();
 
 const loginSchema = object({
 	username: string(),
 	password: string(),
+});
+
+const signupSchema = object({
+	username: pipe(string(), trim(), minLength(3)),
+	password: pipe(string(), trim(), minLength(8)),
+	email: pipe(string(), trim(), email(), endsWith("@oeaw.ac.at")),
+	user_role: pipe(
+		string(),
+		trim(),
+		check((val) => ["admin", "editor"].includes(val), "User role must be specified"),
+	),
+	firstname: pipe(string(), trim(), minLength(1)),
+	lastname: optional(pipe(string(), trim(), minLength(1))),
 });
 
 const getSession = auth.get("/session", (c) => {
@@ -53,7 +67,8 @@ const login = auth.post("/login", vValidator("json", loginSchema), async (c) => 
 	c.header("Set-Cookie", lucia.createSessionCookie(session_id).serialize(), { append: true });
 	c.header("Location", "/", { append: true });
 	log.info(`User ${username} logged in`);
-	return c.json("OK", 201);
+	const { password: _, ...userObject } = existingUser;
+	return c.json(userObject, 200);
 });
 
 const logoutUser = auth.post("/", async (c) => {
@@ -66,8 +81,8 @@ const logoutUser = auth.post("/", async (c) => {
 	return c.json("OK", 201);
 });
 
-const signupUser = auth.post("/signup", vValidator("json", loginSchema), async (c) => {
-	const { username, password } = c.req.valid("json");
+const signupUser = auth.post("/signup", vValidator("json", signupSchema), async (c) => {
+	const { username, password, email, user_role, firstname, lastname } = c.req.valid("json");
 	const passwordHash = await hash(password, {
 		// recommended minimum parameters
 		memoryCost: 19456,
@@ -75,7 +90,14 @@ const signupUser = auth.post("/signup", vValidator("json", loginSchema), async (
 		outputLen: 32,
 		parallelism: 1,
 	});
-	const newUser = await createUser(username, passwordHash);
+	const newUser = await createUser(
+		username,
+		passwordHash,
+		email,
+		user_role as Userroles,
+		firstname,
+		lastname,
+	);
 
 	if (!newUser) {
 		log.info(`Error while creating user`);

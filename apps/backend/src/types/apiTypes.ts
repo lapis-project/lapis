@@ -13,16 +13,19 @@ export enum ResponseInflucenced {
 	F,
 }
 
-export interface User {
-	role: string; // Enum
+export interface UserObject {
+	email: string | null;
+	firstname: string | null;
+	lastname: string | null;
+	role_name: string | null; // Enum
 	username: string;
-	id: string;
+	id: number;
 }
 
 export interface Article {
 	id: number;
 	user_id: number; // User Object
-	author: User; // User Object
+	author: UserObject; // User Object
 	category: Category;
 	title: string;
 	content: string;

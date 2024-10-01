@@ -35,7 +35,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 	}
 
 	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
-		return await db
+		const dbQuery = db
 			.with("annotation_data", (query) =>
 				query
 					.selectFrom("response")
@@ -103,8 +103,8 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 					),
 				),
 			])
-			.groupBy(["place.plz", "place.lat", "place.lon", "place.place_name"])
-			.execute();
+			.groupBy(["place.plz", "place.lat", "place.lon", "place.place_name"]);
+		return await dbQuery.execute();
 	}
 
 	const request = db

@@ -72,6 +72,7 @@ export default defineNuxtConfig({
 		compressPublicAssets: true,
 		prerender: {
 			routes: ["/manifest.webmanifest", "/robots.txt", "/sitemap.xml"],
+			concurrency: 1,
 		},
 	},
 	postcss: {

@@ -4,11 +4,10 @@ export const countUniqueVariants = (points: Array<SurveyResponse>) => {
 	const annoCounts = new Map<string, number>();
 
 	points.forEach((p) => {
-		p.properties.forEach((property) => {
+		p.coalesce.forEach((property) => {
 			property.answers.forEach((answer) => {
-				const anno = answer.anno;
+				const anno = answer.annotation;
 				if (annoCounts.has(anno)) {
-					// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 					annoCounts.set(anno, annoCounts.get(anno)! + 1);
 				} else {
 					annoCounts.set(anno, 1);

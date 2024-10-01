@@ -1,37 +1,23 @@
-export interface SurveyCollection {
-	type: string;
-	features: Array<SurveyResponse>;
+export interface Answer {
+	annotation: string;
+	response: string;
+	phenomenon: string;
+	variety: string;
 }
-
-export interface SurveyResponse {
-	type: string;
-	id: number;
-	title: string;
-	geometry: {
-		type: string;
-		coordinates: Array<number>;
-	};
-	location: string;
-	PLZ: string;
-	properties: Array<Property>;
-}
-
-// export interface Geometry {
-// 	type?: string;
-// 	coordinates?: Array<number>; // TODO clean up actual data points in DB
-// }
-
-export interface Property {
-	gender: string;
+export interface Coalesce {
 	age: string;
-	under50: boolean;
+	gender: string;
+	informant_id: number;
 	answers: Array<Answer>;
 }
 
-export interface Answer {
-	reg: string;
-	answer: string;
-	anno: string;
+export interface SurveyResponse {
+	id: string;
+	place_name: string;
+	plz: number;
+	lat: number;
+	lon: number;
+	coalesce: Array<Coalesce>;
 }
 
 type Coordinates = Array<Array<Array<number>>>;

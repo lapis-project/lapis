@@ -7,11 +7,11 @@ export const locales = ["de", "en"] as const;
 
 export type Locale = (typeof locales)[number];
 
-export const defaultLocale: Locale = "en";
+export const defaultLocale: Locale = "de";
 
 export const localesMap = {
-	de: { code: "de", iso: "de", file: "de.json" },
-	en: { code: "en", iso: "en", file: "en.json" },
+	de: { code: "de", language: "de", file: "de.json" },
+	en: { code: "en", language: "en", file: "en.json" },
 } satisfies Record<Locale, LocaleObject>;
 
 export type Messages = typeof en;

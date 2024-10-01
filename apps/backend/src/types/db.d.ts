@@ -314,16 +314,16 @@ export interface Token {
 
 export interface UserAccount {
 	association: string | null;
-	email: string | null;
+	email: string;
 	firstname: string | null;
 	id: Generated<number>;
 	inactive: Inactivetype | null;
 	lastname: string | null;
 	orcid_id: string | null;
-	password: string | null;
+	password: string;
 	project_member: boolean | null;
-	role_id: number | null;
-	username: string | null;
+	role_id: number;
+	username: string;
 }
 
 export interface UserBibliography {

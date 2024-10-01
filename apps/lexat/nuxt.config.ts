@@ -70,10 +70,10 @@ export default defineNuxtConfig({
 	],
 	nitro: {
 		compressPublicAssets: true,
-		prerender: {
-			routes: ["/manifest.webmanifest", "/robots.txt", "/sitemap.xml"],
-			concurrency: 1,
-		},
+		// prerender: {
+		// 	routes: ["/manifest.webmanifest", "/robots.txt", "/sitemap.xml"],
+		// 	concurrency: 1,
+		// },
 	},
 	postcss: {
 		plugins: {

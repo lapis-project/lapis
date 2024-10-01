@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-defineRouteRules({
-	prerender: true,
-});
+// defineRouteRules({
+// 	prerender: true,
+// });
 
 const t = useTranslations();
 

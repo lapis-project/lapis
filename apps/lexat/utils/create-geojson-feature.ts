@@ -1,6 +1,6 @@
-import type { Feature, Geometry, Point, Polygon } from "geojson";
+import type { Feature, Geometry, Polygon } from "geojson";
 
-import type { Property, RegionFeature, SurveyResponse } from "@/types/feature-collection";
+import type { Coalesce, RegionFeature, SurveyResponse } from "@/types/feature-collection";
 import { getSortedVariants } from "@/utils/variant-helper";
 
 // import type { EntityFeature } from "@/composables/use-create-entity";
@@ -8,7 +8,7 @@ import { getSortedVariants } from "@/utils/variant-helper";
 export type GeoJsonFeature = Feature<
 	Geometry,
 	{
-		id: number;
+		id: string;
 		chartData?: string;
 		color?: string;
 		colors?: string;
@@ -17,15 +17,15 @@ export type GeoJsonFeature = Feature<
 	}
 >;
 
-function countUniqueOccurrences(properties: Array<Property>) {
+function countUniqueOccurrences(coalesce: Array<Coalesce>) {
 	const uniqueCounts = new Map<string, number>();
-	properties.forEach((item) => {
+	coalesce.forEach((item) => {
 		item.answers.forEach((answer) => {
-			const anno = answer.anno;
+			const anno = answer.annotation;
 			if (!uniqueCounts.has(anno)) {
 				uniqueCounts.set(anno, 0);
 			}
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
 			uniqueCounts.set(anno, uniqueCounts.get(anno)! + 1);
 		});
 	});
@@ -48,12 +48,12 @@ export function createGeoJsonFeature(
 	entity: SurveyResponse,
 	mappedColors: Record<string, string>,
 ): GeoJsonFeature {
-	const uniqueOccurrenceCounts = countUniqueOccurrences(entity.properties);
+	const uniqueOccurrenceCounts = countUniqueOccurrences(entity.coalesce);
 	const sortedVariants = getSortedVariants(uniqueOccurrenceCounts);
 	const uniqueColorsArray = sortedVariants.map((k) => mappedColors[k.anno]).join("-");
 	return {
 		type: "Feature",
-		geometry: entity.geometry as Point,
+		geometry: { type: "Point", coordinates: [entity.lon, entity.lat] },
 		// properties: {
 		// 	_id: entity.properties.name ? entity.properties.name : Date.now().toString(),
 		// },
@@ -61,7 +61,7 @@ export function createGeoJsonFeature(
 			id: entity.id,
 			chartData: generatePercentageString(sortedVariants.map((v) => v.count)),
 			colors: uniqueColorsArray,
-			answerCount: entity.properties.length,
+			answerCount: entity.coalesce.length,
 		},
 	};
 }
@@ -71,7 +71,7 @@ export function createSimpleGeoJsonFeature(entity: RegionFeature): GeoJsonFeatur
 		type: "Feature",
 		geometry: entity.geometry as Polygon,
 		properties: {
-			id: Date.now(),
+			id: Date.now().toString(),
 			color: entity.properties.color,
 			name: entity.properties.name,
 		},

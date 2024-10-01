@@ -14,17 +14,7 @@ import { useRoute, useRouter } from "nuxt/app";
 import data from "@/assets/data/dialektregionen-trimmed.geojson.json";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
-import type {
-	Property,
-	RegionFeature,
-	SurveyCollection,
-	SurveyResponse,
-} from "@/types/feature-collection";
-// import { z } from "zod";
-// import type { SearchFormData } from "@/components/search-form.vue";
-// import type { EntityFeature } from "@/composables/use-create-entity";
-// import { categories } from "@/composables/use-get-search-results";
-// import { project } from "@/config/project.config";
+import type { Coalesce, RegionFeature, SurveyResponse } from "@/types/feature-collection";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 import { countUniqueVariants, getSortedVariants } from "@/utils/variant-helper";
 
@@ -145,8 +135,21 @@ const registerGroups = [
 	},
 ];
 
-const { data: questions } = await useFetch<Array<DropdownOption>>(`/api/questions/survey/lexat`, {
-	method: "get",
+const { data: questions } = await useFetch<
+	Array<{ id: number; phenomenon_name: string; description: string | null }>
+>("/questions/survey/1", {
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+});
+
+const mappedQuestions = computed(() => {
+	return (
+		questions.value?.map((q) => ({
+			id: q.id,
+			value: q.phenomenon_name,
+			label: q.phenomenon_name,
+		})) ?? null
+	);
 });
 
 const activeAgeGroup = ref([10, 100]);
@@ -162,11 +165,12 @@ const showRegions = ref<boolean>(true);
 const showAdvancedFilters = ref<boolean>(false);
 
 const activeQuestionId = computed(() => {
-	return questions.value?.find((q) => q.value === activeQuestion.value)?.id;
+	return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
 });
 
-const { data: questionData } = await useFetch<SurveyCollection>("/api/questions", {
-	query: { id: activeQuestionId, project: "lexat" },
+const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
+	query: { id: activeQuestionId, project: "1" },
+	baseURL: env.public.apiBaseUrl,
 	method: "get",
 });
 
@@ -182,10 +186,20 @@ const entities = computed((): Array<RegionFeature> => {
 });
 
 const points = computed(() => {
-	const currentData = questionData.value;
-	let features = currentData?.features ?? [];
+	let features = questionData.value ?? [];
+	features.forEach((f) => {
+		if (Array.isArray(f.coalesce)) {
+			f.coalesce.forEach((entry) => {
+				// Filter the answers array to remove answers with annotation "Keine Angabe"
+				entry.answers = entry.answers.filter((answer) => answer.annotation !== "Keine Angabe");
+			});
+		}
+		f.id = `${f.plz.toString()}-${f.place_name}`;
+	});
+
 	// only entries with coordinates are considered valid points
 	// let filteredFeatures = features.filter((f) => f.geometry.coordinates);
+
 	if (!activeRegisters.value.includes("all")) {
 		const activeRegisterLabels: Array<string> = [];
 		for (const register of activeRegisters.value) {
@@ -196,18 +210,18 @@ const points = computed(() => {
 		}
 		features = features
 			.map((feature) => {
-				const filteredProperties = feature.properties
+				const filteredProperties = feature.coalesce
 					.map((property) => {
 						const filteredAnswers = property.answers.filter((answer) =>
-							activeRegisterLabels.includes(answer.reg),
+							activeRegisterLabels.includes(answer.variety),
 						);
 						return { ...property, answers: filteredAnswers };
 					})
 					.filter((property) => property.answers.length > 0);
 
-				return { ...feature, properties: filteredProperties };
+				return { ...feature, coalesce: filteredProperties };
 			})
-			.filter((feature) => feature.properties.length > 0);
+			.filter((feature) => feature.coalesce.length > 0);
 	}
 	return features;
 });
@@ -238,27 +252,27 @@ const filteredPoints = computed(() => {
 	if (activeVariants.value.length) {
 		filteredPoints = filteredPoints
 			.map((entry) => {
-				const filteredProperties = entry.properties
+				const filteredCoalesce = entry.coalesce // Make sure this is referring to 'coalesce'
 					.map((property) => {
 						const filteredAnswers = property.answers.filter((answer) =>
-							activeVariants.value.includes(answer.anno),
+							activeVariants.value.includes(answer.annotation),
 						);
 						return { ...property, answers: filteredAnswers };
 					})
 					.filter((property) => property.answers.length > 0);
 
-				return { ...entry, properties: filteredProperties };
+				return { ...entry, coalesce: filteredCoalesce }; // Properly assign the filtered coalesce here
 			})
-			.filter((entry) => entry.properties.length > 0);
+			.filter((entry) => entry.coalesce.length > 0); // Filter out entries with no remaining coalesce properties
 	}
-	const currentYear = new Date().getFullYear();
+
 	filteredPoints = filteredPoints
 		.map((item) => {
-			const filteredProperties = item.properties.filter((prop) => {
-				const age = currentYear - parseInt(prop.age);
+			const filteredProperties = item.coalesce.filter((prop) => {
+				const ageBounds = prop.age.split("-");
 				return (
-					age >= (debouncedActiveAgeGroup.value[0] ?? 10) &&
-					age <= (debouncedActiveAgeGroup.value[1] ?? 100)
+					ageBounds[0] >= (debouncedActiveAgeGroup.value[0] ?? 10) &&
+					ageBounds[1] <= (debouncedActiveAgeGroup.value[1] ?? 100)
 				);
 			});
 
@@ -316,7 +330,7 @@ function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "
 	const entities = Array.from(entitiesMap.values());
 	let coordinates = null;
 	for (const entity of entities) {
-		coordinates = entity.geometry.coordinates;
+		coordinates = [entity.lon, entity.lat];
 	}
 	if (coordinates) {
 		popover.value = {
@@ -328,18 +342,18 @@ function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "
 
 type OccurrenceCount = Record<string, Record<string, number>>;
 
-const countOccurrences = (properties: Array<Property>) => {
+const countOccurrences = (properties: Array<Coalesce>) => {
 	const counts: OccurrenceCount = {};
 	for (const property of properties) {
 		for (const answer of property.answers) {
-			const { anno, reg } = answer;
-			if (!counts[anno]) {
-				counts[anno] = {};
+			const { annotation, variety } = answer;
+			if (!counts[annotation]) {
+				counts[annotation] = {};
 			}
-			if (!counts[anno][reg]) {
-				counts[anno][reg] = 0;
+			if (!counts[annotation][variety]) {
+				counts[annotation][variety] = 0;
 			}
-			counts[anno][reg]++;
+			counts[annotation][variety]++;
 		}
 	}
 
@@ -371,12 +385,12 @@ const tableData = computed(() => {
 	const countMap: Record<string, TableEntry> = {};
 
 	filteredPoints.value.forEach((feature) => {
-		const location = feature.location;
+		const location = feature.place_name;
 
-		feature.properties.forEach((property) => {
+		feature.coalesce.forEach((property) => {
 			property.answers.forEach((answer) => {
-				const reg = answer.reg;
-				const anno = answer.anno;
+				const reg = answer.variety;
+				const anno = answer.annotation;
 
 				const key = `${location}-${reg}-${anno}`;
 
@@ -405,9 +419,9 @@ const tableDataForRegisters = computed(() => {
 	const variantMap: Record<string, TableEntry> = {};
 
 	filteredPoints.value.forEach((feature) => {
-		feature.properties.forEach((property) => {
+		feature.coalesce.forEach((property) => {
 			property.answers.forEach((answer) => {
-				const variant = answer.anno;
+				const variant = answer.annotation;
 				if (!variantMap[variant]) {
 					variantMap[variant] = {
 						variant,
@@ -416,10 +430,10 @@ const tableDataForRegisters = computed(() => {
 						totalCount: 0,
 					};
 				}
-				if (registerGroups[0]?.values.includes(answer.reg)) {
+				if (registerGroups[0]?.values.includes(answer.variety)) {
 					variantMap[variant].countDia++;
 				}
-				if (registerGroups[1]?.values.includes(answer.reg)) {
+				if (registerGroups[1]?.values.includes(answer.variety)) {
 					variantMap[variant].countSt++;
 				}
 
@@ -568,9 +582,10 @@ watch(activeVariants, updateUrlParams, {
 								</InfoTooltip>
 							</div>
 							<Combobox
+								v-if="mappedQuestions?.length"
 								v-model="activeQuestion"
 								has-search
-								:options="questions"
+								:options="mappedQuestions"
 								:placeholder="t('MapsPage.selection.variable.placeholder')"
 							/>
 						</div>
@@ -756,8 +771,8 @@ watch(activeVariants, updateUrlParams, {
 					<article class="grid w-56 gap-1">
 						<div v-for="entity in popover.entities" :key="entity.id">
 							<p>
-								<strong>{{ entity.location }}</strong
-								>, {{ entity.PLZ }}
+								<strong>{{ entity.place_name }}</strong
+								>, {{ entity.plz }}
 							</p>
 							<ul>
 								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">

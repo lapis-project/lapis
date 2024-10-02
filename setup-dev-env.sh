@@ -14,9 +14,16 @@ fi
 # Install the dependencies
 pnpm install
 
+# Set the environment variables
+set -a && . ./.env.localsetup && set +a
 # Build the docker images and run the containers
-docker build -t lapis-dev-backend:latest -f ./Dockerfile_Backend .
-docker compose --env-file .env.localsetup up -d
+#docker build -t lapis-dev-backend:latest -f ./Dockerfile_Backend .
+docker compose --env-file .env.localsetup up -d --wait
+
+# Copy the data data into the database from the dump
+docker exec -i lapis-dev-database-1 psql -U $PGUSER -p $PGPORT $PGDATABASE  < ./db/lapis_dump_011024.sql
+
+docker compose --env-file .env.localsetup down
 
 # Run the script to build the types
-pnpm run start:devSetup
+#pnpm run start:devSetup

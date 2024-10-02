@@ -1,6 +1,7 @@
 services:
   backend:
     image: lapis-dev-backend:latest
+    container_name: lapis-dev-backend-1
     environment:
       - PGDATABASE=${PGDATABASE}
       - PGUSER=${PGUSER}
@@ -13,8 +14,15 @@ services:
       - "${BACKEND_PORT}:${BACKEND_PORT}"
     links:
       - database:${PGHOST}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "http://localhost:${BACKEND_PORT}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
   database:
     image: postgres:14
+    container_name: lapis-dev-database-1
     environment:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_USER=${PGUSER}
@@ -22,3 +30,9 @@ services:
       - PGPORT=${PGPORT}
     ports:
       - "${PGPORT}:${PGPORT}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s

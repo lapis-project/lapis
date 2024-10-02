@@ -7,6 +7,7 @@ export default defineNuxtRouteMiddleware(async () => {
 	const data: AuthUser | null = await $fetch("/auth/session", {
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
+		credentials: "include",
 	});
 	if (data) {
 		user.value = data;

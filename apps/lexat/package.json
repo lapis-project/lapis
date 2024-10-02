@@ -12,7 +12,8 @@
 	"scripts": {
 		"analyze": "nuxt analyze",
 		"build": "NODE_OPTIONS=--max_old_space_size=8192 nuxt build --dotenv ./.env.local",
-		"dev": "nuxt dev --dotenv ./.env.local",
+		"dev": "nuxt dev --dotenv ./.env.prod.local",
+		"dev-local": "nuxt dev --dotenv ./.env.dev.local",
 		"postinstall": "nuxt prepare",
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.local",

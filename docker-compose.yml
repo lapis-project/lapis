@@ -19,5 +19,6 @@ services:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_USER=${PGUSER}
       - POSTGRES_DB=${PGDATABASE}
+      - PGPORT=${PGPORT}
     ports:
       - "${PGPORT}:${PGPORT}"

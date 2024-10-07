@@ -5,11 +5,15 @@
 	"type": "module",
 	"packageManager": "pnpm@9.8.0",
 	"version": "0.0.1",
+	"engines": {
+		"node": "20.x",
+		"pnpm": "9.x"
+	},
 	"scripts": {
-		"dev": "tsx watch src/index.ts",
+		"dev": "tsx watch --env-file .env.local src/index.ts",
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test": "tsx --test src/**/*.spec.ts",
-		"start": "tsx ./dist/index.js",
+		"start": "node --env-file .env.local ./dist/index.js",
 		"build": "tsup --dts",
 		"build:types": "tsup --dts-only ./src/**/*.ts --out-dir ./../../backend-types"
 	},

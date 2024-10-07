@@ -86,7 +86,7 @@
 		"@acdh-oeaw/eslint-config-vue": "^2.0.4",
 		"@acdh-oeaw/stylelint-config": "^2.0.4",
 		"@acdh-oeaw/tsconfig": "^1.2.0",
-		"@nuxt/devtools": "^1.5.0",
+		"@nuxt/devtools": "^1.5.2",
 		"@nuxt/eslint": "^0.5.7",
 		"@nuxtjs/tailwindcss": "^6.12.1",
 		"@playwright/test": "^1.47.2",

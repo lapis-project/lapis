@@ -25,7 +25,6 @@ export default defineNuxtConfig({
 	],
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
-		componentInspector: false, // temporary fix https://github.com/nuxt/devtools/issues/722
 	},
 	experimental: {
 		componentIslands: {

@@ -34,7 +34,7 @@ const getSession = auth.get("/session", (c) => {
 	if (session) {
 		return c.redirect("/");
 	}
-	return c.json(session, 201);
+	return c.json({}, 201);
 });
 
 const login = auth.post("/login", vValidator("json", loginSchema), async (c) => {

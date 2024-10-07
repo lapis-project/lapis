@@ -13,12 +13,6 @@ RUN corepack enable
 # build
 FROM base AS build
 
-ARG PGHOST
-ARG PGUSER
-ARG PGPASSWORD
-ARG PGDATABASE
-ARG PGPORT
-
 WORKDIR /app
 RUN chown -R node:node /app
 
@@ -47,15 +41,14 @@ COPY --from=build --chown=node:node /app/apps/backend/dist /app/dist
 COPY --from=build --chown=node:node /app/package.json /app/package.json
 COPY --from=build --chown=node:node /app/node_modules /app/node_modules
 
+# TODO: Does nothing
 ENV NODE_ENV=production
-ENV PGHOST $PGHOST
-ENV PGUSER $PGUSER
+# TODO: Mount as secret in so the DB password is not exposed
+# RUN type=secret
 ENV PGPASSWORD $PGPASSWORD
-ENV PGDATABASE $PGDATABASE
-ENV PGPORT $PGPORT
 ENV BACKEND_PORT 3000
 
 USER node
 EXPOSE $BACKEND_PORT
 
-CMD ["pnpm", "start:backend"]
+CMD ["node", "./server/index.mjs"]

@@ -163,8 +163,8 @@
 		"selection": {
 			"colors": "Legendenfarben",
 			"show-all-points": "Zeige alle Datenpunkte",
-			"show-region-names": "Regionen einblenden",
-			"show-regions": "Regionen anzeigen",
+			"show-region-names": "Dialektregionennamen",
+			"show-regions": "Dialektregionen anzeigen",
 			"variable": {
 				"title": "Variable",
 				"placeholder": "Variable",
@@ -195,6 +195,10 @@
 				"show": "Erweiterte Filter zeigen",
 				"hide": "Erweiterte Filter ausblenden"
 			}
+		},
+		"map": {
+			"datapoints": "Datenpunkte",
+			"informants": "Informanten"
 		},
 		"table": {
 			"locations": {

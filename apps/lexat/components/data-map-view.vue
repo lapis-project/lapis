@@ -4,9 +4,11 @@ import { refDebounced } from "@vueuse/core";
 import {
 	ChevronDownIcon,
 	InfoIcon,
+	MapPinIcon,
 	Maximize2Icon,
 	Minimize2Icon,
 	RotateCcwIcon,
+	UserIcon,
 } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
@@ -369,6 +371,7 @@ const countOccurrences = (properties: Array<Coalesce>) => {
 			sortedCounts[key] = counts[key];
 		});
 
+	console.log("sorted", sortedCounts);
 	return sortedCounts;
 };
 
@@ -379,6 +382,12 @@ const countOccurrences = (properties: Array<Coalesce>) => {
 // 	 */
 // 	popover.value = null;
 // });
+
+const numberOfInformants = computed(() => {
+	return filteredPoints.value.reduce((count, obj) => {
+		return count + obj.coalesce.length;
+	}, 0);
+});
 
 const tableData = computed(() => {
 	const result = [];
@@ -750,6 +759,24 @@ watch(activeVariants, updateUrlParams, {
 					@click="mapExpanded = !mapExpanded"
 					><component :is="mapExpanded ? Minimize2Icon : Maximize2Icon" class="size-4"
 				/></Button>
+			</div>
+			<div
+				v-if="filteredPoints?.length && numberOfInformants"
+				id="datapoints"
+				class="absolute bottom-12 left-0 z-10 ml-2"
+			>
+				<div
+					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"
+				>
+					<div class="mb-1 flex items-center gap-1">
+						<MapPinIcon class="size-4" /> {{ t("MapsPage.map.datapoints") }}:
+						{{ filteredPoints.length }}
+					</div>
+					<div class="flex items-center gap-1">
+						<UserIcon class="size-4" />{{ t("MapsPage.map.informants") }}:
+						{{ numberOfInformants }}
+					</div>
+				</div>
 			</div>
 			<GeoMap
 				v-if="height && width"

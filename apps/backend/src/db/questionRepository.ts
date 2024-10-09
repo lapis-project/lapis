@@ -2,6 +2,8 @@ import { log } from "@acdh-oeaw/lib";
 import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
+import { jsonbBuildObject } from "@/lib/dbHelper";
+
 import { db } from "./connect";
 
 export async function getAllPhenomenon(projectId: string) {
@@ -85,7 +87,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 				"informant_lives_in_place.informant_id",
 			)
 			.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
-			.leftJoin("annotation_data", "informant.id", "annotation_data.informant_id")
+			.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
 			.where("phenomenon.id", "=", phenomenonIdParsed)
 			.select(({ fn, ref }) => [
 				"place.place_name",
@@ -94,7 +96,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 				"place.lon",
 				fn.coalesce(
 					fn.jsonAgg(
-						jsonBuildObject({
+						jsonbBuildObject({
 							age: ref("age_group.age_group_name"),
 							gender: ref("informant.gender"),
 							informant_id: ref("informant.id"),
@@ -158,7 +160,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 		.innerJoin("age_group", "informant.age_group_id", "age_group.id")
 		.innerJoin("informant_lives_in_place", "informant.id", "informant_lives_in_place.informant_id")
 		.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
-		.leftJoin("annotation_data", "informant.id", "annotation_data.informant_id")
+		.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
 		.where("phenomenon.id", "=", phenomenonIdParsed)
 		.where("project_tagset.project_id", "=", projectIdParsed)
 		.select(({ fn, ref }) => [
@@ -168,7 +170,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 			"place.lon",
 			fn.coalesce(
 				fn.jsonAgg(
-					jsonBuildObject({
+					jsonbBuildObject({
 						age: ref("age_group.age_group_name"),
 						gender: ref("informant.gender"),
 						informant_id: ref("informant.id"),

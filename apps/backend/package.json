@@ -14,7 +14,7 @@
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test": "tsx --test src/**/*.spec.ts",
 		"start": "node --env-file .env.local ./dist/index.js",
-		"build": "tsup --dts",
+		"build": "tsup-node --dts",
 		"build:types": "tsup --dts-only ./src/**/*.ts --out-dir ./../../backend-types"
 	},
 	"dependencies": {

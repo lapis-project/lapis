@@ -4,6 +4,7 @@ import { LogOut, PanelLeft, User, UserRound } from "lucide-vue-next";
 import { useToast } from "@/components/ui/toast/use-toast";
 
 const localePath = useLocalePath();
+const env = useRuntimeConfig();
 
 const t = useTranslations();
 
@@ -13,24 +14,25 @@ const { toast } = useToast();
 
 const login = async () => {
 	await navigateTo(localePath("/login"));
-	// const data: AuthUser | null = await useRequestFetch()("/api/user");
-	// if (data) {
-	// 	user.value = data;
-	// 	toast({
-	// 		title: `Successfully logged in as ${user.value.username ?? ""}`,
-	// 	});
-	// }
 };
 
-const logout = () => {
-	// await $fetch("/api/logout", {
-	// 	method: "POST",
-	// });
-	// await navigateTo("/login");
-	user.value = null;
-	toast({
-		title: "Successfully logged out.",
-	});
+const logout = async () => {
+	try {
+		await $fetch("/auth/logout", {
+			baseURL: env.public.apiBaseUrl,
+			credentials: "include",
+			method: "POST",
+		});
+		user.value = null;
+		await navigateTo(localePath("/"));
+	} catch (e) {
+		if (env.NODE_ENV !== "production") {
+			console.error(e);
+		}
+		toast({
+			title: "Unable to log out.",
+		});
+	}
 };
 
 const firstLetterUppercase = (value: string) => {

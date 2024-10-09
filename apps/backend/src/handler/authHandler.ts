@@ -36,7 +36,7 @@ const getSession = auth.get("/session", async (c) => {
 		const user = await getUserById(Number(session.userId));
 		return c.json(user, 200);
 	}
-	return c.json(null, 201);
+	return c.json(null, 401);
 });
 
 const login = auth.post("/login", vValidator("json", loginSchema), async (c) => {

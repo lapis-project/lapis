@@ -4,11 +4,12 @@ export default defineConfig({
 	clean: true,
 	dts: true,
 	entry: ["./src/*.ts"],
-	esbuildOptions(options) {
-		options.packages = "external";
-	},
 	format: ["esm"],
 	minify: false,
-	sourcemap: true,
+	sourcemap: false,
 	treeshake: true,
+	target: "node20",
+	platform: "node",
+	bundle: true,
+	splitting: false,
 });

@@ -61,3 +61,8 @@ playwright.config.ts
 
 # misc
 .editorconfig
+
+*.config.js
+*.config.ts
+*.d.ts
+*.log

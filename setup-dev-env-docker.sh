@@ -1,4 +1,4 @@
-# setup-dev-env.sh
+# setup-dev-env-docker.sh
 #!/bin/bash
 
 # This script sets a development environment for the lapis project with functioning database
@@ -22,7 +22,7 @@ docker build -t lapis-dev-frontend:latest -f ./Dockerfile_Frontend .
 docker compose --env-file .env.localsetup up -d --wait
 
 # Copy the data data into the database from the dump
-docker exec -i lapis-dev-database-1 psql -U $PGUSER -p $PGPORT $PGDATABASE  < ./db/lapis_dump_011024.sql
+docker exec -i lapis-dev-database-1 psql -U $PGUSER -p $PGPORT $PGDATABASE  < ./db/lapis_dump.sql
 
 # docker compose --env-file .env.localsetup down
 

@@ -26,6 +26,11 @@ export default defineNuxtConfig({
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
 	},
+	eslint: {
+		config: {
+			standalone: true,
+		},
+	},
 	experimental: {
 		componentIslands: {
 			selectiveClient: true,

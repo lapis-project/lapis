@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { getCookie, setCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
@@ -27,7 +28,7 @@ app.use(
 					.map((el) => el.trim())
 			: "",
 		allowMethods: ["GET", "POST", "PUT", "DELETE"],
-		allowHeaders: ["Content-Type", "X-Custom-Header", "Upgrade-Insecure-Requests"],
+		allowHeaders: ["Content-Type", "Authorization", "X-Custom-Header", "Upgrade-Insecure-Requests"],
 		exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
 		maxAge: 600,
 		credentials: true,
@@ -59,7 +60,8 @@ app.use("*", async (c, next) => {
 });
 
 app.use("*", async (c, next) => {
-	const sessionId = lucia.readSessionCookie(c.req.header("Cookie") ?? "");
+	const cookie = getCookie(c, "Set-Cookie");
+	const sessionId = lucia.readSessionCookie(cookie ?? "");
 	if (!sessionId) {
 		c.set("user", null);
 		c.set("session", null);
@@ -68,10 +70,10 @@ app.use("*", async (c, next) => {
 
 	const { session, user } = await lucia.validateSession(sessionId);
 	if (session?.fresh) {
-		c.header("Set-Cookie", lucia.createSessionCookie(session.id).serialize(), { append: true });
+		setCookie(c, "Set-Cookie", lucia.createSessionCookie(session.id).serialize());
 	}
 	if (!session) {
-		c.header("Set-Cookie", lucia.createBlankSessionCookie().serialize(), { append: true });
+		setCookie(c, "Set-Cookie", lucia.createBlankSessionCookie().serialize());
 	}
 	c.set("session", session);
 	c.set("user", user);

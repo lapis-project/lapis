@@ -64,6 +64,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 			body: {
 				...formValues,
 			},
+			credentials: "include",
 		});
 		if (response) {
 			await navigateTo(localePath("/admin/articles"));

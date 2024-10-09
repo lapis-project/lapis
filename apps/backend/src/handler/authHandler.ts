@@ -2,10 +2,11 @@ import { log } from "@acdh-oeaw/lib";
 import { vValidator } from "@hono/valibot-validator";
 import { hash, verify } from "@node-rs/argon2";
 import { Hono } from "hono";
+import { setCookie } from "hono/cookie";
 import { check, email, endsWith, minLength, object, optional, pipe, string, trim } from "valibot";
 
 import { lucia } from "@/auth/auth";
-import { createUser, getUser } from "@/db/authRepository";
+import { createUser, getUser, getUserById } from "@/db/authRepository";
 import type { Context } from "@/lib/context";
 import type { Userroles } from "@/types/db";
 
@@ -29,12 +30,13 @@ const signupSchema = object({
 	lastname: optional(pipe(string(), trim(), minLength(1))),
 });
 
-const getSession = auth.get("/session", (c) => {
+const getSession = auth.get("/session", async (c) => {
 	const session = c.get("session");
-	if (session) {
-		return c.redirect("/");
+	if (session?.userId) {
+		const user = await getUserById(Number(session.userId));
+		return c.json(user, 200);
 	}
-	return c.json(null, 201);
+	return c.json(null, 401);
 });
 
 const login = auth.post("/login", vValidator("json", loginSchema), async (c) => {
@@ -64,14 +66,14 @@ const login = auth.post("/login", vValidator("json", loginSchema), async (c) => 
 	const user_id: string = existingUser.id.toString();
 	const session = await lucia.createSession(user_id, {});
 	const session_id = session.id;
-	c.header("Set-Cookie", lucia.createSessionCookie(session_id).serialize(), { append: true });
+	setCookie(c, "Set-Cookie", lucia.createSessionCookie(session_id).serialize());
 	c.header("Location", "/", { append: true });
 	log.info(`User ${username} logged in`);
 	const { password: _, ...userObject } = existingUser;
 	return c.json(userObject, 200);
 });
 
-const logoutUser = auth.post("/", async (c) => {
+const logoutUser = auth.post("/logout", async (c) => {
 	const session = c.get("session");
 	if (!session) {
 		return c.json("Unauthorized", 401);

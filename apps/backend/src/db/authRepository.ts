@@ -19,6 +19,22 @@ export async function getUser(username: string) {
 		.executeTakeFirst();
 }
 
+export async function getUserById(id: number) {
+	return await db
+		.selectFrom("user_account")
+		.innerJoin("user_roles", "user_account.role_id", "user_roles.id")
+		.where("user_account.id", "=", id)
+		.select([
+			"username",
+			"user_account.id",
+			"firstname",
+			"lastname",
+			"user_roles.role_name",
+			"email",
+		])
+		.executeTakeFirst();
+}
+
 export async function createUser(
 	username: string,
 	password: string,

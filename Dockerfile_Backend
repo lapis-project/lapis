@@ -16,16 +16,15 @@ FROM base AS build
 WORKDIR /app
 RUN chown -R node:node /app
 
-COPY --chown=node:node .npmrc package.json pnpm-lock.yaml ./
+COPY --chown=node:node .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
 
 RUN pnpm fetch
 
-COPY --chown=node:node ./ ./
+COPY --chown=node:node ./apps/backend ./apps/backend
 RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
-
-RUN pnpm install --frozen-lockfile --prefer-offline --filter "backend"
+RUN pnpm install --frozen-lockfile --offline --filter "backend"
 
 RUN pnpm run build:backend
 
@@ -36,19 +35,12 @@ WORKDIR /app
 RUN chown -R node:node /app
 
 # Copy Command for the backend code
-COPY --from=build --chown=node:node /app/apps/backend /app/apps/backend
-COPY --from=build --chown=node:node /app/apps/backend/dist /app/dist
-COPY --from=build --chown=node:node /app/package.json /app/package.json
-COPY --from=build --chown=node:node /app/node_modules /app/node_modules
+COPY --from=build --chown=node:node /app .
 
-# TODO: Does nothing
 ENV NODE_ENV=production
-# TODO: Mount as secret in so the DB password is not exposed
-# RUN type=secret
-ENV PGPASSWORD $PGPASSWORD
 ENV BACKEND_PORT 3000
 
 USER node
 EXPOSE $BACKEND_PORT
 
-CMD ["node", "./dist/index.js"]
+CMD ["node", "./apps/backend/dist/index.js"]

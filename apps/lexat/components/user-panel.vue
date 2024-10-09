@@ -24,9 +24,7 @@ const logout = async () => {
 			method: "POST",
 		});
 		user.value = null;
-		toast({
-			title: "Successfully logged out.",
-		});
+		await navigateTo(localePath("/"));
 	} catch (e) {
 		if (env.NODE_ENV !== "production") {
 			console.error(e);

@@ -5,7 +5,8 @@ import { db } from "./connect";
 export async function getUser(username: string) {
 	return await db
 		.selectFrom("user_account")
-		.innerJoin("user_roles", "user_account.role_id", "user_roles.id")
+		.innerJoin("user_has_role", "user_account.id", "user_has_role.user_id")
+		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
 		.where("username", "=", username)
 		.select([
 			"username",
@@ -22,7 +23,8 @@ export async function getUser(username: string) {
 export async function getUserById(id: number) {
 	return await db
 		.selectFrom("user_account")
-		.innerJoin("user_roles", "user_account.role_id", "user_roles.id")
+		.innerJoin("user_has_role", "user_account.id", "user_has_role.user_id")
+		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
 		.where("user_account.id", "=", id)
 		.select([
 			"username",
@@ -43,23 +45,22 @@ export async function createUser(
 	firstname: string,
 	lastname: string | undefined,
 ) {
-	return await db
+	// Insert the new user into the database and get the new user's id
+	const newUserId = await db
 		.insertInto("user_account")
-		.columns(["role_id", "username", "password", "email", "firstname", "lastname"])
+		.columns(["username", "password", "email", "firstname", "lastname"])
+		.values({ username, password, email, firstname, lastname })
+		.returning(["id"])
+		.executeTakeFirst();
+	await db
+		.insertInto("user_has_role")
+		.columns(["role_id", "user_id"])
 		.expression((exp) =>
 			exp
 				.selectFrom("user_roles")
-				.select((eb) => [
-					"id as role_id",
-					eb.val(username).as("username"),
-					eb.val(password).as("password"),
-					eb.val(email).as("email"),
-					eb.val(firstname).as("firstname"),
-					eb.val(lastname).as("lastname"),
-				])
+				.select((eb) => ["id as role_id", eb.val(newUserId?.id).as("user_id")])
 				.where("role_name", "=", user_role),
 		)
-		// .values({ username, password, email, user_role, firstname, lastname })
-		.returning(["id"])
-		.executeTakeFirst();
+		.execute();
+	return newUserId;
 }

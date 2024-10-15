@@ -2,11 +2,11 @@ import type { Userroles } from "@/types/db";
 
 import { db } from "./connect";
 
-export async function getUser(username: string) {
+export async function getUser(email: string) {
 	return await db
 		.selectFrom("user_account")
 		.innerJoin("user_roles", "user_account.role_id", "user_roles.id")
-		.where("username", "=", username)
+		.where("email", "=", email)
 		.select([
 			"username",
 			"password",

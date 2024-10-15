@@ -13,7 +13,7 @@ import type { Userroles } from "@/types/db";
 const auth = new Hono<Context>();
 
 const loginSchema = object({
-	username: string(),
+	email: string(),
 	password: string(),
 });
 
@@ -40,11 +40,11 @@ const getSession = auth.get("/session", async (c) => {
 });
 
 const login = auth.post("/login", vValidator("json", loginSchema), async (c) => {
-	const { username, password } = c.req.valid("json");
+	const { email, password } = c.req.valid("json");
 
-	const existingUser = await getUser(username);
+	const existingUser = await getUser(email);
 
-	if (!existingUser?.password || !existingUser.username) {
+	if (!existingUser?.password || !existingUser.email) {
 		log.info(`Incorrect Username or password`);
 		return c.json("Unauthorized", 401);
 	}
@@ -68,7 +68,7 @@ const login = auth.post("/login", vValidator("json", loginSchema), async (c) => 
 	const session_id = session.id;
 	setCookie(c, "Set-Cookie", lucia.createSessionCookie(session_id).serialize());
 	c.header("Location", "/", { append: true });
-	log.info(`User ${username} logged in`);
+	log.info(`User ${existingUser.username} logged in`);
 	const { password: _, ...userObject } = existingUser;
 	return c.json(userObject, 200);
 });

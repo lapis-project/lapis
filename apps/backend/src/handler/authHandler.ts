@@ -105,9 +105,14 @@ const signupUser = auth.post("/signup", vValidator("json", signupSchema), async 
 		log.info(`Error while creating user`);
 		return c.json("User already exists", 409);
 	}
-
 	log.info(`User ${username} created`);
-	return c.json("OK", 201);
+
+	const session = await lucia.createSession(newUser.id.toString(), {});
+	const session_id = session.id;
+	setCookie(c, "Set-Cookie", lucia.createSessionCookie(session_id).serialize());
+
+	const user = await getUserById(newUser.id);
+	return c.json(user, 200);
 });
 
 export type LoginType = typeof login;

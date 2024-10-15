@@ -91,15 +91,21 @@
 	"Auth": {
 		"confirmPassword": "Repeat password",
 		"confirmPasswordPlaceholder": "Enter password again",
-		"username": "Username",
-		"username_min_length": "Your username must contain at least 2 characters.",
+		"email": "E-mail",
+		"email_invalid": "The provided E-mail is invalid.",
+		"firstname": "First name",
+		"firstname_min_length": "Your first name must contain at least 2 characters.",
+		"lastname": "Last name",
+		"lastname_min_length": "Your last name must contain at least 2 characters.",
+		"login": "Log In",
+		"login_failed": "Login failed",
 		"password": "Password",
 		"password_min_length": "Your password must contain at least 8 characters.",
 		"password_mismatch": "Entered passwords don't match.",
 		"signup": "Sign Up",
 		"signup_failed": "Signup failed",
-		"login": "Log In",
-		"login_failed": "Login failed"
+		"username": "Username",
+		"username_min_length": "Your username must contain at least 2 characters."
 	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Change color scheme",

@@ -345,34 +345,51 @@ function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "
 type OccurrenceCount = Record<string, Record<string, number>>;
 
 const countOccurrences = (properties: Array<Coalesce>) => {
-	const counts: OccurrenceCount = {};
-	for (const property of properties) {
-		for (const answer of property.answers) {
-			const { annotation, variety } = answer;
-			if (!counts[annotation]) {
-				counts[annotation] = {};
+	const occurrenceCount: OccurrenceCount = {};
+	for (const informant of properties) {
+		for (const answer of informant.answers) {
+			const annotation = answer.annotation;
+			const variety = answer.variety;
+
+			if (!occurrenceCount[annotation]) {
+				occurrenceCount[annotation] = {};
 			}
-			if (!counts[annotation][variety]) {
-				counts[annotation][variety] = 0;
+
+			if (!occurrenceCount[annotation][variety]) {
+				occurrenceCount[annotation][variety] = 0;
 			}
-			counts[annotation][variety]++;
+
+			// increment the count for a given variety of an annotation
+			occurrenceCount[annotation][variety]++;
 		}
 	}
 
-	const sortedCounts: OccurrenceCount = {};
-
-	Object.keys(counts)
+	// convert the occurrenceCount to an array and sort it
+	const sortedOccurrences = Object.entries(occurrenceCount)
+		.map(([annotation, varieties]) => ({
+			annotation,
+			varieties,
+			total: Object.values(varieties).reduce((sum, count) => sum + count, 0),
+		}))
 		.sort((a, b) => {
-			const orderA = specialOrder[a] ?? 0;
-			const orderB = specialOrder[b] ?? 0;
-			return orderB || a.localeCompare(b) - orderA;
-		})
-		.forEach((key) => {
-			sortedCounts[key] = counts[key];
+			const aSpecialOrder = specialOrder[a.annotation] ?? 0;
+			const bSpecialOrder = specialOrder[b.annotation] ?? 0;
+
+			// first sort by special order
+			if (aSpecialOrder !== bSpecialOrder) {
+				return bSpecialOrder - aSpecialOrder;
+			}
+			// if special orders are equal, sort by total answers
+			return b.total - a.total;
 		});
 
-	console.log("sorted", sortedCounts);
-	return sortedCounts;
+	// convert back to the desired format
+	const sortedOccurrenceCount: OccurrenceCount = {};
+	for (const item of sortedOccurrences) {
+		sortedOccurrenceCount[item.annotation] = item.varieties;
+	}
+
+	return sortedOccurrenceCount;
 };
 
 // watch(data2, () => {

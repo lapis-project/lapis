@@ -25,7 +25,9 @@
 	},
 	"packageManager": "pnpm@9.4.0",
 	"devDependencies": {
+		"@acdh-oeaw/commitlint-config": "^2.0.0",
 		"@acdh-oeaw/prettier-config": "^2.0.0",
+		"@commitlint/cli": "^19.5.0",
 		"@types/node": "^20.16.11",
 		"is-ci": "^3.0.1",
 		"lint-staged": "^15.2.7",
@@ -46,8 +48,12 @@
 			"not op_mini all"
 		]
 	},
+	"commitlint": {
+		"extends": "@acdh-oeaw/commitlint-config"
+	},
 	"prettier": "@acdh-oeaw/prettier-config",
 	"simple-git-hooks": {
+		"commit-msg": "pnpm exec commitlint --edit",
 		"pre-commit": "pnpm exec lint-staged"
 	},
 	"lint-staged": {

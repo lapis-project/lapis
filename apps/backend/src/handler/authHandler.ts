@@ -6,6 +6,7 @@ import { setCookie } from "hono/cookie";
 import { check, email, endsWith, minLength, object, optional, pipe, string, trim } from "valibot";
 
 import { lucia } from "@/auth/auth";
+import { argon2Config } from "@/config/config";
 import { createUser, getUser, getUserById } from "@/db/authRepository";
 import type { Context } from "@/lib/context";
 import type { Userroles } from "@/types/db";
@@ -50,14 +51,9 @@ const login = auth.post("/login", vValidator("json", loginSchema), async (c) => 
 	}
 
 	// Check if the password is correct and matches the hashed password
-	const validPassword = await verify(existingUser.password, password, {
-		timeCost: 2,
-		memoryCost: 19456,
-		outputLen: 32,
-		parallelism: 1,
-	});
+	const isValidPassword = await verify(existingUser.password, password, argon2Config);
 
-	if (!validPassword) {
+	if (!isValidPassword) {
 		// Very unsecure atm
 		// TODO: Prevent brute-force attacks by adding a delay, maybe hash pws for incorrect usernames
 		log.info(`Incorrect Username or password`);
@@ -85,13 +81,7 @@ const logoutUser = auth.post("/logout", async (c) => {
 
 const signupUser = auth.post("/signup", vValidator("json", signupSchema), async (c) => {
 	const { username, password, email, user_role, firstname, lastname } = c.req.valid("json");
-	const passwordHash = await hash(password, {
-		// recommended minimum parameters
-		memoryCost: 19456,
-		timeCost: 2,
-		outputLen: 32,
-		parallelism: 1,
-	});
+	const passwordHash = await hash(password, argon2Config);
 	const newUser = await createUser(
 		username,
 		passwordHash,

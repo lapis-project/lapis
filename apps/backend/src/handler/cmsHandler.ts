@@ -59,7 +59,16 @@ const createNewArticle = cms.post(
 
 const getAuthorInformation = cms.get("/articles/create/info", async (c) => {
 	const information = await getAllUserPhenKat("1");
-	return c.json(information, 200);
+	const authors = information.filter((el) => el.category === "user");
+	const categories = information.filter((el) => el.category === "category");
+	const phenomenon = information.filter((el) => el.category === "phenomenon");
+
+	const informationList = {
+		authors: authors,
+		categories: categories,
+		phenomenon: phenomenon,
+	};
+	return c.json(informationList, 200);
 });
 
 export type DeleteArticleType = typeof deleteArticle;

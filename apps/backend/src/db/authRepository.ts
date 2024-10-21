@@ -20,6 +20,23 @@ export async function getUser(email: string) {
 		.executeTakeFirst();
 }
 
+export async function getUsersByList(id: Array<number>) {
+	return await db
+		.selectFrom("user_account")
+		.innerJoin("user_has_role", "user_account.id", "user_has_role.user_id")
+		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
+		.where("user_account.id", "in", id)
+		.select([
+			"username",
+			"user_account.id",
+			"firstname",
+			"lastname",
+			"user_roles.role_name",
+			"email",
+		])
+		.execute();
+}
+
 export async function getUserById(id: number) {
 	return await db
 		.selectFrom("user_account")

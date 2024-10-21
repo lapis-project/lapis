@@ -1,13 +1,14 @@
+import tsConfigPaths from "vite-tsconfig-paths";
 import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
+	plugins: [tsConfigPaths()],
 	test: {
-		globals: true,
 		include: ["**/tests/**/(*.)+(spec|test).+(ts|tsx|js)"],
 		exclude: [...configDefaults.exclude, "**/sandbox/**", "**/*.case.test.+(ts|tsx|js)"],
-		setupFiles: ["./.vitest.config/setup-vitest.ts"],
+		// setupFiles: ["./tests/setup-vitest.ts"],
 		coverage: {
-			enabled: true,
+			enabled: false,
 			provider: "v8",
 			reportsDirectory: "./coverage/raw/default",
 			reporter: ["json", "text", "html"],
@@ -23,6 +24,9 @@ export default defineConfig({
 				"src/jsx/intrinsic-elements.ts",
 				"src/utils/http-status.ts",
 			],
+		},
+		alias: {
+			"@/": "./src", // Dont use relative aliase, use this instead
 		},
 		pool: "forks",
 	},

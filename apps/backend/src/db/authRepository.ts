@@ -9,11 +9,11 @@ export async function getUser(email: string) {
 		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
 		.where("email", "=", email)
 		.select([
-			"username",
+			"user_account.username",
 			"password",
 			"user_account.id",
-			"firstname",
-			"lastname",
+			"user_account.firstname",
+			"user_account.lastname",
 			"user_roles.role_name",
 			"email",
 		])
@@ -58,7 +58,7 @@ export async function createUser(
 		.expression((exp) =>
 			exp
 				.selectFrom("user_roles")
-				.select((eb) => ["id as role_id", eb.val(newUserId?.id).as("user_id")])
+				.select((eb) => [eb.ref("id").as("role_id"), eb.val(newUserId?.id).as("user_id")])
 				.where("role_name", "=", user_role),
 		)
 		.execute();

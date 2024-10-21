@@ -64,7 +64,7 @@ const login = auth.post("/login", vValidator("json", loginSchema), async (c) => 
 	const session_id = session.id;
 	setCookie(c, "Set-Cookie", lucia.createSessionCookie(session_id).serialize());
 	c.header("Location", "/", { append: true });
-	log.info(`User ${existingUser.username} logged in`);
+	log.info(`User ${existingUser.email} with username ${existingUser.username ?? ""} logged in`);
 	const { password: _, ...userObject } = existingUser;
 	return c.json(userObject, 200);
 });

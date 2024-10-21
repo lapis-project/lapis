@@ -2,7 +2,17 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, minLength, number, object, optional, pipe, string } from "valibot";
 
-import { getAllUserPhenKat } from "@/db/cmsRepository";
+import { getUsersByList } from "@/db/authRepository";
+import {
+	checkBibliographyExists,
+	getAllUserPhenKat,
+	getPostTypeIdsByName,
+	insertNewArticle,
+	insertNewBibliography,
+	insertNewBibliographyPost,
+	linkAuthorsToPost,
+} from "@/db/cmsRepository";
+import { instanceOfAvailablelang, instanceOfPoststatus } from "@/lib/RepoHelper";
 
 const cms = new Hono();
 
@@ -52,8 +62,76 @@ const articleCMSDetail = cms.get("/articles/:id", (c) => {
 const createNewArticle = cms.post(
 	"/articles/create",
 	vValidator("json", createNewArticleSchema),
-	(c) => {
-		return c.json("OK", 201);
+	async (c) => {
+		// get the body
+		const body = c.req.valid("json");
+
+		// Check UserIds
+		const userIds = body.authors;
+		if (userIds && userIds.length >= 0) {
+			const userList = await getUsersByList(userIds);
+
+			if (userList.length !== userIds.length) {
+				return c.json("Not all authors found", 400);
+			}
+		}
+		// Check the post_type
+		const category = body.category;
+		if (!category) {
+			return c.json("No category provided", 400);
+		}
+		const postTypeId = await getPostTypeIdsByName(category);
+
+		if (!postTypeId) {
+			return c.json("No post type found", 400);
+		}
+
+		// Check if the provided status is an element from the Poststatus enum
+		if (!instanceOfPoststatus(body.status)) {
+			return c.json("Invalid status provided", 400);
+		}
+
+		// Same for Lang
+		if (!instanceOfAvailablelang(body.lang)) {
+			return c.json("Invalid language provided", 400);
+		}
+
+		// Create the new article
+		const articleId = await insertNewArticle(
+			body.title,
+			body.alias,
+			body.cover,
+			body.abstract,
+			body.content,
+			postTypeId.id,
+			body.status,
+			body.lang,
+		);
+
+		if (!articleId) {
+			return c.json("Error while creating article", 500);
+		}
+		if (userIds && userIds.length > 0) {
+			// Link the authors to the article
+			await linkAuthorsToPost(articleId.id, userIds);
+		}
+
+		// Check if bibliography is provided
+		if (body.bibliography && body.bibliography.length > 0) {
+			// Link the bibliography to the article
+			const bibIds = (await checkBibliographyExists(body.bibliography)).map((el) => el.id);
+			const bibsToInsert = body.bibliography.filter((el) => !el);
+			let newBibIds: Array<number> = [];
+			if (bibsToInsert.length > 0)
+				newBibIds = (await insertNewBibliography(bibsToInsert)).map((el) => el.id);
+			await insertNewBibliographyPost(bibIds.concat(newBibIds), articleId.id);
+		}
+		return c.json(
+			{
+				articleId: articleId,
+			},
+			201,
+		);
 	},
 );
 

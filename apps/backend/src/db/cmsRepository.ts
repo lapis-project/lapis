@@ -1,6 +1,7 @@
 import { sql } from "kysely";
 
 import { db } from "@/db/connect";
+import type { Availablelang, Poststatus } from "@/types/db";
 
 // export async function get
 export async function getAllUserPhenKat(project_id: string) {
@@ -44,4 +45,82 @@ export async function getAllUserPhenKat(project_id: string) {
 		return await selectAllPhaen.unionAll(selectAllKat).unionAll(selectAllEditors).execute();
 	}
 	return await selectAllPhaen.unionAll(selectAllKat).unionAll(selectAllEditors).execute();
+}
+
+export async function getPostTypeIdsByName(name: string) {
+	return await db
+		.selectFrom("post_type")
+		.where("post_type_name", "=", name)
+		.select(["id"])
+		.executeTakeFirst();
+}
+
+export async function insertNewArticle(
+	title: string,
+	alias: string,
+	cover: string | undefined,
+	abstract: string | undefined,
+	content: string | undefined,
+	post_type_id: number | undefined,
+	post_status: Poststatus,
+	lang: Availablelang,
+) {
+	return await db
+		.insertInto("post")
+		.columns([
+			"title",
+			"alias",
+			"cover",
+			"abstract",
+			"content",
+			"post_type_id",
+			"post_status",
+			"lang",
+		])
+		.values({ title, alias, cover, abstract, content, post_type_id, post_status, lang })
+		.returning(["id"])
+		.executeTakeFirst();
+}
+
+export async function linkAuthorsToPost(postId: number, authorIds: Array<number>) {
+	const insertAuthors = db
+		.insertInto("user_post")
+		.columns(["post_id", "user_id"])
+		.values(
+			authorIds.map((authorId) => ({
+				post_id: postId,
+				user_id: authorId,
+			})),
+		);
+	return await insertAuthors.execute();
+}
+
+export async function checkBibliographyExists(bibliography: Array<string>) {
+	return await db
+		.selectFrom("bibliography")
+		.where("name_bibliography", "in", bibliography)
+		.select(["id"])
+		.execute();
+}
+
+export async function insertNewBibliography(name: Array<string>) {
+	return await db
+		.insertInto("bibliography")
+		.columns(["name_bibliography"])
+		.values(name)
+		.returning(["id"])
+		.execute();
+}
+
+export async function insertNewBibliographyPost(bibIds: Array<number>, postid: number) {
+	return await db
+		.insertInto("bibliography_post")
+		.columns(["post_id", "bibliography_id"])
+		.values(
+			bibIds.map((el) => ({
+				post_id: postid,
+				bibliography_id: el,
+			})),
+		)
+		.execute();
 }

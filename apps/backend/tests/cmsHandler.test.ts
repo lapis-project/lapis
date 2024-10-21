@@ -2,6 +2,22 @@ import { beforeAll, describe, expect, test } from "vitest";
 
 import { app } from "@/app";
 
+const apiHeaders = {
+	"Content-Type": "application/json",
+	Origin: "http://localhost:3000",
+	Host: "localhost:3000",
+};
+
+/*
+TODO: Saving for later when kysely gets it next update => Use transactions to make the tests easier
+Mock the db connection to use transactions
+vi.mock("@/db/connect", async () => {
+	const database = (await import("@/db/connect")).db;
+	const transaction = await database.transaction().execute();
+	return { db: transaction };
+});
+*/
+
 describe("test endpoint /cms/articles/create/info", () => {
 	// let honoClient;
 	beforeAll(() => {
@@ -35,11 +51,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 				status: "Draft",
 				lang: "en",
 			}),
-			headers: {
-				"Content-Type": "application/json",
-				Origin: "http://localhost:3000",
-				Host: "localhost:3000",
-			},
+			headers: apiHeaders,
 		});
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const body = await response.json();

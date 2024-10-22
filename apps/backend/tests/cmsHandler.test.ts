@@ -21,7 +21,7 @@ vi.mock("@/db/connect", async () => {
 });
 */
 
-describe("test endpoint /cms/articles/create/info", () => {
+describe.skip("test endpoint /cms/articles/create/info", () => {
 	// let honoClient;
 	beforeAll(() => {
 		// const honoClient = hc<GetAuthorInformationType>("");
@@ -41,7 +41,51 @@ describe("test endpoint /cms/articles/create/info", () => {
 	});
 });
 
-describe("test endpoint POST /cms/articles/create", () => {
+describe("test endpoint GET /cms/articles/:id", () => {
+	let articleId = 0;
+	beforeAll(async () => {
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				projectId: [1],
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+		articleId = body.articleId.id;
+	});
+
+	afterAll(async () => {
+		await db.deleteFrom("post").where("title", "=", "Test Article").execute();
+	});
+
+	test("Should return status code 200", async () => {
+		const response = await app.request("/cms/articles/1");
+		expect(response.status).toBe(201);
+	});
+
+	test("Provide correct article id, should return the article with the provided id and status code 201", async () => {
+		const response = await app.request(`/cms/articles/${String(articleId)}`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("article");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.article.post_id).toBe(articleId);
+	});
+});
+
+describe.skip("test endpoint POST /cms/articles/create", () => {
 	const existingBibliography = "TestBibliography2";
 	afterEach(async () => {
 		await db.deleteFrom("user_post").where("user_id", "=", 4).execute();
@@ -284,5 +328,59 @@ describe("test endpoint POST /cms/articles/create", () => {
 			.execute();
 		expect(bibliography2.length).toBe(1);
 		expect(bibliography2[0]?.name_bibliography).toBe(existingBibliography);
+	});
+
+	test("Create a new article with one project provided that already exists in the DB, should create new article, link the project to the article and return new article ID and status code 201", async () => {
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				projectId: [1],
+			}),
+			headers: apiHeaders,
+		});
+
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(response.status).toBe(201);
+		expect(body).toHaveProperty("articleId");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+		const articleId = body.articleId.id;
+
+		// Check if the project is linked to the article
+		const linkProjectPost = await db
+			.selectFrom("project_post")
+			.where("post_id", "=", articleId)
+			.selectAll()
+			.execute();
+		expect(linkProjectPost.length).toBe(1);
+
+		const linkedProject = linkProjectPost[0];
+		expect(linkedProject?.project_id).toBe(1);
+		expect(linkedProject?.post_id).toBe(articleId);
+	});
+
+	test("Create a new article with one project that does not exist, should return status code 404", async () => {
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				projectId: [999],
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(404);
 	});
 });

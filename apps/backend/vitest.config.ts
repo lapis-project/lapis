@@ -8,7 +8,7 @@ export default defineConfig({
 		exclude: [...configDefaults.exclude, "**/sandbox/**", "**/*.case.test.+(ts|tsx|js)"],
 		// setupFiles: ["./tests/setup-vitest.ts"],
 		coverage: {
-			enabled: false,
+			enabled: true,
 			provider: "v8",
 			reportsDirectory: "./coverage/raw/default",
 			reporter: ["json", "text", "html"],
@@ -17,12 +17,15 @@ export default defineConfig({
 				"benchmarks",
 				"runtime_tests",
 				"build.ts",
+				"tsup.types.config.ts",
+				"src/index.ts",
 				"src/test-utils",
 
 				// types are compile-time only, so their coverage cannot be measured
-				"src/**/types.ts",
+				"src/**/apiTypes.ts",
 				"src/jsx/intrinsic-elements.ts",
 				"src/utils/http-status.ts",
+				"src/utils/backend-types.ts",
 			],
 		},
 		alias: {

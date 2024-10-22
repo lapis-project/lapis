@@ -119,11 +119,14 @@ const createNewArticle = cms.post(
 		// Check if bibliography is provided
 		if (body.bibliography && body.bibliography.length > 0) {
 			// Link the bibliography to the article
-			const bibIds = (await checkBibliographyExists(body.bibliography)).map((el) => el.id);
-			const bibsToInsert = body.bibliography.filter((el) => !el);
+			const existingBib = await checkBibliographyExists(body.bibliography);
+			const bibsToInsert = body.bibliography.filter(
+				(el) => !existingBib.some((bib) => bib.name_bibliography === el),
+			);
 			let newBibIds: Array<number> = [];
 			if (bibsToInsert.length > 0)
 				newBibIds = (await insertNewBibliography(bibsToInsert)).map((el) => el.id);
+			const bibIds = existingBib.map((el) => el.id);
 			await insertNewBibliographyPost(bibIds.concat(newBibIds), articleId.id);
 		}
 		return c.json(

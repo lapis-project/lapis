@@ -99,7 +99,7 @@ export async function checkBibliographyExists(bibliography: Array<string>) {
 	return await db
 		.selectFrom("bibliography")
 		.where("name_bibliography", "in", bibliography)
-		.select(["id"])
+		.select(["id", "name_bibliography"])
 		.execute();
 }
 
@@ -107,7 +107,7 @@ export async function insertNewBibliography(name: Array<string>) {
 	return await db
 		.insertInto("bibliography")
 		.columns(["name_bibliography"])
-		.values(name)
+		.values(name.map((el) => ({ name_bibliography: el })))
 		.returning(["id"])
 		.execute();
 }

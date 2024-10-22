@@ -8,10 +8,12 @@ import {
 	getAllUserPhenKat,
 	getArticleById,
 	getPostTypeIdsByName,
+	getProjectByIds,
 	insertNewArticle,
 	insertNewBibliography,
 	insertNewBibliographyPost,
 	linkAuthorsToPost,
+	linkProjectToPost,
 } from "@/db/cmsRepository";
 import { instanceOfAvailablelang, instanceOfPoststatus } from "@/lib/RepoHelper";
 
@@ -58,6 +60,7 @@ const cmsRoute = cms.get("/articles/all/:project", vValidator("json", searchArti
  */
 const articleCMSDetail = cms.get("/articles/:id", async (c) => {
 	const providedId = c.req.param("id");
+
 	if (!providedId) {
 		return c.json("No id provided", 400);
 	}
@@ -139,6 +142,17 @@ const createNewArticle = cms.post(
 				newBibIds = (await insertNewBibliography(bibsToInsert)).map((el) => el.id);
 			const bibIds = existingBib.map((el) => el.id);
 			await insertNewBibliographyPost(bibIds.concat(newBibIds), articleId.id);
+		}
+
+		// Check if the project is provided and insert it if it is
+		if (body.projectId && body.projectId.length > 0) {
+			// Ask the DB if the article exists
+			const existingProjects = await getProjectByIds(body.projectId);
+			if (existingProjects.length !== body.projectId.length) {
+				return c.json("Article not found", 404);
+			}
+			// Link the project to the article
+			await linkProjectToPost(articleId.id, body.projectId);
 		}
 		return c.json(
 			{

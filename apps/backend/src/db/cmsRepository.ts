@@ -48,16 +48,16 @@ export async function getAllUserPhenKat(project_id: string) {
 }
 
 export async function getArticleById(id: number) {
-	return await db
+	const query = db
 		.selectFrom("post")
-		.innerJoin("bibliography_post", "post.id", "bibliography_post.post_id")
-		.innerJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
+		.leftJoin("bibliography_post", "post.id", "bibliography_post.post_id")
+		.leftJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
 		.innerJoin("post_type", "post.post_type_id", "post_type.id")
-		.innerJoin("user_post", "post.id", "user_post.post_id")
-		.innerJoin("user_account", "user_post.user_id", "user_account.id")
-		.where("id", "=", id)
+		.leftJoin("user_post", "post.id", "user_post.post_id")
+		.leftJoin("user_account", "user_post.user_id", "user_account.id")
+		.where("post.id", "=", id)
 		.select([
-			"post.id",
+			"post.id as post_id",
 			"post.title",
 			"post.alias",
 			"post.cover",
@@ -67,11 +67,32 @@ export async function getArticleById(id: number) {
 			"post.lang",
 			"post_type.post_type_name",
 			"bibliography.name_bibliography",
-			"user_account.id",
+			"user_account.id as user_id",
 			"user_account.firstname",
 			"user_account.lastname",
-		])
-		.executeTakeFirst();
+		]);
+	return await query.executeTakeFirst();
+}
+
+export async function getProjectByIds(ids: Array<number>) {
+	return await db
+		.selectFrom("project")
+		.where("project.id", "in", ids)
+		.select(["project_name", "description"])
+		.execute();
+}
+
+export async function linkProjectToPost(postId: number, projectId: Array<number>) {
+	return await db
+		.insertInto("project_post")
+		.columns(["post_id", "project_id"])
+		.values(
+			projectId.map((proj) => ({
+				post_id: postId,
+				project_id: proj,
+			})),
+		)
+		.execute();
 }
 
 export async function getPostTypeIdsByName(name: string) {

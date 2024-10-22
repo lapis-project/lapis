@@ -6,6 +6,7 @@ import { getUsersByList } from "@/db/authRepository";
 import {
 	checkBibliographyExists,
 	getAllUserPhenKat,
+	getArticleById,
 	getPostTypeIdsByName,
 	insertNewArticle,
 	insertNewBibliography,
@@ -55,8 +56,18 @@ const cmsRoute = cms.get("/articles/all/:project", vValidator("json", searchArti
 /*
  * returns all fields of an article, Is identified by the id
  */
-const articleCMSDetail = cms.get("/articles/:id", (c) => {
-	return c.json("OK", 201);
+const articleCMSDetail = cms.get("/articles/:id", async (c) => {
+	const providedId = c.req.param("id");
+	if (!providedId) {
+		return c.json("No id provided", 400);
+	}
+	// Check if the id is a number
+	if (Number.isNaN(Number(providedId))) {
+		return c.json("Provided id is not a number", 400);
+	}
+
+	const fetchedArticle = await getArticleById(Number(providedId));
+	return c.json({ article: fetchedArticle }, 201);
 });
 
 const createNewArticle = cms.post(

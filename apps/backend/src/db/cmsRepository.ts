@@ -47,6 +47,33 @@ export async function getAllUserPhenKat(project_id: string) {
 	return await selectAllPhaen.unionAll(selectAllKat).unionAll(selectAllEditors).execute();
 }
 
+export async function getArticleById(id: number) {
+	return await db
+		.selectFrom("post")
+		.innerJoin("bibliography_post", "post.id", "bibliography_post.post_id")
+		.innerJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
+		.innerJoin("post_type", "post.post_type_id", "post_type.id")
+		.innerJoin("user_post", "post.id", "user_post.post_id")
+		.innerJoin("user_account", "user_post.user_id", "user_account.id")
+		.where("id", "=", id)
+		.select([
+			"post.id",
+			"post.title",
+			"post.alias",
+			"post.cover",
+			"post.abstract",
+			"post.content",
+			"post.post_status",
+			"post.lang",
+			"post_type.post_type_name",
+			"bibliography.name_bibliography",
+			"user_account.id",
+			"user_account.firstname",
+			"user_account.lastname",
+		])
+		.executeTakeFirst();
+}
+
 export async function getPostTypeIdsByName(name: string) {
 	return await db
 		.selectFrom("post_type")

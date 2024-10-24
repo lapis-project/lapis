@@ -23,7 +23,7 @@
 		"@hono/valibot-validator": "^0.3.1",
 		"@lucia-auth/adapter-postgresql": "^3.1.2",
 		"dotenv": "^16.4.5",
-		"hono": "^4.6.3",
+		"hono": "^4.6.6",
 		"kysely": "^0.27.4",
 		"lucia": "^3.2.1",
 		"pg": "^8.13.0",

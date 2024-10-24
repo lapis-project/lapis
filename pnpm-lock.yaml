@@ -40,10 +40,10 @@ importers:
         version: 0.1.12
       '@hono/node-server':
         specifier: ^1.13.1
-        version: 1.13.1(hono@4.6.3)
+        version: 1.13.1(hono@4.6.6)
       '@hono/valibot-validator':
         specifier: ^0.3.1
-        version: 0.3.1(hono@4.6.3)(valibot@0.35.0)
+        version: 0.3.1(hono@4.6.6)(valibot@0.35.0)
       '@lucia-auth/adapter-postgresql':
         specifier: ^3.1.2
         version: 3.1.2(lucia@3.2.1)(pg@8.13.0)
@@ -51,8 +51,8 @@ importers:
         specifier: ^16.4.5
         version: 16.4.5
       hono:
-        specifier: ^4.6.3
-        version: 4.6.3
+        specifier: ^4.6.6
+        version: 4.6.6
       kysely:
         specifier: ^0.27.4
         version: 0.27.4
@@ -4271,8 +4271,8 @@ packages:
     resolution: {integrity: sha512-Ox1pJVrDCyGHMG9CFg1tmrRUMRPRsAWYc/PinY0XzJU4K7y7vjNoLKIQ7BR5UJMCxNN8EM1MNDmHWA/B3aZUuw==}
     engines: {node: '>=6'}
 
-  hono@4.6.3:
-    resolution: {integrity: sha512-0LeEuBNFeSHGqZ9sNVVgZjB1V5fmhkBSB0hZrpqStSMLOWgfLy0dHOvrjbJh0H2khsjet6rbHfWTHY0kpYThKQ==}
+  hono@4.6.6:
+    resolution: {integrity: sha512-euUj5qwvtkG+p38GFs0LYacwaoS2hYRAGn9ysAggiwT2QBcPnT1XYUCW3hatW4C1KzAXTYuQ08BlVDJtAGuhlg==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -7950,13 +7950,13 @@ snapshots:
 
   '@fontsource-variable/inter@5.1.0': {}
 
-  '@hono/node-server@1.13.1(hono@4.6.3)':
+  '@hono/node-server@1.13.1(hono@4.6.6)':
     dependencies:
-      hono: 4.6.3
+      hono: 4.6.6
 
-  '@hono/valibot-validator@0.3.1(hono@4.6.3)(valibot@0.35.0)':
+  '@hono/valibot-validator@0.3.1(hono@4.6.6)(valibot@0.35.0)':
     dependencies:
-      hono: 4.6.3
+      hono: 4.6.6
       valibot: 0.35.0
 
   '@humanfs/core@0.19.0': {}
@@ -12497,7 +12497,7 @@ snapshots:
 
   hex-rgb@4.3.0: {}
 
-  hono@4.6.3: {}
+  hono@4.6.6: {}
 
   hookable@5.5.3: {}
 

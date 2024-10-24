@@ -3,7 +3,18 @@ import { vValidator } from "@hono/valibot-validator";
 import { hash, verify } from "@node-rs/argon2";
 import { Hono } from "hono";
 import { setCookie } from "hono/cookie";
-import { check, email, endsWith, minLength, object, optional, pipe, string, trim } from "valibot";
+import {
+	check,
+	email,
+	endsWith,
+	minLength,
+	object,
+	optional,
+	pipe,
+	string,
+	toLowerCase,
+	trim,
+} from "valibot";
 
 import { lucia } from "@/auth/auth";
 import { argon2Config } from "@/config/config";
@@ -14,14 +25,14 @@ import type { Userroles } from "@/types/db";
 const auth = new Hono<Context>();
 
 const loginSchema = object({
-	email: string(),
+	email: pipe(string(), toLowerCase()),
 	password: string(),
 });
 
 const signupSchema = object({
 	username: pipe(string(), trim(), minLength(3)),
 	password: pipe(string(), trim(), minLength(8)),
-	email: pipe(string(), trim(), email(), endsWith("@oeaw.ac.at")),
+	email: pipe(string(), trim(), email(), endsWith("@oeaw.ac.at"), toLowerCase()),
 	user_role: pipe(
 		string(),
 		trim(),

@@ -3,6 +3,7 @@ import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect";
 import { jsonbBuildObject } from "@/lib/dbHelper";
+import type { Article } from "@/types/apiTypes";
 import type { Availablelang, Poststatus } from "@/types/db";
 
 // export async function get
@@ -245,4 +246,23 @@ export async function insertNewBibliographyPost(bibIds: Array<number>, postid: n
 
 export async function deleteArticleById(articleId: number) {
 	return await db.deleteFrom("post").where("id", "=", articleId).execute();
+}
+
+export async function updateArticleById(articleId: number, articleBody: Article) {
+	return await db
+		.updateTable("post")
+		.set({
+			title: articleBody.title,
+			alias: articleBody.alias,
+			cover: articleBody.cover,
+			abstract: articleBody.abstract,
+			content: articleBody.content,
+			post_type_id: articleBody.post_type_id,
+			post_status: articleBody.post_status,
+			lang: articleBody.lang,
+			published_at: articleBody.publishedAt,
+			updated_at: articleBody.updatedAt,
+		})
+		.where("id", "=", articleId)
+		.executeTakeFirst();
 }

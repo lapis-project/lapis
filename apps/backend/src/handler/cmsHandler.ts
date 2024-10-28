@@ -5,6 +5,7 @@ import { array, minLength, number, object, optional, pipe, string } from "valibo
 import { getUsersByList } from "@/db/authRepository";
 import {
 	checkBibliographyExists,
+	getAllArticlesByProjectId,
 	getAllUserPhenKat,
 	getArticleById,
 	getPostTypeIdsByName,
@@ -36,11 +37,11 @@ const createNewArticleSchema = object({
 });
 
 const searchArticleSchema = object({
-	searchTerm: string(),
-	page: number(),
-	offset: number(),
-	pageSize: number(),
-	category: string(), // Does it allow as an enum? ARTICLE | BLOG | NEWS
+	searchTerm: optional(string()),
+	page: optional(number()),
+	offset: optional(number()),
+	pageSize: optional(number()),
+	category: optional(string()), // Does it allow as an enum? ARTICLE | BLOG | NEWS
 });
 
 const deleteArticle = cms.delete("/articles/:id", (c) => {
@@ -51,9 +52,34 @@ const editArticle = cms.put("/:id", (c) => {
 	return c.json("OK", 201);
 });
 
-const cmsRoute = cms.get("/articles/all/:project", vValidator("json", searchArticleSchema), (c) => {
-	return c.json("OK", 201);
-});
+/**
+ * Get all articles (posts) from a project, Does not return articles where no project has been assigned
+ * @returns Object with all articleIds from the provided project id with the users who wrote them,
+ * Comes in a paged format
+ */
+const cmsRoute = cms.get(
+	"/articles/all/:project",
+	vValidator("json", searchArticleSchema),
+	async (c) => {
+		const projectId = c.req.param("project");
+
+		const { page, offset, pageSize, category, searchTerm } = c.req.query();
+
+		// Check if the id is a number
+		if (!projectId || Number.isNaN(Number(projectId))) {
+			return c.json("Provided id is not a number", 400);
+		}
+		const queryOffset = (Number(page ?? 1) - 1) * Number(pageSize ?? 20) + Number(offset ?? 0);
+		const allArticles = await getAllArticlesByProjectId(
+			Number(projectId),
+			Number(pageSize ?? 20),
+			queryOffset,
+			searchTerm ?? "",
+			category ?? "",
+		);
+		return c.json({ articles: allArticles, count: allArticles.length }, 201);
+	},
+);
 
 /*
  * returns all fields of an article, Is identified by the id

@@ -69,15 +69,41 @@ const cmsRoute = cms.get(
 		if (!projectId || Number.isNaN(Number(projectId))) {
 			return c.json("Provided id is not a number", 400);
 		}
-		const queryOffset = (Number(page ?? 1) - 1) * Number(pageSize ?? 20) + Number(offset ?? 0);
+		const pageSizeParsed = Number(pageSize ?? 20);
+		const pageNumParsed = Number(page ?? 1);
+		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + Number(offset ?? 0);
 		const allArticles = await getAllArticlesByProjectId(
 			Number(projectId),
-			Number(pageSize ?? 20),
+			pageSizeParsed,
 			queryOffset,
 			searchTerm ?? "",
 			category ?? "",
 		);
-		return c.json({ articles: allArticles, count: allArticles.length }, 201);
+		const articles = allArticles[0]?.articles;
+		const totalCount = Number(allArticles[0]?.total);
+		const requestUrl = c.req.url;
+		return c.json(
+			{
+				prev:
+					pageNumParsed > 1 || totalCount !== 0
+						? requestUrl.replace(
+								`page=${String(pageNumParsed)}`,
+								`page=${String(pageNumParsed - 1)}`,
+							)
+						: null,
+				next:
+					totalCount > pageSizeParsed + queryOffset
+						? requestUrl.replace(
+								`page=${String(pageNumParsed)}`,
+								`page=${String(pageNumParsed + 1)}`,
+							)
+						: null,
+				articles: articles ? articles : [],
+				currentPage: requestUrl,
+				totalResults: totalCount,
+			},
+			201,
+		);
 	},
 );
 

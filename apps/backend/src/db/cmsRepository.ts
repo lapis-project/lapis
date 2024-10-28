@@ -2,6 +2,7 @@ import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect";
+import { jsonbBuildObject } from "@/lib/dbHelper";
 import type { Availablelang, Poststatus } from "@/types/db";
 
 // export async function get
@@ -83,38 +84,64 @@ export async function getAllArticlesByProjectId(
 	postType: string,
 ) {
 	const query = db
-		.selectFrom("post")
-		.innerJoin("project_post", "post.id", "project_post.post_id")
-		.leftJoin("user_post", "post.id", "user_post.post_id")
-		.leftJoin("user_account", "user_post.user_id", "user_account.id")
-		.innerJoin("post_type", "post.post_type_id", "post_type.id")
-		.where("project_post.project_id", "=", projectId)
-		.where("post.title", "~*", searchTerm)
-		.where("post_type.post_type_name", "~*", postType)
-		.select(({ eb }) => [
-			eb.ref("post.id").as("post_id"),
-			eb.ref("post.title").as("title"),
-			eb.ref("post.alias").as("alias"),
-			eb.ref("post.content").as("content"),
-			eb.ref("post.abstract").as("abstract"),
-			eb.ref("post.post_status").as("status"),
-			eb.ref("post_type.post_type_name").as("post_type"),
-			eb.fn
+		.with("post_query", (query) =>
+			query
+				.selectFrom("post")
+				.innerJoin("project_post", "post.id", "project_post.post_id")
+				.leftJoin("user_post", "post.id", "user_post.post_id")
+				.leftJoin("user_account", "user_post.user_id", "user_account.id")
+				.innerJoin("post_type", "post.post_type_id", "post_type.id")
+				.where("project_post.project_id", "=", projectId)
+				.where("post.title", "~*", searchTerm)
+				.where("post_type.post_type_name", "~*", postType)
+				.select(({ eb }) => [
+					sql<number>`ROW_NUMBER() OVER (order by post.id) as rn`,
+					eb.ref("post.id").as("post_id"),
+					eb.ref("post.title").as("title"),
+					eb.ref("post.alias").as("alias"),
+					eb.ref("post.content").as("content"),
+					eb.ref("post.abstract").as("abstract"),
+					eb.ref("post.post_status").as("status"),
+					eb.ref("post_type.post_type_name").as("post_type"),
+					eb.fn
+						.jsonAgg(
+							jsonbBuildObject({
+								user_id: eb.ref("user_account.id"),
+								username: eb.ref("user_account.username"),
+								email: eb.ref("user_account.email"),
+								firstname: eb.ref("user_account.firstname"),
+								lastname: eb.ref("user_account.lastname"),
+							}),
+						)
+						.as("authors"),
+				])
+				.groupBy(["post.id", "post_type.post_type_name"]),
+		)
+		.selectFrom("post_query")
+		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
+		.select(({ eb, fn }) => [
+			fn
 				.jsonAgg(
 					jsonBuildObject({
-						user_id: eb.ref("user_account.id"),
-						username: eb.ref("user_account.username"),
-						email: eb.ref("user_account.email"),
-						firstname: eb.ref("user_account.firstname"),
-						lastname: eb.ref("user_account.lastname"),
+						post_id: eb.ref("post_query.post_id"),
+						title: eb.ref("post_query.title"),
+						alias: eb.ref("post_query.alias"),
+						content: eb.ref("post_query.content"),
+						abstract: eb.ref("post_query.abstract"),
+						status: eb.ref("post_query.status"),
+						post_type: eb.ref("post_query.post_type"),
+						authors: eb.ref("authors"),
 					}),
 				)
-				.as("authors"),
-		])
-		.groupBy(["post.id", "post_type.post_type_name"])
-		.limit(pageSize)
-		.offset(offset);
+				.filterWhere("rn", ">", offset)
+				.filterWhere("rn", "<=", pageSize + offset)
+				.as("articles"),
+			fn.countAll().as("total"),
+		]);
 	return await query.execute();
+	/* .select(({ eb, fn }) => [
+			fn.jsonAgg(jsonbBuildObject({ abstract: eb.ref("post_query.abstract") })).as("articles"),
+		])*/
 }
 
 export async function getProjectByIds(ids: Array<number>) {

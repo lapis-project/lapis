@@ -5,6 +5,7 @@ import { array, minLength, number, object, optional, pipe, string } from "valibo
 import { getUsersByList } from "@/db/authRepository";
 import {
 	checkBibliographyExists,
+	deleteArticleById,
 	getAllArticlesByProjectId,
 	getAllUserPhenKat,
 	getArticleById,
@@ -44,8 +45,20 @@ const searchArticleSchema = object({
 	category: optional(string()), // Does it allow as an enum? ARTICLE | BLOG | NEWS
 });
 
-const deleteArticle = cms.delete("/articles/:id", (c) => {
-	return c.json("OK", 201);
+/**
+ * Delete the article with the provided id as queryparam
+ * Returns code 200 when the article has been processed
+ */
+const deleteArticle = cms.delete("/articles/:id", async (c) => {
+	const articleId = c.req.param("id");
+	// Check if the id is a number
+	if (!articleId || Number.isNaN(Number(articleId))) {
+		return c.json("Provided id is not a number", 400);
+	}
+
+	// Delete the article
+	await deleteArticleById(Number(articleId));
+	return c.json(`Article with the ID ${String(articleId)} has been deleted`, 200);
 });
 
 const editArticle = cms.put("/:id", (c) => {

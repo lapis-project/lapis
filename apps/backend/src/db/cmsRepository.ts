@@ -242,3 +242,7 @@ export async function insertNewBibliographyPost(bibIds: Array<number>, postid: n
 		)
 		.execute();
 }
+
+export async function deleteArticleById(articleId: number) {
+	return await db.deleteFrom("post").where("id", "=", articleId).execute();
+}

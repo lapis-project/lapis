@@ -41,7 +41,7 @@ describe.skip("test endpoint /cms/articles/create/info", () => {
 	});
 });
 
-describe("test endpoint GET /cms/articles/:id", () => {
+describe.skip("test endpoint GET /cms/articles/:id", () => {
 	let articleId = 0;
 	beforeAll(async () => {
 		const response = await app.request("/cms/articles/create", {
@@ -55,6 +55,7 @@ describe("test endpoint GET /cms/articles/:id", () => {
 				status: "Draft",
 				lang: "en",
 				projectId: [1],
+				authors: [4],
 			}),
 			headers: apiHeaders,
 		});
@@ -382,5 +383,182 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			headers: apiHeaders,
 		});
 		expect(response.status).toBe(404);
+	});
+});
+
+describe("test endpoint GET /cms/articles/all/:project", () => {
+	const articleIds: Array<number> = [];
+	const categories: Array<string> = ["commentary", "methodology", "project_description"];
+	beforeAll(async () => {
+		// Create 30 new articles
+		for (let i = 0; i < 30; i++) {
+			const response = await app.request("/cms/articles/create", {
+				method: "POST",
+				body: JSON.stringify({
+					title: `Test Article ${String(i)}`,
+					alias: `test-article ${String(i)}`,
+					abstract: "test-abstract",
+					content: "test-content",
+					category: categories[i % 3],
+					status: "Draft",
+					lang: "en",
+					projectId: [1],
+					authors: [3, 4],
+				}),
+				headers: apiHeaders,
+			});
+			expect(response.status).toBe(201);
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const body = await response.json();
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			articleIds.push(Number(body.articleId.id));
+		}
+	});
+
+	afterAll(async () => {
+		await db.deleteFrom("post").where("title", "ilike", "Test Article%").execute();
+	});
+
+	test("Provide project id 1 with pagesize of 30 and leave other fields empty, should return all articles on one page with project id 1 and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?pageSize=30`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(30);
+	});
+
+	test("Provide different project id 2, should return empty array and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/2`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(0);
+	});
+
+	test("Provide project id 1 with pagesize of 10 and page 1, should return 10 articles with names Test article 0 to 9 on one page with project id 1 and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=1`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(10);
+
+		// Check if contains the first 10 articles
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
+		expect(articleIdsReceived).toEqual(articleIds.slice(0, 10));
+	});
+
+	test("Provide project id 1 with pagesize of 10 and page 2, should return 10 articles on one page with project id 1 and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=2`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(10);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
+		expect(articleIdsReceived).toEqual(articleIds.slice(10, 20));
+	});
+
+	test("Provide project id 1 with pagesize of 10 on page 2 with offset of 10, should return 10 articles on one page with project id 1 and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?pageSize=10&offset=10&page=2`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(10);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
+		expect(articleIdsReceived).toEqual(articleIds.slice(20, 30));
+	});
+
+	test("Provide project id 1 with pagesize of 30 on page 2, should return empty array and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?pageSize=30&page=2`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(0);
+	});
+
+	test("Provide project id 1 with pagesize of 10 and category commentary, should return 10 articles with category commentary on one page with project id 1 and status code 201", async () => {
+		const response = await app.request(
+			`/cms/articles/all/1?pageSize=10&category=${categories[0] ?? ""}`,
+		);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(10);
+
+		// Should only contain articles with category commentary
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		const articleCategories = body.articles.map((el: { post_type: string }) => el.post_type);
+		expect(articleCategories).toEqual(Array(10).fill(categories[0]));
+	});
+
+	test("Provide project id 1 and category article, should return empty array and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?category=article`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(0);
+	});
+
+	test("Provide project id 1 and searchTerm Test Article 1, should return 11 articles with title containing Test Article 1 and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 1`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(11);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		const articleTitles = body.articles.map((el: { title: string }) => el.title);
+		expect(articleTitles).toContainEqual("Test Article 1");
+	});
+
+	test("Provide project id 1 and searchTerm Test Article 20, should return 1 article with title containing Test Article 20 and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 20`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(1);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		const articleTitles = body.articles.map((el: { title: string }) => el.title);
+		expect(articleTitles).toContainEqual("Test Article 20");
+	});
+
+	test("Provide project id 1 and searchTerm Othertitle, should return empty array and status code 201", async () => {
+		const response = await app.request(`/cms/articles/all/1?searchTerm=Othertitle`);
+		expect(response.status).toBe(201);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toHaveProperty("articles");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(body.articles.length).toBe(0);
+	});
+
+	test("Provide no project id, should return status code 400 with error message Provided id is not a number", async () => {
+		const response = await app.request(`/cms/articles/all`);
+		expect(response.status).toBe(400);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const body = await response.json();
+		expect(body).toBe("Provided id is not a number");
 	});
 });

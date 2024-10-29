@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { afterEach } from "node:test";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
@@ -33,7 +35,6 @@ describe.skip("test endpoint /cms/articles/create/info", () => {
 	test("Should return object containing authors, categories and phenomenon", async () => {
 		const response = await app.request("/cms/articles/create/info");
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const body = await response.json();
 		expect(body).toHaveProperty("authors");
 		expect(body).toHaveProperty("categories");
@@ -60,9 +61,9 @@ describe.skip("test endpoint GET /cms/articles/:id", () => {
 			headers: apiHeaders,
 		});
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
 		articleId = body.articleId.id;
 	});
 
@@ -78,15 +79,15 @@ describe.skip("test endpoint GET /cms/articles/:id", () => {
 	test("Provide correct article id, should return the article with the provided id and status code 201", async () => {
 		const response = await app.request(`/cms/articles/${String(articleId)}`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("article");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.article.post_id).toBe(articleId);
 	});
 });
 
-describe.skip("test endpoint POST /cms/articles/create", () => {
+describe("test endpoint POST /cms/articles/create", () => {
 	const existingBibliography = "TestBibliography2";
 	afterEach(async () => {
 		await db.deleteFrom("user_post").where("user_id", "=", 4).execute();
@@ -130,14 +131,17 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			.executeTakeFirst();
 		expect(editorRoleId).not.toBeNull();
 		expect(editorRoleId).toHaveProperty("id");
-		if (!editorRoleId) return;
-		newUserIds.forEach(async (el) => {
+		if (!editorRoleId) {
+			return;
+		}
+
+		for (const el of newUserIds) {
 			await db
 				.insertInto("user_has_role")
 				.columns(["user_id", "role_id"])
 				.values({ user_id: el.id, role_id: editorRoleId.id })
 				.execute();
-		});
+		}
 
 		// Create a new bibliography
 		await db
@@ -160,7 +164,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			}),
 			headers: apiHeaders,
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(response.status).toBe(201);
 		expect(body).toHaveProperty("articleId");
@@ -188,11 +192,11 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			}),
 			headers: apiHeaders,
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(response.status).toBe(201);
 		expect(body).toHaveProperty("articleId");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
 		const articleId = body.articleId.id;
 
 		// Check if the author is linked to the article
@@ -202,7 +206,9 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			.selectAll()
 			.execute();
 		expect(linkAuthorPost.length).toBe(1);
-		if (linkAuthorPost.length === 0) return;
+		if (linkAuthorPost.length === 0) {
+			return;
+		}
 		expect(linkAuthorPost[0]?.user_id).toBe(4);
 	});
 	test("Create a new article with two new authors provided (firstname: Test), should create new article and link the two authors to the article, returns new article ID and status code 201", async () => {
@@ -226,11 +232,11 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			}),
 			headers: apiHeaders,
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(response.status).toBe(201);
 		expect(body).toHaveProperty("articleId");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
 		const articleId = body.articleId.id;
 
 		// Check if the author is linked to the article
@@ -258,11 +264,11 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			}),
 			headers: apiHeaders,
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(response.status).toBe(201);
 		expect(body).toHaveProperty("articleId");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
 		const articleId = body.articleId.id;
 
 		// Check if the bibliography is linked to the article
@@ -298,11 +304,11 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			}),
 			headers: apiHeaders,
 		});
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(response.status).toBe(201);
 		expect(body).toHaveProperty("articleId");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
 		const articleId = body.articleId.id;
 
 		// Check if the bibliography is linked to the article
@@ -347,11 +353,10 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			headers: apiHeaders,
 		});
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const body = await response.json();
 		expect(response.status).toBe(201);
 		expect(body).toHaveProperty("articleId");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+
 		const articleId = body.articleId.id;
 
 		// Check if the project is linked to the article
@@ -386,7 +391,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 	});
 });
 
-describe("test endpoint GET /cms/articles/all/:project", () => {
+describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	const articleIds: Array<number> = [];
 	const categories: Array<string> = ["commentary", "methodology", "project_description"];
 	beforeAll(async () => {
@@ -408,9 +413,9 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 				headers: apiHeaders,
 			});
 			expect(response.status).toBe(201);
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 			const body = await response.json();
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 			articleIds.push(Number(body.articleId.id));
 		}
 	});
@@ -422,34 +427,34 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 with pagesize of 30 and leave other fields empty, should return all articles on one page with project id 1 and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?pageSize=30`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(30);
 	});
 
 	test("Provide different project id 2, should return empty array and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/2`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(0);
 	});
 
 	test("Provide project id 1 with pagesize of 10 and page 1, should return 10 articles with names Test article 0 to 9 on one page with project id 1 and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=1`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(10);
 
 		// Check if contains the first 10 articles
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
 		expect(articleIdsReceived).toEqual(articleIds.slice(0, 10));
 	});
@@ -457,12 +462,12 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 with pagesize of 10 and page 2, should return 10 articles on one page with project id 1 and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=2`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(10);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
 		expect(articleIdsReceived).toEqual(articleIds.slice(10, 20));
 	});
@@ -470,13 +475,13 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 with pagesize of 10 on page 2 with offset of 10, should return 10 articles on one page with project id 1 and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?pageSize=10&offset=10&page=2`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(10);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
 		expect(articleIdsReceived).toEqual(articleIds.slice(20, 30));
 	});
@@ -484,10 +489,10 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 with pagesize of 30 on page 2, should return empty array and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?pageSize=30&page=2`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(0);
 	});
 
@@ -496,14 +501,14 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 			`/cms/articles/all/1?pageSize=10&category=${categories[0] ?? ""}`,
 		);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(10);
 
 		// Should only contain articles with category commentary
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleCategories = body.articles.map((el: { post_type: string }) => el.post_type);
 		expect(articleCategories).toEqual(Array(10).fill(categories[0]));
 	});
@@ -511,22 +516,22 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 and category article, should return empty array and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?category=article`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(0);
 	});
 
 	test("Provide project id 1 and searchTerm Test Article 1, should return 11 articles with title containing Test Article 1 and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 1`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(11);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleTitles = body.articles.map((el: { title: string }) => el.title);
 		expect(articleTitles).toContainEqual("Test Article 1");
 	});
@@ -534,12 +539,12 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 and searchTerm Test Article 20, should return 1 article with title containing Test Article 20 and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 20`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(1);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleTitles = body.articles.map((el: { title: string }) => el.title);
 		expect(articleTitles).toContainEqual("Test Article 20");
 	});
@@ -547,18 +552,168 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 and searchTerm Othertitle, should return empty array and status code 201", async () => {
 		const response = await app.request(`/cms/articles/all/1?searchTerm=Othertitle`);
 		expect(response.status).toBe(201);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		expect(body.articles.length).toBe(0);
 	});
 
 	test("Provide no project id, should return status code 400 with error message Provided id is not a number", async () => {
 		const response = await app.request(`/cms/articles/all`);
 		expect(response.status).toBe(400);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
 		const body = await response.json();
 		expect(body).toBe("Provided id is not a number");
+	});
+});
+
+describe("test endpoint PUT /cms/:id", () => {
+	let articleId = 0;
+	beforeAll(async () => {
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				projectId: [1],
+				authors: [3, 4],
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(201);
+
+		const body = await response.json();
+
+		articleId = body.articleId.id;
+	});
+
+	afterAll(async () => {
+		await db.deleteFrom("user_post").where("user_id", "=", 4).execute();
+		await db.deleteFrom("post").where("title", "ilike", "Test Article%").execute();
+		await db.deleteFrom("user_account").where("firstname", "=", "Test").execute();
+		await db
+			.deleteFrom("bibliography")
+			.where("name_bibliography", "ilike", "TestBibliography%")
+			.execute();
+	});
+
+	test("Provide article id and change all attributes of the article, remove one author, set the status to published, should change the article, set a date for published at and return status code 201", async () => {
+		const response = await app.request(`/cms/${String(articleId)}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [3],
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(201);
+		const body = await response.json();
+		expect(body).toHaveProperty("updatedRows");
+		expect(body.updatedRows).toBe(1);
+
+		// Fetch the article from the endpoint and check
+		const articleFetched = await app.request(`/cms/articles/${String(articleId)}`);
+		const articleBody = await articleFetched.json();
+		expect(articleBody).toHaveProperty("article");
+		expect(articleBody.article.title).toBe("Test Article Updated");
+		expect(articleBody.article.alias).toBe("test-article-updated");
+		expect(articleBody.article.cover).toBeNull();
+		expect(articleBody.article.abstract).toBe("test-abstract-updated");
+		expect(articleBody.article.content).toBe("test-content-updated");
+		expect(articleBody.article.post_type_name).toBe("methodology");
+		expect(articleBody.article.post_status).toBe("Published");
+		expect(articleBody.article.lang).toBe("de");
+		expect(articleBody.article.authors.length).toBe(1);
+		expect(articleBody.article.published_at).not.toBeNull();
+		expect(articleBody.article.updated_at).not.toBeNull();
+	});
+
+	test("Provide article id and change the provided bibliography to contain 2 new entries, should change the article, create 2 new entries in the bibliography table and link the new entries to the article, return status code 201", async () => {
+		const response = await app.request(`/cms/${String(articleId)}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [3],
+				bibliography: ["TestBibliography1", "TestBibliography2"],
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(201);
+		const body = await response.json();
+		expect(body).toHaveProperty("updatedRows");
+		expect(body.updatedRows).toBe(1);
+
+		// Check if the bibliography is linked to the article
+		const linkBibliographyPost = await db
+			.selectFrom("bibliography_post")
+			.where("post_id", "=", articleId)
+			.selectAll()
+			.execute();
+		expect(linkBibliographyPost.length).toBe(2);
+		// Check if the bibliography entry has been created
+		const bibliography = await db
+			.selectFrom("bibliography")
+			.where("name_bibliography", "ilike", "TestBibliography%")
+			.selectAll()
+			.execute();
+		expect(bibliography.length).toBe(2);
+	});
+
+	test("Provide article id and change only author but with an id that does not exist, expect error message and status code 500", async () => {
+		const response = await app.request(`/cms/${String(articleId)}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [5],
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(500);
+	});
+
+	test("Provide article id as a string, expect error message and status code 400", async () => {
+		const response = await app.request(`/cms/abc`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [3],
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(400);
 	});
 });

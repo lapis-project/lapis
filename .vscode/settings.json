@@ -18,11 +18,12 @@
 	"editor.rulers": [100],
 	"editor.stickyScroll.enabled": true,
 	"eslint.enable": true,
-	"eslint.options": {
-		"ignorePath": ".gitignore"
-	},
 	"eslint.validate": ["javascript", "typescript", "vue"],
-	"eslint.workingDirectories": [{ "mode": "auto" }],
+	// "eslint.workingDirectories": [{ "mode": "auto" }],
+	"eslint.workingDirectories": [
+		{ "directory": "./apps/lexat", "changeProcessCWD": true },
+		{ "directory": "./apps/backend", "changeProcessCWD": true }
+	],
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},

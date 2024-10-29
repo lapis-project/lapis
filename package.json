@@ -7,7 +7,7 @@
 	"scripts": {
 		"prepare": "run-s setup",
 		"setup": "is-ci || simple-git-hooks",
-		"format:check": "prettier . \"!./content/**\" --cache --check --ignore-path .prettierignore",
+		"format:check": "prettier . \"!./content/**\" --cache --check",
 		"build:lexat": "cd apps/lexat && pnpm build",
 		"build:backend": "cd apps/backend && pnpm build",
 		"dev:lexat": "cd apps/lexat && pnpm dev",
@@ -15,7 +15,7 @@
 		"dev:backend": "cd apps/backend && pnpm dev",
 		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
 		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
-		"lint:code:check": "eslint . --cache --ext .js,.ts,.vue --ignore-path ./.gitignore",
+		"lint:code:check": "eslint . --cache",
 		"lint:code:fix": "pnpm run lint:code:check --fix",
 		"lint:styles:check": "stylelint \"./**/*.@(css|vue)\" --cache --ignore-path ./.gitignore",
 		"lint:styles:fix": "pnpm run lint:styles:check --fix",
@@ -23,7 +23,7 @@
 		"start:backend": "cd apps/backend && pnpm start",
 		"start:devSetup": "cd apps/backend && pnpm run build:types"
 	},
-	"packageManager": "pnpm@9.4.0",
+	"packageManager": "pnpm@9.12.2",
 	"devDependencies": {
 		"@acdh-oeaw/commitlint-config": "^2.0.0",
 		"@acdh-oeaw/prettier-config": "^2.0.0",

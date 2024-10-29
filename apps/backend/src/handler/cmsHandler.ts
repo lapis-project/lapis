@@ -1,23 +1,28 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, minLength, number, object, optional, pipe, string } from "valibot";
 
 import { getUsersByList } from "@/db/authRepository";
 import {
-	checkBibliographyExists,
 	deleteArticleById,
+	deleteAuthorsFromArticleByArticleId,
 	getAllArticlesByProjectId,
 	getAllUserPhenKat,
 	getArticleById,
 	getPostTypeIdsByName,
 	getProjectByIds,
 	insertNewArticle,
-	insertNewBibliography,
-	insertNewBibliographyPost,
 	linkAuthorsToPost,
 	linkProjectToPost,
+	updateArticleById,
 } from "@/db/cmsRepository";
-import { instanceOfAvailablelang, instanceOfPoststatus } from "@/lib/RepoHelper";
+import {
+	insertBibliography,
+	instanceOfAvailablelang,
+	instanceOfPoststatus,
+} from "@/lib/RepoHelper";
+import type { Article } from "@/types/apiTypes";
 
 const cms = new Hono();
 
@@ -61,8 +66,71 @@ const deleteArticle = cms.delete("/articles/:id", async (c) => {
 	return c.json(`Article with the ID ${String(articleId)} has been deleted`, 200);
 });
 
-const editArticle = cms.put("/:id", (c) => {
-	return c.json("OK", 201);
+/**
+ * Edit the article with the provided id as queryparam
+ *
+ * @returns code 200 when the article has been processed and the relevant entry has been updated with the updated object
+ * @returns code 400 when the provided id is not a number
+ */
+const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), async (c) => {
+	const articleId = c.req.param("id");
+	const body = c.req.valid("json");
+	// Check if articleId is valid
+	if (!articleId || Number.isNaN(Number(articleId))) {
+		return c.json("Provided id is not a number", 400);
+	}
+
+	// Check the post_type
+	const category = body.category;
+	if (!category) {
+		return c.json("No category provided", 400);
+	}
+	const postTypeId = await getPostTypeIdsByName(category);
+
+	if (!postTypeId) {
+		return c.json("No post type found", 400);
+	}
+
+	// Check if the provided status is an element from the Poststatus enum
+	if (!instanceOfPoststatus(body.status)) {
+		return c.json("Invalid status provided", 400);
+	}
+
+	// Same for Lang
+	if (!instanceOfAvailablelang(body.lang)) {
+		return c.json("Invalid language provided", 400);
+	}
+
+	const updatedArticle: Article = {
+		title: body.title,
+		alias: body.alias,
+		cover: body.cover ?? null,
+		abstract: body.abstract ?? null,
+		content: body.content ?? null,
+		post_type_id: postTypeId.id,
+		post_status: body.status,
+		lang: body.lang,
+		publishedAt: body.status === "Published" ? new Date() : null,
+		updatedAt: new Date(),
+		bibliography: body.bibliography ?? [],
+	};
+	const articleIdParsed = Number(articleId);
+	const result = await updateArticleById(articleIdParsed, updatedArticle);
+	// Check if the the authors have been updated and need to be updated
+	if (body.authors && body.authors.length > 0) {
+		await deleteAuthorsFromArticleByArticleId(articleIdParsed);
+		try {
+			await linkAuthorsToPost(articleIdParsed, body.authors);
+		} catch (e) {
+			// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+			return c.json(`Error while updating author, ${e}`, 500);
+		}
+	}
+	// Check if the bibliography has been updated and if data needs to be inserted
+	if (body.bibliography && body.bibliography.length > 0) {
+		await insertBibliography(body.bibliography, articleIdParsed);
+	}
+	return c.json({ updatedRows: Number(result.numUpdatedRows) }, 201);
 });
 
 /**
@@ -138,6 +206,11 @@ const articleCMSDetail = cms.get("/articles/:id", async (c) => {
 	return c.json({ article: fetchedArticle }, 201);
 });
 
+/**
+ * Creates a new article with the provided information in the body
+ * Will also create the necessary relations to authors, bibliography and projects
+ * If a new bibliography entry is provided, which is not available in the bibliography table, it will be created and linked to the article
+ */
 const createNewArticle = cms.post(
 	"/articles/create",
 	vValidator("json", createNewArticleSchema),
@@ -197,16 +270,7 @@ const createNewArticle = cms.post(
 
 		// Check if bibliography is provided
 		if (body.bibliography && body.bibliography.length > 0) {
-			// Link the bibliography to the article
-			const existingBib = await checkBibliographyExists(body.bibliography);
-			const bibsToInsert = body.bibliography.filter(
-				(el) => !existingBib.some((bib) => bib.name_bibliography === el),
-			);
-			let newBibIds: Array<number> = [];
-			if (bibsToInsert.length > 0)
-				newBibIds = (await insertNewBibliography(bibsToInsert)).map((el) => el.id);
-			const bibIds = existingBib.map((el) => el.id);
-			await insertNewBibliographyPost(bibIds.concat(newBibIds), articleId.id);
+			await insertBibliography(body.bibliography, articleId.id);
 		}
 
 		// Check if the project is provided and insert it if it is
@@ -228,6 +292,14 @@ const createNewArticle = cms.post(
 	},
 );
 
+/**
+ * Provides all information about authors, categories and phenomenon based on the provided project id
+ * @returns Object with all authors, categories and phenomenon with a status code of 200 on success
+ * It contains the following fields:
+ * authors: Array of authors with the following fields: id, name, email
+ * categories: Array of categories with the following fields: id, name
+ * phenomenon: Array of phenomenon with the following fields: id, name
+ */
 const getAuthorInformation = cms.get("/articles/create/info", async (c) => {
 	const information = await getAllUserPhenKat("1");
 	const authors = information.filter((el) => el.category === "user");

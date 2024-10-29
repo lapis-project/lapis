@@ -88,6 +88,18 @@
 		},
 		"title": "Articles"
 	},
+	"ArticleDetailPage": {
+		"back": "Back to overview",
+		"category": {
+			"commentary": "Card commentary",
+			"methodology": "Method description",
+			"project_description": "Project description"
+		},
+		"published_at": "Published at",
+		"more_articles": "Similar posts",
+		"toc": "Table of contents",
+		"updated_at": "Updated at"
+	},
 	"Auth": {
 		"confirmPassword": "Repeat password",
 		"confirmPasswordPlaceholder": "Enter password again",

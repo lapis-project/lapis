@@ -88,6 +88,18 @@
 		},
 		"title": "Artikel"
 	},
+	"ArticleDetailPage": {
+		"back": "Zurück zur Übersicht",
+		"category": {
+			"commentary": "Kartenkommentar",
+			"methodology": "Methodenbeschreibung",
+			"project_description": "Projektbeschreibung"
+		},
+		"published_at": "Veröffentlicht am",
+		"more_articles": "Ähnliche Beiträge",
+		"toc": "Inhaltsverzeichnis",
+		"updated_at": "Zuletzt aktualisiert"
+	},
 	"Auth": {
 		"confirmPassword": "Passwort-Kontrolle",
 		"confirmPasswordPlaceholder": "Passwort erneut eingeben",

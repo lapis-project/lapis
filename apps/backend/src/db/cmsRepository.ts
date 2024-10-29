@@ -52,14 +52,34 @@ export async function getAllUserPhenKat(project_id: string) {
 
 export async function getArticleById(id: number) {
 	const query = db
+		.with("authors", (query) =>
+			query
+				.selectFrom("user_post")
+				.where("post_id", "=", id)
+				.where("user_post.user_id", "is not", null)
+				.innerJoin("user_account", "user_post.user_id", "user_account.id")
+				.select([
+					"user_account.id",
+					"user_account.firstname",
+					"user_account.lastname",
+					"user_account.username",
+					"user_account.email",
+					"user_post.post_id",
+				]),
+		)
+		.with("bibliography_query", (query) =>
+			query
+				.selectFrom("bibliography_post")
+				.innerJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
+				.where("bibliography_post.post_id", "=", id)
+				.select(["bibliography.name_bibliography", "bibliography_post.post_id"]),
+		)
 		.selectFrom("post")
-		.leftJoin("bibliography_post", "post.id", "bibliography_post.post_id")
-		.leftJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
+		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.innerJoin("post_type", "post.post_type_id", "post_type.id")
-		.leftJoin("user_post", "post.id", "user_post.post_id")
-		.leftJoin("user_account", "user_post.user_id", "user_account.id")
+		.leftJoin("authors", "authors.post_id", "post.id")
 		.where("post.id", "=", id)
-		.select([
+		.select(({ eb }) => [
 			"post.id as post_id",
 			"post.title",
 			"post.alias",
@@ -68,12 +88,40 @@ export async function getArticleById(id: number) {
 			"post.content",
 			"post.post_status",
 			"post.lang",
+			"post.published_at",
+			"post.updated_at",
+			"post.created_at",
 			"post_type.post_type_name",
-			"bibliography.name_bibliography",
-			"user_account.id as user_id",
-			"user_account.firstname",
-			"user_account.lastname",
-		]);
+			eb.fn
+				.coalesce(
+					eb.fn
+						.jsonAgg(
+							jsonbBuildObject({
+								name: eb.ref("bibliography_query.name_bibliography"),
+							}),
+						)
+						.filterWhere("bibliography_query.post_id", "is not", null),
+					sql`'[]'`,
+				)
+				.as("bibliography"),
+			eb.fn
+				.coalesce(
+					eb.fn
+						.jsonAgg(
+							jsonBuildObject({
+								id: eb.ref("authors.id"),
+								firstname: eb.ref("authors.firstname"),
+								lastname: eb.ref("authors.lastname"),
+								username: eb.ref("authors.username"),
+								email: eb.ref("authors.email"),
+							}),
+						)
+						.filterWhere("authors.post_id", "is not", null),
+					sql`'[]'`,
+				)
+				.as("authors"),
+		])
+		.groupBy(["post.id", "post_type.post_type_name"]);
 	return await query.executeTakeFirst();
 }
 

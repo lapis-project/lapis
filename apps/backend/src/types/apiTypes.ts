@@ -1,3 +1,5 @@
+import type { Availablelang, Poststatus } from "@/types/db";
+
 export interface Category {
 	id: string;
 	name: string;
@@ -23,20 +25,22 @@ export interface UserObject {
 }
 
 export interface Article {
-	id: number;
-	user_id: number; // User Object
-	author: UserObject; // User Object
-	category: Category;
+	id?: number;
+	user_id?: number; // User Object
+	author?: UserObject; // User Object
+	category?: Poststatus;
+	post_type_id: number;
+	post_status: Poststatus;
 	title: string;
-	content: string;
-	abstract: string;
+	content: string | null;
+	abstract: string | null;
 	alias: string; // sanitasation of at creation of the article
-	project: string;
-	lang: string;
-	publishedAt: string;
-	updatedAt: string;
+	project?: string;
+	lang: Availablelang;
+	publishedAt: Date | null;
+	updatedAt: Date;
 	bibliography: Array<string>;
-	cover: string;
+	cover: string | null;
 }
 
 export interface ArticleCMS extends Article {

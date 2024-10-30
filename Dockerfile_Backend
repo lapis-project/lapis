@@ -38,7 +38,7 @@ RUN chown -R node:node /app
 COPY --from=build --chown=node:node /app .
 
 ENV NODE_ENV=production
-ENV BACKEND_PORT 3000
+ENV BACKEND_PORT=3000
 
 USER node
 EXPOSE $BACKEND_PORT

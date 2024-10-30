@@ -1,5 +1,7 @@
 import type { ColumnType } from "kysely";
 
+export type Availablelang = "de" | "en";
+
 export type Generated<T> =
 	T extends ColumnType<infer S, infer I, infer U>
 		? ColumnType<S, I | undefined, U>
@@ -72,6 +74,11 @@ export interface BibliographyPhenomenon {
 	phenomenon_id: number;
 }
 
+export interface BibliographyPost {
+	bibliography_id: number;
+	post_id: number;
+}
+
 export interface BibliographySource {
 	bibliography_id: number;
 	source_id: number;
@@ -85,11 +92,11 @@ export interface EducationLevel {
 
 export interface Informant {
 	age_group_id: number | null;
+	comment: string | null;
 	education_level_id: number | null;
 	gender: string | null;
 	id: Generated<number>;
 	survey_id: number | null;
-	comment: string | null;
 }
 
 export interface InformantLivesInPlace {
@@ -165,11 +172,17 @@ export interface PlaceSurveyConducted {
 
 export interface Post {
 	abstract: string | null;
+	alias: string | null;
 	content: string | null;
+	cover: string | null;
+	created_at: Generated<Timestamp | null>;
 	id: Generated<number>;
+	lang: Availablelang | null;
 	post_status: Poststatus | null;
 	post_type_id: number | null;
+	published_at: Timestamp | null;
 	title: string | null;
+	updated_at: Generated<Timestamp | null>;
 }
 
 export interface PostSource {
@@ -322,12 +335,16 @@ export interface UserAccount {
 	orcid_id: string | null;
 	password: string;
 	project_member: boolean | null;
-	role_id: number;
-	username: string;
+	username: string | null;
 }
 
 export interface UserBibliography {
 	bibliography_id: number;
+	user_id: number;
+}
+
+export interface UserHasRole {
+	role_id: number;
 	user_id: number;
 }
 
@@ -350,10 +367,9 @@ export interface UserRoles {
 export interface UserSession {
 	created_at: Timestamp | null;
 	expires_at: Timestamp | null;
-	id: Generated<number>;
+	id: string;
 	session_id: string | null;
 	user_id: number | null;
-	exipres_at: Timestamp | null;
 }
 
 export interface Variety {
@@ -375,6 +391,7 @@ export interface DB {
 	annotation_token: AnnotationToken;
 	bibliography: Bibliography;
 	bibliography_phenomenon: BibliographyPhenomenon;
+	bibliography_post: BibliographyPost;
 	bibliography_source: BibliographySource;
 	education_level: EducationLevel;
 	informant: Informant;
@@ -414,6 +431,7 @@ export interface DB {
 	token: Token;
 	user_account: UserAccount;
 	user_bibliography: UserBibliography;
+	user_has_role: UserHasRole;
 	user_post: UserPost;
 	user_project: UserProject;
 	user_roles: UserRoles;

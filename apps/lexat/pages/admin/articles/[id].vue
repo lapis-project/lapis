@@ -4,6 +4,7 @@ import { ArrowLeft, InfoIcon, Trash, WandSparkles } from "lucide-vue-next";
 import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
+import { addIdsToHeadings } from "@/utils/html-helpers";
 
 const env = useRuntimeConfig();
 
@@ -69,10 +70,12 @@ const generateAlias = (title: string) => {
 };
 
 const saveArticle = () => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const finalContent = addIdsToHeadings(content.value);
 	// const article = {
 	// 	abstract: abstract.value,
 	// 	alias: alias.value,
-	// 	content: content.value,
+	// 	content: finalContent,
 	// 	title: title.value,
 	// 	category: selectedCategory.value,
 	// 	phenomenonId: selectedQuestion.value,
@@ -106,7 +109,7 @@ const generateCitation = () => {
 	const year = new Date().getFullYear(); // Get the current year dynamically
 	const url = `${baseURL}${selectedLanguage.value}/article/${alias.value}`;
 
-	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT. [URL: ${url}].`;
+	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21. Herausgegeben von Alexandra N. Lenz [URL: ${url}].`;
 };
 
 const fetchBibliographyItems = async () => {

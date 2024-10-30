@@ -249,6 +249,23 @@ export async function insertNewArticle(
 		.executeTakeFirst();
 }
 
+export async function linkArticleToPhenomenon(postId: number, phenomenonId: Array<number>) {
+	return await db
+		.insertInto("phenomenon_post")
+		.columns(["post_id", "phenomenon_id"])
+		.values(
+			phenomenonId.map((phen) => ({
+				post_id: postId,
+				phenomenon_id: phen,
+			})),
+		)
+		.execute();
+}
+
+export async function deleteLinkedPhenomenonFromArticleByArticleId(articleId: number) {
+	return await db.deleteFrom("phenomenon_post").where("post_id", "=", articleId).execute();
+}
+
 export async function linkAuthorsToPost(postId: number, authorIds: Array<number>) {
 	const insertAuthors = db
 		.insertInto("user_post")

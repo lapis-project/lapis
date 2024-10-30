@@ -7,12 +7,14 @@ import { getUsersByList } from "@/db/authRepository";
 import {
 	deleteArticleById,
 	deleteAuthorsFromArticleByArticleId,
+	deleteLinkedPhenomenonFromArticleByArticleId,
 	getAllArticlesByProjectId,
 	getAllUserPhenKat,
 	getArticleById,
 	getPostTypeIdsByName,
 	getProjectByIds,
 	insertNewArticle,
+	linkArticleToPhenomenon,
 	linkAuthorsToPost,
 	linkProjectToPost,
 	updateArticleById,
@@ -130,6 +132,18 @@ const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), 
 	if (body.bibliography && body.bibliography.length > 0) {
 		await insertBibliography(body.bibliography, articleIdParsed);
 	}
+
+	// Check if a phenomenon is provided and insert it if it is
+	if (body.phenomenonId) {
+		try {
+			// Remove the previous entries from the table
+			await deleteLinkedPhenomenonFromArticleByArticleId(articleIdParsed);
+			// Link the phenomenon to the article
+			await linkArticleToPhenomenon(articleIdParsed, [body.phenomenonId]);
+		} catch (e) {
+			return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
+		}
+	}
 	return c.json({ updatedRows: Number(result.numUpdatedRows) }, 201);
 });
 
@@ -218,6 +232,8 @@ const createNewArticle = cms.post(
 		// get the body
 		const body = c.req.valid("json");
 
+		// TODO Check if the phaen is also included and also in the database
+
 		// Check UserIds
 		const userIds = body.authors;
 		if (userIds && userIds.length >= 0) {
@@ -282,6 +298,16 @@ const createNewArticle = cms.post(
 			}
 			// Link the project to the article
 			await linkProjectToPost(articleId.id, body.projectId);
+		}
+
+		// Check if a phenomenon is provided and insert it if it is
+		if (body.phenomenonId) {
+			try {
+				// Link the phenomenon to the article
+				await linkArticleToPhenomenon(articleId.id, [body.phenomenonId]);
+			} catch (e) {
+				return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
+			}
 		}
 		return c.json(
 			{

@@ -8,7 +8,7 @@ const links = computed(() => {
 		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
 		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
 		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
-		admin: { to: { path: "/admin/articles" }, label: t("AppHeader.links.admin") },
+		about: { to: { path: "/about" }, label: t("AppHeader.links.about") },
 	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
 });
 </script>
@@ -17,11 +17,11 @@ const links = computed(() => {
 	<header class="container border-b">
 		<div class="flex h-16 items-center justify-between gap-4 py-4">
 			<svg
-				width="182"
-				height="45"
-				viewBox="0 0 182 45"
 				class="w-32"
 				fill="none"
+				height="45"
+				viewBox="0 0 182 45"
+				width="182"
 				xmlns="http://www.w3.org/2000/svg"
 			>
 				<path
@@ -34,9 +34,9 @@ const links = computed(() => {
 				<ul class="flex items-center gap-4" role="list">
 					<li v-for="(link, key) of links" :key="key">
 						<NuxtLinkLocale
-							:to="link.to"
 							class="uppercase"
 							exact-active-class="underline underline-offset-2"
+							:to="link.to"
 						>
 							{{ link.label }}
 						</NuxtLinkLocale>

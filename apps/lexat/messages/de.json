@@ -1,4 +1,10 @@
 {
+	"AboutPage": {
+		"meta": {
+			"title": "About"
+		},
+		"title": "About"
+	},
 	"AdminPage": {
 		"meta": {
 			"title": "Admin"
@@ -75,7 +81,7 @@
 	},
 	"AppHeader": {
 		"links": {
-			"admin": "Admin",
+			"about": "About",
 			"articles": "Artikel",
 			"db": "Belegdatenbank",
 			"research": "Kartierung"
@@ -215,8 +221,8 @@
 			}
 		},
 		"map": {
-			"datapoints": "Datenpunkte",
-			"informants": "Informanten"
+			"datapoints": "Ortspunkte",
+			"informants": "Teilnehmende"
 		},
 		"table": {
 			"locations": {

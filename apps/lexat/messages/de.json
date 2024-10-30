@@ -1,9 +1,9 @@
 {
 	"AboutPage": {
 		"meta": {
-			"title": "About"
+			"title": "Über das Projekt"
 		},
-		"title": "About"
+		"title": "Über das Projekt"
 	},
 	"AdminPage": {
 		"meta": {
@@ -81,7 +81,7 @@
 	},
 	"AppHeader": {
 		"links": {
-			"about": "About",
+			"about": "Über das Projekt",
 			"articles": "Artikel",
 			"db": "Belegdatenbank",
 			"research": "Kartierung"

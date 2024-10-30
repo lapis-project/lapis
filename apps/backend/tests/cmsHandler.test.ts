@@ -23,7 +23,7 @@ vi.mock("@/db/connect", async () => {
 });
 */
 
-describe.skip("test endpoint /cms/articles/create/info", () => {
+describe("test endpoint /cms/articles/create/info", () => {
 	// let honoClient;
 	beforeAll(() => {
 		// const honoClient = hc<GetAuthorInformationType>("");
@@ -42,7 +42,7 @@ describe.skip("test endpoint /cms/articles/create/info", () => {
 	});
 });
 
-describe.skip("test endpoint GET /cms/articles/:id", () => {
+describe("test endpoint GET /cms/articles/:id", () => {
 	let articleId = 0;
 	beforeAll(async () => {
 		const response = await app.request("/cms/articles/create", {
@@ -161,6 +161,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 				category: "commentary",
 				status: "Draft",
 				lang: "en",
+				phenomenonId: 2,
 			}),
 			headers: apiHeaders,
 		});
@@ -168,6 +169,36 @@ describe("test endpoint POST /cms/articles/create", () => {
 		const body = await response.json();
 		expect(response.status).toBe(201);
 		expect(body).toHaveProperty("articleId");
+
+		const articleId = body.articleId.id;
+
+		// get the new article from the database
+		const newArticle = await db
+			.selectFrom("post")
+			.where("id", "=", articleId)
+			.selectAll()
+			.executeTakeFirstOrThrow();
+
+		expect(newArticle.title).toBe("Test Article");
+		expect(newArticle.alias).toBe("test-article");
+		expect(newArticle.cover).toBeNull();
+		expect(newArticle.abstract).toBe("test-abstract");
+		expect(newArticle.content).toBe("test-content");
+		expect(newArticle.post_type_id).toBe(1);
+		expect(newArticle.post_status).toBe("Draft");
+		expect(newArticle.lang).toBe("en");
+		expect(newArticle.published_at).toBeNull();
+		expect(newArticle.updated_at).not.toBeNull();
+		expect(newArticle.created_at).not.toBeNull();
+
+		// Check if the phenomenon is linked to the article
+		const linkPhenomenonPost = await db
+			.selectFrom("phenomenon_post")
+			.where("post_id", "=", articleId)
+			.selectAll()
+			.executeTakeFirst();
+
+		expect(linkPhenomenonPost?.phenomenon_id).toBe(2);
 	});
 	test("Try to create new article with no fields provided, should return status code 400", async () => {
 		const response = await app.request("/cms/articles/create", {
@@ -389,9 +420,27 @@ describe("test endpoint POST /cms/articles/create", () => {
 		});
 		expect(response.status).toBe(404);
 	});
+
+	test("Provide articleid with phenomenon that does not exist in the db, expect error message and status code 500", async () => {
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				phenomenonId: 999,
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(500);
+	});
 });
 
-describe.skip("test endpoint GET /cms/articles/all/:project", () => {
+describe("test endpoint GET /cms/articles/all/:project", () => {
 	const articleIds: Array<number> = [];
 	const categories: Array<string> = ["commentary", "methodology", "project_description"];
 	beforeAll(async () => {
@@ -583,6 +632,7 @@ describe("test endpoint PUT /cms/:id", () => {
 				lang: "en",
 				projectId: [1],
 				authors: [3, 4],
+				phenomenonId: 4,
 			}),
 			headers: apiHeaders,
 		});
@@ -616,6 +666,7 @@ describe("test endpoint PUT /cms/:id", () => {
 				lang: "de",
 				projectId: [2],
 				authors: [3],
+				phenomenonId: 5,
 			}),
 			headers: apiHeaders,
 		});
@@ -639,6 +690,15 @@ describe("test endpoint PUT /cms/:id", () => {
 		expect(articleBody.article.authors.length).toBe(1);
 		expect(articleBody.article.published_at).not.toBeNull();
 		expect(articleBody.article.updated_at).not.toBeNull();
+
+		// Check if the phenomenon is linked to the article
+		const linkPhenomenonPost = await db
+			.selectFrom("phenomenon_post")
+			.where("post_id", "=", articleId)
+			.selectAll()
+			.execute();
+		expect(linkPhenomenonPost.length).toBe(1);
+		expect(linkPhenomenonPost[0]?.phenomenon_id).toBe(5);
 	});
 
 	test("Provide article id and change the provided bibliography to contain 2 new entries, should change the article, create 2 new entries in the bibliography table and link the new entries to the article, return status code 201", async () => {
@@ -715,5 +775,25 @@ describe("test endpoint PUT /cms/:id", () => {
 			headers: apiHeaders,
 		});
 		expect(response.status).toBe(400);
+	});
+
+	test("Provide articleid with phenomenon that does not exist in the db, expect error message and status code 500", async () => {
+		const response = await app.request(`/cms/${String(articleId)}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [3],
+				phenomenonId: 999,
+			}),
+			headers: apiHeaders,
+		});
+		expect(response.status).toBe(500);
 	});
 });

@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import { ArrowLeft } from "lucide-vue-next";
 
+import { useCitationGenerator } from "@/composables/citationGenerator";
 import { useFetch, useRoute } from "#app";
+
+const { bibliographyItems, getCitation, fetchBibliographyItems } = useCitationGenerator();
 
 const t = useTranslations();
 
@@ -25,7 +28,7 @@ const tableOfContents = computed(() => {
 	if (!article.value?.content) {
 		return [];
 	}
-	// regexto match headings (h1, h2,...) with optional id attributes
+	// regex to match headings (h1, h2,...) with optional id attributes
 	const headingRegex = /<(h[1-6])\s*(?:id="([^"]+)")?>(.*?)<\/\1>/g;
 	const toc = [];
 	let match;
@@ -34,7 +37,7 @@ const tableOfContents = computed(() => {
 		const [_, tag, id, text] = match;
 		const level = parseInt(tag[1]);
 
-		// use the existing ID if it’s present, or generate a new one if not
+		// use the existing ID if it’s present, or generate a new one
 		const headingId =
 			id ||
 			text
@@ -47,8 +50,9 @@ const tableOfContents = computed(() => {
 
 	return toc;
 });
+
 const formattedAuthors = computed(() => {
-	// Map the authors to the "<lastName>, <firstName>" format
+	// map the authors to the "<lastName>, <firstName>" format
 	const authorNames = article.value?.authors.map(
 		(author) => `${author.lastName}, ${author.firstName}`,
 	);
@@ -60,6 +64,10 @@ const formattedAuthors = computed(() => {
 
 	return authorsString;
 });
+
+if (!bibliographyItems.value.length) {
+	await fetchBibliographyItems();
+}
 
 usePageMetadata({
 	title: article.value?.title ?? "Beitrag",
@@ -89,6 +97,17 @@ usePageMetadata({
 				<hr class="mt-5" />
 
 				<div class="article-content" v-html="article.content"></div>
+				<div v-if="article.bibliography?.length" class="article-content">
+					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>
+					<p v-for="key in article.bibliography" :key="key" v-html="getCitation(key)"></p>
+				</div>
+				<hr class="mt-5" />
+				<div v-if="article.citation">
+					<h2 class="mb-4 mt-8 text-xl font-bold">{{ t("ArticleDetailPage.citation") }}</h2>
+					<p class="max-w-xl italic">
+						{{ article.citation }}
+					</p>
+				</div>
 			</article>
 			<aside class="w-1/4">
 				<section class="sticky top-10 border p-5">

@@ -96,11 +96,13 @@
 	},
 	"ArticleDetailPage": {
 		"back": "Back to overview",
+		"bibliography": "Bibliography",
 		"category": {
 			"commentary": "Card commentary",
 			"methodology": "Method description",
 			"project_description": "Project description"
 		},
+		"citation": "Citation suggestion",
 		"published_at": "Published at",
 		"more_articles": "Similar posts",
 		"toc": "Table of contents",

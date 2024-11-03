@@ -8,6 +8,8 @@ import { addIdsToHeadings } from "@/utils/html-helpers";
 
 const env = useRuntimeConfig();
 
+const { bibliographyItems, fetchBibliographyItems } = useCitationGenerator();
+
 const currentLocale = useLocale();
 
 const { toast } = useToast();
@@ -41,8 +43,6 @@ const mappedQuestions = computed(() => {
 
 const abstract = ref<string>("");
 const alias = ref<string>("");
-const bibliographyItems = ref<Array<BibliographyItem>>([]);
-const collectionId = "5540614";
 const content = ref<string>("<p>Hello Tiptap</p>");
 const citation = ref<string>("");
 const languageOptions = [
@@ -110,16 +110,6 @@ const generateCitation = () => {
 	const url = `${baseURL}${selectedLanguage.value}/article/${alias.value}`;
 
 	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21. Herausgegeben von Alexandra N. Lenz [URL: ${url}].`;
-};
-
-const fetchBibliographyItems = async () => {
-	const result = await $fetch(`/groups/${collectionId}/items`, {
-		baseURL: env.public.zoteroBaseUrl,
-		method: "GET",
-	});
-	if (result) {
-		bibliographyItems.value = result.map((i) => i.data).filter((i) => i.itemType !== "note");
-	}
 };
 
 const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {

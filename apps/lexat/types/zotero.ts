@@ -1,4 +1,4 @@
-interface BibliographyItemCreator {
+export interface BibliographyItemCreator {
 	creatorType: string;
 	firstName: string;
 	lastName: string;
@@ -8,7 +8,7 @@ export interface BibliographyItem {
 	key: string;
 	bookTitle?: string;
 	version: number;
-	itemType: "book" | "bookSection" | "journalArticle" | "thesis";
+	itemType: "book" | "bookSection" | "journalArticle" | "thesis" | "note";
 	title: string;
 	creators: Array<BibliographyItemCreator>;
 	abstractNote: string;
@@ -39,4 +39,6 @@ export interface BibliographyItem {
 	dateModified: string;
 	university?: string;
 	publicationTitle?: string;
+	pages?: string;
+	doi?: string;
 }

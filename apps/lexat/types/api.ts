@@ -14,6 +14,7 @@ export interface Article {
 	bibliography?: Array<string>;
 	cover?: string;
 	phenomenon?: string;
+	citation?: string;
 }
 
 export interface User {

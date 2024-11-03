@@ -96,11 +96,13 @@
 	},
 	"ArticleDetailPage": {
 		"back": "Zurück zur Übersicht",
+		"bibliography": "Literatur",
 		"category": {
 			"commentary": "Kartenkommentar",
 			"methodology": "Methodenbeschreibung",
 			"project_description": "Projektbeschreibung"
 		},
+		"citation": "Zitiervorschlag",
 		"published_at": "Veröffentlicht am",
 		"more_articles": "Ähnliche Beiträge",
 		"toc": "Inhaltsverzeichnis",

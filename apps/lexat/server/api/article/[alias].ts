@@ -20,11 +20,14 @@ const article: Article = {
 		"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
 	alias: "backenzahn",
 	phenomenon: "backenzahn",
+	citation:
+		"Kim, Agnes, Pluschkovits, Markus / Wittibschlager, Anja (2024): Backenzahn, In: LexAT21. Herausgegeben von Alexandra N. Lenz [URL: https://lexat.acdh-ch-dev.oeaw.ac.at/de/article/backenzahn].",
 	project: "lapis",
 	publishedAt: new Date(),
 	updatedAt: new Date(),
 	createdAt: new Date(),
 	status: "published",
+	bibliography: ["ZQBWPP3F", "675KI8AX"],
 };
 
 export default defineEventHandler(() => {

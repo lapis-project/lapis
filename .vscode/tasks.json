@@ -1,0 +1,44 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start DB Container",
+			"type": "shell",
+			"command": "docker compose --env-file .env.localsetup up -d",
+			"problemMatcher": [],
+			"group": "build",
+			"isBackground": false
+		},
+		{
+			"label": "Seed DB",
+			"type": "shell",
+			"command": "docker exec -i lapis-dev-database-1 psql -U lapis_dev lapis_dev < ./db/lapis_dump.sql",
+			"problemMatcher": [],
+			"dependsOn": "Start Docker container",
+			"group": "build",
+			"isBackground": false
+		},
+		{
+			"label": "Start Backend",
+			"type": "shell",
+			"command": "pnpm dev:backend",
+			"problemMatcher": [],
+			"group": "build",
+			"isBackground": true
+		},
+		{
+			"label": "Start Frontend",
+			"type": "shell",
+			"command": "pnpm dev-local:lexat",
+			"problemMatcher": [],
+			"group": "build",
+			"isBackground": true
+		},
+		{
+			"label": "Full Local Setup",
+			"dependsOn": ["Start Docker container", "Seed Database", "Start Backend", "Start Frontend"],
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

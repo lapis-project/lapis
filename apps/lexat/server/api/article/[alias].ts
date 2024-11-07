@@ -28,6 +28,7 @@ const article: Article = {
 	createdAt: new Date(),
 	status: "published",
 	bibliography: ["ZQBWPP3F", "675KI8AX"],
+	language: "de_DE",
 };
 
 export default defineEventHandler(() => {

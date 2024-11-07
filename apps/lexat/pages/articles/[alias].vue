@@ -2,16 +2,17 @@
 import { ArrowLeft } from "lucide-vue-next";
 
 import { useCitationGenerator } from "@/composables/citationGenerator";
+import type { Article } from "@/types/api";
 import { useFetch, useRoute } from "#app";
 
 const { bibliographyItems, getCitation, fetchBibliographyItems } = useCitationGenerator();
 
 const t = useTranslations();
-
+const env = useRuntimeConfig();
 const route = useRoute();
 const alias = route.params.alias;
 
-const { data: article } = await useFetch(`/api/article/${alias}`);
+const { data: article } = await useFetch<Article>(`/api/article/${alias}`);
 
 const publishedAt = computed(() => {
 	const publishDate = article.value?.publishedAt ? new Date(article.value.publishedAt) : undefined;
@@ -72,6 +73,10 @@ if (!bibliographyItems.value.length) {
 usePageMetadata({
 	title: article.value?.title ?? "Beitrag",
 	description: article.value?.abstract,
+	// cover: article.value?.cover ?? "/default-cover.jpg", TODO: add default cover
+	cover: article.value?.cover,
+	url: `${env.public.apiBaseUrl}${route.fullPath}`,
+	contentType: "article",
 });
 </script>
 

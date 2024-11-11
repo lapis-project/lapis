@@ -42,6 +42,7 @@ const signupSchema = object({
 	lastname: optional(pipe(string(), trim(), minLength(1))),
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getSession = auth.get("/session", async (c) => {
 	const session = c.get("session");
 	if (session?.userId) {
@@ -51,6 +52,7 @@ const getSession = auth.get("/session", async (c) => {
 	return c.json(null, 401);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const login = auth.post("/login", vValidator("json", loginSchema), async (c) => {
 	const { email, password } = c.req.valid("json");
 
@@ -80,6 +82,7 @@ const login = auth.post("/login", vValidator("json", loginSchema), async (c) => 
 	return c.json(userObject, 200);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const logoutUser = auth.post("/logout", async (c) => {
 	const session = c.get("session");
 	if (!session) {
@@ -90,6 +93,7 @@ const logoutUser = auth.post("/logout", async (c) => {
 	return c.json("OK", 201);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const signupUser = auth.post("/signup", vValidator("json", signupSchema), async (c) => {
 	const { username, password, email, user_role, firstname, lastname } = c.req.valid("json");
 	const passwordHash = await hash(password, argon2Config);

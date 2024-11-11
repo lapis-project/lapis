@@ -74,6 +74,7 @@
 	}
 }
 
+/* TIPTAP CMS SPECIFIC */
 @layer base {
 	#text-editor .toolbar > button {
 		@apply flex justify-center items-center text-xl  size-8 border-none my-2 mx-1 rounded-md cursor-pointer appearance-none;
@@ -94,10 +95,6 @@
 		color: #333;
 	}
 
-	#text-editor a {
-		@apply text-accent-foreground underline cursor-pointer;
-	}
-
 	#text-editor .align-dropdown > .dropdown-content {
 		@apply absolute right-0 left-0 z-10 rounded-md;
 
@@ -116,88 +113,113 @@
 		color: #fff;
 	}
 
-	/* #text-editor .align-dropdown:hover .dropdown-content {
-		display: block;
-	} */
-
-	#text-editor .divider {
-		@apply w-0.5 h-6 mr-1.5;
-
-		background: #333;
-	}
-
 	#text-editor .ProseMirror {
 		@apply px-2 outline-none;
 	}
 
-	#text-editor ul p,
-	#text-editor ol p {
+	/* #text-editor .align-dropdown:hover .dropdown-content {
+		display: block;
+	} */
+}
+
+/* ARTICLE CONTENT STYLING */
+@layer base {
+	.article-content .divider {
+		@apply w-0.5 h-6 mr-1.5 bg-[#333];
+	}
+
+	.article-content ul p,
+	.article-content ol p {
 		@apply inline;
 	}
 
-	#text-editor .ProseMirror > p:first-child {
+	.article-content .ProseMirror > p:first-child,
+	.article-content > p:first-child {
 		@apply mt-2;
 	}
 
-	#text-editor h1,
-	h2,
-	h3,
+	.article-content h3,
 	h4,
 	h5,
 	h6 {
-		@apply font-bold;
+		@apply font-semibold;
 	}
 
-	#text-editor h1 {
-		margin: 0.67em 0;
-		font-size: 2em;
+	.article-content h2 {
+		@apply text-2xl font-bold mt-8 mb-4;
 	}
 
-	#text-editor h2 {
-		margin: 0.75em 0;
-		font-size: 1.5em;
+	.article-content h3 {
+		@apply text-xl font-semibold mt-6 mb-3;
 	}
 
-	#text-editor h3 {
-		margin: 0.83em 0;
-		font-size: 1.17em;
-	}
-
-	#text-editor h4 {
+	.article-content h4 {
 		margin: 1.12em 0;
 		font-size: 1em;
 	}
 
-	#text-editor h5 {
+	.article-content h5 {
 		margin: 1.5em 0;
 		font-size: 0.83em;
 	}
 
-	#text-editor h6 {
+	.article-content h6 {
 		margin: 1.67em 0;
 		font-size: 0.75em;
 	}
 
-	#text-editor .ProseMirror > h1:first-child,
-	#text-editor .ProseMirror > h2:first-child,
-	#text-editor .ProseMirror > h3:first-child,
-	#text-editor .ProseMirror > h4:first-child,
-	#text-editor .ProseMirror > h5:first-child,
-	#text-editor .ProseMirror > h6:first-child {
+	/* .article-content .ProseMirror > h1:first-child,
+	.article-content .ProseMirror > h2:first-child,
+	.article-content .ProseMirror > h3:first-child,
+	.article-content .ProseMirror > h4:first-child,
+	.article-content .ProseMirror > h5:first-child,
+	.article-content .ProseMirror > h6:first-child {
 		@apply mt-2;
+	} */
+
+	.article-content a {
+		@apply text-accent-foreground underline cursor-pointer;
 	}
 
-	#text-editor ul,
-	#text-editor ol {
-		@apply list-inside;
+	.article-content > p {
+		@apply leading-relaxed  mt-4;
 	}
 
-	#text-editor ul {
+	.article-content ul,
+	.article-content ol {
+		@apply list-inside pl-5 mt-2;
+	}
+
+	.article-content ul {
 		@apply list-disc;
 	}
 
-	#text-editor ol {
+	.article-content ol {
 		@apply list-decimal;
+	}
+
+	.article-content li {
+		@apply mt-2;
+	}
+
+	.article-content blockquote {
+		@apply italic text-gray-500 border-l-4 border-blue-300 pl-4 my-6;
+	}
+
+	.article-content img {
+		@apply rounded-lg shadow-md mt-6 mb-4 w-full;
+	}
+
+	.article-content figcaption {
+		@apply text-sm italic text-center;
+	}
+
+	.article-content pre {
+		@apply bg-gray-100 text-sm p-4 rounded-lg overflow-x-auto my-6;
+	}
+
+	.article-content code {
+		@apply bg-gray-100 px-1 py-0.5 rounded text-sm text-red-600;
 	}
 }
 

@@ -272,6 +272,20 @@
 		"button": "{placeholder}...",
 		"empty": "No results found"
 	},
+	"TextEditor": {
+		"image": {
+			"title": "Add image",
+			"label": "Image",
+			"alt": {
+				"label": "Alt text",
+				"placeholder": "Image description text"
+			},
+			"annotation": {
+				"label": "Annotation",
+				"placeholder": "Annotation below the image"
+			}
+		}
+	},
 	"UserPanel": {
 		"admin": "Admin",
 		"login": "Log in",

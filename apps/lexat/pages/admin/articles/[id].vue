@@ -198,7 +198,7 @@ usePageMetadata({
 			>
 			<div class="mb-8 flex justify-between border-b pb-8">
 				<div>
-					<h3 class="text-3xl font-semibold">Untitled</h3>
+					<h3 class="text-3xl font-semibold">{{ title || "Untitled" }}</h3>
 					<p class="text-foreground/70">ID: 1231231</p>
 				</div>
 				<div class="flex items-center gap-3">
@@ -257,6 +257,7 @@ usePageMetadata({
 					<ClientOnly>
 						<TextEditor v-model="content" class="w-full" />
 					</ClientOnly>
+					<p>{{ content }}</p>
 				</div>
 				<div class="mb-6 flex items-baseline gap-8">
 					<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">

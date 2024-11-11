@@ -41,6 +41,7 @@
 		"@nuxtjs/color-mode": "^3.5.1",
 		"@nuxtjs/i18n": "^8.5.5",
 		"@tanstack/vue-table": "^8.20.5",
+		"@tiptap/core": "^2.9.1",
 		"@tiptap/extension-character-count": "^2.8.0",
 		"@tiptap/extension-image": "^2.8.0",
 		"@tiptap/extension-link": "^2.8.0",

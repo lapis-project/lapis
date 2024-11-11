@@ -2,3 +2,4 @@ node_modules
 backend-types
 
 *.local.md
+*.heapsnapshot

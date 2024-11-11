@@ -15,6 +15,7 @@ export interface Article {
 	cover?: string;
 	phenomenon?: string;
 	citation?: string;
+	language?: string;
 }
 
 export interface User {

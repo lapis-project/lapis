@@ -192,8 +192,8 @@
 			"show-region-names": "Dialektregionennamen",
 			"show-regions": "Dialektregionen anzeigen",
 			"variable": {
-				"title": "Variable",
-				"placeholder": "Variable",
+				"title": "Phänomen",
+				"placeholder": "Phänomen",
 				"tooltip": "Abgefragtes Konzept"
 			},
 			"register": {

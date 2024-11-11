@@ -3,11 +3,13 @@ import {
 	insertNewBibliography,
 	insertNewBibliographyPost,
 } from "@/db/cmsRepository";
-import type { Availablelang, Poststatus } from "@/types/db";
+import type { Availablelang, Poststatus, Userroles } from "@/types/db";
 
 const poststatus = ["Draft", "Published", "ReadyToPublish", "Unpublished"] as const;
 
 const availableLang = ["de", "en"] as const;
+
+const userRoles = ["admin", "editor"] as const;
 
 export function instanceOfPoststatus(object: unknown): object is Poststatus {
 	return typeof object === "string" || poststatus.includes(object as Poststatus);
@@ -15,6 +17,10 @@ export function instanceOfPoststatus(object: unknown): object is Poststatus {
 
 export function instanceOfAvailablelang(object: unknown): object is Availablelang {
 	return typeof object === "string" || availableLang.includes(object as Availablelang);
+}
+
+export function instanceOfUserRole(object: unknown): object is Userroles {
+	return typeof object === "string" || userRoles.includes(object as Userroles);
 }
 
 export async function insertBibliography(bibEntries: Array<string>, articleId: number) {

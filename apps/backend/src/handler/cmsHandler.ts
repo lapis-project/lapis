@@ -115,6 +115,7 @@ const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), 
 		publishedAt: body.status === "Published" ? new Date() : null,
 		updatedAt: new Date(),
 		bibliography: body.bibliography ?? [],
+		citation: body.citation ?? null,
 	};
 	const articleIdParsed = Number(articleId);
 	const result = await updateArticleById(articleIdParsed, updatedArticle);
@@ -272,6 +273,7 @@ const createNewArticle = cms.post(
 			body.abstract,
 			body.content,
 			postTypeId.id,
+			body.citation,
 			body.status,
 			body.lang,
 		);

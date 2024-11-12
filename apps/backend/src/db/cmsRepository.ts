@@ -74,10 +74,18 @@ export async function getArticleById(id: number) {
 				.where("bibliography_post.post_id", "=", id)
 				.select(["bibliography.name_bibliography", "bibliography_post.post_id"]),
 		)
+		.with("phenomenon_query", (query) =>
+			query
+				.selectFrom("phenomenon_post")
+				.innerJoin("phenomenon", "phenomenon_post.phenomenon_id", "phenomenon.id")
+				.where("phenomenon_post.post_id", "=", id)
+				.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon_post.post_id"]),
+		)
 		.selectFrom("post")
-		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.innerJoin("post_type", "post.post_type_id", "post_type.id")
+		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.leftJoin("authors", "authors.post_id", "post.id")
+		.leftJoin("phenomenon_query", "phenomenon_query.post_id", "post.id")
 		.where("post.id", "=", id)
 		.select(({ eb }) => [
 			"post.id as post_id",
@@ -91,7 +99,21 @@ export async function getArticleById(id: number) {
 			"post.published_at",
 			"post.updated_at",
 			"post.created_at",
+			"post.citation",
 			"post_type.post_type_name",
+			eb.fn
+				.coalesce(
+					eb.fn
+						.jsonAgg(
+							jsonBuildObject({
+								phenomenon_id: eb.ref("phenomenon_query.id"),
+								name: eb.ref("phenomenon_query.phenomenon_name"),
+							}),
+						)
+						.filterWhere("phenomenon_query.post_id", "is not", null),
+					sql`'[]'`,
+				)
+				.as("phenomenon"),
 			eb.fn
 				.coalesce(
 					eb.fn
@@ -229,6 +251,7 @@ export async function insertNewArticle(
 	abstract: string | undefined,
 	content: string | undefined,
 	post_type_id: number | undefined,
+	citation: string | undefined,
 	post_status: Poststatus,
 	lang: Availablelang,
 ) {
@@ -243,8 +266,9 @@ export async function insertNewArticle(
 			"post_type_id",
 			"post_status",
 			"lang",
+			"citation",
 		])
-		.values({ title, alias, cover, abstract, content, post_type_id, post_status, lang })
+		.values({ title, alias, cover, abstract, content, post_type_id, post_status, lang, citation })
 		.returning(["id"])
 		.executeTakeFirst();
 }
@@ -335,6 +359,7 @@ export async function updateArticleById(articleId: number, articleBody: Article)
 			lang: articleBody.lang,
 			published_at: articleBody.publishedAt,
 			updated_at: articleBody.updatedAt,
+			citation: articleBody.citation,
 		})
 		.where("id", "=", articleId)
 		.executeTakeFirst();

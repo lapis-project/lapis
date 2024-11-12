@@ -175,6 +175,7 @@ export interface Post {
 	alias: string | null;
 	content: string | null;
 	cover: string | null;
+	cover_alt: string | null;
 	created_at: Generated<Timestamp | null>;
 	id: Generated<number>;
 	lang: Availablelang | null;
@@ -184,6 +185,7 @@ export interface Post {
 	title: string | null;
 	updated_at: Generated<Timestamp | null>;
 	citation: string | null;
+	creator_id: number | null;
 }
 
 export interface PostSource {

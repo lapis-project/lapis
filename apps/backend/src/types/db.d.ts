@@ -183,6 +183,7 @@ export interface Post {
 	published_at: Timestamp | null;
 	title: string | null;
 	updated_at: Generated<Timestamp | null>;
+	citation: string | null;
 }
 
 export interface PostSource {

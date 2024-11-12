@@ -57,6 +57,8 @@ describe("test endpoint GET /cms/articles/:id", () => {
 				lang: "en",
 				projectId: [1],
 				authors: [4],
+				phenomenonId: 2,
+				citation: "test-citation",
 			}),
 			headers: apiHeaders,
 		});
@@ -83,7 +85,28 @@ describe("test endpoint GET /cms/articles/:id", () => {
 		const body = await response.json();
 		expect(body).toHaveProperty("article");
 
-		expect(body.article.post_id).toBe(articleId);
+		const articleBody = body.article;
+
+		expect(articleBody.post_id).toBe(articleId);
+		expect(articleBody.title).toBe("Test Article");
+		expect(articleBody.alias).toBe("test-article");
+		expect(articleBody.cover).toBeNull();
+		expect(articleBody.abstract).toBe("test-abstract");
+		expect(articleBody.citation).toBe("test-citation");
+		expect(articleBody.content).toBe("test-content");
+		expect(articleBody.post_type_name).toBe("commentary");
+		expect(articleBody.post_status).toBe("Draft");
+		expect(articleBody.lang).toBe("en");
+		expect(articleBody.published_at).toBeNull();
+		expect(articleBody.updated_at).not.toBeNull();
+		expect(articleBody.created_at).not.toBeNull();
+		expect(articleBody.authors).not.toBeNull();
+		expect(articleBody.authors?.[0].id).toBe(4);
+		expect(articleBody.authors?.[0].firstname).toBe("editor");
+		expect(articleBody.authors?.[0].lastname).toBe("editor");
+		expect(articleBody.authors?.[0].username).toBe("editor");
+		expect(articleBody.phenomenon).not.toBeNull();
+		expect(articleBody.phenomenon?.[0].phenomenon_id).toBe(2);
 	});
 });
 
@@ -162,6 +185,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 				status: "Draft",
 				lang: "en",
 				phenomenonId: 2,
+				citation: "test-citation",
 			}),
 			headers: apiHeaders,
 		});
@@ -190,6 +214,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 		expect(newArticle.published_at).toBeNull();
 		expect(newArticle.updated_at).not.toBeNull();
 		expect(newArticle.created_at).not.toBeNull();
+		expect(newArticle.citation).toBe("test-citation");
 
 		// Check if the phenomenon is linked to the article
 		const linkPhenomenonPost = await db
@@ -667,6 +692,7 @@ describe("test endpoint PUT /cms/:id", () => {
 				projectId: [2],
 				authors: [3],
 				phenomenonId: 5,
+				citation: "test-citation-updated",
 			}),
 			headers: apiHeaders,
 		});
@@ -690,6 +716,7 @@ describe("test endpoint PUT /cms/:id", () => {
 		expect(articleBody.article.authors.length).toBe(1);
 		expect(articleBody.article.published_at).not.toBeNull();
 		expect(articleBody.article.updated_at).not.toBeNull();
+		expect(articleBody.article.citation).toBe("test-citation-updated");
 
 		// Check if the phenomenon is linked to the article
 		const linkPhenomenonPost = await db

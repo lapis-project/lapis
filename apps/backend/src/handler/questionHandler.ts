@@ -32,8 +32,9 @@ const searchResponseQuerySchema = object({
 });
 
 // Enable in order to restrict the route only to signed in users
-// questions.use("*", restricedRoute);
+// questions.use("*", restrictedRoute);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const questionsForSurvey = questions.get("/survey/:project", async (c) => {
 	const projectId = c.req.param("project");
 	if (!projectId) {
@@ -43,6 +44,7 @@ const questionsForSurvey = questions.get("/survey/:project", async (c) => {
 	return c.json(allQuestions, 200);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const questionsByIdAndProject = questions.get("/", async (c) => {
 	const projectId = c.req.query("project");
 	const phenomenonId = c.req.query("id");
@@ -56,10 +58,12 @@ const questionsByIdAndProject = questions.get("/", async (c) => {
 	return c.json(questionById, 200);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mapAlias = questions.get("/:id", (c) => {
 	return c.json("OK", 201);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const responsesByQuery = questions.get(
 	"/responses",
 	vValidator("json", searchResponseQuerySchema),
@@ -68,10 +72,12 @@ const responsesByQuery = questions.get(
 	},
 );
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const saveMap = questions.post("/map", vValidator("json", saveMapSchema), (c) => {
 	return c.json("OK", 201);
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getSavedMap = questions.get("/map/:id", (c) => {
 	return c.json("OK", 201);
 });

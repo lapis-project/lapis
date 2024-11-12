@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /*
@@ -148,7 +147,7 @@ export abstract class MapGeneratorBase {
 			if (!style) continue;
 			// eslint-disable-next-line regexp/no-super-linear-backtracking
 			const translateRegex = /translate\(([^,]+)px,\s*([^,]+)px\)/;
-			const match = style.match(translateRegex);
+			const match = translateRegex.exec(style);
 			if (!match) continue;
 			const translateX = parseInt(match[1]);
 			const translateY = parseInt(match[2]);
@@ -177,7 +176,7 @@ export abstract class MapGeneratorBase {
 	/**
 	 * Generate and download Map image
 	 */
-	generate() {
+	generate(includeLegend: boolean) {
 		// eslint-disable-next-line
 		const this_ = this;
 
@@ -231,7 +230,7 @@ export abstract class MapGeneratorBase {
 		// Render map
 		let renderMap = this.getRenderedMap(container, style);
 
-		this.addLegend(renderMap).then(() => {
+		this.addLegend(renderMap, includeLegend).then(() => {
 			renderMap.once("idle", () => {
 				const isAttributionAdded = this.addAttributions(renderMap);
 				if (isAttributionAdded) {
@@ -430,7 +429,10 @@ export abstract class MapGeneratorBase {
 	 * @param renderMap Map object
 	 * @returns void
 	 */
-	private addLegend(renderMap: MaplibreMap) {
+	private addLegend(renderMap: MaplibreMap, includeLegend: boolean) {
+		if (!includeLegend) {
+			return Promise.resolve();
+		}
 		// Query the element with the ID "legend"
 		const element = document.getElementById("legend");
 		if (!element) {

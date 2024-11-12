@@ -149,6 +149,7 @@ function init() {
 		Crosshair: false,
 		PrintableArea: false,
 		Filename: "kartierung",
+		IncludeLegend: true,
 	});
 	map.addControl(exportControl, "top-left");
 	//

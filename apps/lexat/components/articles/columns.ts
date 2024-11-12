@@ -24,7 +24,7 @@ export const columns: Array<ColumnDef<ArticleListEntry>> = [
 				{ class: "text-left" },
 				row
 					.getValue("authors")
-					.map((author: User) => nameShortener(author.firstName, author.lastName))
+					.map((author: User) => nameShortener(author.firstname, author.lastname))
 					.join(", "),
 			),
 	},

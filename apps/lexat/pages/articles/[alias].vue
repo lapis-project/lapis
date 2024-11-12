@@ -98,7 +98,7 @@ usePageMetadata({
 					{{ publishedAt }}
 				</div>
 				<p class="mb-3">{{ formattedAuthors }}</p>
-				<NuxtImg class="aspect-[16/10] rounded-t-lg" src="/images/posts/example-1-cropped.jpg" />
+				<NuxtImg class="aspect-[16/9] rounded-t-lg" src="/images/posts/example-1-cropped.jpg" />
 				<hr class="mt-5" />
 
 				<div class="article-content" v-html="article.content"></div>

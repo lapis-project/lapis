@@ -41,6 +41,7 @@ export interface Article {
 	updatedAt: Date;
 	bibliography: Array<string>;
 	cover: string | null;
+	citation: string | null;
 }
 
 export interface ArticleCMS extends Article {

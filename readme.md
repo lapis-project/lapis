@@ -74,3 +74,9 @@ docker run -it \
 ```
 
 2. The GUI should now be running on port `8080`
+
+### Reset local DB
+
+To completely shut down the db container and delete any associated volumes:
+
+`docker compose --env-file .env.localsetup down`

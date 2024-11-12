@@ -7,6 +7,7 @@ import type { BibliographyItem } from "@/types/zotero";
 import { addIdsToHeadings } from "@/utils/html-helpers";
 
 const env = useRuntimeConfig();
+const route = useRoute();
 
 const { bibliographyItems, fetchBibliographyItems } = useCitationGenerator();
 
@@ -15,35 +16,16 @@ const currentLocale = useLocale();
 const { toast } = useToast();
 
 const t = useTranslations();
+const localePath = useLocalePath();
 
-const { data: categoryOptions } = await useFetch<Array<DropdownOption>>(`/api/categories`, {
-	method: "GET",
-});
-
-const { data: users } = await useFetch(`/api/users`, {
-	method: "GET",
-});
-
-const { data: questions } = await useFetch<
-	Array<{ id: number; phenomenon_name: string; description: string | null }>
->("/questions/survey/1", {
-	baseURL: env.public.apiBaseUrl,
-	method: "GET",
-});
-
-const mappedQuestions = computed(() => {
-	return (
-		questions.value?.map((q) => ({
-			id: q.id,
-			value: q.id.toString(),
-			label: q.phenomenon_name,
-		})) ?? null
-	);
-});
+const routeId = route.params.id;
 
 const abstract = ref<string>("");
+const activeStatus = ref<Status>("Draft");
 const alias = ref<string>("");
+const postId = ref<number | null>(null);
 const content = ref<string>("<p>Hello Tiptap</p>");
+const cover = ref<string>("");
 const citation = ref<string>("");
 const languageOptions = [
 	{ value: "en", label: t("AdminPage.editor.language.english") },
@@ -55,6 +37,86 @@ const selectedLanguage = ref<"de" | "en">(currentLocale.value);
 const selectedQuestion = ref<string | null>(null);
 const selectedBibliographyItems = ref<Array<BibliographyItem>>([]);
 const title = ref<string>("");
+
+interface Author {
+	id: number;
+	firstname: string;
+	lastname: string;
+	username: string;
+	email: string;
+}
+
+interface Article {
+	post_id: number;
+	title: string;
+	alias: string;
+	cover: string;
+	abstract: string;
+	content: string;
+	post_status: Status;
+	lang: "de" | "en";
+	published_at: string | null;
+	updated_at: string;
+	created_at: string;
+	post_type_name: string;
+	bibliography: Array<string>;
+	authors: Array<Author>;
+}
+
+const { data: informationList } = await useFetch("/cms/articles/create/info", {
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+});
+
+const categoryOptions = ref<Array<DropdownOption>>([]);
+const mappedQuestions = ref<Array<DropdownOption>>([]);
+const users = ref<Array<{ id: number; value: string; firstName: string; lastName: string }>>([]);
+
+if (informationList.value) {
+	categoryOptions.value = informationList.value.categories.map((c) => ({
+		id: c.id,
+		value: c.name,
+		label: t(`AdminPage.editor.category.${c.name}`),
+	}));
+	mappedQuestions.value = informationList.value.phenomenon.map((c) => ({
+		id: c.id,
+		value: c.id,
+		label: c.name,
+	}));
+	users.value = informationList.value.authors;
+}
+
+if (routeId && routeId !== "new") {
+	const { data, error } = await useFetch<{ article: Article }>(`/cms/articles/${routeId}`, {
+		baseURL: env.public.apiBaseUrl,
+		method: "GET",
+	});
+
+	if (error.value) {
+		console.error("Failed to fetch article:", error.value);
+	} else if (data.value && data.value.article) {
+		// Populate properties with API data
+		const article = data.value.article;
+		abstract.value = article.abstract;
+		alias.value = article.alias;
+		content.value = article.content;
+		cover.value = article.cover;
+		// citation.value = article.citation;
+		title.value = article.title;
+		selectedAuthors.value = article.authors.map(
+			(author) => `${author.firstname} ${author.lastname}`,
+		);
+		selectedCategory.value = article.post_type_name;
+		selectedLanguage.value = article.lang;
+		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
+			article.bibliography.includes(b.key),
+		);
+		postId.value = article.post_id;
+		activeStatus.value = article.post_status;
+	}
+} else {
+	console.log("This is a new article creation route.");
+}
 
 const baseURL = "https://lexat.acdh-ch-dev.oeaw.ac.at/";
 
@@ -69,23 +131,59 @@ const generateAlias = (title: string) => {
 		.replace(/^-+|-+$/g, "");
 };
 
-const saveArticle = () => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const authorsOptions = computed(
+	(): Array<DropdownOption & { firstName: string; lastName: string }> => {
+		return (
+			users.value?.map((u) => ({
+				label: nameShortener(u.firstName, u.lastName),
+				...u,
+			})) ?? []
+		);
+	},
+);
+
+const saveArticle = async () => {
 	const finalContent = addIdsToHeadings(content.value);
-	// const article = {
-	// 	abstract: abstract.value,
-	// 	alias: alias.value,
-	// 	content: finalContent,
-	// 	title: title.value,
-	// 	category: selectedCategory.value,
-	// 	phenomenonId: selectedQuestion.value,
-	// 	bibliographyItems: selectedBibliographyItems.value?.map((q) => q.key),
-	// 	language: selectedLanguage.value,
-	// };
-	toast({
-		title: "Article Saved",
-		description: "Your changes have successfully been saved.",
-	});
+	const authors = selectedAuthors.value.map(
+		(a) => authorsOptions.value.find((o) => o.label === a)?.id,
+	);
+	const article = {
+		title: title.value,
+		alias: alias.value,
+		cover: cover.value,
+		abstract: abstract.value,
+		content: finalContent,
+		category: selectedCategory.value,
+		authors,
+		bibliography: selectedBibliographyItems.value?.map((q) => q.key),
+		status: activeStatus.value,
+		lang: selectedLanguage.value,
+		phenomenonId: Number(selectedQuestion.value),
+		citation: citation.value,
+		projectId: [1],
+	};
+
+	try {
+		const response = await $fetch("/cms/articles/create", {
+			baseURL: env.public.apiBaseUrl,
+			method: "POST",
+			body: article,
+			credentials: "include",
+		});
+		toast({
+			title: t("AdminPage.editor.saving_succeeded.title"),
+			description: t("AdminPage.editor.saving_succeeded.description"),
+		});
+		if (response) {
+			await navigateTo(localePath("/admin/articles"));
+		}
+	} catch (error) {
+		toast({
+			title: t("AdminPage.editor.saving_failed.title"),
+			description: error || t("AdminPage.editor.saving_failed.description"),
+			variant: "destructive",
+		});
+	}
 };
 
 const generateCitation = () => {
@@ -140,45 +238,31 @@ onMounted(async () => {
 	}
 });
 
-export type Status = "draft" | "published" | "ready" | "unpublished";
-
-const activeStatus = ref<Status>("draft");
+export type Status = "Draft" | "Published" | "ReadyToPublish" | "Unpublished";
 
 // color palette reference: https://www.color-hex.com/color-palette/35021
 const statusOptions: Array<DropdownOption<Status>> = [
 	{
-		value: "draft",
+		value: "Draft",
 		label: t("AdminPage.editor.status.draft"),
 		color: "#cc3232", // red
 	},
 	{
-		value: "ready",
+		value: "ReadyToPublish",
 		label: t("AdminPage.editor.status.ready"),
 		color: "#e7b416", // yellow
 	},
 	{
-		value: "published",
+		value: "Published",
 		label: t("AdminPage.editor.status.published"),
 		color: "#2dc937", // green
 	},
 	{
-		value: "unpublished",
+		value: "Unpublished",
 		label: t("AdminPage.editor.status.unpublished"),
 		color: "#d3d3d3", // grey
 	},
 ];
-
-const authorsOptions = computed(
-	(): Array<DropdownOption & { firstName: string; lastName: string }> => {
-		return (
-			users.value?.map((u) => ({
-				value: u.id.toString(),
-				label: nameShortener(u.firstName, u.lastName),
-				...u,
-			})) ?? []
-		);
-	},
-);
 
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
@@ -199,7 +283,7 @@ usePageMetadata({
 			<div class="mb-8 flex justify-between border-b pb-8">
 				<div>
 					<h3 class="text-3xl font-semibold">{{ title || "Untitled" }}</h3>
-					<p class="text-foreground/70">ID: 1231231</p>
+					<p v-if="postId" class="text-foreground/70">ID: {{ postId }}</p>
 				</div>
 				<div class="flex items-center gap-3">
 					<Label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</Label>

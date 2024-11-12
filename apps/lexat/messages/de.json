@@ -9,6 +9,10 @@
 		"meta": {
 			"title": "Admin"
 		},
+		"articles": {
+			"deletion_succeeded": "Artikel erfolgreich gelöscht",
+			"deletion_failed": "Löschung des Artikels fehlgeschlagen"
+		},
 		"categories": {
 			"articles": {
 				"title": "Artikel",
@@ -37,7 +41,10 @@
 			},
 			"category": {
 				"label": "Kategorie",
-				"placeholder": "Kategorie"
+				"placeholder": "Kategorie",
+				"commentary": "Kartenkommentar",
+				"methodology": "Methodenbeschreibung",
+				"project_description": "Projektbeschreibung"
 			},
 			"citation": {
 				"label": "Zitiervorschlag",
@@ -58,6 +65,14 @@
 				"placeholder": "Phänomen"
 			},
 			"references": "Bibliographie",
+			"saving_failed": {
+				"title": "Saving failed",
+				"description": "Your current changes couldn't be saved."
+			},
+			"saving_succeeded": {
+				"title": "Article saved",
+				"description": "Your changes have successfully been saved."
+			},
 			"status": {
 				"draft": "Draft",
 				"published": "Veröffentlicht",

@@ -68,28 +68,28 @@ const moveItem = (index: number, direction: "left" | "right") => {
 		<ComboboxRoot
 			v-model="modelValue"
 			v-model:open="open"
-			v-model:searchTerm="searchTerm"
+			v-model:search-term="searchTerm"
 			class="w-full"
 		>
 			<ComboboxAnchor as-child>
 				<ComboboxInput
-					:placeholder="t('TagsCombobox.button', { placeholder: props.placeholder })"
 					as-child
+					:placeholder="t('TagsCombobox.button', { placeholder: props.placeholder })"
 				>
 					<TagsInputInput
 						class="w-full px-3"
 						:class="modelValue.length > 0 ? 'mt-2' : ''"
-						@keydown.enter.prevent
 						@focus="open = true"
+						@keydown.enter.prevent
 					/>
 				</ComboboxInput>
 			</ComboboxAnchor>
 
 			<ComboboxPortal>
 				<CommandList
-					position="popper"
 					class="mt-2 w-[--radix-popper-anchor-width] rounded-md border bg-popover text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
 					dismissable
+					position="popper"
 				>
 					<CommandEmpty>{{ t("Combobox.empty") }}</CommandEmpty>
 					<CommandGroup>

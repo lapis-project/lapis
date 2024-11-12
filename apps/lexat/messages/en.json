@@ -9,6 +9,10 @@
 		"meta": {
 			"title": "Admin"
 		},
+		"articles": {
+			"deletion_succeeded": "Article deleted",
+			"deletion_failed": "Deletion of article has failed"
+		},
 		"categories": {
 			"articles": {
 				"title": "Articles",
@@ -37,7 +41,10 @@
 			},
 			"category": {
 				"label": "Category",
-				"placeholder": "category"
+				"placeholder": "category",
+				"commentary": "Card commentary",
+				"methodology": "Method description",
+				"project_description": "Project description"
 			},
 			"citation": {
 				"label": "Citation",
@@ -58,6 +65,14 @@
 				"placeholder": "phenomenon"
 			},
 			"references": "Bibliography",
+			"saving_failed": {
+				"title": "Speichern fehlgeschlagen",
+				"description": "Der Arikel konnte nicht gespeichert werden."
+			},
+			"saving_succeeded": {
+				"title": "Article saved",
+				"description": "Der Arikel wurde erfolgreich gespeichert."
+			},
 			"status": {
 				"draft": "Draft",
 				"published": "Published",

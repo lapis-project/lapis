@@ -1,5 +1,5 @@
 export interface Article {
-	id: number;
+	post_id: number;
 	authors: Array<User>;
 	category: string;
 	title: string;
@@ -21,9 +21,10 @@ export interface Article {
 export interface User {
 	role?: string; // Enum
 	username?: string;
-	firstName: string;
-	lastName: string;
-	id: number;
+	firstname: string;
+	lastname: string;
+	user_id: number;
+	email: string;
 }
 
 export interface AuthUser {

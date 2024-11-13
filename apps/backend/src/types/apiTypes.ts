@@ -29,7 +29,7 @@ export interface Article {
 	user_id?: number; // User Object
 	author?: UserObject; // User Object
 	category?: Poststatus;
-	post_type_id: number;
+	post_type_id: number | null;
 	post_status: Poststatus;
 	title: string;
 	content: string | null;

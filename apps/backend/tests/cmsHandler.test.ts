@@ -27,17 +27,41 @@ vi.mock("@/db/connect", async () => {
 });
 */
 
-describe.skip("test endpoint /cms/articles/create/info", () => {
+async function loginUserAndReturnCookie(email: string, password: string) {
+	const response = await app.request("/auth/login", {
+		method: "POST",
+		body: JSON.stringify({ email, password }),
+		headers: apiHeaders,
+	});
+
+	return response.headers.get("Set-Cookie") ?? "";
+}
+
+async function logoutUser(userHeader: HeadersInit) {
+	const response = await app.request("/auth/logout", {
+		method: "POST",
+		headers: userHeader,
+	});
+	return response;
+}
+
+describe("test endpoint /cms/articles/create/info", () => {
 	// let honoClient;
-	beforeAll(() => {
+	const loginHeaders = structuredClone(apiHeaders);
+	beforeAll(async () => {
 		// const honoClient = hc<GetAuthorInformationType>("");
+		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
+		loginHeaders.Cookie = sessionCookie;
+	});
+	afterAll(async () => {
+		await logoutUser(loginHeaders);
 	});
 	test("Should return status code 200", async () => {
-		const response = await app.request("/cms/articles/create/info");
+		const response = await app.request("/cms/articles/create/info", { headers: loginHeaders });
 		expect(response.status).toBe(200);
 	});
 	test("Should return object containing authors, categories and phenomenon", async () => {
-		const response = await app.request("/cms/articles/create/info");
+		const response = await app.request("/cms/articles/create/info", { headers: loginHeaders });
 
 		const body = await response.json();
 		expect(body).toHaveProperty("authors");
@@ -46,9 +70,13 @@ describe.skip("test endpoint /cms/articles/create/info", () => {
 	});
 });
 
-describe.skip("test endpoint GET /cms/articles/:id", () => {
+describe("test endpoint GET /cms/articles/:id", () => {
 	let articleId = 0;
+	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {
+		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
+		loginHeaders.Cookie = sessionCookie;
+
 		const response = await app.request("/cms/articles/create", {
 			method: "POST",
 			body: JSON.stringify({
@@ -64,8 +92,9 @@ describe.skip("test endpoint GET /cms/articles/:id", () => {
 				phenomenonId: 2,
 				citation: "test-citation",
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
+
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -75,15 +104,18 @@ describe.skip("test endpoint GET /cms/articles/:id", () => {
 
 	afterAll(async () => {
 		await db.deleteFrom("post").where("title", "=", "Test Article").execute();
+		await logoutUser(loginHeaders);
 	});
 
-	test("Should return status code 200", async () => {
-		const response = await app.request("/cms/articles/1");
+	test("Should return status code 201", async () => {
+		const response = await app.request("/cms/articles/1", { headers: loginHeaders });
 		expect(response.status).toBe(201);
 	});
 
 	test("Provide correct article id, should return the article with the provided id and status code 201", async () => {
-		const response = await app.request(`/cms/articles/${String(articleId)}`);
+		const response = await app.request(`/cms/articles/${String(articleId)}`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -114,16 +146,17 @@ describe.skip("test endpoint GET /cms/articles/:id", () => {
 	});
 });
 
-describe.skip("test endpoint POST /cms/articles/create", () => {
+describe("test endpoint POST /cms/articles/create", () => {
 	const existingBibliography = "TestBibliography2";
 	const userIds: Array<number> = [];
-	const loginHeader = apiHeaders;
+	const loginHeaders = structuredClone(apiHeaders);
 
 	afterEach(async () => {
 		await db.deleteFrom("user_post").where("user_id", "=", 4).execute();
 		await db.deleteFrom("post").where("title", "=", "Test Article").execute();
 	});
 	afterAll(async () => {
+		await logoutUser(loginHeaders);
 		await db.deleteFrom("user_post").where("user_id", "=", 4).execute();
 		await db.deleteFrom("post").where("title", "=", "Test Article").execute();
 		// eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -221,7 +254,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 			headers: apiHeaders,
 		});
 
-		loginHeader.Cookie = responseLogin.headers.get("Set-Cookie") ?? "";
+		loginHeaders.Cookie = responseLogin.headers.get("Set-Cookie") ?? "";
 	});
 	test("Create new article with all fields provided, should create the article, return the id of the new article and return status code 201", async () => {
 		const response = await app.request("/cms/articles/create", {
@@ -237,7 +270,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				phenomenonId: 2,
 				citation: "test-citation",
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 		const body = await response.json();
 		expect(response.status).toBe(201);
@@ -278,7 +311,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 		const response = await app.request("/cms/articles/create", {
 			method: "POST",
 			body: JSON.stringify({}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 		expect(response.status).toBe(400);
 	});
@@ -295,7 +328,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				lang: "en",
 				authors: [4],
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 
 		const body = await response.json();
@@ -335,7 +368,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				lang: "en",
 				authors: userIds.map((el) => el.id),
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 
 		const body = await response.json();
@@ -367,7 +400,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				lang: "en",
 				bibliography: [bibliographyName],
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 
 		const body = await response.json();
@@ -407,7 +440,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				lang: "en",
 				bibliography: [bibliographyName, existingBibliography],
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 
 		const body = await response.json();
@@ -455,7 +488,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				lang: "en",
 				projectId: [1],
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 
 		const body = await response.json();
@@ -490,7 +523,7 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				lang: "en",
 				projectId: [999],
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 		expect(response.status).toBe(404);
 	});
@@ -508,16 +541,19 @@ describe.skip("test endpoint POST /cms/articles/create", () => {
 				lang: "en",
 				phenomenonId: 999,
 			}),
-			headers: apiHeaders,
+			headers: loginHeaders,
 		});
 		expect(response.status).toBe(500);
 	});
 });
 
-describe.skip("test endpoint GET /cms/articles/all/:project", () => {
+describe.only("test endpoint GET /cms/articles/all/:project", () => {
 	const articleIds: Array<number> = [];
 	const categories: Array<string> = ["commentary", "methodology", "project_description"];
+	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {
+		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
+		loginHeaders.Cookie = sessionCookie;
 		// Create 30 new articles
 		for (let i = 0; i < 30; i++) {
 			const response = await app.request("/cms/articles/create", {
@@ -533,22 +569,30 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 					projectId: [1],
 					authors: [3, 4],
 				}),
-				headers: apiHeaders,
+				headers: loginHeaders,
 			});
 			expect(response.status).toBe(201);
 
 			const body = await response.json();
 
 			articleIds.push(Number(body.articleId.id));
+			const articleResponse = await app.request("/cms/articles/all/1", {
+				headers: loginHeaders,
+			});
+			expect(articleResponse.status).toBe(201);
 		}
 	});
 
 	afterAll(async () => {
 		await db.deleteFrom("post").where("title", "ilike", "Test Article%").execute();
+		await logoutUser(loginHeaders);
 	});
 
 	test("Provide project id 1 with pagesize of 30 and leave other fields empty, should return all articles on one page with project id 1 and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?pageSize=30`);
+		const response = await app.request("/cms/articles/all/1?pageSize=30", {
+			headers: loginHeaders,
+		});
+
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -558,7 +602,7 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide different project id 2, should return empty array and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/2`);
+		const response = await app.request(`/cms/articles/all/2`, { headers: loginHeaders });
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -568,7 +612,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 with pagesize of 10 and page 1, should return 10 articles with names Test article 0 to 9 on one page with project id 1 and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=1`);
+		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=1`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -583,7 +629,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 with pagesize of 10 and page 2, should return 10 articles on one page with project id 1 and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=2`);
+		const response = await app.request(`/cms/articles/all/1?pageSize=10&page=2`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -596,7 +644,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 with pagesize of 10 on page 2 with offset of 10, should return 10 articles on one page with project id 1 and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?pageSize=10&offset=10&page=2`);
+		const response = await app.request(`/cms/articles/all/1?pageSize=10&offset=10&page=2`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -610,7 +660,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 with pagesize of 30 on page 2, should return empty array and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?pageSize=30&page=2`);
+		const response = await app.request(`/cms/articles/all/1?pageSize=30&page=2`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -622,6 +674,7 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	test("Provide project id 1 with pagesize of 10 and category commentary, should return 10 articles with category commentary on one page with project id 1 and status code 201", async () => {
 		const response = await app.request(
 			`/cms/articles/all/1?pageSize=10&category=${categories[0] ?? ""}`,
+			{ headers: loginHeaders },
 		);
 		expect(response.status).toBe(201);
 
@@ -637,7 +690,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 and category article, should return empty array and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?category=article`);
+		const response = await app.request(`/cms/articles/all/1?category=article`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -647,7 +702,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 and searchTerm Test Article 1, should return 11 articles with title containing Test Article 1 and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 1`);
+		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 1`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -660,7 +717,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 and searchTerm Test Article 20, should return 1 article with title containing Test Article 20 and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 20`);
+		const response = await app.request(`/cms/articles/all/1?searchTerm=Test Article 20`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -673,7 +732,9 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide project id 1 and searchTerm Othertitle, should return empty array and status code 201", async () => {
-		const response = await app.request(`/cms/articles/all/1?searchTerm=Othertitle`);
+		const response = await app.request(`/cms/articles/all/1?searchTerm=Othertitle`, {
+			headers: loginHeaders,
+		});
 		expect(response.status).toBe(201);
 
 		const body = await response.json();
@@ -683,7 +744,7 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 	});
 
 	test("Provide no project id, should return status code 400 with error message Provided id is not a number", async () => {
-		const response = await app.request(`/cms/articles/all`);
+		const response = await app.request(`/cms/articles/all`, { headers: loginHeaders });
 		expect(response.status).toBe(400);
 
 		const body = await response.json();
@@ -693,7 +754,7 @@ describe.skip("test endpoint GET /cms/articles/all/:project", () => {
 
 describe("test endpoint PUT /cms/:id", () => {
 	let articleId = 0;
-	const loginHeaders = apiHeaders;
+	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {
 		// login as editor
 		const responseLogin = await app.request("/auth/login", {
@@ -741,10 +802,10 @@ describe("test endpoint PUT /cms/:id", () => {
 			.deleteFrom("bibliography")
 			.where("name_bibliography", "ilike", "TestBibliography%")
 			.execute();
+		await logoutUser(loginHeaders);
 	});
 
 	test("Provide article id and change all attributes of the article, remove one author, set the status to published, should change the article, set a date for published at and return status code 201", async () => {
-		console.log(loginHeaders);
 		const response = await app.request(`/cms/${String(articleId)}`, {
 			method: "PUT",
 			body: JSON.stringify({
@@ -927,5 +988,130 @@ describe("test endpoint PUT /cms/:id", () => {
 			headers: loginHeaders,
 		});
 		expect(response.status).toBe(500);
+	});
+
+	test("Create new article with one author, edit the article and add another author, should change the user_post relation to contain the new authors and status code 201", async () => {
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				authors: [4],
+			}),
+			headers: loginHeaders,
+		});
+
+		const body = await response.json();
+		expect(response.status).toBe(201);
+		expect(body).toHaveProperty("articleId");
+
+		const articleId = body.articleId.id;
+
+		const responseEdit = await app.request(`/cms/${String(articleId)}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [3, 4],
+			}),
+			headers: loginHeaders,
+		});
+		expect(responseEdit.status).toBe(201);
+
+		// Check if the author is linked to the article
+		const linkAuthorPost = await db
+			.selectFrom("user_post")
+			.where("post_id", "=", articleId)
+			.selectAll()
+			.execute();
+		expect(linkAuthorPost.length).toBe(2);
+	});
+});
+
+describe("test endpoint DELETE /cms/articles/:id", () => {
+	let articleId = 0;
+	const loginHeaders = structuredClone(apiHeaders);
+	beforeAll(async () => {
+		// login as editor
+		const responseLogin = await app.request("/auth/login", {
+			method: "POST",
+			body: JSON.stringify({
+				email: "editor@oeaw.ac.at",
+				password: "editoreditor",
+			}),
+			headers: apiHeaders,
+		});
+
+		loginHeaders.Cookie = responseLogin.headers.get("Set-Cookie") ?? "";
+
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				phenomenonId: 4,
+				projectId: [1],
+				authors: [3, 4],
+				citation: "test-citation-updated",
+				bibliography: ["TestBibliography1"],
+			}),
+			headers: loginHeaders,
+		});
+
+		expect(response.status).toBe(201);
+
+		const body = await response.json();
+
+		articleId = body.articleId.id;
+	});
+
+	afterAll(async () => {
+		await db.deleteFrom("user_post").where("user_id", "=", 4).execute();
+		await db.deleteFrom("post").where("title", "ilike", "Test Article%").execute();
+		await db
+			.deleteFrom("bibliography")
+			.where("name_bibliography", "ilike", "TestBibliography%")
+			.execute();
+		await logoutUser(loginHeaders);
+	});
+
+	test("Provide article id and delete the article, should delete the article and return status code 200, fetch article afterwards and check if the returned object is empty", async () => {
+		const response = await app.request(`/cms/articles/${String(articleId)}`, {
+			method: "DELETE",
+			headers: loginHeaders,
+		});
+		expect(response.status).toBe(200);
+
+		// Check if the article is deleted
+		const articleFetched = await app.request(`/cms/articles/${String(articleId)}`, {
+			headers: loginHeaders,
+		});
+		const articleBody = await articleFetched.json();
+		expect(articleBody).toStrictEqual({});
+	});
+
+	test("Provide article id as a string, expect error message and status code 400", async () => {
+		const response = await app.request(`/cms/articles/abc`, {
+			method: "DELETE",
+			headers: loginHeaders,
+		});
+
+		expect(response.status).toBe(400);
 	});
 });

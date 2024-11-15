@@ -23,6 +23,13 @@ export async function getAllUserPhenKat(project_id: string) {
 			eb.val("category").as("category"),
 		]);
 
+	const selectAllSurveyConducted = db
+		.selectFrom("survey_conducted")
+		.select(({ eb }) => [
+			eb.ref("survey_conducted.id").as("id"),
+			eb.cast<string>(eb.ref("survey_conducted.instance_id"), "text").as("name"),
+			eb.val("survey").as("category"),
+		]);
 	const selectAllEditors = db
 		.selectFrom("user_account")
 		.select(({ eb }) => [
@@ -45,9 +52,17 @@ export async function getAllUserPhenKat(project_id: string) {
 		.where("user_roles.role_name", "=", "editor");
 	const projectIdParsed = parseInt(project_id);
 	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
-		return await selectAllPhaen.unionAll(selectAllKat).unionAll(selectAllEditors).execute();
+		return await selectAllPhaen
+			.unionAll(selectAllKat)
+			.unionAll(selectAllEditors)
+			.unionAll(selectAllSurveyConducted)
+			.execute();
 	}
-	return await selectAllPhaen.unionAll(selectAllKat).unionAll(selectAllEditors).execute();
+	return await selectAllPhaen
+		.unionAll(selectAllKat)
+		.unionAll(selectAllEditors)
+		.unionAll(selectAllSurveyConducted)
+		.execute();
 }
 
 export async function getArticleById(id: number) {
@@ -254,6 +269,7 @@ export async function insertNewArticle(
 	citation: string | undefined,
 	post_status: Poststatus,
 	lang: Availablelang,
+	creator_id: number,
 ) {
 	return await db
 		.insertInto("post")
@@ -267,8 +283,20 @@ export async function insertNewArticle(
 			"post_status",
 			"lang",
 			"citation",
+			"creator_id",
 		])
-		.values({ title, alias, cover, abstract, content, post_type_id, post_status, lang, citation })
+		.values({
+			title,
+			alias,
+			cover,
+			abstract,
+			content,
+			post_type_id,
+			post_status,
+			lang,
+			citation,
+			creator_id,
+		})
 		.returning(["id"])
 		.executeTakeFirst();
 }

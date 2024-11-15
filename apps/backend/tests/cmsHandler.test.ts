@@ -67,6 +67,8 @@ describe("test endpoint /cms/articles/create/info", () => {
 		expect(body).toHaveProperty("authors");
 		expect(body).toHaveProperty("categories");
 		expect(body).toHaveProperty("phenomenon");
+		expect(body).toHaveProperty("survey");
+		expect(body.survey.length).toBe(3);
 	});
 });
 
@@ -547,7 +549,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 	});
 });
 
-describe.only("test endpoint GET /cms/articles/all/:project", () => {
+describe("test endpoint GET /cms/articles/all/:project", () => {
 	const articleIds: Array<number> = [];
 	const categories: Array<string> = ["commentary", "methodology", "project_description"];
 	const loginHeaders = structuredClone(apiHeaders);

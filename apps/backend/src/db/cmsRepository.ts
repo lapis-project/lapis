@@ -98,6 +98,7 @@ export async function getArticleById(id: number) {
 		)
 		.selectFrom("post")
 		.innerJoin("post_type", "post.post_type_id", "post_type.id")
+		.innerJoin("user_account", "user_account.id", "post.creator_id")
 		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.leftJoin("authors", "authors.post_id", "post.id")
 		.leftJoin("phenomenon_query", "phenomenon_query.post_id", "post.id")
@@ -107,6 +108,7 @@ export async function getArticleById(id: number) {
 			"post.title",
 			"post.alias",
 			"post.cover",
+			"post.cover_alt",
 			"post.abstract",
 			"post.content",
 			"post.post_status",
@@ -115,6 +117,11 @@ export async function getArticleById(id: number) {
 			"post.updated_at",
 			"post.created_at",
 			"post.citation",
+			"user_account.id as creator_id",
+			"user_account.firstname as creator_firstname",
+			"user_account.lastname as creator_lastname",
+			"user_account.username as creator_username",
+			"user_account.email as creator_email",
 			"post_type.post_type_name",
 			eb.fn
 				.coalesce(
@@ -158,7 +165,7 @@ export async function getArticleById(id: number) {
 				)
 				.as("authors"),
 		])
-		.groupBy(["post.id", "post_type.post_type_name"]);
+		.groupBy(["post.id", "post_type.post_type_name", "user_account.id"]);
 	return await query.executeTakeFirst();
 }
 
@@ -175,7 +182,11 @@ export async function getAllArticlesByProjectId(
 				.selectFrom("post")
 				.innerJoin("project_post", "post.id", "project_post.post_id")
 				.leftJoin("user_post", "post.id", "user_post.post_id")
-				.leftJoin("user_account", "user_post.user_id", "user_account.id")
+				.leftJoin("user_account", (join) =>
+					join
+						.onRef("user_post.user_id", "=", "user_account.id")
+						.onRef("post.creator_id", "=", "user_account.id"),
+				)
 				.innerJoin("post_type", "post.post_type_id", "post_type.id")
 				.where("project_post.project_id", "=", projectId)
 				.where("post.title", "~*", searchTerm)
@@ -189,6 +200,7 @@ export async function getAllArticlesByProjectId(
 					eb.ref("post.abstract").as("abstract"),
 					eb.ref("post.post_status").as("status"),
 					eb.ref("post_type.post_type_name").as("post_type"),
+					eb.ref("post.creator_id").as("creator_id"),
 					eb.fn
 						.jsonAgg(
 							jsonbBuildObject({
@@ -263,6 +275,7 @@ export async function insertNewArticle(
 	title: string,
 	alias: string,
 	cover: string | undefined,
+	cover_alt: string | undefined,
 	abstract: string | undefined,
 	content: string | undefined,
 	post_type_id: number | undefined,
@@ -284,6 +297,7 @@ export async function insertNewArticle(
 			"lang",
 			"citation",
 			"creator_id",
+			"cover_alt",
 		])
 		.values({
 			title,
@@ -296,6 +310,7 @@ export async function insertNewArticle(
 			lang,
 			citation,
 			creator_id,
+			cover_alt,
 		})
 		.returning(["id"])
 		.executeTakeFirst();
@@ -380,6 +395,7 @@ export async function updateArticleById(articleId: number, articleBody: Article)
 			title: articleBody.title,
 			alias: articleBody.alias,
 			cover: articleBody.cover,
+			cover_alt: articleBody.cover_alt,
 			abstract: articleBody.abstract,
 			content: articleBody.content,
 			post_type_id: articleBody.post_type_id,

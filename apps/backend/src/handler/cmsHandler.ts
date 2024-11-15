@@ -110,10 +110,17 @@ const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), 
 		return c.json("Invalid language provided", 400);
 	}
 
+	const creator = c.get("user");
+	if (!creator) {
+		return c.json("Error while fetching data", 500);
+	}
+
 	const updatedArticle: Article = {
 		title: body.title,
 		alias: body.alias,
 		cover: body.cover ?? null,
+		cover_alt: body.cover_alt ?? null,
+		creator_id: Number(creator.id),
 		abstract: body.abstract ?? null,
 		content: body.content ?? null,
 		post_type_id: postTypeId,
@@ -274,6 +281,7 @@ const createNewArticle = cms.post(
 			body.title,
 			body.alias,
 			body.cover,
+			body.cover_alt,
 			body.abstract,
 			body.content,
 			postTypeId.id,

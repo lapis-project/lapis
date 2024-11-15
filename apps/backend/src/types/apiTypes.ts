@@ -41,6 +41,8 @@ export interface Article {
 	updatedAt: Date;
 	bibliography: Array<string>;
 	cover: string | null;
+	cover_alt: string | null;
+	creator_id: number;
 	citation: string | null;
 }
 

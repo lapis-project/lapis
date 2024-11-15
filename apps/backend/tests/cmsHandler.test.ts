@@ -76,7 +76,7 @@ describe("test endpoint GET /cms/articles/:id", () => {
 	let articleId = 0;
 	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {
-		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
+		const sessionCookie = await loginUserAndReturnCookie("admin@oeaw.ac.at", "adminadmin");
 		loginHeaders.Cookie = sessionCookie;
 
 		const response = await app.request("/cms/articles/create", {
@@ -85,6 +85,8 @@ describe("test endpoint GET /cms/articles/:id", () => {
 				title: "Test Article",
 				alias: "test-article",
 				abstract: "test-abstract",
+				cover: "test-cover",
+				cover_alt: "test-cover-alt",
 				content: "test-content",
 				category: "commentary",
 				status: "Draft",
@@ -128,7 +130,7 @@ describe("test endpoint GET /cms/articles/:id", () => {
 		expect(articleBody.post_id).toBe(articleId);
 		expect(articleBody.title).toBe("Test Article");
 		expect(articleBody.alias).toBe("test-article");
-		expect(articleBody.cover).toBeNull();
+		expect(articleBody.cover).toBe("test-cover");
 		expect(articleBody.abstract).toBe("test-abstract");
 		expect(articleBody.citation).toBe("test-citation");
 		expect(articleBody.content).toBe("test-content");
@@ -145,6 +147,9 @@ describe("test endpoint GET /cms/articles/:id", () => {
 		expect(articleBody.authors?.[0].username).toBe("editor");
 		expect(articleBody.phenomenon).not.toBeNull();
 		expect(articleBody.phenomenon?.[0].phenomenon_id).toBe(2);
+		expect(articleBody.cover_alt).toBe("test-cover-alt");
+
+		expect(articleBody.creator_username).toBe("admin");
 	});
 });
 
@@ -785,6 +790,8 @@ describe("test endpoint PUT /cms/:id", () => {
 				authors: [3, 4],
 				citation: "test-citation-updated",
 				bibliography: ["TestBibliography1"],
+				cover: "test-cover",
+				cover_alt: "test-cover-alt",
 			}),
 			headers: loginHeaders,
 		});
@@ -822,6 +829,8 @@ describe("test endpoint PUT /cms/:id", () => {
 				authors: [3],
 				phenomenonId: 5,
 				citation: "test-citation-updated",
+				cover: "test-cover-updated",
+				cover_alt: "test-cover-alt-updated",
 			}),
 			headers: loginHeaders,
 		});
@@ -835,10 +844,12 @@ describe("test endpoint PUT /cms/:id", () => {
 			headers: loginHeaders,
 		});
 		const articleBody = await articleFetched.json();
+
+		console.log(articleBody);
+
 		expect(articleBody).toHaveProperty("article");
 		expect(articleBody.article.title).toBe("Test Article Updated");
 		expect(articleBody.article.alias).toBe("test-article-updated");
-		expect(articleBody.article.cover).toBeNull();
 		expect(articleBody.article.abstract).toBe("test-abstract-updated");
 		expect(articleBody.article.content).toBe("test-content-updated");
 		expect(articleBody.article.post_type_name).toBe("methodology");
@@ -848,6 +859,8 @@ describe("test endpoint PUT /cms/:id", () => {
 		expect(articleBody.article.published_at).not.toBeNull();
 		expect(articleBody.article.updated_at).not.toBeNull();
 		expect(articleBody.article.citation).toBe("test-citation-updated");
+		expect(articleBody.article.cover).toBe("test-cover-updated");
+		expect(articleBody.article.cover_alt).toBe("test-cover-alt-updated");
 
 		// Check if the phenomenon is linked to the article
 		const linkPhenomenonPost = await db

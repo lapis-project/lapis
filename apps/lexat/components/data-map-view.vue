@@ -51,6 +51,12 @@ const colors = ref([
 	"#b080ff",
 ]);
 
+//: Record<keyof typeof specialOrder, string>
+const specialColors = ref({
+	Irrelevant: "#faf9f6",
+	Sonstige: "#a9a9a9",
+});
+
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 const basemapOptions: Array<DropdownOption> = [
 	{
@@ -177,9 +183,8 @@ const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions
 });
 
 const specialOrder = {
-	"keine Angabe": -4, // -4 indicates key to be sorted last
-	Irrelevant: -3,
-	Sonstiges: -2,
+	// "keine Angabe": -3, // -3 indicates key to be sorted last
+	Irrelevant: -2,
 	Sonstige: -1,
 };
 
@@ -241,7 +246,12 @@ const features = computed(() => {
 const mappedColors = computed(() => {
 	const colorMap: Record<string, string> = {};
 	uniqueVariants.value.forEach((u, i) => {
+		// apply distinct colors for "Irrelevant" and "Sonstige"
+		if (Object.keys(specialOrder).includes(u.anno)) {
+			colors.value[i] = specialColors.value[u.anno];
+		}
 		const color = colors.value[i];
+
 		if (color) {
 			colorMap[u.anno] = color;
 		}
@@ -557,6 +567,16 @@ const setAgeGroup = (newValues: Array<number>) => {
 	activeAgeGroup.value = newValues;
 };
 
+const handleColorUpdate = (index: number, value: string) => {
+	if (Object.keys(mappedColors.value)[index] === "Irrelevant") {
+		specialColors.value.Irrelevant = value;
+	} else if (Object.keys(mappedColors.value)[index] === "Sonstige") {
+		specialColors.value.Sonstige = value;
+	} else {
+		colors.value[index] = value;
+	}
+};
+
 // Call the initialize function on component mount
 initializeFromUrl();
 
@@ -718,7 +738,8 @@ watch(activeVariants, updateUrlParams, {
 									<ColorPicker
 										v-for="(color, index) in Object.values(mappedColors)"
 										:key="index"
-										v-model="colors[index]"
+										:model-value="colors[index]"
+										@update:model-value="handleColorUpdate(index, $event)"
 									/>
 								</div>
 							</div>
@@ -752,16 +773,25 @@ watch(activeVariants, updateUrlParams, {
 				<div
 					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"
 				>
-					<ul class="space-y-1">
+					<ul class="space-y-0.5">
 						<li
 							v-for="variant in filteredUniqueVariants"
 							:key="variant.anno"
+							class="flex items-center gap-1"
 							:class="{
 								italic: !Object.keys(specialOrder).includes(variant.anno),
 							}"
 						>
 							<svg class="inline align-baseline" height="12" width="12">
-								<circle cx="6" cy="6" :fill="mappedColors[variant.anno]" r="6" />
+								<circle
+									cx="6"
+									cy="6"
+									:fill="mappedColors[variant.anno]"
+									r="5"
+									stroke="black"
+									stroke-align="inner"
+									stroke-width="1"
+								/>
 							</svg>
 							{{ variant.anno }}
 						</li>
@@ -822,10 +852,19 @@ watch(activeVariants, updateUrlParams, {
 								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">
 									<details :name="value">
 										<summary>
-											<svg class="mr-0.5 inline align-text-top" height="12" width="12">
-												<circle cx="6" cy="6" :fill="mappedColors[key]" r="6" />
-											</svg>
-											{{ key }}
+											<div class="inline-flex items-center gap-1 align-top">
+												<svg height="12" width="12">
+													<circle
+														cx="6"
+														cy="6"
+														:fill="mappedColors[key]"
+														r="5"
+														stroke="black"
+														stroke-width="1"
+													/>
+												</svg>
+												{{ key }}
+											</div>
 										</summary>
 										<p v-for="(v, k) in value" :key="k" class="">
 											- {{ sanititzeReg(k) }}: {{ v }}

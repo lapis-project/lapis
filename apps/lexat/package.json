@@ -63,6 +63,7 @@
 		"lucide-vue-next": "^0.445.0",
 		"maplibre-gl": "^4.7.1",
 		"nuxt": "^3.13.2",
+		"nuxt-svgo": "^4.0.8",
 		"pino-http": "^10.3.0",
 		"radix-vue": "^1.9.7",
 		"satori": "^0.11.2",

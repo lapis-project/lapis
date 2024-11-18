@@ -66,6 +66,7 @@ export default defineNuxtConfig({
 		dirs: ["./config/"],
 	},
 	modules: [
+		"nuxt-svgo",
 		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxtjs/color-mode",
@@ -96,6 +97,9 @@ export default defineNuxtConfig({
 			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,
 			zoteroBaseUrl: process.env.NUXT_PUBLIC_ZOTERO_BASE_URL,
 		},
+	},
+	svgo: {
+		defaultImport: "component",
 	},
 	typescript: {
 		shim: false,

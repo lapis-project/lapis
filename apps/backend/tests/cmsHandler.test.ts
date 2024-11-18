@@ -822,8 +822,6 @@ describe("test endpoint PUT /cms/:id", () => {
 		});
 		const articleBody = await articleFetched.json();
 
-		console.log(articleBody);
-
 		expect(articleBody).toHaveProperty("article");
 		expect(articleBody.article.title).toBe("Test Article Updated");
 		expect(articleBody.article.alias).toBe("test-article-updated");

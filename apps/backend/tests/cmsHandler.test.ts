@@ -8,14 +8,9 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { app } from "@/app";
 import { argon2Config } from "@/config/config";
 import { db } from "@/db/connect";
-// import user from "@/handler/userHandler";
 
-const apiHeaders = {
-	"Content-Type": "application/json",
-	Origin: "http://localhost:3000",
-	Host: "localhost:3000",
-	Cookie: "",
-};
+import { apiHeaders, loginUserAndReturnCookie, logoutUser } from "./testutils";
+// import user from "@/handler/userHandler";
 
 /*
 TODO: Saving for later when kysely gets it next update => Use transactions to make the tests easier
@@ -26,24 +21,6 @@ vi.mock("@/db/connect", async () => {
 	return { db: transaction };
 });
 */
-
-async function loginUserAndReturnCookie(email: string, password: string) {
-	const response = await app.request("/auth/login", {
-		method: "POST",
-		body: JSON.stringify({ email, password }),
-		headers: apiHeaders,
-	});
-
-	return response.headers.get("Set-Cookie") ?? "";
-}
-
-async function logoutUser(userHeader: HeadersInit) {
-	const response = await app.request("/auth/logout", {
-		method: "POST",
-		headers: userHeader,
-	});
-	return response;
-}
 
 describe("test endpoint /cms/articles/create/info", () => {
 	// let honoClient;

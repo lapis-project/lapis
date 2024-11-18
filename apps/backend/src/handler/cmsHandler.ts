@@ -194,7 +194,7 @@ const cmsRoute = cms.get("/articles/all/:project", async (c) => {
 	return c.json(
 		{
 			prev:
-				pageNumParsed > 1 || totalCount !== 0
+				pageNumParsed > 1 && totalCount !== 0 && !(queryOffset > totalCount)
 					? requestUrl.replace(`page=${String(pageNumParsed)}`, `page=${String(pageNumParsed - 1)}`)
 					: null,
 			next:

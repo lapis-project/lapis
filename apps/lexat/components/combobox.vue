@@ -49,20 +49,20 @@ const hasColor = computed(() => {
 	<Popover v-model:open="open">
 		<PopoverTrigger as-child class="">
 			<Button
-				variant="outline"
-				role="combobox"
-				:aria-expanded="open"
 				aria-controls="popover-content"
+				:aria-expanded="open"
 				class="justify-between"
 				:class="[props.width]"
+				role="combobox"
+				variant="outline"
 			>
-				<div class="flex items-center">
-					<svg v-if="hasColor && model" width="12" height="12" class="mr-2">
+				<div class="flex items-center truncate">
+					<svg v-if="hasColor && model" class="mr-2" height="12" width="12">
 						<circle
 							cx="6"
 							cy="6"
-							r="6"
 							:fill="props.options.find((question) => question.value === model)?.color"
+							r="6"
 						/>
 					</svg>
 					<span class="truncate">
@@ -105,16 +105,16 @@ const hasColor = computed(() => {
 						>
 							<svg
 								v-if="hasColor && question.color"
-								width="12"
-								height="12"
 								class="mr-2 inline align-baseline"
+								height="12"
+								width="12"
 							>
-								<circle cx="6" cy="6" r="6" :fill="question.color" />
+								<circle cx="6" cy="6" :fill="question.color" r="6" />
 							</svg>
 							{{ question.label }}
 							<Check
 								:class="
-									cn('ml-auto h-4 w-4', model === question.value ? 'opacity-100' : 'opacity-0')
+									cn('ml-auto size-4', model === question.value ? 'opacity-100' : 'opacity-0')
 								"
 							/>
 						</CommandItem>

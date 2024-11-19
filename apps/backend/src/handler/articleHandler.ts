@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { number, optional, safeParse, string } from "valibot";
+import { minLength, number, optional, pipe, safeParse, string } from "valibot";
 
 import { getAllArticlesByProject, getArticleByAlias } from "@/db/articleRepository";
 
@@ -82,7 +82,7 @@ const articleRoute = articles.get("/articles/:project", async (c) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const articleDetail = articles.get("/detail/:alias", async (c) => {
 	const articleAlias = c.req.param("alias");
-	const aliasSchema = string();
+	const aliasSchema = pipe(string(), minLength(5));
 	const result = safeParse(aliasSchema, articleAlias);
 
 	if (!result.success) {

@@ -5,10 +5,15 @@ import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
 
+definePageMeta({
+	middleware: ["protected"],
+});
+
 const env = useRuntimeConfig();
 const route = useRoute();
 
 const { bibliographyItems, bibliographyOptions, fetchBibliographyItems } = useCitationGenerator();
+const { statusOptions } = useArticleStatus();
 
 if (!bibliographyItems.value.length) {
 	await fetchBibliographyItems();
@@ -29,6 +34,7 @@ const alias = ref<string>("");
 const postId = ref<number | null>(null);
 const content = ref<string>("<p>Hello Tiptap</p>");
 const cover = ref<string>("");
+const coverAlt = ref<string>("");
 const citation = ref<string>("");
 const languageOptions = [
 	{ value: "en", label: t("AdminPage.editor.language.english") },
@@ -54,7 +60,9 @@ interface Article {
 	title: string;
 	alias: string;
 	cover: string;
+	cover_alt: string;
 	abstract: string;
+	citation: string;
 	content: string;
 	post_status: Status;
 	lang: "de" | "en";
@@ -69,6 +77,7 @@ interface Article {
 const { data: informationList } = await useFetch("/cms/articles/create/info", {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
+	credentials: "include",
 });
 
 const categoryOptions = ref<Array<DropdownOption>>([]);
@@ -83,7 +92,7 @@ if (informationList.value) {
 	}));
 	mappedQuestions.value = informationList.value.phenomenon.map((c) => ({
 		id: c.id,
-		value: c.id,
+		value: c.name,
 		label: c.name,
 	}));
 	users.value = informationList.value.authors;
@@ -93,6 +102,7 @@ if (routeId && routeId !== "new") {
 	const { data, error } = await useFetch<{ article: Article }>(`/cms/articles/${routeId}`, {
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
+		credentials: "include",
 	});
 
 	if (error.value) {
@@ -100,12 +110,13 @@ if (routeId && routeId !== "new") {
 	} else if (data.value && data.value.article) {
 		// Populate properties with API data
 		const article = data.value.article;
-		const articleBibliography = article.bibliography;
+		const articleBibliography = article.bibliography.map((b) => b.name);
 		abstract.value = article.abstract;
 		alias.value = article.alias;
 		content.value = article.content;
 		cover.value = article.cover;
-		// citation.value = article.citation;
+		coverAlt.value = article.cover_alt;
+		citation.value = article.citation;
 		title.value = article.title;
 		selectedAuthors.value = article.authors.map(
 			(author) => `${author.firstname} ${author.lastname}`,
@@ -115,6 +126,7 @@ if (routeId && routeId !== "new") {
 		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
 			articleBibliography.includes(b.key),
 		);
+		selectedQuestion.value = article.phenomenon[0].name;
 		postId.value = article.post_id;
 		activeStatus.value = article.post_status;
 	}
@@ -155,6 +167,7 @@ const saveArticle = async () => {
 		title: title.value,
 		alias: alias.value,
 		cover: cover.value,
+		cover_alt: coverAlt.value,
 		abstract: abstract.value,
 		content: content.value,
 		category: selectedCategory.value,
@@ -162,7 +175,9 @@ const saveArticle = async () => {
 		bibliography: selectedBibliographyItems.value?.map((q) => q.key),
 		status: activeStatus.value,
 		lang: selectedLanguage.value,
-		phenomenonId: Number(selectedQuestion.value),
+		phenomenonId: Number(
+			mappedQuestions.value?.find((q) => q.value === selectedQuestion.value)?.id,
+		),
 		citation: citation.value,
 		projectId: [1],
 	};
@@ -230,32 +245,6 @@ const removeBibliographyItem = (key: string) => {
 	selectedBibliographyItems.value = selectedBibliographyItems.value.filter((i) => i.key !== key);
 };
 
-export type Status = "Draft" | "Published" | "ReadyToPublish" | "Unpublished";
-
-// color palette reference: https://www.color-hex.com/color-palette/35021
-const statusOptions: Array<DropdownOption<Status>> = [
-	{
-		value: "Draft",
-		label: t("AdminPage.editor.status.draft"),
-		color: "#cc3232", // red
-	},
-	{
-		value: "ReadyToPublish",
-		label: t("AdminPage.editor.status.ready"),
-		color: "#e7b416", // yellow
-	},
-	{
-		value: "Published",
-		label: t("AdminPage.editor.status.published"),
-		color: "#2dc937", // green
-	},
-	{
-		value: "Unpublished",
-		label: t("AdminPage.editor.status.unpublished"),
-		color: "#d3d3d3", // grey
-	},
-];
-
 const handleFileChange = async (event) => {
 	const file = event.target.files[0]; // Get the selected file
 	if (file) {
@@ -314,84 +303,99 @@ usePageMetadata({
 				</div>
 			</div>
 			<div class="bg-background">
-				<div class="mb-6 grid grid-cols-3 gap-5">
-					<div class="grid w-full items-center gap-1.5">
-						<Label for="title">{{ t("AdminPage.editor.title") }}</Label>
-						<Input
-							id="title"
-							v-model="title"
-							:placeholder="t('AdminPage.editor.title')"
-							type="text"
-						/>
-					</div>
-					<div class="grid w-full items-center gap-1.5">
-						<Label class="flex items-center gap-1" for="alias"
-							>{{ t("AdminPage.editor.alias.label") }}
-							<InfoTooltip :content="t('AdminPage.editor.alias.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon> </InfoTooltip
-						></Label>
-						<Input
-							id="alias"
-							v-model="alias"
-							:placeholder="t('AdminPage.editor.alias.placeholder')"
-							type="text"
-						/>
-					</div>
-				</div>
-				<div class="mb-6 grid grid-cols-3 items-start gap-5">
-					<div class="grid w-full gap-1.5">
-						<Label for="abstract">{{ t("AdminPage.editor.abstract") }}</Label>
-						<Textarea
-							id="abstract"
-							v-model="abstract"
-							:placeholder="t('AdminPage.editor.abstract')"
-							type="text"
-						/>
-					</div>
-					<div v-if="languageOptions" class="grid items-center gap-1.5">
-						<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-						<Combobox
-							id="language"
-							v-model="selectedLanguage"
-							:options="languageOptions"
-							:placeholder="t('AdminPage.editor.language.placeholder')"
-						/>
-					</div>
-				</div>
-				<div class="mb-6 grid w-full max-w-xl items-center gap-1.5">
-					<div
-						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						{{ t("AdminPage.editor.cover.label") }}
-					</div>
-					<label
-						class="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
-						for="dropzone-file"
-					>
-						<div v-if="!cover" class="flex flex-col items-center justify-center pb-6 pt-5">
-							<UploadIcon class="mb-4 size-8 text-gray-500 dark:text-gray-400" />
-
-							<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-								<span class="font-semibold">{{ t("AdminPage.editor.cover.click_to_upload") }}</span>
-							</p>
-							<p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (IDEALLY 16:9)</p>
+				<div class="mb-6 flex flex-col gap-5 md:flex-row">
+					<div class="w-full max-w-xl space-y-5 md:w-1/2">
+						<div class="grid w-full items-center gap-1.5">
+							<Label for="title">{{ t("AdminPage.editor.title") }}</Label>
+							<Input
+								id="title"
+								v-model="title"
+								:placeholder="t('AdminPage.editor.title')"
+								type="text"
+							/>
 						</div>
-						<NuxtImg v-else class="size-full object-cover" :src="cover"></NuxtImg>
-						<input
-							id="dropzone-file"
-							accept="image/png, image/jpeg"
-							class="hidden"
-							type="file"
-							@change="handleFileChange"
-						/>
-					</label>
+						<div class="grid w-full items-center gap-1.5">
+							<Label class="flex items-center gap-1" for="alias"
+								>{{ t("AdminPage.editor.alias.label") }}
+								<InfoTooltip :content="t('AdminPage.editor.alias.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon> </InfoTooltip
+							></Label>
+							<Input
+								id="alias"
+								v-model="alias"
+								:placeholder="t('AdminPage.editor.alias.placeholder')"
+								type="text"
+							/>
+						</div>
+						<div class="grid w-full gap-1.5">
+							<Label for="abstract">{{ t("AdminPage.editor.abstract") }}</Label>
+							<Textarea
+								id="abstract"
+								v-model="abstract"
+								:placeholder="t('AdminPage.editor.abstract')"
+								type="text"
+							/>
+						</div>
+						<div v-if="languageOptions" class="grid items-center gap-1.5">
+							<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
+							<Combobox
+								id="language"
+								v-model="selectedLanguage"
+								:options="languageOptions"
+								:placeholder="t('AdminPage.editor.language.placeholder')"
+							/>
+						</div>
+					</div>
+					<div class="w-full max-w-xl space-y-5 md:w-1/2">
+						<div class="grid items-center gap-1.5">
+							<div
+								class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							>
+								{{ t("AdminPage.editor.cover.label")
+								}}<span class="text-destructive"> (Try to keep image below 500kb for now)</span>
+							</div>
+							<label
+								class="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+								for="dropzone-file"
+							>
+								<div v-if="!cover" class="flex flex-col items-center justify-center pb-6 pt-5">
+									<UploadIcon class="mb-4 size-8 text-gray-500 dark:text-gray-400" />
+
+									<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+										<span class="font-semibold">{{
+											t("AdminPage.editor.cover.click_to_upload")
+										}}</span>
+									</p>
+									<p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (IDEALLY 16:9)</p>
+								</div>
+								<NuxtImg v-else class="size-full object-cover" :src="cover"></NuxtImg>
+								<input
+									id="dropzone-file"
+									accept="image/png, image/jpeg"
+									class="hidden"
+									type="file"
+									@change="handleFileChange"
+								/>
+							</label>
+						</div>
+						<div class="grid w-full items-center gap-1.5">
+							<Label for="coverAlt">{{ t("AdminPage.editor.cover_alt.label") }}</Label>
+							<Input
+								id="coverAlt"
+								v-model="coverAlt"
+								:placeholder="t('AdminPage.editor.cover_alt.placeholder')"
+								type="text"
+							/>
+						</div>
+					</div>
 				</div>
+
 				<div class="mb-6 grid w-full items-center gap-1.5">
 					<Label for="content">{{ t("AdminPage.editor.content") }}</Label>
 					<ClientOnly>
 						<TextEditor v-model="content" class="w-full" />
 					</ClientOnly>
-					<p>{{ content }}</p>
+					<!-- DEBUG CONTENT <p>{{ content }}</p> -->
 				</div>
 				<div class="mb-6 flex items-baseline gap-8">
 					<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">
@@ -446,7 +450,7 @@ usePageMetadata({
 				</div>
 				<div class="grid grid-cols-2 gap-5">
 					<div class="mb-6 grid gap-4">
-						<Label for="content"
+						<Label for="bibliography"
 							>{{ t("AdminPage.editor.bibliography.label")
 							}}<template v-if="selectedBibliographyItems.length">
 								({{ selectedBibliographyItems.length }})</template

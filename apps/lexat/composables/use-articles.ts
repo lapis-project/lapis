@@ -27,6 +27,7 @@ export function useArticles() {
 	}>("/cms/articles/all/1", {
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
+		credentials: "include",
 	});
 
 	// Computed property for articles
@@ -38,6 +39,7 @@ export function useArticles() {
 			await $fetch(`/cms/articles/${articleId.toString()}`, {
 				method: "DELETE",
 				baseURL: env.public.apiBaseUrl,
+				credentials: "include",
 			});
 			await refresh();
 		} catch (error) {

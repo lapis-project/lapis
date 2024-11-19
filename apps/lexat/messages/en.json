@@ -58,6 +58,10 @@
 				"upload_succeeded": "Upload succeeded",
 				"upload_failed": "Upload failed"
 			},
+			"cover_alt": {
+				"label": "Cover description",
+				"placeholder": "Descriptive text of image content"
+			},
 			"created-at": "Created at",
 			"language": {
 				"label": "Language",

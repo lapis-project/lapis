@@ -207,7 +207,7 @@
 	}
 
 	.article-content img {
-		@apply rounded-lg shadow-md mt-6 mb-4 w-full;
+		@apply rounded-lg shadow-md mt-6 mb-4 w-full max-w-fit;
 	}
 
 	.article-content figcaption {

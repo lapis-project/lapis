@@ -58,6 +58,10 @@
 				"upload_succeeded": "Upload erfolgreich",
 				"upload_failed": "Upload fehlgeschlagen"
 			},
+			"cover_alt": {
+				"label": "Titelbild-Beschreibung",
+				"placeholder": "Beschreibender Text des Bildinhalts"
+			},
 			"created-at": "Erstellt am",
 			"language": {
 				"label": "Sprache",

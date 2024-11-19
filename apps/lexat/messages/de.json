@@ -52,6 +52,12 @@
 				"generate": "Generieren"
 			},
 			"content": "Inhalt",
+			"cover": {
+				"label": "Titelbild",
+				"click_to_upload": "Klicken zum Hochladen",
+				"upload_succeeded": "Upload erfolgreich",
+				"upload_failed": "Upload fehlgeschlagen"
+			},
 			"created-at": "Erstellt am",
 			"language": {
 				"label": "Sprache",
@@ -183,9 +189,9 @@
 	},
 	"IndexPage": {
 		"meta": {
-			"title": "Startseite"
+			"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert"
 		},
-		"title": "Startseite"
+		"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert"
 	},
 	"LocaleSwitcher": {
 		"current-locale": "Aktuelle Sprache: {locale}",

@@ -1,15 +1,18 @@
 <script lang="ts" setup>
-import { ArrowLeft, InfoIcon, Trash, WandSparkles } from "lucide-vue-next";
+import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
-import { addIdsToHeadings } from "@/utils/html-helpers";
 
 const env = useRuntimeConfig();
 const route = useRoute();
 
-const { bibliographyItems, fetchBibliographyItems } = useCitationGenerator();
+const { bibliographyItems, bibliographyOptions, fetchBibliographyItems } = useCitationGenerator();
+
+if (!bibliographyItems.value.length) {
+	await fetchBibliographyItems();
+}
 
 const currentLocale = useLocale();
 
@@ -97,6 +100,7 @@ if (routeId && routeId !== "new") {
 	} else if (data.value && data.value.article) {
 		// Populate properties with API data
 		const article = data.value.article;
+		const articleBibliography = article.bibliography;
 		abstract.value = article.abstract;
 		alias.value = article.alias;
 		content.value = article.content;
@@ -109,7 +113,7 @@ if (routeId && routeId !== "new") {
 		selectedCategory.value = article.post_type_name;
 		selectedLanguage.value = article.lang;
 		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
-			article.bibliography.includes(b.key),
+			articleBibliography.includes(b.key),
 		);
 		postId.value = article.post_id;
 		activeStatus.value = article.post_status;
@@ -135,7 +139,8 @@ const authorsOptions = computed(
 	(): Array<DropdownOption & { firstName: string; lastName: string }> => {
 		return (
 			users.value?.map((u) => ({
-				label: nameShortener(u.firstName, u.lastName),
+				// label: nameShortener(u.firstName, u.lastName),
+				label: `${u.firstName} ${u.lastName}`,
 				...u,
 			})) ?? []
 		);
@@ -143,7 +148,6 @@ const authorsOptions = computed(
 );
 
 const saveArticle = async () => {
-	const finalContent = addIdsToHeadings(content.value);
 	const authors = selectedAuthors.value.map(
 		(a) => authorsOptions.value.find((o) => o.label === a)?.id,
 	);
@@ -152,7 +156,7 @@ const saveArticle = async () => {
 		alias: alias.value,
 		cover: cover.value,
 		abstract: abstract.value,
-		content: finalContent,
+		content: content.value,
 		category: selectedCategory.value,
 		authors,
 		bibliography: selectedBibliographyItems.value?.map((q) => q.key),
@@ -164,9 +168,10 @@ const saveArticle = async () => {
 	};
 
 	try {
-		const response = await $fetch("/cms/articles/create", {
+		const apiRoute = `/cms/articles/${postId.value ? `${postId.value}` : "create"}`;
+		const response = await $fetch(apiRoute, {
 			baseURL: env.public.apiBaseUrl,
-			method: "POST",
+			method: postId.value ? "PUT" : "POST",
 			body: article,
 			credentials: "include",
 		});
@@ -180,7 +185,7 @@ const saveArticle = async () => {
 	} catch (error) {
 		toast({
 			title: t("AdminPage.editor.saving_failed.title"),
-			description: error || t("AdminPage.editor.saving_failed.description"),
+			description: error instanceof Error ? error.message : String(error),
 			variant: "destructive",
 		});
 	}
@@ -210,13 +215,6 @@ const generateCitation = () => {
 	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21. Herausgegeben von Alexandra N. Lenz [URL: ${url}].`;
 };
 
-const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
-	return bibliographyItems.value.map((i) => ({
-		value: i.key,
-		label: truncateString(i.title, 60),
-	}));
-});
-
 const addBibliographyItem = (value: string) => {
 	const alreadySelected = Boolean(selectedBibliographyItems.value.some((i) => i.key === value));
 	if (alreadySelected) {
@@ -231,12 +229,6 @@ const addBibliographyItem = (value: string) => {
 const removeBibliographyItem = (key: string) => {
 	selectedBibliographyItems.value = selectedBibliographyItems.value.filter((i) => i.key !== key);
 };
-
-onMounted(async () => {
-	if (!bibliographyItems.value.length) {
-		await fetchBibliographyItems();
-	}
-});
 
 export type Status = "Draft" | "Published" | "ReadyToPublish" | "Unpublished";
 
@@ -263,6 +255,36 @@ const statusOptions: Array<DropdownOption<Status>> = [
 		color: "#d3d3d3", // grey
 	},
 ];
+
+const handleFileChange = async (event) => {
+	const file = event.target.files[0]; // Get the selected file
+	if (file) {
+		const formData = new FormData();
+		formData.append("image", file);
+		try {
+			const result = await $fetch<{ url: string; message: string }>("/media/upload", {
+				baseURL: env.public.apiBaseUrl,
+				credentials: "include",
+				body: formData,
+				method: "POST",
+			});
+			// DEBUG
+			// const result = {
+			// 	url: "https://images.pexels.com/photos/934055/pexels-photo-934055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+			// };
+			cover.value = result.url;
+			toast({
+				title: t("AdminPage.editor.cover.upload_succeeded"),
+			});
+		} catch (error) {
+			toast({
+				title: t("AdminPage.editor.cover.upload_failed"),
+				description: error instanceof Error ? error.message : String(error),
+				variant: "destructive",
+			});
+		}
+	}
+};
 
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
@@ -335,6 +357,34 @@ usePageMetadata({
 							:placeholder="t('AdminPage.editor.language.placeholder')"
 						/>
 					</div>
+				</div>
+				<div class="mb-6 grid w-full max-w-xl items-center gap-1.5">
+					<div
+						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+					>
+						{{ t("AdminPage.editor.cover.label") }}
+					</div>
+					<label
+						class="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+						for="dropzone-file"
+					>
+						<div v-if="!cover" class="flex flex-col items-center justify-center pb-6 pt-5">
+							<UploadIcon class="mb-4 size-8 text-gray-500 dark:text-gray-400" />
+
+							<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+								<span class="font-semibold">{{ t("AdminPage.editor.cover.click_to_upload") }}</span>
+							</p>
+							<p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (IDEALLY 16:9)</p>
+						</div>
+						<NuxtImg v-else class="size-full object-cover" :src="cover"></NuxtImg>
+						<input
+							id="dropzone-file"
+							accept="image/png, image/jpeg"
+							class="hidden"
+							type="file"
+							@change="handleFileChange"
+						/>
+					</label>
 				</div>
 				<div class="mb-6 grid w-full items-center gap-1.5">
 					<Label for="content">{{ t("AdminPage.editor.content") }}</Label>

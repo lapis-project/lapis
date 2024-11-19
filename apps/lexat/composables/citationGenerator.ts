@@ -1,3 +1,4 @@
+import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem, BibliographyItemCreator } from "@/types/zotero";
 
 export function useCitationGenerator() {
@@ -63,8 +64,16 @@ export function useCitationGenerator() {
 		return generateCitation(item);
 	};
 
+	const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
+		return bibliographyItems.value.map((i) => ({
+			value: i.key,
+			label: truncateString(i.title, 60),
+		}));
+	});
+
 	return {
 		bibliographyItems,
+		bibliographyOptions,
 		fetchBibliographyItems,
 		getCitation,
 	};

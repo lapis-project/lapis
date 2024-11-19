@@ -52,6 +52,12 @@
 				"generate": "Generate"
 			},
 			"content": "Content",
+			"cover": {
+				"label": "Cover image",
+				"click_to_upload": "Click to upload",
+				"upload_succeeded": "Upload succeeded",
+				"upload_failed": "Upload failed"
+			},
 			"created-at": "Created at",
 			"language": {
 				"label": "Language",

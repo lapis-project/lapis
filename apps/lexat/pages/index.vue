@@ -12,7 +12,7 @@ usePageMetadata({
 </script>
 
 <template>
-	<MainContent class="container py-8">
+	<MainContent class="container max-w-5xl py-8">
 		<PageTitle class="mb-6">{{ t("IndexPage.title") }}</PageTitle>
 		<div class="article-content">
 			<template v-if="currentLocale === 'de'">

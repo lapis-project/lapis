@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-vue-next";
 
 import { useCitationGenerator } from "@/composables/citationGenerator";
 import type { Article } from "@/types/api";
+import { addIdsToHeadings } from "@/utils/html-helpers";
 import { useFetch, useRoute } from "#app";
 
 const { bibliographyItems, getCitation, fetchBibliographyItems } = useCitationGenerator();
@@ -13,6 +14,11 @@ const route = useRoute();
 const alias = route.params.alias;
 
 const { data: article } = await useFetch<Article>(`/api/article/${alias}`);
+
+if (article.value?.content) {
+	const enrichedContent = addIdsToHeadings(article.value.content);
+	article.value.content = enrichedContent;
+}
 
 const publishedAt = computed(() => {
 	const publishDate = article.value?.publishedAt ? new Date(article.value.publishedAt) : undefined;
@@ -29,6 +35,7 @@ const tableOfContents = computed(() => {
 	if (!article.value?.content) {
 		return [];
 	}
+
 	// regex to match headings (h1, h2,...) with optional id attributes
 	const headingRegex = /<(h[1-6])\s*(?:id="([^"]+)")?>(.*?)<\/\1>/g;
 	const toc = [];

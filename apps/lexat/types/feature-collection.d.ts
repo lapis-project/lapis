@@ -25,14 +25,13 @@ type Coordinates = Array<Array<Array<number>>>;
 interface Properties {
 	name: string;
 	color: string;
-	pvbg_nr: number | string | null;
-	shape_leng: number | null;
-	shape_area: number | null;
-	nuts3: number | null;
-	nuts_name: string | null;
-	count: number | null;
-	layer: string;
-	path: string;
+	Dialektregion_Name?: string;
+	count?: number | null;
+	layer?: string;
+	path?: string;
+	objektart?: string;
+	name_1?: string;
+	name_2?: string;
 }
 
 interface Geometry {

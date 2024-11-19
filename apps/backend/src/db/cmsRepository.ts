@@ -23,6 +23,13 @@ export async function getAllUserPhenKat(project_id: string) {
 			eb.val("category").as("category"),
 		]);
 
+	const selectAllSurveyConducted = db
+		.selectFrom("survey_conducted")
+		.select(({ eb }) => [
+			eb.ref("survey_conducted.id").as("id"),
+			eb.cast<string>(eb.ref("survey_conducted.instance_id"), "text").as("name"),
+			eb.val("survey").as("category"),
+		]);
 	const selectAllEditors = db
 		.selectFrom("user_account")
 		.select(({ eb }) => [
@@ -46,9 +53,17 @@ export async function getAllUserPhenKat(project_id: string) {
 		.where("user_roles.role_name", "=", "editor");
 	const projectIdParsed = parseInt(project_id);
 	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
-		return await selectAllPhaen.unionAll(selectAllKat).unionAll(selectAllEditors).execute();
+		return await selectAllPhaen
+			.unionAll(selectAllKat)
+			.unionAll(selectAllEditors)
+			.unionAll(selectAllSurveyConducted)
+			.execute();
 	}
-	return await selectAllPhaen.unionAll(selectAllKat).unionAll(selectAllEditors).execute();
+	return await selectAllPhaen
+		.unionAll(selectAllKat)
+		.unionAll(selectAllEditors)
+		.unionAll(selectAllSurveyConducted)
+		.execute();
 }
 
 export async function getArticleById(id: number) {
@@ -75,16 +90,26 @@ export async function getArticleById(id: number) {
 				.where("bibliography_post.post_id", "=", id)
 				.select(["bibliography.name_bibliography", "bibliography_post.post_id"]),
 		)
+		.with("phenomenon_query", (query) =>
+			query
+				.selectFrom("phenomenon_post")
+				.innerJoin("phenomenon", "phenomenon_post.phenomenon_id", "phenomenon.id")
+				.where("phenomenon_post.post_id", "=", id)
+				.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon_post.post_id"]),
+		)
 		.selectFrom("post")
-		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.innerJoin("post_type", "post.post_type_id", "post_type.id")
+		.innerJoin("user_account", "user_account.id", "post.creator_id")
+		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.leftJoin("authors", "authors.post_id", "post.id")
+		.leftJoin("phenomenon_query", "phenomenon_query.post_id", "post.id")
 		.where("post.id", "=", id)
 		.select(({ eb }) => [
 			"post.id as post_id",
 			"post.title",
 			"post.alias",
 			"post.cover",
+			"post.cover_alt",
 			"post.abstract",
 			"post.content",
 			"post.post_status",
@@ -92,7 +117,26 @@ export async function getArticleById(id: number) {
 			"post.published_at",
 			"post.updated_at",
 			"post.created_at",
+			"post.citation",
+			"user_account.id as creator_id",
+			"user_account.firstname as creator_firstname",
+			"user_account.lastname as creator_lastname",
+			"user_account.username as creator_username",
+			"user_account.email as creator_email",
 			"post_type.post_type_name",
+			eb.fn
+				.coalesce(
+					eb.fn
+						.jsonAgg(
+							jsonBuildObject({
+								phenomenon_id: eb.ref("phenomenon_query.id"),
+								name: eb.ref("phenomenon_query.phenomenon_name"),
+							}),
+						)
+						.filterWhere("phenomenon_query.post_id", "is not", null),
+					sql`'[]'`,
+				)
+				.as("phenomenon"),
 			eb.fn
 				.coalesce(
 					eb.fn
@@ -122,7 +166,7 @@ export async function getArticleById(id: number) {
 				)
 				.as("authors"),
 		])
-		.groupBy(["post.id", "post_type.post_type_name"]);
+		.groupBy(["post.id", "post_type.post_type_name", "user_account.id"]);
 	return await query.executeTakeFirst();
 }
 
@@ -139,7 +183,11 @@ export async function getAllArticlesByProjectId(
 				.selectFrom("post")
 				.innerJoin("project_post", "post.id", "project_post.post_id")
 				.leftJoin("user_post", "post.id", "user_post.post_id")
-				.leftJoin("user_account", "user_post.user_id", "user_account.id")
+				.leftJoin("user_account", (join) =>
+					join
+						.onRef("user_post.user_id", "=", "user_account.id")
+						.onRef("post.creator_id", "=", "user_account.id"),
+				)
 				.innerJoin("post_type", "post.post_type_id", "post_type.id")
 				.where("project_post.project_id", "=", projectId)
 				.where("post.title", "~*", searchTerm)
@@ -153,6 +201,7 @@ export async function getAllArticlesByProjectId(
 					eb.ref("post.abstract").as("abstract"),
 					eb.ref("post.post_status").as("status"),
 					eb.ref("post_type.post_type_name").as("post_type"),
+					eb.ref("post.creator_id").as("creator_id"),
 					eb.fn
 						.jsonAgg(
 							jsonbBuildObject({
@@ -227,11 +276,14 @@ export async function insertNewArticle(
 	title: string,
 	alias: string,
 	cover: string | undefined,
+	cover_alt: string | undefined,
 	abstract: string | undefined,
 	content: string | undefined,
 	post_type_id: number | undefined,
+	citation: string | undefined,
 	post_status: Poststatus,
 	lang: Availablelang,
+	creator_id: number,
 ) {
 	return await db
 		.insertInto("post")
@@ -244,8 +296,23 @@ export async function insertNewArticle(
 			"post_type_id",
 			"post_status",
 			"lang",
+			"citation",
+			"creator_id",
+			"cover_alt",
 		])
-		.values({ title, alias, cover, abstract, content, post_type_id, post_status, lang })
+		.values({
+			title,
+			alias,
+			cover,
+			abstract,
+			content,
+			post_type_id,
+			post_status,
+			lang,
+			citation,
+			creator_id,
+			cover_alt,
+		})
 		.returning(["id"])
 		.executeTakeFirst();
 }
@@ -329,6 +396,7 @@ export async function updateArticleById(articleId: number, articleBody: Article)
 			title: articleBody.title,
 			alias: articleBody.alias,
 			cover: articleBody.cover,
+			cover_alt: articleBody.cover_alt,
 			abstract: articleBody.abstract,
 			content: articleBody.content,
 			post_type_id: articleBody.post_type_id,
@@ -336,6 +404,7 @@ export async function updateArticleById(articleId: number, articleBody: Article)
 			lang: articleBody.lang,
 			published_at: articleBody.publishedAt,
 			updated_at: articleBody.updatedAt,
+			citation: articleBody.citation,
 		})
 		.where("id", "=", articleId)
 		.executeTakeFirst();

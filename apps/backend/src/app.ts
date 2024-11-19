@@ -7,6 +7,7 @@ import { verifyRequestOrigin } from "lucia";
 
 import { lucia } from "@/auth/auth";
 import auth from "@/handler/authHandler";
+import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
 
 import articles from "./handler/articleHandler";
@@ -83,6 +84,7 @@ app.use("*", async (c, next) => {
 // Healthcheck for the k8s server
 const healthCheck = new Hono();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const hc = healthCheck.get("/", (c) => {
 	return c.json("OK", 201);
 });
@@ -95,6 +97,7 @@ app.route("/articles", articles);
 app.route("/questions", questions);
 app.route("/cms", cms);
 app.route("/auth", auth);
+app.route("/user", user);
 
 // Export type for the health check route
 export type HealthType = typeof hc;

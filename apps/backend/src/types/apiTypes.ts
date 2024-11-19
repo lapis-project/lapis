@@ -29,7 +29,7 @@ export interface Article {
 	user_id?: number; // User Object
 	author?: UserObject; // User Object
 	category?: Poststatus;
-	post_type_id: number;
+	post_type_id: number | null;
 	post_status: Poststatus;
 	title: string;
 	content: string | null;
@@ -41,6 +41,9 @@ export interface Article {
 	updatedAt: Date;
 	bibliography: Array<string>;
 	cover: string | null;
+	cover_alt: string | null;
+	creator_id: number;
+	citation: string | null;
 }
 
 export interface ArticleCMS extends Article {

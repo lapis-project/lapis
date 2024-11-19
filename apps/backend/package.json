@@ -11,7 +11,8 @@
 	"scripts": {
 		"dev": "tsx watch --env-file .env.local src/index.ts",
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
-		"test:cms-handler": "vitest",
+		"test:cms-handler": "vitest cmsHandler",
+		"test:article-handler": "vitest articleHandler",
 		"start": "node --env-file .env.local ./dist/index.js",
 		"build": "tsup-node --dts",
 		"build:types": "tsup --dts-only ./src/**/*.ts --out-dir ./../../backend-types"

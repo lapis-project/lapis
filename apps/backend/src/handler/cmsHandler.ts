@@ -7,6 +7,7 @@ import { getUsersByList } from "@/db/authRepository";
 import {
 	deleteArticleById,
 	deleteAuthorsFromArticleByArticleId,
+	deleteBibliographyFromArticleByArticleId,
 	deleteLinkedPhenomenonFromArticleByArticleId,
 	getAllArticlesByProjectId,
 	getAllUserPhenKat,
@@ -19,6 +20,8 @@ import {
 	linkProjectToPost,
 	updateArticleById,
 } from "@/db/cmsRepository";
+import { restrictedRoute } from "@/lib/authHelper";
+import type { Context } from "@/lib/context";
 import {
 	insertBibliography,
 	instanceOfAvailablelang,
@@ -26,7 +29,7 @@ import {
 } from "@/lib/RepoHelper";
 import type { Article } from "@/types/apiTypes";
 
-const cms = new Hono();
+const cms = new Hono<Context>();
 
 const createNewArticleSchema = object({
 	title: pipe(string(), minLength(5)),
@@ -42,6 +45,8 @@ const createNewArticleSchema = object({
 	phenomenonId: optional(number()), // mn relation to phenomenon
 	citation: optional(string()), // Gibt es eine direkte Verbindung oder geht diese Phänomen -> Bibliography
 	projectId: optional(array(number())), // mn relation to project
+	cover_alt: optional(string()),
+	survey_conducted: optional(array(string())),
 });
 
 const searchArticleSchema = object({
@@ -51,6 +56,9 @@ const searchArticleSchema = object({
 	pageSize: optional(number()),
 	category: optional(string()), // Does it allow as an enum? ARTICLE | BLOG | NEWS
 });
+
+// Enable in order to restrict the route only to signed in users
+cms.use("*", restrictedRoute);
 
 /**
  * Delete the article with the provided id as queryparam
@@ -82,15 +90,14 @@ const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), 
 		return c.json("Provided id is not a number", 400);
 	}
 
-	// Check the post_type
+	let postTypeId: number | null = null;
 	const category = body.category;
-	if (!category) {
-		return c.json("No category provided", 400);
-	}
-	const postTypeId = await getPostTypeIdsByName(category);
-
-	if (!postTypeId) {
-		return c.json("No post type found", 400);
+	// Check the post_type if its provided
+	if (category) {
+		postTypeId = (await getPostTypeIdsByName(category))?.id ?? null;
+		if (!postTypeId) {
+			return c.json("No post type found", 400);
+		}
 	}
 
 	// Check if the provided status is an element from the Poststatus enum
@@ -103,18 +110,26 @@ const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), 
 		return c.json("Invalid language provided", 400);
 	}
 
+	const creator = c.get("user");
+	if (!creator) {
+		return c.json("Error while fetching data", 500);
+	}
+
 	const updatedArticle: Article = {
 		title: body.title,
 		alias: body.alias,
 		cover: body.cover ?? null,
+		cover_alt: body.cover_alt ?? null,
+		creator_id: Number(creator.id),
 		abstract: body.abstract ?? null,
 		content: body.content ?? null,
-		post_type_id: postTypeId.id,
+		post_type_id: postTypeId,
 		post_status: body.status,
 		lang: body.lang,
 		publishedAt: body.status === "Published" ? new Date() : null,
 		updatedAt: new Date(),
 		bibliography: body.bibliography ?? [],
+		citation: body.citation ?? null,
 	};
 	const articleIdParsed = Number(articleId);
 	const result = await updateArticleById(articleIdParsed, updatedArticle);
@@ -128,6 +143,8 @@ const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), 
 			return c.json(`Error while updating author, ${e}`, 500);
 		}
 	}
+	// Remove the previous linked entries from the table
+	await deleteBibliographyFromArticleByArticleId(articleIdParsed);
 	// Check if the bibliography has been updated and if data needs to be inserted
 	if (body.bibliography && body.bibliography.length > 0) {
 		await insertBibliography(body.bibliography, articleIdParsed);
@@ -152,55 +169,45 @@ const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), 
  * @returns Object with all articleIds from the provided project id with the users who wrote them,
  * Comes in a paged format
  */
-const cmsRoute = cms.get(
-	"/articles/all/:project",
-	vValidator("json", searchArticleSchema),
-	async (c) => {
-		const projectId = c.req.param("project");
+const cmsRoute = cms.get("/articles/all/:project", async (c) => {
+	const projectId = c.req.param("project");
 
-		const { page, offset, pageSize, category, searchTerm } = c.req.query();
+	const { page, offset, pageSize, category, searchTerm } = c.req.query();
 
-		// Check if the id is a number
-		if (!projectId || Number.isNaN(Number(projectId))) {
-			return c.json("Provided id is not a number", 400);
-		}
-		const pageSizeParsed = Number(pageSize ?? 20);
-		const pageNumParsed = Number(page ?? 1);
-		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + Number(offset ?? 0);
-		const allArticles = await getAllArticlesByProjectId(
-			Number(projectId),
-			pageSizeParsed,
-			queryOffset,
-			searchTerm ?? "",
-			category ?? "",
-		);
-		const articles = allArticles[0]?.articles;
-		const totalCount = Number(allArticles[0]?.total);
-		const requestUrl = c.req.url;
-		return c.json(
-			{
-				prev:
-					pageNumParsed > 1 || totalCount !== 0
-						? requestUrl.replace(
-								`page=${String(pageNumParsed)}`,
-								`page=${String(pageNumParsed - 1)}`,
-							)
-						: null,
-				next:
-					totalCount > pageSizeParsed + queryOffset
-						? requestUrl.replace(
-								`page=${String(pageNumParsed)}`,
-								`page=${String(pageNumParsed + 1)}`,
-							)
-						: null,
-				articles: articles ? articles : [],
-				currentPage: requestUrl,
-				totalResults: totalCount,
-			},
-			201,
-		);
-	},
-);
+	// Check if the id is a number
+	if (!projectId || Number.isNaN(Number(projectId))) {
+		return c.json("Provided id is not a number", 400);
+	}
+	const pageSizeParsed = Number(pageSize ?? 20);
+	const pageNumParsed = Number(page ?? 1);
+	const queryOffset = (pageNumParsed - 1) * pageSizeParsed + Number(offset ?? 0);
+	const allArticles = await getAllArticlesByProjectId(
+		Number(projectId),
+		pageSizeParsed,
+		queryOffset,
+		searchTerm ?? "",
+		category ?? "",
+	);
+	const articles = allArticles[0]?.articles;
+	const totalCount = Number(allArticles[0]?.total);
+	const requestUrl = c.req.url;
+	return c.json(
+		{
+			prev:
+				pageNumParsed > 1 && totalCount !== 0 && !(queryOffset > totalCount)
+					? requestUrl.replace(`page=${String(pageNumParsed)}`, `page=${String(pageNumParsed - 1)}`)
+					: null,
+			next:
+				totalCount > pageSizeParsed + queryOffset
+					? requestUrl.replace(`page=${String(pageNumParsed)}`, `page=${String(pageNumParsed + 1)}`)
+					: null,
+			articles: articles ? articles : [],
+			currentPage: requestUrl,
+			totalResults: totalCount,
+		},
+		201,
+	);
+});
 
 /*
  * returns all fields of an article, Is identified by the id
@@ -264,16 +271,24 @@ const createNewArticle = cms.post(
 			return c.json("Invalid language provided", 400);
 		}
 
+		const creator = c.get("user");
+		if (!creator) {
+			return c.json("Error while fetching data", 500);
+		}
+
 		// Create the new article
 		const articleId = await insertNewArticle(
 			body.title,
 			body.alias,
 			body.cover,
+			body.cover_alt,
 			body.abstract,
 			body.content,
 			postTypeId.id,
+			body.citation,
 			body.status,
 			body.lang,
+			Number(creator.id),
 		);
 
 		if (!articleId) {
@@ -331,6 +346,7 @@ const getAuthorInformation = cms.get("/articles/create/info", async (c) => {
 	const authors = information.filter((el) => el.category === "user");
 	const categories = information.filter((el) => el.category === "category");
 	const phenomenon = information.filter((el) => el.category === "phenomenon");
+	const survey = information.filter((el) => el.category === "survey");
 	const mappedAuthors = authors.map((a) => {
 		const splitName = a.name?.split("$");
 		return {
@@ -345,6 +361,7 @@ const getAuthorInformation = cms.get("/articles/create/info", async (c) => {
 		authors: mappedAuthors,
 		categories: categories,
 		phenomenon: phenomenon,
+		survey: survey,
 	};
 	return c.json(informationList, 200);
 });

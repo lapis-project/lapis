@@ -58,7 +58,7 @@ const searchArticleSchema = object({
 });
 
 // Enable in order to restrict the route only to signed in users
-// cms.use("*", restrictedRoute);
+cms.use("*", restrictedRoute);
 
 /**
  * Delete the article with the provided id as queryparam

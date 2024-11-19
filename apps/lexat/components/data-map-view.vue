@@ -16,6 +16,7 @@ import { useRoute, useRouter } from "nuxt/app";
 import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
 import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
+import { useMapColors } from "@/composables/use-map-colors";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { Coalesce, RegionFeature, SurveyResponse } from "@/types/feature-collection";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
@@ -33,30 +34,7 @@ const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyRespo
 	null,
 );
 
-const colors = ref([
-	"#ff8080",
-	"#80ffa5",
-	"#ca80ff",
-	"#ffef80",
-	"#80eaff",
-	"#ff80c4",
-	"#9fff80",
-	"#8580ff",
-	"#ffaa80",
-	"#80ffcf",
-	"#f580ff",
-	"#e4ff80",
-	"#80bfff",
-	"#ff809a",
-	"#80ff8a",
-	"#b080ff",
-]);
-
-//: Record<keyof typeof specialOrder, string>
-const specialColors = ref({
-	Irrelevant: "#faf9f6",
-	Sonstige: "#a9a9a9",
-});
+const { colors, specialColors, resetColors } = useMapColors();
 
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 const basemapOptions: Array<DropdownOption> = [
@@ -252,12 +230,15 @@ const geoOutline = computed(() => {
 
 const mappedColors = computed(() => {
 	const colorMap: Record<string, string> = {};
+
+	const tempColors = [...colors.value];
+
 	uniqueVariants.value.forEach((u, i) => {
 		// apply distinct colors for "Irrelevant" and "Sonstige"
 		if (Object.keys(specialOrder).includes(u.anno)) {
-			colors.value[i] = specialColors.value[u.anno];
+			tempColors[i] = specialColors.value[u.anno];
 		}
-		const color = colors.value[i];
+		const color = tempColors[i];
 
 		if (color) {
 			colorMap[u.anno] = color;
@@ -574,13 +555,13 @@ const setAgeGroup = (newValues: Array<number>) => {
 	activeAgeGroup.value = newValues;
 };
 
-const handleColorUpdate = (index: number, value: string) => {
+const handleColorUpdate = (index: number, newColor: string) => {
 	if (Object.keys(mappedColors.value)[index] === "Irrelevant") {
-		specialColors.value.Irrelevant = value;
+		specialColors.value.Irrelevant = newColor;
 	} else if (Object.keys(mappedColors.value)[index] === "Sonstige") {
-		specialColors.value.Sonstige = value;
+		specialColors.value.Sonstige = newColor;
 	} else {
-		colors.value[index] = value;
+		colors.value[index] = newColor;
 	}
 };
 
@@ -589,6 +570,7 @@ initializeFromUrl();
 
 watch(activeQuestion, async () => {
 	await resetSelection(["question"]);
+	resetColors();
 });
 
 watch(
@@ -745,7 +727,7 @@ watch(activeVariants, updateUrlParams, {
 									<ColorPicker
 										v-for="(color, index) in Object.values(mappedColors)"
 										:key="index"
-										:model-value="colors[index]"
+										:model-value="Object.values(mappedColors)[index]"
 										@update:model-value="handleColorUpdate(index, $event)"
 									/>
 								</div>

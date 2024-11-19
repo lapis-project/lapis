@@ -60,6 +60,8 @@ export default class MaplibreExportControl implements IControl {
 
 	protected exportButton: HTMLButtonElement | undefined;
 
+	protected includeLegend = true;
+
 	protected options: ControlOptions = {
 		PageSize: Size.A4 as SizeType,
 		PageOrientation: PageOrientation.Landscape,
@@ -148,17 +150,22 @@ export default class MaplibreExportControl implements IControl {
 			DPI,
 			"DPI",
 			"dpi-type",
-			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			this.options.DPI!,
 			(data: Record<string, unknown>, key) => data[key],
 		);
 		table.appendChild(tr4);
 
+		const tr5 = this.createCheckboxSelection(
+			"Include Legend",
+			"include-legend",
+			this.options.IncludeLegend!,
+		);
+		table.appendChild(tr5);
+
 		this.exportContainer.appendChild(table);
 
 		const generateButton = document.createElement("button");
 		generateButton.type = "button";
-		("Generate");
 		generateButton.classList.add("generate-button");
 		generateButton.textContent = "Generate";
 		generateButton.addEventListener("click", () => {
@@ -211,7 +218,7 @@ export default class MaplibreExportControl implements IControl {
 			this.options.markerCirclePaint,
 			this.options.attributionOptions,
 		);
-		mapGenerator.generate();
+		mapGenerator.generate(this.includeLegend);
 	}
 
 	private createSelection(
@@ -249,6 +256,35 @@ export default class MaplibreExportControl implements IControl {
 		tr1.appendChild(tdLabel);
 		tr1.appendChild(tdContent);
 		return tr1;
+	}
+
+	private createCheckboxSelection(title: string, type: string, defaultValue: boolean): HTMLElement {
+		// Create label for the row
+		const label = document.createElement("label");
+		label.textContent = title;
+
+		// Create the checkbox
+		const checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		checkbox.setAttribute("id", `mapbox-gl-export-${type}`);
+		checkbox.checked = defaultValue;
+
+		// Add change event listener
+		checkbox.addEventListener("change", () => {
+			this.includeLegend = checkbox.checked;
+		});
+
+		// Create table row with label and checkbox
+		const tr = document.createElement("TR");
+		const tdLabel = document.createElement("TD");
+		const tdContent = document.createElement("TD");
+
+		tdLabel.appendChild(label);
+		tdContent.appendChild(checkbox);
+		tr.appendChild(tdLabel);
+		tr.appendChild(tdContent);
+
+		return tr;
 	}
 
 	public onRemove(): void {

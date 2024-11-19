@@ -39,6 +39,7 @@ export async function getAllUserPhenKat(project_id: string) {
 					eb.fn("concat", [
 						// First and lastname could also be null => use coalesce to replace null with an empty string
 						eb.fn.coalesce("user_account.firstname", sql<string>`''`),
+						sql<string>` '$' `,
 						eb.fn.coalesce(eb.ref("user_account.lastname"), sql<string>`''`),
 					]),
 					"text",

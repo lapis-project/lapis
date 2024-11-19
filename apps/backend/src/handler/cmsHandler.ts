@@ -347,9 +347,18 @@ const getAuthorInformation = cms.get("/articles/create/info", async (c) => {
 	const categories = information.filter((el) => el.category === "category");
 	const phenomenon = information.filter((el) => el.category === "phenomenon");
 	const survey = information.filter((el) => el.category === "survey");
+	const mappedAuthors = authors.map((a) => {
+		const splitName = a.name?.split("$");
+		return {
+			id: a.id,
+			value: a.id,
+			firstName: splitName?.[0] ?? "",
+			lastName: splitName?.[1] ?? "",
+		};
+	});
 
 	const informationList = {
-		authors: authors,
+		authors: mappedAuthors,
 		categories: categories,
 		phenomenon: phenomenon,
 		survey: survey,

@@ -22,6 +22,7 @@ import { ResetViewControl } from "./reset-view-control";
 
 const props = defineProps<{
 	features: Array<GeoJsonFeature>;
+	geoOutline: Array<GeoJsonFeature>;
 	points: Array<GeoJsonFeature>;
 	height: number;
 	width: number;
@@ -74,6 +75,7 @@ const context: GeoMapContext = {
 };
 const sourcePointsId = "points";
 const sourcePolygonsId = "poly";
+const sourceOutlineId = "outline";
 
 onMounted(create);
 onScopeDispose(dispose);
@@ -149,6 +151,7 @@ function init() {
 		Crosshair: false,
 		PrintableArea: false,
 		Filename: "kartierung",
+		IncludeLegend: true,
 	});
 	map.addControl(exportControl, "top-left");
 	//
@@ -165,8 +168,12 @@ function init() {
 		data: createFeatureCollection([]),
 	});
 
-	//
+	map.addSource(sourceOutlineId, {
+		type: "geojson",
+		data: createFeatureCollection([]),
+	});
 
+	// Dialektregionen
 	map.addLayer({
 		id: "polygons",
 		type: "fill",
@@ -179,14 +186,15 @@ function init() {
 	});
 	map.setLayoutProperty("polygons", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
+	// Umrandung Österreich
 	map.addLayer({
 		id: "outline",
 		type: "line",
-		source: sourcePolygonsId,
+		source: sourceOutlineId,
 		layout: {},
 		paint: {
 			"line-color": "#212529",
-			"line-width": 1,
+			"line-width": 2,
 		},
 	});
 	map.setLayoutProperty("outline", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
@@ -305,10 +313,13 @@ function updateScope() {
 
 	const source = map.getSource(sourcePointsId) as GeoJSONSource | undefined;
 	const source2 = map.getSource(sourcePolygonsId) as GeoJSONSource | undefined;
+	const source3 = map.getSource(sourceOutlineId) as GeoJSONSource | undefined;
 	const geojson = createFeatureCollection(props.points);
 	const geojson2 = createFeatureCollection(props.features);
+	const geojson3 = createFeatureCollection(props.geoOutline);
 	source?.setData(geojson);
 	source2?.setData(geojson2);
+	source3?.setData(geojson3);
 }
 
 const toggleLayer = (layer: "outline" | "polygon-labels" | "polygons") => {

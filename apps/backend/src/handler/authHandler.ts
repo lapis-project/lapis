@@ -6,7 +6,6 @@ import { setCookie } from "hono/cookie";
 import {
 	check,
 	email,
-	endsWith,
 	minLength,
 	object,
 	optional,
@@ -32,7 +31,7 @@ const loginSchema = object({
 const signupSchema = object({
 	username: pipe(string(), trim(), minLength(3)),
 	password: pipe(string(), trim(), minLength(8)),
-	email: pipe(string(), trim(), email(), endsWith("@oeaw.ac.at"), toLowerCase()),
+	email: pipe(string(), trim(), email(), toLowerCase()),
 	user_role: pipe(
 		string(),
 		trim(),
@@ -96,6 +95,12 @@ const logoutUser = auth.post("/logout", async (c) => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const signupUser = auth.post("/signup", vValidator("json", signupSchema), async (c) => {
 	const { username, password, email, user_role, firstname, lastname } = c.req.valid("json");
+
+	// Check if the email ends with @oeaw.ac.at or @univie.ac.at
+	if (!email.endsWith("@oeaw.ac.at") && !email.endsWith("@univie.ac.at")) {
+		log.info(`Email ${email} is not from oeaw or univie`);
+		return c.json("This email is not allowed to be used for signup!", 400);
+	}
 	const passwordHash = await hash(password, argon2Config);
 	const newUser = await createUser(
 		username,

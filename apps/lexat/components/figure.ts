@@ -48,7 +48,7 @@ export const Figure = Node.create<FigureOptions>({
 
 	draggable: true,
 
-	isolating: true,
+	isolating: false,
 
 	addAttributes() {
 		return {

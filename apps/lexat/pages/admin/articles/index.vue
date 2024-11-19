@@ -5,11 +5,13 @@ import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
 
 const { articles } = useArticles();
+const { statusOptions } = useArticleStatus();
 
 const localePath = useLocalePath();
 
 definePageMeta({
 	layout: "cms",
+	middleware: ["protected"],
 });
 
 const t = useTranslations();
@@ -19,10 +21,10 @@ const tableData = computed<Array<ArticleListEntry> | []>(() => {
 		articles.value.map((article) => ({
 			post_id: article.post_id,
 			authors: article.authors,
-			category: article.post_type,
+			category: t(`AdminPage.editor.category.${article.post_type}`),
 			title: article.title,
 			alias: article.alias,
-			status: article.status,
+			status: statusOptions.find((s) => s.value === article.status)?.label ?? "",
 		})) ?? []
 	);
 });

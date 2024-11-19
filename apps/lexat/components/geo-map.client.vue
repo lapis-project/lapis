@@ -61,13 +61,6 @@ webglcontext.renderer.setSize(size, size);
 webglcontext.camera.position.z = 10;
 const pieChartCache = new Map();
 
-// const env = useRuntimeConfig();
-// const theme = useColorMode();
-
-// const colors = {
-// 	default: project.colors.geojson,
-// };
-
 const elementRef = ref<HTMLElement | null>(null);
 
 const context: GeoMapContext = {
@@ -146,7 +139,7 @@ function init() {
 	const exportControl = new MaplibreExportControl({
 		PageSize: Size.A4,
 		PageOrientation: PageOrientation.Landscape,
-		Format: Format.SVG,
+		Format: Format.JPEG,
 		DPI: DPI[96],
 		Crosshair: false,
 		PrintableArea: false,

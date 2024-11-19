@@ -5,14 +5,17 @@ const collections = [
 	{
 		label: "Articles",
 		alias: "articles",
+		disabled: false,
 	},
 	{
-		label: "Users",
+		label: "Users (Soon)",
 		alias: "users",
+		disabled: true,
 	},
 	{
-		label: "Categories",
+		label: "Categories (Soon)",
 		alias: "categories",
+		disabled: true,
 	},
 ];
 </script>
@@ -30,11 +33,13 @@ const collections = [
 		<ul class="list-inside list-disc px-2 py-3 text-lg">
 			<li v-for="collection in collections" :key="collection.alias">
 				<NuxtLinkLocale
-					:to="`/admin/${collection.alias}`"
+					v-if="collection.disabled === false"
 					exact-active-class="text-accent-foreground"
+					:to="`/admin/${collection.alias}`"
 				>
 					{{ collection.label }}
 				</NuxtLinkLocale>
+				<span v-else class="cursor-not-allowed"> {{ collection.label }}</span>
 			</li>
 		</ul>
 	</aside>

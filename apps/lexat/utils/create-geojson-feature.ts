@@ -77,3 +77,14 @@ export function createSimpleGeoJsonFeature(entity: RegionFeature): GeoJsonFeatur
 		},
 	};
 }
+
+export function createOutlineGeoJsonFeature(entity: RegionFeature): GeoJsonFeature {
+	return {
+		type: "Feature",
+		geometry: entity.geometry as Polygon,
+		properties: {
+			id: Date.now().toString(),
+			name: entity.properties.objektart,
+		},
+	};
+}

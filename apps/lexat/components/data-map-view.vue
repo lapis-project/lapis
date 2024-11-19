@@ -13,7 +13,8 @@ import {
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
 
-import data from "@/assets/data/dialektregionen-trimmed.geojson.json";
+import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
+import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { Coalesce, RegionFeature, SurveyResponse } from "@/types/feature-collection";
@@ -189,7 +190,7 @@ const specialOrder = {
 };
 
 const entities = computed((): Array<RegionFeature> => {
-	return data.features;
+	return dialectRegions.features;
 });
 
 const points = computed(() => {
@@ -240,6 +241,12 @@ const points = computed(() => {
 const features = computed(() => {
 	return entities.value.map((entity) => {
 		return createSimpleGeoJsonFeature(entity);
+	});
+});
+
+const geoOutline = computed(() => {
+	return austriaGeoBoundaries.features.map((entity) => {
+		return createOutlineGeoJsonFeature(entity);
 	});
 });
 
@@ -829,6 +836,7 @@ watch(activeVariants, updateUrlParams, {
 				v-if="height && width"
 				:basemap="activeBasemap"
 				:features="features"
+				:geo-outline="geoOutline"
 				:height="height"
 				:points="dataPoints"
 				:show-all-points="showAllPoints"

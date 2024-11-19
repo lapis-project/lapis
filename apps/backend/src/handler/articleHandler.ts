@@ -13,6 +13,19 @@ const articleRouteSchmema = object({
 });
 */
 
+/**
+ * Fetches all articles by project id which have the status as published.
+ * Will return this in a paged format as a json. The page size is 20 by default and it starts from page 1 with an offset of 0.
+ * The projectId is passed as a parameter in the URL and is required.
+ *
+ * searchTerm, page, offset, pageSize and category are optional query parameters and will be included if they are provided.
+ *
+ * @returns status code 400 if the projectId is not a number
+ * @returns status code 201 with an result object containing the articles, the total number of articles and the current page.
+ * The articles are in a result array under the key articles. If there are no results the array is empty.
+ * prev and next contain the links for the previous and next pages if they exist.
+ * totalResults delivers the total number of results over all pages
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const articleRoute = articles.get("/articles/:project", async (c) => {
 	const projectId = c.req.param("project");
@@ -79,6 +92,14 @@ const articleRoute = articles.get("/articles/:project", async (c) => {
 	);
 });
 
+/**
+ * Fetches an article by its alias.
+ * The provided alias needs to be at least 5 characters long.
+ * The resulting object contains all information about the article as well as the linked phenomenona, the authors and the linked bibliographies
+ *
+ * @returns status code 400 if the provided alias is not a string or too short
+ * @returns status code 201 with the article object. If no article was found the object is empty
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const articleDetail = articles.get("/detail/:alias", async (c) => {
 	const articleAlias = c.req.param("alias");

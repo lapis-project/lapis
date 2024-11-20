@@ -3,29 +3,28 @@ import { Plus } from "lucide-vue-next";
 
 import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
-import type { Article } from "@/types/api";
+
+const { articles } = useArticles();
+const { statusOptions } = useArticleStatus();
 
 const localePath = useLocalePath();
 
 definePageMeta({
 	layout: "cms",
+	middleware: ["protected"],
 });
 
 const t = useTranslations();
 
-const { data: articles } = await useFetch<Array<Article>>(`/api/articles`, {
-	method: "get",
-});
-
 const tableData = computed<Array<ArticleListEntry> | []>(() => {
 	return (
-		articles.value?.map((article) => ({
-			id: article.id,
+		articles.value.map((article) => ({
+			post_id: article.post_id,
 			authors: article.authors,
-			category: article.category,
+			category: t(`AdminPage.editor.category.${article.post_type}`),
 			title: article.title,
 			alias: article.alias,
-			status: article.status,
+			status: statusOptions.find((s) => s.value === article.status)?.label ?? "",
 		})) ?? []
 	);
 });
@@ -47,9 +46,7 @@ usePageMetadata({
 				><Plus class="mr-2 size-4" />{{ t("AdminPage.categories.articles.new") }}</Button
 			>
 		</div>
-		<div class="col-span-4 rounded border p-8">
-			<ArticleTable :columns="columns" :data="tableData"></ArticleTable>
-		</div>
-		<Toaster />
+
+		<ArticleTable :columns="columns" :data="tableData"></ArticleTable>
 	</MainContent>
 </template>

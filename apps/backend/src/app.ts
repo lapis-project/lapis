@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { cors } from "hono/cors";
@@ -12,6 +13,7 @@ import type { Context } from "@/lib/context";
 
 import articles from "./handler/articleHandler";
 import cms from "./handler/cmsHandler";
+import media from "./handler/mediaHandler";
 import questions from "./handler/questionHandler";
 
 const app = new Hono<Context>();
@@ -84,7 +86,6 @@ app.use("*", async (c, next) => {
 // Healthcheck for the k8s server
 const healthCheck = new Hono();
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const hc = healthCheck.get("/", (c) => {
 	return c.json("OK", 201);
 });
@@ -98,6 +99,7 @@ app.route("/questions", questions);
 app.route("/cms", cms);
 app.route("/auth", auth);
 app.route("/user", user);
+app.route("/media", media);
 
 // Export type for the health check route
 export type HealthType = typeof hc;

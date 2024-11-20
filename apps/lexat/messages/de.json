@@ -5,9 +5,18 @@
 		},
 		"title": "Über das Projekt"
 	},
+	"AdminNavigation": {
+		"articles": "Artikel",
+		"users": "Benutzer",
+		"categories": "Kategorien"
+	},
 	"AdminPage": {
 		"meta": {
 			"title": "Admin"
+		},
+		"articles": {
+			"deletion_succeeded": "Artikel erfolgreich gelöscht",
+			"deletion_failed": "Löschung des Artikels fehlgeschlagen"
 		},
 		"categories": {
 			"articles": {
@@ -37,7 +46,10 @@
 			},
 			"category": {
 				"label": "Kategorie",
-				"placeholder": "Kategorie"
+				"placeholder": "Kategorie",
+				"commentary": "Kartenkommentar",
+				"methodology": "Methodenbeschreibung",
+				"project_description": "Projektbeschreibung"
 			},
 			"citation": {
 				"label": "Zitiervorschlag",
@@ -45,6 +57,16 @@
 				"generate": "Generieren"
 			},
 			"content": "Inhalt",
+			"cover": {
+				"label": "Titelbild",
+				"click_to_upload": "Klicken zum Hochladen",
+				"upload_succeeded": "Upload erfolgreich",
+				"upload_failed": "Upload fehlgeschlagen"
+			},
+			"cover_alt": {
+				"label": "Titelbild-Beschreibung",
+				"placeholder": "Beschreibender Text des Bildinhalts"
+			},
 			"created-at": "Erstellt am",
 			"language": {
 				"label": "Sprache",
@@ -58,6 +80,14 @@
 				"placeholder": "Phänomen"
 			},
 			"references": "Bibliographie",
+			"saving_failed": {
+				"title": "Saving failed",
+				"description": "Your current changes couldn't be saved."
+			},
+			"saving_succeeded": {
+				"title": "Article saved",
+				"description": "Your changes have successfully been saved."
+			},
 			"status": {
 				"draft": "Draft",
 				"published": "Veröffentlicht",
@@ -168,9 +198,9 @@
 	},
 	"IndexPage": {
 		"meta": {
-			"title": "Startseite"
+			"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert"
 		},
-		"title": "Startseite"
+		"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert"
 	},
 	"LocaleSwitcher": {
 		"current-locale": "Aktuelle Sprache: {locale}",
@@ -265,6 +295,20 @@
 	"TagsCombobox": {
 		"button": "{placeholder}...",
 		"empty": "Keine Ergebnisse gefunden"
+	},
+	"TextEditor": {
+		"image": {
+			"title": "Bild einfügen",
+			"label": "Bild",
+			"alt": {
+				"label": "Alt Text",
+				"placeholder": "Beschreibung des Bildinhalts"
+			},
+			"annotation": {
+				"label": "Annotation",
+				"placeholder": "Annotation unterhalb des Bilds"
+			}
+		}
 	},
 	"UserPanel": {
 		"admin": "Admin",

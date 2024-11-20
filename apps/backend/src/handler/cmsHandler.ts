@@ -82,87 +82,91 @@ const deleteArticle = cms.delete("/articles/:id", async (c) => {
  * @returns code 200 when the article has been processed and the relevant entry has been updated with the updated object
  * @returns code 400 when the provided id is not a number
  */
-const editArticle = cms.put("/:id", vValidator("json", createNewArticleSchema), async (c) => {
-	const articleId = c.req.param("id");
-	const body = c.req.valid("json");
-	// Check if articleId is valid
-	if (!articleId || Number.isNaN(Number(articleId))) {
-		return c.json("Provided id is not a number", 400);
-	}
-
-	let postTypeId: number | null = null;
-	const category = body.category;
-	// Check the post_type if its provided
-	if (category) {
-		postTypeId = (await getPostTypeIdsByName(category))?.id ?? null;
-		if (!postTypeId) {
-			return c.json("No post type found", 400);
+const editArticle = cms.put(
+	"/articles/:id",
+	vValidator("json", createNewArticleSchema),
+	async (c) => {
+		const articleId = c.req.param("id");
+		const body = c.req.valid("json");
+		// Check if articleId is valid
+		if (!articleId || Number.isNaN(Number(articleId))) {
+			return c.json("Provided id is not a number", 400);
 		}
-	}
 
-	// Check if the provided status is an element from the Poststatus enum
-	if (!instanceOfPoststatus(body.status)) {
-		return c.json("Invalid status provided", 400);
-	}
-
-	// Same for Lang
-	if (!instanceOfAvailablelang(body.lang)) {
-		return c.json("Invalid language provided", 400);
-	}
-
-	const creator = c.get("user");
-	if (!creator) {
-		return c.json("Error while fetching data", 500);
-	}
-
-	const updatedArticle: Article = {
-		title: body.title,
-		alias: body.alias,
-		cover: body.cover ?? null,
-		cover_alt: body.cover_alt ?? null,
-		creator_id: Number(creator.id),
-		abstract: body.abstract ?? null,
-		content: body.content ?? null,
-		post_type_id: postTypeId,
-		post_status: body.status,
-		lang: body.lang,
-		publishedAt: body.status === "Published" ? new Date() : null,
-		updatedAt: new Date(),
-		bibliography: body.bibliography ?? [],
-		citation: body.citation ?? null,
-	};
-	const articleIdParsed = Number(articleId);
-	const result = await updateArticleById(articleIdParsed, updatedArticle);
-	// Check if the the authors have been updated and need to be updated
-	if (body.authors && body.authors.length > 0) {
-		await deleteAuthorsFromArticleByArticleId(articleIdParsed);
-		try {
-			await linkAuthorsToPost(articleIdParsed, body.authors);
-		} catch (e) {
-			// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-			return c.json(`Error while updating author, ${e}`, 500);
+		let postTypeId: number | null = null;
+		const category = body.category;
+		// Check the post_type if its provided
+		if (category) {
+			postTypeId = (await getPostTypeIdsByName(category))?.id ?? null;
+			if (!postTypeId) {
+				return c.json("No post type found", 400);
+			}
 		}
-	}
-	// Remove the previous linked entries from the table
-	await deleteBibliographyFromArticleByArticleId(articleIdParsed);
-	// Check if the bibliography has been updated and if data needs to be inserted
-	if (body.bibliography && body.bibliography.length > 0) {
-		await insertBibliography(body.bibliography, articleIdParsed);
-	}
 
-	// Check if a phenomenon is provided and insert it if it is
-	if (body.phenomenonId) {
-		try {
-			// Remove the previous entries from the table
-			await deleteLinkedPhenomenonFromArticleByArticleId(articleIdParsed);
-			// Link the phenomenon to the article
-			await linkArticleToPhenomenon(articleIdParsed, [body.phenomenonId]);
-		} catch (e) {
-			return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
+		// Check if the provided status is an element from the Poststatus enum
+		if (!instanceOfPoststatus(body.status)) {
+			return c.json("Invalid status provided", 400);
 		}
-	}
-	return c.json({ updatedRows: Number(result.numUpdatedRows) }, 201);
-});
+
+		// Same for Lang
+		if (!instanceOfAvailablelang(body.lang)) {
+			return c.json("Invalid language provided", 400);
+		}
+
+		const creator = c.get("user");
+		if (!creator) {
+			return c.json("Error while fetching data", 500);
+		}
+
+		const updatedArticle: Article = {
+			title: body.title,
+			alias: body.alias,
+			cover: body.cover ?? null,
+			cover_alt: body.cover_alt ?? null,
+			creator_id: Number(creator.id),
+			abstract: body.abstract ?? null,
+			content: body.content ?? null,
+			post_type_id: postTypeId,
+			post_status: body.status,
+			lang: body.lang,
+			publishedAt: body.status === "Published" ? new Date() : null,
+			updatedAt: new Date(),
+			bibliography: body.bibliography ?? [],
+			citation: body.citation ?? null,
+		};
+		const articleIdParsed = Number(articleId);
+		const result = await updateArticleById(articleIdParsed, updatedArticle);
+		// Check if the the authors have been updated and need to be updated
+		if (body.authors && body.authors.length > 0) {
+			await deleteAuthorsFromArticleByArticleId(articleIdParsed);
+			try {
+				await linkAuthorsToPost(articleIdParsed, body.authors);
+			} catch (e) {
+				// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+				return c.json(`Error while updating author, ${e}`, 500);
+			}
+		}
+		// Remove the previous linked entries from the table
+		await deleteBibliographyFromArticleByArticleId(articleIdParsed);
+		// Check if the bibliography has been updated and if data needs to be inserted
+		if (body.bibliography && body.bibliography.length > 0) {
+			await insertBibliography(body.bibliography, articleIdParsed);
+		}
+
+		// Check if a phenomenon is provided and insert it if it is
+		if (body.phenomenonId) {
+			try {
+				// Remove the previous entries from the table
+				await deleteLinkedPhenomenonFromArticleByArticleId(articleIdParsed);
+				// Link the phenomenon to the article
+				await linkArticleToPhenomenon(articleIdParsed, [body.phenomenonId]);
+			} catch (e) {
+				return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
+			}
+		}
+		return c.json({ updatedRows: Number(result.numUpdatedRows) }, 201);
+	},
+);
 
 /**
  * Get all articles (posts) from a project, Does not return articles where no project has been assigned

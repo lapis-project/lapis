@@ -5,9 +5,18 @@
 		},
 		"title": "About"
 	},
+	"AdminNavigation": {
+		"articles": "Articles",
+		"users": "Users",
+		"categories": "Categories"
+	},
 	"AdminPage": {
 		"meta": {
 			"title": "Admin"
+		},
+		"articles": {
+			"deletion_succeeded": "Article deleted",
+			"deletion_failed": "Deletion of article has failed"
 		},
 		"categories": {
 			"articles": {
@@ -37,7 +46,10 @@
 			},
 			"category": {
 				"label": "Category",
-				"placeholder": "category"
+				"placeholder": "category",
+				"commentary": "Card commentary",
+				"methodology": "Method description",
+				"project_description": "Project description"
 			},
 			"citation": {
 				"label": "Citation",
@@ -45,6 +57,16 @@
 				"generate": "Generate"
 			},
 			"content": "Content",
+			"cover": {
+				"label": "Cover image",
+				"click_to_upload": "Click to upload",
+				"upload_succeeded": "Upload succeeded",
+				"upload_failed": "Upload failed"
+			},
+			"cover_alt": {
+				"label": "Cover description",
+				"placeholder": "Descriptive text of image content"
+			},
 			"created-at": "Created at",
 			"language": {
 				"label": "Language",
@@ -58,6 +80,14 @@
 				"placeholder": "phenomenon"
 			},
 			"references": "Bibliography",
+			"saving_failed": {
+				"title": "Speichern fehlgeschlagen",
+				"description": "Der Arikel konnte nicht gespeichert werden."
+			},
+			"saving_succeeded": {
+				"title": "Article saved",
+				"description": "Der Arikel wurde erfolgreich gespeichert."
+			},
 			"status": {
 				"draft": "Draft",
 				"published": "Published",
@@ -271,6 +301,20 @@
 	"TagsCombobox": {
 		"button": "{placeholder}...",
 		"empty": "No results found"
+	},
+	"TextEditor": {
+		"image": {
+			"title": "Add image",
+			"label": "Image",
+			"alt": {
+				"label": "Alt text",
+				"placeholder": "Image description text"
+			},
+			"annotation": {
+				"label": "Annotation",
+				"placeholder": "Annotation below the image"
+			}
+		}
 	},
 	"UserPanel": {
 		"admin": "Admin",

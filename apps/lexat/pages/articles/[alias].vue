@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-vue-next";
 
 import { useCitationGenerator } from "@/composables/citationGenerator";
 import type { Article } from "@/types/api";
+import { addIdsToHeadings } from "@/utils/html-helpers";
 import { useFetch, useRoute } from "#app";
 
 const { bibliographyItems, getCitation, fetchBibliographyItems } = useCitationGenerator();
@@ -13,6 +14,11 @@ const route = useRoute();
 const alias = route.params.alias;
 
 const { data: article } = await useFetch<Article>(`/api/article/${alias}`);
+
+if (article.value?.content) {
+	const enrichedContent = addIdsToHeadings(article.value.content);
+	article.value.content = enrichedContent;
+}
 
 const publishedAt = computed(() => {
 	const publishDate = article.value?.publishedAt ? new Date(article.value.publishedAt) : undefined;
@@ -29,6 +35,7 @@ const tableOfContents = computed(() => {
 	if (!article.value?.content) {
 		return [];
 	}
+
 	// regex to match headings (h1, h2,...) with optional id attributes
 	const headingRegex = /<(h[1-6])\s*(?:id="([^"]+)")?>(.*?)<\/\1>/g;
 	const toc = [];
@@ -98,7 +105,7 @@ usePageMetadata({
 					{{ publishedAt }}
 				</div>
 				<p class="mb-3">{{ formattedAuthors }}</p>
-				<NuxtImg class="aspect-[16/10] rounded-t-lg" src="/images/posts/example-1-cropped.jpg" />
+				<NuxtImg class="aspect-[16/9] rounded-t-lg" src="/images/posts/example-1-cropped.jpg" />
 				<hr class="mt-5" />
 
 				<div class="article-content" v-html="article.content"></div>
@@ -132,53 +139,3 @@ usePageMetadata({
 		</div>
 	</MainContent>
 </template>
-
-<style lang="css">
-.article-content h2 {
-	@apply text-2xl font-bold  mt-8 mb-4;
-}
-
-.article-content h3 {
-	@apply text-xl font-semibold mt-6 mb-3;
-}
-
-.article-content p {
-	@apply leading-relaxed  mt-4;
-}
-
-.article-content a {
-	@apply text-blue-600 hover:underline font-medium;
-}
-
-.article-content ul {
-	@apply list-disc list-inside pl-5 mt-2;
-}
-
-.article-content ol {
-	@apply list-decimal list-inside pl-5 mt-2;
-}
-
-.article-content li {
-	@apply mt-2;
-}
-
-.article-content blockquote {
-	@apply italic text-gray-500 border-l-4 border-blue-300 pl-4 my-6;
-}
-
-.article-content img {
-	@apply rounded-lg shadow-md mt-6 mb-4 w-full;
-}
-
-.article-content figcaption {
-	@apply text-sm italic text-center;
-}
-
-.article-content pre {
-	@apply bg-gray-100 text-sm p-4 rounded-lg overflow-x-auto my-6;
-}
-
-.article-content code {
-	@apply bg-gray-100 px-1 py-0.5 rounded text-sm text-red-600;
-}
-</style>

@@ -1,49 +1,40 @@
 <script lang="ts" setup>
-import { ArrowLeft, InfoIcon, Trash, WandSparkles } from "lucide-vue-next";
+import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
-import { addIdsToHeadings } from "@/utils/html-helpers";
+
+definePageMeta({
+	middleware: ["protected"],
+});
 
 const env = useRuntimeConfig();
+const route = useRoute();
 
-const { bibliographyItems, fetchBibliographyItems } = useCitationGenerator();
+const { bibliographyItems, bibliographyOptions, fetchBibliographyItems } = useCitationGenerator();
+const { statusOptions } = useArticleStatus();
+
+if (!bibliographyItems.value.length) {
+	await fetchBibliographyItems();
+}
 
 const currentLocale = useLocale();
 
 const { toast } = useToast();
 
 const t = useTranslations();
+const localePath = useLocalePath();
 
-const { data: categoryOptions } = await useFetch<Array<DropdownOption>>(`/api/categories`, {
-	method: "GET",
-});
-
-const { data: users } = await useFetch(`/api/users`, {
-	method: "GET",
-});
-
-const { data: questions } = await useFetch<
-	Array<{ id: number; phenomenon_name: string; description: string | null }>
->("/questions/survey/1", {
-	baseURL: env.public.apiBaseUrl,
-	method: "GET",
-});
-
-const mappedQuestions = computed(() => {
-	return (
-		questions.value?.map((q) => ({
-			id: q.id,
-			value: q.id.toString(),
-			label: q.phenomenon_name,
-		})) ?? null
-	);
-});
+const routeId = route.params.id;
 
 const abstract = ref<string>("");
+const activeStatus = ref<Status>("Draft");
 const alias = ref<string>("");
+const postId = ref<number | null>(null);
 const content = ref<string>("<p>Hello Tiptap</p>");
+const cover = ref<string>("");
+const coverAlt = ref<string>("");
 const citation = ref<string>("");
 const languageOptions = [
 	{ value: "en", label: t("AdminPage.editor.language.english") },
@@ -55,6 +46,93 @@ const selectedLanguage = ref<"de" | "en">(currentLocale.value);
 const selectedQuestion = ref<string | null>(null);
 const selectedBibliographyItems = ref<Array<BibliographyItem>>([]);
 const title = ref<string>("");
+
+interface Author {
+	id: number;
+	firstname: string;
+	lastname: string;
+	username: string;
+	email: string;
+}
+
+interface Article {
+	post_id: number;
+	title: string;
+	alias: string;
+	cover: string;
+	cover_alt: string;
+	abstract: string;
+	citation: string;
+	content: string;
+	post_status: Status;
+	lang: "de" | "en";
+	published_at: string | null;
+	updated_at: string;
+	created_at: string;
+	post_type_name: string;
+	bibliography: Array<string>;
+	authors: Array<Author>;
+}
+
+const { data: informationList } = await useFetch("/cms/articles/create/info", {
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+	credentials: "include",
+});
+
+const categoryOptions = ref<Array<DropdownOption>>([]);
+const mappedQuestions = ref<Array<DropdownOption>>([]);
+const users = ref<Array<{ id: number; value: string; firstName: string; lastName: string }>>([]);
+
+if (informationList.value) {
+	categoryOptions.value = informationList.value.categories.map((c) => ({
+		id: c.id,
+		value: c.name,
+		label: t(`AdminPage.editor.category.${c.name}`),
+	}));
+	mappedQuestions.value = informationList.value.phenomenon.map((c) => ({
+		id: c.id,
+		value: c.name,
+		label: c.name,
+	}));
+	users.value = informationList.value.authors;
+}
+
+if (routeId && routeId !== "new") {
+	const { data, error } = await useFetch<{ article: Article }>(`/cms/articles/${routeId}`, {
+		baseURL: env.public.apiBaseUrl,
+		method: "GET",
+		credentials: "include",
+	});
+
+	if (error.value) {
+		console.error("Failed to fetch article:", error.value);
+	} else if (data.value && data.value.article) {
+		// Populate properties with API data
+		const article = data.value.article;
+		const articleBibliography = article.bibliography.map((b) => b.name);
+		abstract.value = article.abstract;
+		alias.value = article.alias;
+		content.value = article.content;
+		cover.value = article.cover;
+		coverAlt.value = article.cover_alt;
+		citation.value = article.citation;
+		title.value = article.title;
+		selectedAuthors.value = article.authors.map(
+			(author) => `${author.firstname} ${author.lastname}`,
+		);
+		selectedCategory.value = article.post_type_name;
+		selectedLanguage.value = article.lang;
+		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
+			articleBibliography.includes(b.key),
+		);
+		selectedQuestion.value = article.phenomenon[0].name;
+		postId.value = article.post_id;
+		activeStatus.value = article.post_status;
+	}
+} else {
+	console.log("This is a new article creation route.");
+}
 
 const baseURL = "https://lexat.acdh-ch-dev.oeaw.ac.at/";
 
@@ -69,23 +147,63 @@ const generateAlias = (title: string) => {
 		.replace(/^-+|-+$/g, "");
 };
 
-const saveArticle = () => {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const finalContent = addIdsToHeadings(content.value);
-	// const article = {
-	// 	abstract: abstract.value,
-	// 	alias: alias.value,
-	// 	content: finalContent,
-	// 	title: title.value,
-	// 	category: selectedCategory.value,
-	// 	phenomenonId: selectedQuestion.value,
-	// 	bibliographyItems: selectedBibliographyItems.value?.map((q) => q.key),
-	// 	language: selectedLanguage.value,
-	// };
-	toast({
-		title: "Article Saved",
-		description: "Your changes have successfully been saved.",
-	});
+const authorsOptions = computed(
+	(): Array<DropdownOption & { firstName: string; lastName: string }> => {
+		return (
+			users.value?.map((u) => ({
+				// label: nameShortener(u.firstName, u.lastName),
+				label: `${u.firstName} ${u.lastName}`,
+				...u,
+			})) ?? []
+		);
+	},
+);
+
+const saveArticle = async () => {
+	const authors = selectedAuthors.value.map(
+		(a) => authorsOptions.value.find((o) => o.label === a)?.id,
+	);
+	const article = {
+		title: title.value,
+		alias: alias.value,
+		cover: cover.value,
+		cover_alt: coverAlt.value,
+		abstract: abstract.value,
+		content: content.value,
+		category: selectedCategory.value,
+		authors,
+		bibliography: selectedBibliographyItems.value?.map((q) => q.key),
+		status: activeStatus.value,
+		lang: selectedLanguage.value,
+		phenomenonId: Number(
+			mappedQuestions.value?.find((q) => q.value === selectedQuestion.value)?.id,
+		),
+		citation: citation.value,
+		projectId: [1],
+	};
+
+	try {
+		const apiRoute = `/cms/articles/${postId.value ? `${postId.value}` : "create"}`;
+		const response = await $fetch(apiRoute, {
+			baseURL: env.public.apiBaseUrl,
+			method: postId.value ? "PUT" : "POST",
+			body: article,
+			credentials: "include",
+		});
+		toast({
+			title: t("AdminPage.editor.saving_succeeded.title"),
+			description: t("AdminPage.editor.saving_succeeded.description"),
+		});
+		if (response) {
+			await navigateTo(localePath("/admin/articles"));
+		}
+	} catch (error) {
+		toast({
+			title: t("AdminPage.editor.saving_failed.title"),
+			description: error instanceof Error ? error.message : String(error),
+			variant: "destructive",
+		});
+	}
 };
 
 const generateCitation = () => {
@@ -112,13 +230,6 @@ const generateCitation = () => {
 	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21. Herausgegeben von Alexandra N. Lenz [URL: ${url}].`;
 };
 
-const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
-	return bibliographyItems.value.map((i) => ({
-		value: i.key,
-		label: truncateString(i.title, 60),
-	}));
-});
-
 const addBibliographyItem = (value: string) => {
 	const alreadySelected = Boolean(selectedBibliographyItems.value.some((i) => i.key === value));
 	if (alreadySelected) {
@@ -134,51 +245,35 @@ const removeBibliographyItem = (key: string) => {
 	selectedBibliographyItems.value = selectedBibliographyItems.value.filter((i) => i.key !== key);
 };
 
-onMounted(async () => {
-	if (!bibliographyItems.value.length) {
-		await fetchBibliographyItems();
+const handleFileChange = async (event) => {
+	const file = event.target.files[0]; // Get the selected file
+	if (file) {
+		const formData = new FormData();
+		formData.append("image", file);
+		try {
+			const result = await $fetch<{ url: string; message: string }>("/media/upload", {
+				baseURL: env.public.apiBaseUrl,
+				credentials: "include",
+				body: formData,
+				method: "POST",
+			});
+			// DEBUG
+			// const result = {
+			// 	url: "https://images.pexels.com/photos/934055/pexels-photo-934055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+			// };
+			cover.value = result.url;
+			toast({
+				title: t("AdminPage.editor.cover.upload_succeeded"),
+			});
+		} catch (error) {
+			toast({
+				title: t("AdminPage.editor.cover.upload_failed"),
+				description: error instanceof Error ? error.message : String(error),
+				variant: "destructive",
+			});
+		}
 	}
-});
-
-export type Status = "draft" | "published" | "ready" | "unpublished";
-
-const activeStatus = ref<Status>("draft");
-
-// color palette reference: https://www.color-hex.com/color-palette/35021
-const statusOptions: Array<DropdownOption<Status>> = [
-	{
-		value: "draft",
-		label: t("AdminPage.editor.status.draft"),
-		color: "#cc3232", // red
-	},
-	{
-		value: "ready",
-		label: t("AdminPage.editor.status.ready"),
-		color: "#e7b416", // yellow
-	},
-	{
-		value: "published",
-		label: t("AdminPage.editor.status.published"),
-		color: "#2dc937", // green
-	},
-	{
-		value: "unpublished",
-		label: t("AdminPage.editor.status.unpublished"),
-		color: "#d3d3d3", // grey
-	},
-];
-
-const authorsOptions = computed(
-	(): Array<DropdownOption & { firstName: string; lastName: string }> => {
-		return (
-			users.value?.map((u) => ({
-				value: u.id.toString(),
-				label: nameShortener(u.firstName, u.lastName),
-				...u,
-			})) ?? []
-		);
-	},
-);
+};
 
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
@@ -198,8 +293,8 @@ usePageMetadata({
 			>
 			<div class="mb-8 flex justify-between border-b pb-8">
 				<div>
-					<h3 class="text-3xl font-semibold">Untitled</h3>
-					<p class="text-foreground/70">ID: 1231231</p>
+					<h3 class="text-3xl font-semibold">{{ title || "Untitled" }}</h3>
+					<p v-if="postId" class="text-foreground/70">ID: {{ postId }}</p>
 				</div>
 				<div class="flex items-center gap-3">
 					<Label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</Label>
@@ -208,55 +303,99 @@ usePageMetadata({
 				</div>
 			</div>
 			<div class="bg-background">
-				<div class="mb-6 grid grid-cols-3 gap-5">
-					<div class="grid w-full items-center gap-1.5">
-						<Label for="title">{{ t("AdminPage.editor.title") }}</Label>
-						<Input
-							id="title"
-							v-model="title"
-							:placeholder="t('AdminPage.editor.title')"
-							type="text"
-						/>
+				<div class="mb-6 flex flex-col gap-5 md:flex-row">
+					<div class="w-full max-w-xl space-y-5 md:w-1/2">
+						<div class="grid w-full items-center gap-1.5">
+							<Label for="title">{{ t("AdminPage.editor.title") }}</Label>
+							<Input
+								id="title"
+								v-model="title"
+								:placeholder="t('AdminPage.editor.title')"
+								type="text"
+							/>
+						</div>
+						<div class="grid w-full items-center gap-1.5">
+							<Label class="flex items-center gap-1" for="alias"
+								>{{ t("AdminPage.editor.alias.label") }}
+								<InfoTooltip :content="t('AdminPage.editor.alias.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon> </InfoTooltip
+							></Label>
+							<Input
+								id="alias"
+								v-model="alias"
+								:placeholder="t('AdminPage.editor.alias.placeholder')"
+								type="text"
+							/>
+						</div>
+						<div class="grid w-full gap-1.5">
+							<Label for="abstract">{{ t("AdminPage.editor.abstract") }}</Label>
+							<Textarea
+								id="abstract"
+								v-model="abstract"
+								:placeholder="t('AdminPage.editor.abstract')"
+								type="text"
+							/>
+						</div>
+						<div v-if="languageOptions" class="grid items-center gap-1.5">
+							<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
+							<Combobox
+								id="language"
+								v-model="selectedLanguage"
+								:options="languageOptions"
+								:placeholder="t('AdminPage.editor.language.placeholder')"
+							/>
+						</div>
 					</div>
-					<div class="grid w-full items-center gap-1.5">
-						<Label class="flex items-center gap-1" for="alias"
-							>{{ t("AdminPage.editor.alias.label") }}
-							<InfoTooltip :content="t('AdminPage.editor.alias.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon> </InfoTooltip
-						></Label>
-						<Input
-							id="alias"
-							v-model="alias"
-							:placeholder="t('AdminPage.editor.alias.placeholder')"
-							type="text"
-						/>
+					<div class="w-full max-w-xl space-y-5 md:w-1/2">
+						<div class="grid items-center gap-1.5">
+							<div
+								class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							>
+								{{ t("AdminPage.editor.cover.label")
+								}}<span class="text-destructive"> (Try to keep image below 500kb for now)</span>
+							</div>
+							<label
+								class="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+								for="dropzone-file"
+							>
+								<div v-if="!cover" class="flex flex-col items-center justify-center pb-6 pt-5">
+									<UploadIcon class="mb-4 size-8 text-gray-500 dark:text-gray-400" />
+
+									<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+										<span class="font-semibold">{{
+											t("AdminPage.editor.cover.click_to_upload")
+										}}</span>
+									</p>
+									<p class="text-xs text-gray-500 dark:text-gray-400">PNG, JPG (IDEALLY 16:9)</p>
+								</div>
+								<NuxtImg v-else class="size-full object-cover" :src="cover"></NuxtImg>
+								<input
+									id="dropzone-file"
+									accept="image/png, image/jpeg"
+									class="hidden"
+									type="file"
+									@change="handleFileChange"
+								/>
+							</label>
+						</div>
+						<div class="grid w-full items-center gap-1.5">
+							<Label for="coverAlt">{{ t("AdminPage.editor.cover_alt.label") }}</Label>
+							<Input
+								id="coverAlt"
+								v-model="coverAlt"
+								:placeholder="t('AdminPage.editor.cover_alt.placeholder')"
+								type="text"
+							/>
+						</div>
 					</div>
 				</div>
-				<div class="mb-6 grid grid-cols-3 items-start gap-5">
-					<div class="grid w-full gap-1.5">
-						<Label for="abstract">{{ t("AdminPage.editor.abstract") }}</Label>
-						<Textarea
-							id="abstract"
-							v-model="abstract"
-							:placeholder="t('AdminPage.editor.abstract')"
-							type="text"
-						/>
-					</div>
-					<div v-if="languageOptions" class="grid items-center gap-1.5">
-						<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-						<Combobox
-							id="language"
-							v-model="selectedLanguage"
-							:options="languageOptions"
-							:placeholder="t('AdminPage.editor.language.placeholder')"
-						/>
-					</div>
-				</div>
+
 				<div class="mb-6 grid w-full items-center gap-1.5">
 					<Label for="content">{{ t("AdminPage.editor.content") }}</Label>
 					<ClientOnly>
 						<TextEditor v-model="content" class="w-full" />
 					</ClientOnly>
+					<!-- DEBUG CONTENT <p>{{ content }}</p> -->
 				</div>
 				<div class="mb-6 flex items-baseline gap-8">
 					<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">
@@ -311,7 +450,7 @@ usePageMetadata({
 				</div>
 				<div class="grid grid-cols-2 gap-5">
 					<div class="mb-6 grid gap-4">
-						<Label for="content"
+						<Label for="bibliography"
 							>{{ t("AdminPage.editor.bibliography.label")
 							}}<template v-if="selectedBibliographyItems.length">
 								({{ selectedBibliographyItems.length }})</template

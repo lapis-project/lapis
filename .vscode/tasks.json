@@ -12,7 +12,7 @@
 		{
 			"label": "Seed DB",
 			"type": "shell",
-			"command": "docker exec -i lapis-dev-database-1 psql -U lapis_dev lapis_dev < ./db/lapis_dump.sql",
+			"command": "until docker exec lapis-dev-database-1 pg_isready -U lapis_dev; do sleep 1; done && docker exec -i lapis-dev-database-1 psql -U lapis_dev lapis_dev < ./db/lapis_dump.sql",
 			"problemMatcher": [],
 			"dependsOn": "Start DB Container",
 			"group": "build",

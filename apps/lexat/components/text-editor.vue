@@ -1,6 +1,7 @@
 <!-- eslint-disable import-x/no-named-as-default -->
 <script setup lang="ts">
 import CharacterCount from "@tiptap/extension-character-count";
+import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
@@ -13,6 +14,7 @@ import {
 	AlignLeftIcon,
 	AlignRightIcon,
 	BoldIcon,
+	ImagePlusIcon,
 	ItalicIcon,
 	LinkIcon,
 	ListIcon,
@@ -24,18 +26,26 @@ import {
 } from "lucide-vue-next";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 
-export interface Props {
-	modelValue: string;
-}
+import { useToast } from "@/components/ui/toast/use-toast";
 
-const props = withDefaults(defineProps<Props>(), {
+import { Figure } from "./figure.ts";
+
+const env = useRuntimeConfig();
+const { toast } = useToast();
+
+const props = withDefaults(defineProps<{ modelValue: string }>(), {
 	modelValue: "",
 });
 
 const dropdownOpen = ref(false);
 const dropbtn = ref<HTMLButtonElement | null>(null);
-const isOpen = ref<boolean>(false);
+const isLinkDialogOpen = ref<boolean>(false);
+const isImageDialogOpen = ref<boolean>(false);
 const urlInput = ref<string>("");
+const imageAnnotation = ref<string>("");
+const imageMapLink = ref<string>("");
+const imageAltText = ref<string>("");
+const selectedImage = ref(null);
 
 const emit = defineEmits<{
 	(e: "update:modelValue", value: string): void;
@@ -52,6 +62,8 @@ const editor = ref(
 			}),
 			CharacterCount,
 			Link,
+			Image,
+			Figure,
 		],
 		onUpdate: () => {
 			emit("update:modelValue", editor.value.getHTML());
@@ -93,6 +105,7 @@ const textActions = ref([
 	{ slug: "undo", icon: UndoIcon, active: "undo" },
 	{ slug: "redo", icon: RedoIcon, active: "redo" },
 	{ slug: "link", icon: LinkIcon, active: "link" },
+	{ slug: "image", icon: ImagePlusIcon, active: "image" },
 ]);
 
 const wordsCount = computed(() => {
@@ -145,6 +158,8 @@ type ActionSlug =
 	| "clear"
 	| "code"
 	| "italic"
+	| "link"
+	| "image"
 	| "orderedList"
 	| "redo"
 	| "strike"
@@ -152,7 +167,7 @@ type ActionSlug =
 	| "undo";
 
 const setLink = () => {
-	isOpen.value = false;
+	isLinkDialogOpen.value = false;
 	if (urlInput.value === "") {
 		editor.value.chain().focus().extendMarkRange("link").unsetLink().run();
 
@@ -160,6 +175,53 @@ const setLink = () => {
 	}
 	// update link
 	editor.value.chain().focus().extendMarkRange("link").setLink({ href: urlInput.value }).run();
+	urlInput.value = "";
+};
+
+const insertImage = (url: string) => {
+	editor.value
+		.chain()
+		.focus()
+		.setFigure({
+			src: url,
+			alt: imageAltText.value,
+			title: imageAnnotation.value,
+			caption: imageAnnotation.value,
+		})
+		.run();
+};
+
+const handleImageUpload = async () => {
+	if (!selectedImage.value) {
+		toast({
+			title: "No image selected.",
+			variant: "destructive",
+		});
+		return;
+	}
+	const formData = new FormData();
+	formData.append("image", selectedImage.value);
+	try {
+		const result = await $fetch<{ url: string; message: string }>("/media/upload", {
+			baseURL: env.public.apiBaseUrl,
+			credentials: "include",
+			body: formData,
+			method: "POST",
+		});
+		insertImage(result.url);
+		isImageDialogOpen.value = false;
+		imageAnnotation.value = "";
+		imageMapLink.value = "";
+		imageAltText.value = "";
+	} catch (e) {
+		if (env.NODE_ENV !== "production") {
+			console.error(e);
+		}
+		toast({
+			title: "Could not upload image.",
+			variant: "destructive",
+		});
+	}
 };
 
 const onActionClick = (slug: ActionSlug, option = "left") => {
@@ -180,7 +242,10 @@ const onActionClick = (slug: ActionSlug, option = "left") => {
 		},
 		code: () => vm.toggleCodeBlock().run(),
 		link: () => {
-			isOpen.value = true;
+			isLinkDialogOpen.value = true;
+		},
+		image: () => {
+			isImageDialogOpen.value = true;
 		},
 	};
 
@@ -192,6 +257,13 @@ const onHeadingClick = (index: Level) => {
 	vm.toggleHeading({ level: index }).run();
 	toggleDropdown();
 };
+
+const handleFileChange = (event) => {
+	const file = event.target.files[0]; // Get the selected file
+	if (file) {
+		selectedImage.value = file; // Store the file
+	}
+};
 </script>
 
 <template>
@@ -200,9 +272,9 @@ const onHeadingClick = (index: Level) => {
 			<div class="align-dropdown relative m-2 inline-block">
 				<button
 					ref="dropbtn"
-					aria-label="Submenu of headings"
 					:aria-expanded="dropdownOpen"
 					aria-haspopup="true"
+					aria-label="Submenu of headings"
 					@click="toggleDropdown"
 					@keydown.enter.prevent="toggleDropdown"
 					@keydown.space.prevent="toggleDropdown"
@@ -214,16 +286,16 @@ const onHeadingClick = (index: Level) => {
 					v-if="dropdownOpen"
 					class="dropdown-content"
 					role="menu"
-					@keydown.escape.prevent="closeDropdown"
 					@keydown.down.prevent="focusNext"
+					@keydown.escape.prevent="closeDropdown"
 					@keydown.up.prevent="focusPrevious"
 				>
 					<div
-						v-for="index in 6"
+						v-for="index in [2, 3, 4, 5, 6]"
 						:key="index"
 						:class="{ active: editor.isActive('heading', { level: index }) }"
-						:style="{ fontSize: 20 - index + 'px' }"
 						role="menuitem"
+						:style="{ fontSize: 20 - index + 'px' }"
 						tabindex="0"
 						@click="onHeadingClick(index)"
 						@keyup.enter.prevent="onHeadingClick(index)"
@@ -243,26 +315,113 @@ const onHeadingClick = (index: Level) => {
 			</button>
 		</div>
 
-		<EditorContent :editor="editor" class="h-[500px] overflow-y-auto px-3" />
+		<EditorContent class="article-content h-[500px] overflow-y-auto px-3" :editor="editor" />
 
 		<div v-if="editor" class="p-2 text-right text-sm">
 			<span class="words-count"> {{ wordsCount }} words </span>
 		</div>
 
-		<Dialog :open="isOpen" @update:open="(newVal) => (isOpen = newVal)">
+		<Dialog :open="isLinkDialogOpen" @update:open="(newVal) => (isLinkDialogOpen = newVal)">
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Add Link</DialogTitle>
 				</DialogHeader>
 				<div class="grid grid-cols-4 items-center gap-4 py-4">
-					<Label for="url" class="text-right"> URL </Label>
+					<Label class="text-right" for="url"> URL </Label>
 					<Input id="url" v-model="urlInput" class="col-span-3" />
 				</div>
 
 				<DialogFooter>
-					<Button :disabled="!urlInput" @click="setLink">Save changes</Button>
+					<Button :disabled="!urlInput" @click="setLink">Insert</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+
+		<Dialog :open="isImageDialogOpen" @update:open="(newVal) => (isImageDialogOpen = newVal)">
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Add Image</DialogTitle>
+				</DialogHeader>
+
+				<!-- <form @submit.prevent="onSubmit">
+					<FormField name="image">
+						<FormItem>
+							<FormLabel>Image</FormLabel>
+							<FormControl>
+								<Input
+									id="image"
+									type="file"
+									accept="image/jpeg, image/png"
+									@change="handleFileChange"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+					<FormField v-slot="{ componentField }" name="alt">
+						<FormItem>
+							<FormLabel>Alt text</FormLabel>
+							<FormControl>
+								<Input id="alt" type="text" v-bind="componentField" />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+					<FormField v-slot="{ componentField }" name="annotation">
+						<FormItem>
+							<FormLabel>Annotation</FormLabel>
+							<FormControl>
+								<Input id="annotation" type="text" v-bind="componentField" />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+					<DialogFooter>
+						<Button type="submit"> Insert </Button>
+					</DialogFooter>
+				</form> -->
+				<div class="grid w-full max-w-sm items-center gap-1.5">
+					<Label for="image">Image</Label>
+					<Input
+						id="image"
+						accept="image/jpeg, image/png, image/svg+xml"
+						type="file"
+						@change="handleFileChange"
+					/>
+				</div>
+				<div class="grid w-full max-w-sm items-center gap-1.5">
+					<Label for="alt-text">Alt text</Label>
+					<Input
+						id="alt-text"
+						v-model="imageAltText"
+						class="col-span-3"
+						placeholder="Beschreibung des Bildinhalts"
+					/>
+				</div>
+				<div class="grid w-full max-w-sm items-center gap-1.5">
+					<Label for="annotation">Annotation</Label>
+					<Input
+						id="annotation"
+						v-model="imageAnnotation"
+						class="col-span-3"
+						placeholder="Annotation unterhalb des Bildes"
+					/>
+				</div>
+				<!-- <div class="grid w-full max-w-sm items-center gap-1.5">
+					<Label for="annotation">Link zur Kartierung</Label>
+					<Input id="annotation" v-model="imageMapLink" class="col-span-3" />
+				</div> -->
+
+				<DialogFooter>
+					<Button @click="handleImageUpload"> Insert </Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	</div>
 </template>
+
+<style lang="css" scoped>
+.article-content :deep(.tiptap:focus-visible) {
+	outline: none;
+}
+</style>

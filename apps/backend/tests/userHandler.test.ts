@@ -22,7 +22,7 @@ describe("test endpoint GET /user/roles/:role", () => {
 		id: number;
 	}> = [];
 	beforeAll(async () => {
-		// create admin, superuser and user account
+		// create admin, superadmin and user account
 		// login as admin
 		const sessionCookie = await loginUserAndReturnCookie("admin@oeaw.ac.at", "adminadmin");
 		loginHeaders.Cookie = sessionCookie;
@@ -61,21 +61,21 @@ describe("test endpoint GET /user/roles/:role", () => {
 		body.password = "testtest";
 		users.push(body);
 
-		const superuser = await app.request("/auth/signup", {
+		const superadmin = await app.request("/auth/signup", {
 			headers: loginHeaders,
 			method: "POST",
 			body: JSON.stringify({
-				username: "testsuperuser",
-				password: "testsuperuser",
-				email: "testsuperuser@oeaw.ac.at",
-				user_role: "superuser",
-				firstname: "testsuperuser",
+				username: "testsuperadmin",
+				password: "testsuperadmin",
+				email: "testsuperadmin@oeaw.ac.at",
+				user_role: "superadmin",
+				firstname: "testsuperadmin",
 				lastname: "test",
 			}),
 		});
 
-		body = await superuser.json();
-		body.password = "testsuperuser";
+		body = await superadmin.json();
+		body.password = "testsuperadmin";
 		users.push(body);
 	});
 
@@ -125,7 +125,7 @@ describe("test endpoint GET /user/roles/:role", () => {
 		// expect(body[0].username).toBe("testeditor");
 	});
 
-	test("Call endpoint as superuser and list all admins, should return one entry with the admin", async () => {
+	test("Call endpoint as superadmin and list all admins, should return one entry with the admin", async () => {
 		const sessionCookie = await loginUserAndReturnCookie(
 			users[2]?.email ?? "",
 			users[2]?.password ?? "",
@@ -141,7 +141,7 @@ describe("test endpoint GET /user/roles/:role", () => {
 		//expect(body[0].username).toBe("testadmin");
 	});
 
-	test("Call endpoint as superuser and try to use an invalid role, should return status code 400", async () => {
+	test("Call endpoint as superadmin and try to use an invalid role, should return status code 400", async () => {
 		const sessionCookie = await loginUserAndReturnCookie(
 			users[2]?.email ?? "",
 			users[2]?.password ?? "",
@@ -169,7 +169,7 @@ describe("test endpoint PUT /user/roles/:id", () => {
 		id: number;
 	}> = [];
 	beforeAll(async () => {
-		// create admin, superuser and user account
+		// create admin, superadmin and user account
 		// login as admin
 		const sessionCookie = await loginUserAndReturnCookie("admin@oeaw.ac.at", "adminadmin");
 		loginHeaders.Cookie = sessionCookie;
@@ -208,21 +208,21 @@ describe("test endpoint PUT /user/roles/:id", () => {
 		body.password = "testtest";
 		users.push(body);
 
-		const superuser = await app.request("/auth/signup", {
+		const superadmin = await app.request("/auth/signup", {
 			headers: loginHeaders,
 			method: "POST",
 			body: JSON.stringify({
-				username: "testsuperuser",
-				password: "testsuperuser",
-				email: "testsuperuser@oeaw.ac.at",
-				user_role: "superuser",
-				firstname: "testsuperuser",
+				username: "testsuperadmin",
+				password: "testsuperadmin",
+				email: "testsuperadmin@oeaw.ac.at",
+				user_role: "superadmin",
+				firstname: "testsuperadmin",
 				lastname: "test",
 			}),
 		});
 
-		body = await superuser.json();
-		body.password = "testsuperuser";
+		body = await superadmin.json();
+		body.password = "testsuperadmin";
 		users.push(body);
 	});
 
@@ -296,7 +296,7 @@ describe("test endpoint PUT /user/roles/:id", () => {
 		expect(body.role_name).toBe("admin");
 	});
 
-	test("login as superuser and change the role of the admin to a superuser, should return status code 200, check if admin is a superuser now", async () => {
+	test("login as superadmin and change the role of the admin to a superadmin, should return status code 200, check if admin is a superadmin now", async () => {
 		const sessionCookie = await loginUserAndReturnCookie(
 			users[2]?.email ?? "",
 			users[2]?.password ?? "",
@@ -306,7 +306,7 @@ describe("test endpoint PUT /user/roles/:id", () => {
 			headers: loginHeaders,
 			method: "PUT",
 			body: JSON.stringify({
-				role: ["superuser"],
+				role: ["superadmin"],
 			}),
 		});
 
@@ -318,10 +318,10 @@ describe("test endpoint PUT /user/roles/:id", () => {
 			method: "GET",
 		});
 		const body = await user.json();
-		expect(body.role_name).toBe("superuser");
+		expect(body.role_name).toBe("superadmin");
 	});
 
-	test("login as admin and try to change the role of the superuser to an admin, should return status code 403", async () => {
+	test("login as admin and try to change the role of the superadmin to an admin, should return status code 403", async () => {
 		const sessionCookie = await loginUserAndReturnCookie(
 			users[1]?.email ?? "",
 			users[1]?.password ?? "",
@@ -343,10 +343,10 @@ describe("test endpoint PUT /user/roles/:id", () => {
 			method: "GET",
 		});
 		const body = await user.json();
-		expect(body.role_name).toBe("superuser");
+		expect(body.role_name).toBe("superadmin");
 	});
 
-	test("login as admin and try to change the role of the admin to a superuser, should return status code 403", async () => {
+	test("login as admin and try to change the role of the admin to a superadmin, should return status code 403", async () => {
 		const sessionCookie = await loginUserAndReturnCookie(
 			users[1]?.email ?? "",
 			users[1]?.password ?? "",
@@ -356,7 +356,7 @@ describe("test endpoint PUT /user/roles/:id", () => {
 			headers: loginHeaders,
 			method: "PUT",
 			body: JSON.stringify({
-				role: ["superuser"],
+				role: ["superadmin"],
 			}),
 		});
 

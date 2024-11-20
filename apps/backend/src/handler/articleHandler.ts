@@ -18,7 +18,7 @@ const articleRouteSchmema = object({
  * Will return this in a paged format as a json. The page size is 20 by default and it starts from page 1 with an offset of 0.
  * The projectId is passed as a parameter in the URL and is required.
  *
- * searchTerm, page, offset, pageSize and category are optional query parameters and will be included if they are provided.
+ * searchTerm, page, offset, pageSize, category and language (lang) are optional query parameters and will be included if they are provided.
  *
  * @returns status code 400 if the projectId is not a number
  * @returns status code 201 with an result object containing the articles, the total number of articles and the current page.
@@ -34,7 +34,7 @@ const articleRoute = articles.get("/articles/:project", async (c) => {
 		return c.json("Provided projectId is not a number", 400);
 	}
 
-	const { searchTerm, page, offset, pageSize, category } = c.req.query();
+	const { searchTerm, page, offset, pageSize, category, lang } = c.req.query();
 
 	// TODO Refactor this functions into utilities
 	const stringSchema = optional(string());
@@ -58,6 +58,10 @@ const articleRoute = articles.get("/articles/:project", async (c) => {
 
 	if (!safeParse(numberSchema, pageSizeParsed).success) {
 		return c.json("Provided pagesize number is not a number", 400);
+	}
+
+	if (!safeParse(stringSchema, lang).success) {
+		return c.json("Provided language is not a string", 400);
 	}
 
 	const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;

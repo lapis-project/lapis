@@ -6,6 +6,7 @@ import { prettyJSON } from "hono/pretty-json";
 import { verifyRequestOrigin } from "lucia";
 
 import { lucia } from "@/auth/auth";
+import { getUserById } from "@/db/authRepository";
 import auth from "@/handler/authHandler";
 import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
@@ -75,6 +76,11 @@ app.use("*", async (c, next) => {
 	}
 	if (!session) {
 		setCookie(c, "Set-Cookie", lucia.createBlankSessionCookie().serialize());
+	}
+
+	if (user) {
+		const userObject = await getUserById(Number(user.id));
+		c.set("role", userObject?.role_name ?? "editor");
 	}
 	c.set("session", session);
 	c.set("user", user);

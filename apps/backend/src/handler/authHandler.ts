@@ -16,8 +16,9 @@ import {
 } from "valibot";
 
 import { lucia } from "@/auth/auth";
-import { argon2Config } from "@/config/config";
+import { argon2Config, userRolesConst } from "@/config/config";
 import { createUser, getUser, getUserById } from "@/db/authRepository";
+import { checkIfPrivilegedForAdminOrHigher } from "@/lib/authHelper";
 import type { Context } from "@/lib/context";
 import type { Userroles } from "@/types/db";
 
@@ -35,11 +36,13 @@ const signupSchema = object({
 	user_role: pipe(
 		string(),
 		trim(),
-		check((val) => ["admin", "editor"].includes(val), "User role must be specified"),
+		check((val) => userRolesConst.includes(val), "User role must be specified"),
 	),
 	firstname: pipe(string(), trim(), minLength(1)),
 	lastname: optional(pipe(string(), trim(), minLength(1))),
 });
+
+auth.use("/signup", checkIfPrivilegedForAdminOrHigher);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getSession = auth.get("/session", async (c) => {
@@ -52,7 +55,7 @@ const getSession = auth.get("/session", async (c) => {
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const login = auth.post("/login", vValidator("json", loginSchema), async (c) => {
+const login = auth.post("/login", vValidator("json", loginSchema), async (c, next) => {
 	const { email, password } = c.req.valid("json");
 
 	const existingUser = await getUser(email);

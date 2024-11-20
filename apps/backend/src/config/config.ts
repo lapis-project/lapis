@@ -5,3 +5,9 @@ export const argon2Config = {
 	outputLen: 32,
 	parallelism: 1,
 };
+
+export const postStatusConst = ["Draft", "Published", "ReadyToPublish", "Unpublished"];
+
+export const availableLangConst = ["de", "en"];
+
+export const userRolesConst = ["admin", "editor", "superadmin"];

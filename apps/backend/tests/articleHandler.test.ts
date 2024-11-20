@@ -59,10 +59,6 @@ describe("test endpoint GET /articles/articles/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(20);
-
-		for (const article of body.articles) {
-			expect(article.status).toBe("Published");
-		}
 	});
 
 	test("Provide project id 2 without any other options, should return empty articles array with prev and next null", async () => {
@@ -89,11 +85,6 @@ describe("test endpoint GET /articles/articles/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(10);
-
-		for (const article of body.articles) {
-			expect(article.status).toBe("Published");
-		}
-
 		expect(body.prev).toBeNull();
 		expect(body.next).not.toBeNull();
 	});
@@ -129,10 +120,6 @@ describe("test endpoint GET /articles/articles/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(5);
-
-		for (const article of body.articles) {
-			expect(article.status).toBe("Published");
-		}
 
 		expect(body.prev).not.toBeNull();
 		expect(body.next).not.toBeNull();

@@ -13,6 +13,7 @@
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test:cms-handler": "vitest cmsHandler",
 		"test:article-handler": "vitest articleHandler",
+		"test:user-handler": "vitest userHandler",
 		"start": "node --env-file .env.local ./dist/index.js",
 		"build": "tsup-node --dts",
 		"build:types": "tsup --dts-only ./src/**/*.ts --out-dir ./../../backend-types"

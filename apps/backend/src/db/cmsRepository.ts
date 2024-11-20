@@ -128,7 +128,7 @@ export async function getArticleById(id: number) {
 				.coalesce(
 					eb.fn
 						.jsonAgg(
-							jsonBuildObject({
+							jsonbBuildObject({
 								phenomenon_id: eb.ref("phenomenon_query.id"),
 								name: eb.ref("phenomenon_query.phenomenon_name"),
 							}),
@@ -153,7 +153,7 @@ export async function getArticleById(id: number) {
 				.coalesce(
 					eb.fn
 						.jsonAgg(
-							jsonBuildObject({
+							jsonbBuildObject({
 								id: eb.ref("authors.id"),
 								firstname: eb.ref("authors.firstname"),
 								lastname: eb.ref("authors.lastname"),

@@ -13,7 +13,7 @@ export type Poststatus = "Draft" | "Published" | "ReadyToPublish" | "Unpublished
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export type Userroles = "admin" | "editor";
+export type Userroles = "admin" | "editor" | "superadmin";
 
 export interface AgeGroup {
 	age_group_name: string | null;

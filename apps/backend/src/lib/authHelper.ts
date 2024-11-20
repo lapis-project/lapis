@@ -1,6 +1,7 @@
 import { createMiddleware } from "hono/factory";
 
 import type { Context } from "@/lib/context";
+import type { Userroles } from "@/types/db";
 
 export const restrictedRoute = createMiddleware<Context>(async (c, next) => {
 	const sessionCookie = c.get("session");
@@ -12,3 +13,37 @@ export const restrictedRoute = createMiddleware<Context>(async (c, next) => {
 
 	return next();
 });
+
+export const checkIfPrivilegedForAdminOrHigher = createMiddleware<Context>(async (c, next) => {
+	// Check if the role of the user is admin or higher
+	const userRole = c.get("role");
+
+	if (userRole !== "admin" && userRole !== "superadmin") {
+		return c.json("Forbidden action", 403);
+	}
+	return next();
+});
+
+export const checkIfPrivilegedForsuperadmin = createMiddleware<Context>(async (c, next) => {
+	// Check if the role of the user is superadmin
+	const userRole = c.get("role");
+
+	if (userRole !== "superadmin") {
+		return c.json("Forbidden action", 403);
+	}
+	return next();
+});
+
+export const checkIfRoleIsAllowed = (
+	editedUserRole: Userroles | null,
+	userRole: Userroles | null,
+) => {
+	if (
+		(editedUserRole === "admin" || editedUserRole === "superadmin") &&
+		userRole !== "superadmin"
+	) {
+		return false;
+	}
+
+	return true;
+};

@@ -18,17 +18,17 @@ export const checkIfPrivilegedForAdminOrHigher = createMiddleware<Context>(async
 	// Check if the role of the user is admin or higher
 	const userRole = c.get("role");
 
-	if (userRole !== "admin" && userRole !== "superuser") {
+	if (userRole !== "admin" && userRole !== "superadmin") {
 		return c.json("Forbidden action", 403);
 	}
 	return next();
 });
 
-export const checkIfPrivilegedForSuperuser = createMiddleware<Context>(async (c, next) => {
-	// Check if the role of the user is superuser
+export const checkIfPrivilegedForsuperadmin = createMiddleware<Context>(async (c, next) => {
+	// Check if the role of the user is superadmin
 	const userRole = c.get("role");
 
-	if (userRole !== "superuser") {
+	if (userRole !== "superadmin") {
 		return c.json("Forbidden action", 403);
 	}
 	return next();
@@ -38,7 +38,10 @@ export const checkIfRoleIsAllowed = (
 	editedUserRole: Userroles | null,
 	userRole: Userroles | null,
 ) => {
-	if ((editedUserRole === "admin" || editedUserRole === "superuser") && userRole !== "superuser") {
+	if (
+		(editedUserRole === "admin" || editedUserRole === "superadmin") &&
+		userRole !== "superadmin"
+	) {
 		return false;
 	}
 

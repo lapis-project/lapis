@@ -72,9 +72,9 @@ const userByRole = user.get("/roles/:role", async (c) => {
 });
 
 /**
- * Edits the user role of the user with the provided id. The userrole can only be edited by admins or superusers.
- * Admins are able to edit the userrole of all users which are not admins or superusers.
- * Superusers can edit the userrole of all users.
+ * Edits the user role of the user with the provided id. The userrole can only be edited by admins or superadmins.
+ * Admins are able to edit the userrole of all users which are not admins or superadmins.
+ * superadmins can edit the userrole of all users.
  * @param {number} id - The id of the user which will have their role edited
  * @returns {Object} - The edited user object
  * @returns status code 200 with the edited user object if everything is successful and the user data has been edited
@@ -111,7 +111,10 @@ const editUserRole = user.put("/roles/:id", vValidator("json", editRoleSchema), 
 	const userRole = c.get("role");
 	const editedUserRole = userObject.role_name;
 
-	if ((editedUserRole === "admin" || editedUserRole === "superuser") && userRole !== "superuser") {
+	if (
+		(editedUserRole === "admin" || editedUserRole === "superadmin") &&
+		userRole !== "superadmin"
+	) {
 		return c.json("Forbidden action", 403);
 	}
 
@@ -121,8 +124,8 @@ const editUserRole = user.put("/roles/:id", vValidator("json", editRoleSchema), 
 
 /**
  * Edits the user data of the user with the provided id. The user can only edit their own data.
- * Admins are able to edit the data of all users which are not admins or superusers.
- * Superusers can edit the data of all users.
+ * Admins are able to edit the data of all users which are not admins or superadmins.
+ * superadmins can edit the data of all users.
  * The handler expects an object where username, email and firstname are required and the lastname is optional
  *
  * @param {number} id - The id of the user which will be edited
@@ -163,8 +166,8 @@ const editOwnUserData = user.put("/data/:id", vValidator("json", editUserDataSch
 
 /**
  * Changes the password of the user with the provided id. The user can only change their own password.
- * Admins are able to change the password of all users which are not admins or superusers.
- * Superusers can change the password of all users.
+ * Admins are able to change the password of all users which are not admins or superadmins.
+ * superadmins can change the password of all users.
  *
  * The password is in the body of the request and needs to be a string
  * @param {number} id - The id of the user which will have their password changed

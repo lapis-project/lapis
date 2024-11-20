@@ -10,4 +10,4 @@ export const postStatusConst = ["Draft", "Published", "ReadyToPublish", "Unpubli
 
 export const availableLangConst = ["de", "en"];
 
-export const userRolesConst = ["admin", "editor", "superuser"];
+export const userRolesConst = ["admin", "editor", "superadmin"];

@@ -420,8 +420,6 @@ const handleFileChange = (event) => {
 	</div>
 </template>
 
-<!-- <style lang="css" src="@/assets/css/article-content.css"></style> -->
-
 <style lang="css" scoped>
 .article-content :deep(.tiptap:focus-visible) {
 	outline: none;

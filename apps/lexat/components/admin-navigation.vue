@@ -3,17 +3,17 @@ const t = useTranslations();
 
 const collections = [
 	{
-		label: "Articles",
+		label: t("AdminNavigation.articles"),
 		alias: "articles",
 		disabled: false,
 	},
 	{
-		label: "Users (Soon)",
+		label: `${t("AdminNavigation.users")} (soon)`,
 		alias: "users",
 		disabled: true,
 	},
 	{
-		label: "Categories (Soon)",
+		label: `${t("AdminNavigation.categories")} (soon)`,
 		alias: "categories",
 		disabled: true,
 	},
@@ -26,7 +26,7 @@ const collections = [
 			<h2 class="uppercase text-muted-foreground">
 				{{ t("AdminPage.navigation.collections") }}
 			</h2>
-			<div class="rounded-md bg-muted px-2 py-1 leading-none text-muted">
+			<div class="rounded-md bg-muted px-2 py-1 leading-none text-muted-foreground">
 				{{ collections.length }}
 			</div>
 		</div>
@@ -39,7 +39,7 @@ const collections = [
 				>
 					{{ collection.label }}
 				</NuxtLinkLocale>
-				<span v-else class="cursor-not-allowed"> {{ collection.label }}</span>
+				<span v-else class="cursor-not-allowed text-muted-foreground"> {{ collection.label }}</span>
 			</li>
 		</ul>
 	</aside>

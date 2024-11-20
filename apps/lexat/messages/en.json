@@ -5,6 +5,11 @@
 		},
 		"title": "About"
 	},
+	"AdminNavigation": {
+		"articles": "Articles",
+		"users": "Users",
+		"categories": "Categories"
+	},
 	"AdminPage": {
 		"meta": {
 			"title": "Admin"

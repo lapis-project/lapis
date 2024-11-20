@@ -46,8 +46,7 @@ usePageMetadata({
 				><Plus class="mr-2 size-4" />{{ t("AdminPage.categories.articles.new") }}</Button
 			>
 		</div>
-		<!-- <div class="col-span-4 rounded border p-8"> -->
+
 		<ArticleTable :columns="columns" :data="tableData"></ArticleTable>
-		<!-- </div> -->
 	</MainContent>
 </template>

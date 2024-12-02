@@ -3,7 +3,7 @@ import { Edit, Trash } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
 
-const { deleteArticle } = useArticles();
+const { deleteArticle } = useAdminArticles();
 const { toast } = useToast();
 const t = useTranslations();
 

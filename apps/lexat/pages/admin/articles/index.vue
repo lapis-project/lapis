@@ -4,7 +4,7 @@ import { Plus } from "lucide-vue-next";
 import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
 
-const { articles } = useArticles();
+const { articles, currentPage, totalPages, setCurrentPage } = useAdminArticles();
 const { statusOptions } = useArticleStatus();
 
 const localePath = useLocalePath();
@@ -47,6 +47,12 @@ usePageMetadata({
 			>
 		</div>
 
-		<ArticleTable :columns="columns" :data="tableData"></ArticleTable>
+		<ArticleTable class="mb-5" :columns="columns" :data="tableData"></ArticleTable>
+		<Pagination
+			:current-page="currentPage"
+			:items-per-page="20"
+			:total-pages="totalPages"
+			@update:page="setCurrentPage"
+		></Pagination>
 	</MainContent>
 </template>

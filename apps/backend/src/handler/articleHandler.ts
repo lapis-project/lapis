@@ -73,6 +73,7 @@ const articleRoute = articles.get("/articles/:project", async (c) => {
 		searchTerm ?? "",
 		category ?? "",
 		"Published",
+		lang,
 	);
 
 	const articles = fetchedArticles[0]?.articles;

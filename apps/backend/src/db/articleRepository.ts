@@ -84,7 +84,7 @@ export async function getArticleByAlias(alias: string) {
 				.coalesce(
 					eb.fn
 						.jsonAgg(
-							jsonBuildObject({
+							jsonbBuildObject({
 								firstname: eb.ref("authors.firstname"),
 								lastname: eb.ref("authors.lastname"),
 							}),
@@ -105,10 +105,11 @@ export async function getAllArticlesByProject(
 	searchTerm: string,
 	postType: string,
 	postStatus: Poststatus,
+	lang?: string,
 ) {
 	const query = db
-		.with("post_query", (query) =>
-			query
+		.with("post_query", (query) => {
+			let baseQuery = query
 				.selectFrom("post")
 				.innerJoin("project_post", "post.id", "project_post.post_id")
 				.leftJoin("user_post", "post.id", "user_post.post_id")
@@ -117,7 +118,13 @@ export async function getAllArticlesByProject(
 				.where("project_post.project_id", "=", projectId)
 				.where("post.title", "~*", searchTerm)
 				.where("post_type.post_type_name", "~*", postType)
-				.where("post.post_status", "=", postStatus)
+				.where("post.post_status", "=", postStatus);
+
+			if (lang) {
+				baseQuery = baseQuery.where("post.lang", "=", lang);
+			}
+
+			return baseQuery
 				.select(({ eb }) => [
 					sql<number>`ROW_NUMBER() OVER (order by post.id) as rn`,
 					eb.ref("post.id").as("post_id"),
@@ -144,8 +151,8 @@ export async function getAllArticlesByProject(
 						)
 						.as("authors"),
 				])
-				.groupBy(["post.id", "post_type.post_type_name"]),
-		)
+				.groupBy(["post.id", "post_type.post_type_name"]);
+		})
 		.selectFrom("post_query")
 		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
 		.select(({ eb, fn }) => [

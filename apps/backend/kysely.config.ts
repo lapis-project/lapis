@@ -6,7 +6,7 @@ export default defineConfig({
 	kysely: db,
 	migrations: {
 		allowJS: true,
-		migrationFolder: "./../../db/migrations",
+		migrationFolder: "./db/migrations",
 	},
 	// replace me with a real dialect instance OR a dialect name + `dialectConfig` prop
 	//   migrations: {

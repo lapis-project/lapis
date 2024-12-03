@@ -34,16 +34,16 @@ const createNewArticle = async () => {
 };
 
 usePageMetadata({
-	title: t("Categories.articles.title"),
+	title: t("AdminPage.meta.title"),
 });
 </script>
 
 <template>
 	<MainContent class="w-full content-start">
 		<div class="mb-8 flex justify-between">
-			<PageTitle>{{ t("Categories.articles.title") }}</PageTitle>
+			<PageTitle>{{ t("AdminPage.articles.title") }}</PageTitle>
 			<Button @click="createNewArticle"
-				><Plus class="mr-2 size-4" />{{ t("Categories.articles.new") }}</Button
+				><Plus class="mr-2 size-4" />{{ t("AdminPage.articles.new") }}</Button
 			>
 		</div>
 

@@ -16,13 +16,9 @@
 		},
 		"articles": {
 			"deletion_succeeded": "Artikel erfolgreich gelöscht",
-			"deletion_failed": "Löschung des Artikels fehlgeschlagen"
-		},
-		"categories": {
-			"articles": {
-				"title": "Artikel",
-				"new": "Neuer Artikel"
-			}
+			"deletion_failed": "Löschung des Artikels fehlgeschlagen",
+			"title": "Artikel",
+			"new": "Neuer Artikel"
 		},
 		"editor": {
 			"abstract": "Abstrakt",

@@ -16,13 +16,9 @@
 		},
 		"articles": {
 			"deletion_succeeded": "Article deleted",
-			"deletion_failed": "Deletion of article has failed"
-		},
-		"categories": {
-			"articles": {
-				"title": "Articles",
-				"new": "New Article"
-			}
+			"deletion_failed": "Deletion of article has failed",
+			"title": "Articles",
+			"new": "New Article"
 		},
 		"editor": {
 			"abstract": "Abstract",

@@ -112,11 +112,7 @@ export async function getAllArticlesByProject(
 				.selectFrom("post")
 				.innerJoin("project_post", "post.id", "project_post.post_id")
 				.leftJoin("user_post", "post.id", "user_post.post_id")
-				.leftJoin("user_account", (join) =>
-					join
-						.onRef("user_post.user_id", "=", "user_account.id")
-						.onRef("post.creator_id", "=", "user_account.id"),
-				)
+				.leftJoin("user_account", (join) => join.onRef("user_post.user_id", "=", "user_account.id"))
 				.innerJoin("post_type", "post.post_type_id", "post_type.id")
 				.where("project_post.project_id", "=", projectId)
 				.where("post.title", "~*", searchTerm)
@@ -133,11 +129,17 @@ export async function getAllArticlesByProject(
 					eb.ref("post_type.post_type_name").as("post_type"),
 					eb.ref("post.creator_id").as("creator_id"),
 					eb.fn
-						.jsonAgg(
-							jsonbBuildObject({
-								firstname: eb.ref("user_account.firstname"),
-								lastname: eb.ref("user_account.lastname"),
-							}),
+						.coalesce(
+							eb.fn
+								.jsonAgg(
+									jsonBuildObject({
+										firstname: eb.ref("user_account.firstname"),
+										lastname: eb.ref("user_account.lastname"),
+									}),
+								)
+								.filterWhere("user_post.post_id", "is not", null)
+								.filterWhere("post.creator_id", "is not", null),
+							sql`'[]'`,
 						)
 						.as("authors"),
 				])
@@ -154,9 +156,9 @@ export async function getAllArticlesByProject(
 						alias: eb.ref("post_query.alias"),
 						abstract: eb.ref("post_query.abstract"),
 						post_type: eb.ref("post_query.post_type"),
-						authors: eb.ref("authors"),
-						cover: eb.ref("cover"),
-						cover_alt: eb.ref("cover_alt"),
+						authors: eb.ref("post_query.authors"),
+						cover: eb.ref("post_query.cover"),
+						cover_alt: eb.ref("post_query.cover_alt"),
 					}),
 				)
 				.filterWhere("rn", ">", offset)

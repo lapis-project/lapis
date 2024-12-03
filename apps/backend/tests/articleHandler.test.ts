@@ -48,7 +48,7 @@ describe("test endpoint GET /articles/articles/:project", () => {
 		await logoutUser(loginHeaders);
 	});
 
-	test("Provide project id 1 with pagesize of 30 and leave other fields empty, should return 20 articles on one page with status published, expect fields prev and next to be null", async () => {
+	test("Provide project id 1 with pagesize of 30 and leave other fields empty, should return 20 articles on one page with status published, expect fields prev and next to be null, should contain both authors which were provided when the post was created", async () => {
 		const response = await app.request("/articles/articles/1?pageSize=30", {
 			headers: loginHeaders,
 		});
@@ -59,6 +59,14 @@ describe("test endpoint GET /articles/articles/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(20);
+
+		const singleArticle = body.articles[0];
+		expect(singleArticle).toHaveProperty("authors");
+		expect(singleArticle.authors.length).toBe(2);
+		expect(singleArticle.authors[0].firstname).not.toBeNull();
+		expect(singleArticle.authors[0].lastname).not.toBeNull();
+		expect(singleArticle.authors[1].firstname).not.toBeNull();
+		expect(singleArticle.authors[1].lastname).not.toBeNull();
 	});
 
 	test("Provide project id 2 without any other options, should return empty articles array with prev and next null", async () => {

@@ -126,7 +126,7 @@ if (routeId && routeId !== "new") {
 		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
 			articleBibliography.includes(b.key),
 		);
-		selectedQuestion.value = article.phenomenon[0].name;
+		selectedQuestion.value = article.phenomenon?.[0]?.name ?? null;
 		postId.value = article.post_id;
 		activeStatus.value = article.post_status;
 	}
@@ -297,6 +297,12 @@ watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
 });
 
+watch(selectedCategory, (newValue) => {
+	if (newValue !== "commentary") {
+		selectedQuestion.value = null;
+	}
+});
+
 usePageMetadata({
 	title: t("AdminPage.meta.title"),
 });
@@ -426,7 +432,10 @@ usePageMetadata({
 						/>
 					</div>
 
-					<div v-if="mappedQuestions" class="grid max-w-sm items-center gap-1.5">
+					<div
+						v-if="selectedCategory === 'commentary' && mappedQuestions"
+						class="grid max-w-sm items-center gap-1.5"
+					>
 						<Label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</Label>
 						<Combobox
 							id="phenomenon"

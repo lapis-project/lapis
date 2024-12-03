@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-vue-next";
 
 import { useCitationGenerator } from "@/composables/citationGenerator";
 import type { Article } from "@/types/api";
+import { formatAuthors } from "@/utils/article-helper";
 import { addIdsToHeadings } from "@/utils/html-helpers";
 import { useFetch, useRoute } from "#app";
 
@@ -13,12 +14,22 @@ const env = useRuntimeConfig();
 const route = useRoute();
 const alias = route.params.alias;
 
-const { data: article } = await useFetch<Article>(`/api/article/${alias}`);
+const { data } = await useFetch<{ article: Article }>(`articles/detail/${alias}`, {
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+	credentials: "include",
+});
 
-if (article.value?.content) {
-	const enrichedContent = addIdsToHeadings(article.value.content);
-	article.value.content = enrichedContent;
-}
+const article = computed(() => {
+	return data.value?.article;
+});
+
+onMounted(() => {
+	if (article.value?.content && article.value.content.length) {
+		const enrichedContent = addIdsToHeadings(article.value.content);
+		article.value.content = enrichedContent;
+	}
+});
 
 const publishedAt = computed(() => {
 	const publishDate = article.value?.publishedAt ? new Date(article.value.publishedAt) : undefined;
@@ -59,20 +70,6 @@ const tableOfContents = computed(() => {
 	return toc;
 });
 
-const formattedAuthors = computed(() => {
-	// map the authors to the "<lastName>, <firstName>" format
-	const authorNames = article.value?.authors.map(
-		(author) => `${author.lastName}, ${author.firstName}`,
-	);
-	if (!authorNames) {
-		return "";
-	}
-
-	const authorsString = authorNames.join(" / ");
-
-	return authorsString;
-});
-
 if (!bibliographyItems.value.length) {
 	await fetchBibliographyItems();
 }
@@ -94,24 +91,28 @@ usePageMetadata({
 		>
 		<div class="flex gap-8">
 			<article v-if="article" class="w-3/4">
-				<p
-					class="mb-2 inline-block rounded-full bg-secondary px-2.5 py-1 text-sm font-bold dark:bg-neutral-600"
+				<div
+					class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 tracking-wider dark:text-primary-foreground"
 				>
-					{{ t(`ArticleDetailPage.category.${article.category}`) }}
-				</p>
+					{{ t(`AdminPage.editor.category.${article.post_type_name}`) }}
+				</div>
 				<PageTitle class="mb-2">{{ article.title }}</PageTitle>
 				<div v-if="publishedAt" class="">
 					{{ t("ArticleDetailPage.published_at") }}:
 					{{ publishedAt }}
 				</div>
-				<p class="mb-3">{{ formattedAuthors }}</p>
-				<NuxtImg class="aspect-[16/9] rounded-t-lg" src="/images/posts/example-1-cropped.jpg" />
+				<p class="mb-3">{{ formatAuthors(article.authors) }}</p>
+				<NuxtImg
+					:alt="article.cover_alt"
+					class="aspect-[16/9] rounded-t-lg object-cover"
+					:src="article.cover"
+				/>
 				<hr class="mt-5" />
 
 				<div class="article-content" v-html="article.content"></div>
-				<div v-if="article.bibliography?.length" class="article-content">
+				<div v-if="article.bibliography && article.bibliography.length" class="article-content">
 					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>
-					<p v-for="key in article.bibliography" :key="key" v-html="getCitation(key)"></p>
+					<p v-for="key in article.bibliography" :key="key.name" v-html="getCitation(key.name)"></p>
 				</div>
 				<hr class="mt-5" />
 				<div v-if="article.citation">
@@ -125,7 +126,7 @@ usePageMetadata({
 				<section class="sticky top-10 border p-5">
 					<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>
 					<hr class="my-2" />
-					<ul class="list-inside list-disc">
+					<ul class="-ml-4 list-inside list-disc">
 						<li
 							v-for="item in tableOfContents"
 							:key="item.id"

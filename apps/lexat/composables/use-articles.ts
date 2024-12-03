@@ -5,11 +5,15 @@ export function useArticles() {
 
 	const currentPage = ref(1);
 
+	const selectedCategory = ref<string | null>(null);
+
+	const selectedLanguage = ref<"de" | "en" | null>(null);
+
 	const { data, refresh } = useFetch<{
 		articles: Array<{
 			abstract: string;
 			alias: string;
-			authors: Array<{ lastname: string | null; firstname: string | null }>;
+			authors: Array<{ lastname: string; firstname: string }>;
 			cover: string;
 			cover_alt: string;
 			post_id: string;
@@ -19,13 +23,15 @@ export function useArticles() {
 		}>;
 		totalResults: number;
 	}>("articles/articles/1", {
-		query: { page: currentPage },
+		query: { page: currentPage, category: selectedCategory, lang: selectedLanguage },
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
 		credentials: "include",
 	});
 
 	const articles = computed(() => data.value?.articles ?? []);
+
+	const totalResults = computed(() => data.value?.totalResults ?? 0);
 
 	const totalPages = computed(() => {
 		return data.value?.totalResults ? Math.ceil(data.value.totalResults / 20) : 0;
@@ -36,10 +42,12 @@ export function useArticles() {
 	};
 
 	return {
+		selectedCategory,
+		selectedLanguage,
 		currentPage,
 		articles,
 		totalPages,
-		totalResults: data.value?.totalResults ?? 0,
+		totalResults,
 		setCurrentPage,
 		refreshArticles: refresh,
 	};

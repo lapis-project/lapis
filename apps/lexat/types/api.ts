@@ -13,6 +13,7 @@ export interface Article {
 	status: string;
 	bibliography?: Array<string>;
 	cover?: string;
+	cover_alt?: string;
 	phenomenon?: string;
 	citation?: string;
 	language?: string;

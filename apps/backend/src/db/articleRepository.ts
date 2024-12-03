@@ -128,6 +128,7 @@ export async function getAllArticlesByProject(
 					eb.ref("post.cover_alt").as("cover_alt"),
 					eb.ref("post_type.post_type_name").as("post_type"),
 					eb.ref("post.creator_id").as("creator_id"),
+					eb.ref("post.published_at").as("published_at"),
 					eb.fn
 						.coalesce(
 							eb.fn
@@ -159,6 +160,7 @@ export async function getAllArticlesByProject(
 						authors: eb.ref("post_query.authors"),
 						cover: eb.ref("post_query.cover"),
 						cover_alt: eb.ref("post_query.cover_alt"),
+						published_at: eb.ref("post_query.published_at"),
 					}),
 				)
 				.filterWhere("rn", ">", offset)

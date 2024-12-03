@@ -17,7 +17,8 @@ usePageMetadata({
 		<div class="article-content">
 			<template v-if="currentLocale === 'de'">
 				<p>
-					LexAT21 (Lexikalischer Atlas des 21. Jahrhunderts) ist eine Kollaboration zwischen dem
+					LexAT21 (Atlas zur Lexik in Österreich im 21. Jahrhundert) ist eine Kollaboration zwischen
+					dem
 					<a href="https://www.oeaw.ac.at/acdh/acdh-ch-home" target="_blank"
 						>Austrian Centre for Digital Humanities and Cultural Heritage</a
 					>
@@ -53,7 +54,8 @@ usePageMetadata({
 			</template>
 			<template v-else>
 				<p>
-					LexAT21 (Lexical Atlas of the 21st Century) is a collaborative project between the
+					LexAT21 (Atlas on Lexis in Austria in the 21st century) is a collaborative project between
+					the
 					<a href="https://www.oeaw.ac.at/acdh/acdh-ch-home" target="_blank"
 						>Austrian Centre for Digital Humanities and Cultural Heritage</a
 					>

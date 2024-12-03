@@ -126,7 +126,7 @@ if (routeId && routeId !== "new") {
 		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
 			articleBibliography.includes(b.key),
 		);
-		selectedQuestion.value = article.phenomenon[0].name;
+		selectedQuestion.value = article.phenomenon?.[0]?.name ?? null;
 		postId.value = article.post_id;
 		activeStatus.value = article.post_status;
 	}
@@ -163,24 +163,42 @@ const saveArticle = async () => {
 	const authors = selectedAuthors.value.map(
 		(a) => authorsOptions.value.find((o) => o.label === a)?.id,
 	);
-	const article = {
+	const article: {
+		title: string;
+		alias: string;
+		cover: string;
+		cover_alt: string;
+		abstract: string;
+		content: string;
+		category: string;
+		authors: Array<number | undefined>;
+		bibliography: Array<string>;
+		status: string;
+		lang: "de" | "en";
+		citation: string;
+		projectId: Array<number>;
+		phenomenonId?: number;
+	} = {
 		title: title.value,
 		alias: alias.value,
 		cover: cover.value,
 		cover_alt: coverAlt.value,
 		abstract: abstract.value,
 		content: content.value,
-		category: selectedCategory.value,
+		category: selectedCategory.value ?? "",
 		authors,
 		bibliography: selectedBibliographyItems.value?.map((q) => q.key),
 		status: activeStatus.value,
 		lang: selectedLanguage.value,
-		phenomenonId: Number(
-			mappedQuestions.value?.find((q) => q.value === selectedQuestion.value)?.id,
-		),
 		citation: citation.value,
 		projectId: [1],
 	};
+
+	if (selectedQuestion.value) {
+		article["phenomenonId"] = Number(
+			mappedQuestions.value?.find((q) => q.value === selectedQuestion.value)?.id,
+		);
+	}
 
 	try {
 		const apiRoute = `/cms/articles/${postId.value ? `${postId.value}` : "create"}`;
@@ -277,6 +295,12 @@ const handleFileChange = async (event) => {
 
 watch(title, (newValue) => {
 	alias.value = generateAlias(newValue);
+});
+
+watch(selectedCategory, (newValue) => {
+	if (newValue !== "commentary") {
+		selectedQuestion.value = null;
+	}
 });
 
 usePageMetadata({
@@ -408,7 +432,10 @@ usePageMetadata({
 						/>
 					</div>
 
-					<div v-if="mappedQuestions" class="grid max-w-sm items-center gap-1.5">
+					<div
+						v-if="selectedCategory === 'commentary' && mappedQuestions"
+						class="grid max-w-sm items-center gap-1.5"
+					>
 						<Label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</Label>
 						<Combobox
 							id="phenomenon"

@@ -122,16 +122,16 @@
 		"meta": {
 			"title": "Articles"
 		},
-		"title": "Articles"
+		"title": "Articles",
+		"filters": {
+			"label": "Refine results",
+			"category": "Category",
+			"reset": "Reset selection"
+		}
 	},
 	"ArticleDetailPage": {
 		"back": "Back to overview",
 		"bibliography": "Bibliography",
-		"category": {
-			"commentary": "Card commentary",
-			"methodology": "Method description",
-			"project_description": "Project description"
-		},
 		"citation": "Citation suggestion",
 		"published_at": "Published at",
 		"more_articles": "Similar posts",
@@ -156,6 +156,11 @@
 		"signup_failed": "Signup failed",
 		"username": "Username",
 		"username_min_length": "Your username must contain at least 2 characters."
+	},
+	"Categories": {
+		"commentary": "Card commentary",
+		"methodology": "Method description",
+		"project_description": "Project description"
 	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Change color scheme",
@@ -198,9 +203,9 @@
 	},
 	"IndexPage": {
 		"meta": {
-			"title": "Home"
+			"title": "Atlas on Lexis in Austria in the 21st century"
 		},
-		"title": "Home"
+		"title": "Atlas on Lexis in Austria in the 21st century"
 	},
 	"LocaleSwitcher": {
 		"current-locale": "Current language: {locale}",

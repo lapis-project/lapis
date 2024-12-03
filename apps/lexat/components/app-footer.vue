@@ -5,8 +5,12 @@ const t = useTranslations();
 
 const links = computed(() => {
 	return {
-		imprint: { to: { path: "/imprint" }, label: t("AppFooter.links.imprint") },
-	} satisfies Record<string, { to: NuxtLinkProps["to"]; label: string }>;
+		imprint: {
+			to: { path: "https://www.oeaw.ac.at/oeaw/impressum/" },
+			label: t("AppFooter.links.imprint"),
+			target: "_blank",
+		},
+	} satisfies Record<string, { to: NuxtLinkProps["to"]; label: string; target: string }>;
 });
 </script>
 
@@ -16,9 +20,9 @@ const links = computed(() => {
 			<nav :aria-label="t('AppFooter.navigation-secondary')">
 				<ul class="flex items-center gap-4" role="list">
 					<li v-for="(link, key) of links" :key="key">
-						<NuxtLinkLocale :to="link.to">
+						<NuxtLink :target="link.target" :to="link.to.path">
 							{{ link.label }}
-						</NuxtLinkLocale>
+						</NuxtLink>
 					</li>
 				</ul>
 			</nav>

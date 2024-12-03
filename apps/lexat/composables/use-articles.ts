@@ -3,54 +3,52 @@ import { computed } from "vue";
 export function useArticles() {
 	const env = useRuntimeConfig();
 
+	const currentPage = ref(1);
+
+	const selectedCategory = ref<string | null>(null);
+
+	const selectedLanguage = ref<"de" | "en" | null>(null);
+
 	const { data, refresh } = useFetch<{
-		prev: string | null;
-		next: string | null;
 		articles: Array<{
-			post_id: number;
-			title: string;
-			alias: string;
-			content: string;
 			abstract: string;
-			status: string;
+			alias: string;
+			authors: Array<{ lastname: string; firstname: string }>;
+			cover: string;
+			cover_alt: string;
+			post_id: string;
 			post_type: string;
-			authors: Array<{
-				user_id: number;
-				username: string;
-				email: string;
-				firstname: string;
-				lastname: string;
-			}>;
+			title: string;
+			published_at: string;
 		}>;
-		currentPage: string;
 		totalResults: number;
-	}>("/cms/articles/all/1", {
+	}>("articles/articles/1", {
+		query: { page: currentPage, category: selectedCategory, lang: selectedLanguage },
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
 		credentials: "include",
 	});
 
-	// Computed property for articles
 	const articles = computed(() => data.value?.articles ?? []);
 
-	// Method to delete an article
-	const deleteArticle = async (articleId: number) => {
-		try {
-			await $fetch(`/cms/articles/${articleId.toString()}`, {
-				method: "DELETE",
-				baseURL: env.public.apiBaseUrl,
-				credentials: "include",
-			});
-			await refresh();
-		} catch (error) {
-			console.error("Failed to delete article:", error);
-			throw error;
-		}
+	const totalResults = computed(() => data.value?.totalResults ?? 0);
+
+	const totalPages = computed(() => {
+		return data.value?.totalResults ? Math.ceil(data.value.totalResults / 20) : 0;
+	});
+
+	const setCurrentPage = (newValue: number) => {
+		currentPage.value = newValue;
 	};
 
 	return {
+		selectedCategory,
+		selectedLanguage,
+		currentPage,
 		articles,
-		deleteArticle,
+		totalPages,
+		totalResults,
+		setCurrentPage,
 		refreshArticles: refresh,
 	};
 }

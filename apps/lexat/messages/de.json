@@ -122,16 +122,16 @@
 		"meta": {
 			"title": "Artikel"
 		},
-		"title": "Artikel"
+		"title": "Artikel",
+		"filters": {
+			"label": "Suche verfeinern",
+			"category": "Kategorie",
+			"reset": "Auswahl zurücksetzen"
+		}
 	},
 	"ArticleDetailPage": {
 		"back": "Zurück zur Übersicht",
 		"bibliography": "Literatur",
-		"category": {
-			"commentary": "Kartenkommentar",
-			"methodology": "Methodenbeschreibung",
-			"project_description": "Projektbeschreibung"
-		},
 		"citation": "Zitiervorschlag",
 		"published_at": "Veröffentlicht am",
 		"more_articles": "Ähnliche Beiträge",
@@ -156,6 +156,11 @@
 		"signup_failed": "Registrierung fehlgeschlagen",
 		"username": "Benutzername",
 		"username_min_length": "Ihr Benutzername muss mindestens 2 Zeichen enthalten."
+	},
+	"Categories": {
+		"commentary": "Kartenkommentar",
+		"methodology": "Methodenbeschreibung",
+		"project_description": "Projektbeschreibung"
 	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Farbschema ändern",

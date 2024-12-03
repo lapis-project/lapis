@@ -86,10 +86,10 @@ importers:
     devDependencies:
       '@acdh-oeaw/eslint-config':
         specifier: ^2.0.4
-        version: 2.0.4(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3)
+        version: 2.0.4(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3)
       '@acdh-oeaw/eslint-config-node':
         specifier: ^2.0.4
-        version: 2.0.4(@acdh-oeaw/eslint-config@2.0.4(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))
+        version: 2.0.4(@acdh-oeaw/eslint-config@2.0.4(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))
       '@acdh-oeaw/prettier-config':
         specifier: ^2.0.0
         version: 2.0.0(prettier@3.3.3)
@@ -107,7 +107,7 @@ importers:
         version: 8.11.10
       '@vitest/coverage-v8':
         specifier: ^2.1.4
-        version: 2.1.4(vitest@2.1.4)
+        version: 2.1.4(vitest@2.1.4(@types/node@22.8.7)(@vitest/ui@2.1.4)(terser@5.36.0))
       '@vitest/ui':
         specifier: ^2.1.4
         version: 2.1.4(vitest@2.1.4)
@@ -117,6 +117,9 @@ importers:
       kysely-codegen:
         specifier: ^0.17.0
         version: 0.17.0(kysely@0.27.4)(pg@8.13.1)
+      kysely-ctl:
+        specifier: ^0.9.0
+        version: 0.9.0(kysely@0.27.4)(magicast@0.3.5)
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
@@ -5182,6 +5185,17 @@ packages:
       tedious:
         optional: true
 
+  kysely-ctl@0.9.0:
+    resolution: {integrity: sha512-Ek4u/4vXV1nATw/RFXMuG6g76nXcD2f5RSMX/n2lbYDh1sJ53wp7QVYbxuLJwEmfHtLXlQFpDe5xPV2URxs+wg==}
+    engines: {node: '>=18'}
+    hasBin: true
+    peerDependencies:
+      kysely: '>=0.18.1 <0.28.0'
+      kysely-postgres-js: ^2
+    peerDependenciesMeta:
+      kysely-postgres-js:
+        optional: true
+
   kysely@0.27.4:
     resolution: {integrity: sha512-dyNKv2KRvYOQPLCAOCjjQuCk4YFd33BvGdf/o5bC7FiW+BB6snA81Zt+2wT9QDFzKqxKa5rrOmvlK/anehCcgA==}
     engines: {node: '>=14.0.0'}
@@ -7740,9 +7754,9 @@ snapshots:
       '@commitlint/cli': 19.5.0(@types/node@20.17.6)(typescript@5.6.3)
       '@commitlint/config-conventional': 19.5.0
 
-  '@acdh-oeaw/eslint-config-node@2.0.4(@acdh-oeaw/eslint-config@2.0.4(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))':
+  '@acdh-oeaw/eslint-config-node@2.0.4(@acdh-oeaw/eslint-config@2.0.4(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))':
     dependencies:
-      '@acdh-oeaw/eslint-config': 2.0.4(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3)
+      '@acdh-oeaw/eslint-config': 2.0.4(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3)
       eslint-plugin-n: 17.12.0(eslint@9.14.0(jiti@2.4.0))
     transitivePeerDependencies:
       - eslint
@@ -7789,26 +7803,6 @@ snapshots:
       eslint: 9.14.0(jiti@2.4.0)
       eslint-config-prettier: 9.1.0(eslint@9.14.0(jiti@2.4.0))
       eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))
-      eslint-plugin-import: eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
-      eslint-plugin-import-x: 4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
-      eslint-plugin-regexp: 2.6.0(eslint@9.14.0(jiti@2.4.0))
-      eslint-plugin-simple-import-sort: 12.1.1(eslint@9.14.0(jiti@2.4.0))
-      globals: 15.11.0
-      typescript: 5.6.3
-      typescript-eslint: 8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
-    transitivePeerDependencies:
-      - '@typescript-eslint/parser'
-      - eslint-import-resolver-node
-      - eslint-import-resolver-webpack
-      - supports-color
-
-  '@acdh-oeaw/eslint-config@2.0.4(eslint@9.14.0(jiti@2.4.0))(globals@15.11.0)(typescript@5.6.3)':
-    dependencies:
-      '@eslint/eslintrc': 3.1.0
-      '@eslint/js': 9.14.0
-      eslint: 9.14.0(jiti@2.4.0)
-      eslint-config-prettier: 9.1.0(eslint@9.14.0(jiti@2.4.0))
-      eslint-import-resolver-typescript: 3.6.3(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))
       eslint-plugin-import: eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
       eslint-plugin-import-x: 4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
       eslint-plugin-regexp: 2.6.0(eslint@9.14.0(jiti@2.4.0))
@@ -11890,7 +11884,7 @@ snapshots:
       vite: 5.4.10(@types/node@22.8.7)(terser@5.36.0)
       vue: 3.5.12(typescript@5.6.3)
 
-  '@vitest/coverage-v8@2.1.4(vitest@2.1.4)':
+  '@vitest/coverage-v8@2.1.4(vitest@2.1.4(@types/node@22.8.7)(@vitest/ui@2.1.4)(terser@5.36.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -13205,26 +13199,6 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-import-resolver-typescript@3.6.3(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0)):
-    dependencies:
-      '@nolyfill/is-core-module': 1.0.39
-      debug: 4.3.7(supports-color@9.4.0)
-      enhanced-resolve: 5.17.1
-      eslint: 9.14.0(jiti@2.4.0)
-      eslint-module-utils: 2.12.0(eslint-import-resolver-typescript@3.6.3(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0)))(eslint@9.14.0(jiti@2.4.0))
-      fast-glob: 3.3.2
-      get-tsconfig: 4.8.1
-      is-bun-module: 1.2.1
-      is-glob: 4.0.3
-    optionalDependencies:
-      eslint-plugin-import: eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
-      eslint-plugin-import-x: 4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
-    transitivePeerDependencies:
-      - '@typescript-eslint/parser'
-      - eslint-import-resolver-node
-      - eslint-import-resolver-webpack
-      - supports-color
-
   eslint-module-utils@2.12.0(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0)))(eslint@9.14.0(jiti@2.4.0)):
     dependencies:
       debug: 3.2.7
@@ -13232,15 +13206,6 @@ snapshots:
       '@typescript-eslint/parser': 8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3)
       eslint: 9.14.0(jiti@2.4.0)
       eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.12.2(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))
-    transitivePeerDependencies:
-      - supports-color
-
-  eslint-module-utils@2.12.0(eslint-import-resolver-typescript@3.6.3(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0)))(eslint@9.14.0(jiti@2.4.0)):
-    dependencies:
-      debug: 3.2.7
-    optionalDependencies:
-      eslint: 9.14.0(jiti@2.4.0)
-      eslint-import-resolver-typescript: 3.6.3(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint-plugin-import-x@4.4.0(eslint@9.14.0(jiti@2.4.0))(typescript@5.6.3))(eslint@9.14.0(jiti@2.4.0))
     transitivePeerDependencies:
       - supports-color
 
@@ -14279,6 +14244,21 @@ snapshots:
       pluralize: 8.0.0
     optionalDependencies:
       pg: 8.13.1
+
+  kysely-ctl@0.9.0(kysely@0.27.4)(magicast@0.3.5):
+    dependencies:
+      c12: 1.11.2(magicast@0.3.5)
+      citty: 0.1.6
+      consola: 3.2.3
+      kysely: 0.27.4
+      nypm: 0.3.12
+      ofetch: 1.4.1
+      pathe: 1.1.2
+      pkg-types: 1.2.1
+      std-env: 3.7.0
+      tsx: 4.19.2
+    transitivePeerDependencies:
+      - magicast
 
   kysely@0.27.4: {}
 

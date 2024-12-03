@@ -49,6 +49,7 @@ const createNewArticleSchema = object({
 	survey_conducted: optional(array(string())),
 });
 
+/*
 const searchArticleSchema = object({
 	searchTerm: optional(string()),
 	page: optional(number()),
@@ -56,6 +57,7 @@ const searchArticleSchema = object({
 	pageSize: optional(number()),
 	category: optional(string()), // Does it allow as an enum? ARTICLE | BLOG | NEWS
 });
+*/
 
 // Enable in order to restrict the route only to signed in users
 cms.use("*", restrictedRoute);

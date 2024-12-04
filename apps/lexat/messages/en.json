@@ -126,6 +126,7 @@
 		}
 	},
 	"ArticleDetailPage": {
+		"authors": "Authors",
 		"back": "Back to overview",
 		"bibliography": "Bibliography",
 		"citation": "Citation suggestion",

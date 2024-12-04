@@ -2,7 +2,6 @@
 import { ArrowLeft } from "lucide-vue-next";
 
 import { useCitationGenerator } from "@/composables/citationGenerator";
-import type { Article } from "@/types/api";
 import { formatAuthors } from "@/utils/article-helper";
 import { addIdsToHeadings } from "@/utils/html-helpers";
 import { useFetch, useRoute } from "#app";
@@ -14,7 +13,38 @@ const env = useRuntimeConfig();
 const route = useRoute();
 const alias = route.params.alias;
 
-const { data } = await useFetch<{ article: Article }>(`articles/detail/${alias}`, {
+interface APIArticleResponse {
+	article: {
+		post_id: number;
+		title: string;
+		alias: string;
+		cover: string;
+		cover_alt: string;
+		abstract: string;
+		content: string;
+		lang: string;
+		published_at: string; // ISO date string
+		updated_at: string; // ISO date string
+		created_at: string; // ISO date string
+		citation: string;
+		creator_firstname: string;
+		creator_lastname: string;
+		post_type_name: string;
+		phenomenon: Array<{
+			phenomenon_id: number;
+			name: string;
+		}>;
+		bibliography: Array<{
+			name: string;
+		}>;
+		authors: Array<{
+			firstname: string;
+			lastname: string;
+		}>;
+	};
+}
+
+const { data } = await useFetch<APIArticleResponse>(`articles/detail/${alias}`, {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 	credentials: "include",
@@ -24,15 +54,21 @@ const article = computed(() => {
 	return data.value?.article;
 });
 
-onMounted(() => {
-	if (article.value?.content && article.value.content.length) {
-		const enrichedContent = addIdsToHeadings(article.value.content);
-		article.value.content = enrichedContent;
-	}
+const publishedAt = computed(() => {
+	const publishDate = article.value?.published_at
+		? new Date(article.value.published_at)
+		: undefined;
+	return publishDate
+		? publishDate.toLocaleDateString(undefined, {
+				year: "numeric",
+				month: "short",
+				day: "numeric",
+			})
+		: publishDate;
 });
 
-const publishedAt = computed(() => {
-	const publishDate = article.value?.publishedAt ? new Date(article.value.publishedAt) : undefined;
+const updatedAt = computed(() => {
+	const publishDate = article.value?.updated_at ? new Date(article.value.updated_at) : undefined;
 	return publishDate
 		? publishDate.toLocaleDateString(undefined, {
 				year: "numeric",
@@ -47,24 +83,19 @@ const tableOfContents = computed(() => {
 		return [];
 	}
 
-	// regex to match headings (h1, h2,...) with optional id attributes
-	const headingRegex = /<(h[1-6])\s*(?:id="([^"]+)")?>(.*?)<\/\1>/g;
+	// regex to match headings with mandatory IDs (assumes addIdsToHeadings has run)
+	const headingRegex = /<(h[1-6])\s+id="([^"]+)"[^>]*>(.*?)<\/\1>/g;
 	const toc = [];
 	let match;
 
-	while ((match = headingRegex.exec(article.value?.content)) !== null) {
+	// extract headings and build TOC
+	while ((match = headingRegex.exec(article.value.content)) !== null) {
 		const [_, tag, id, text] = match;
-		const level = parseInt(tag[1]);
+		if (tag?.[1]) {
+			const level = parseInt(tag[1]); // extract heading level (1-6)
 
-		// use the existing ID if it’s present, or generate a new one
-		const headingId =
-			id ||
-			text
-				.toLowerCase()
-				.replace(/\s+/g, "-")
-				.replace(/[^a-z0-9]/g, "");
-
-		toc.push({ text, level, id: headingId });
+			toc.push({ text, level, id });
+		}
 	}
 
 	return toc;
@@ -72,6 +103,11 @@ const tableOfContents = computed(() => {
 
 if (!bibliographyItems.value.length) {
 	await fetchBibliographyItems();
+}
+
+if (article.value?.content) {
+	const enrichedContent = addIdsToHeadings(article.value.content);
+	article.value.content = enrichedContent;
 }
 
 usePageMetadata({
@@ -96,15 +132,18 @@ usePageMetadata({
 				>
 					{{ t(`AdminPage.editor.category.${article.post_type_name}`) }}
 				</div>
-				<PageTitle class="mb-2">{{ article.title }}</PageTitle>
-				<div v-if="publishedAt" class="">
-					{{ t("ArticleDetailPage.published_at") }}:
-					{{ publishedAt }}
+				<PageTitle class="mb-3">{{ article.title }}</PageTitle>
+				<p class="mb-1">
+					{{ t("ArticleDetailPage.authors") }}: {{ formatAuthors(article.authors) }}
+				</p>
+				<div v-if="publishedAt" class="mb-4 italic">
+					{{ t("ArticleDetailPage.published_at") }}: {{ publishedAt }} ({{
+						t("ArticleDetailPage.updated_at")
+					}}: {{ updatedAt }})
 				</div>
-				<p class="mb-3">{{ formatAuthors(article.authors) }}</p>
 				<NuxtImg
 					:alt="article.cover_alt"
-					class="aspect-[16/9] rounded-t-lg object-cover"
+					class="aspect-[16/9] w-full rounded-t-lg object-cover"
 					:src="article.cover"
 				/>
 				<hr class="mt-5" />

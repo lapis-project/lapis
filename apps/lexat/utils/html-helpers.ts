@@ -1,20 +1,16 @@
 export const addIdsToHeadings = (htmlContent: string): string => {
-	const tempDiv = document.createElement("div");
-	tempDiv.innerHTML = htmlContent;
+	return htmlContent.replace(
+		/<(h[1-6])([^>]*)>(.*?)<\/\1>/gi, // Regex to match heading tags
+		(match: string, tagName: string, attributes: string, innerContent: string): string => {
+			// Generate an ID based on the inner text of the heading
+			const text = innerContent.replace(/<[^>]+>/g, ""); // Strip inner HTML tags
+			const id = text
+				.toLowerCase()
+				.replace(/\s+/g, "-")
+				.replace(/[^a-z0-9-]/g, ""); // Clean non-alphanumeric characters
 
-	const headings = tempDiv.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6");
-
-	// process each heading to generate an ID and set it as an attribute
-	headings.forEach((heading) => {
-		// use the innerText of the heading to create the ID
-		const text = heading.innerText || "";
-		const id = text
-			.toLowerCase()
-			.replace(/\s+/g, "-")
-			.replace(/[^a-z0-9-]/g, ""); // clean out any non-alphanumeric, non-hyphen chars
-
-		// set the generated ID as an attribute on the heading element
-		heading.id = id;
-	});
-	return tempDiv.innerHTML;
+			// Add the ID to the heading tag
+			return `<${tagName}${attributes} id="${id}">${innerContent}</${tagName}>`;
+		},
+	);
 };

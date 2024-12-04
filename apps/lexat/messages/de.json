@@ -126,6 +126,7 @@
 		}
 	},
 	"ArticleDetailPage": {
+		"authors": "Autoren",
 		"back": "Zurück zur Übersicht",
 		"bibliography": "Literatur",
 		"citation": "Zitiervorschlag",

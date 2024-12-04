@@ -14,6 +14,11 @@ usePageMetadata({
 <template>
 	<MainContent class="container max-w-5xl py-8">
 		<PageTitle class="mb-6">{{ t("IndexPage.title") }}</PageTitle>
+		<img
+			alt="Beispielkarte des Projekts LexAT21"
+			class="mb-6 aspect-[16/9] w-full object-cover"
+			src="/images/home.png"
+		/>
 		<div class="article-content">
 			<template v-if="currentLocale === 'de'">
 				<p>

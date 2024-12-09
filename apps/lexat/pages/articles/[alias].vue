@@ -110,6 +110,19 @@ if (article.value?.content) {
 	article.value.content = enrichedContent;
 }
 
+const jsonld = ref({
+	"@context": "https://schema.org",
+	"@type": "BlogPosting",
+	headline: article.value?.title,
+	image: article.value?.cover,
+	datePublished: article.value?.published_at,
+	dateModified: article.value?.updated_at,
+	author: article.value?.authors.map((a) => ({
+		"@type": "Person",
+		name: `${a.firstname} ${a.lastname}`,
+	})),
+});
+
 usePageMetadata({
 	title: article.value?.title ?? "Beitrag",
 	description: article.value?.abstract,
@@ -117,6 +130,7 @@ usePageMetadata({
 	cover: article.value?.cover,
 	url: `${env.public.apiBaseUrl}${route.fullPath}`,
 	contentType: "article",
+	jsonld: jsonld.value,
 });
 </script>
 
@@ -137,9 +151,10 @@ usePageMetadata({
 					{{ t("ArticleDetailPage.authors") }}: {{ formatAuthors(article.authors) }}
 				</p>
 				<div v-if="publishedAt" class="mb-4 italic">
-					{{ t("ArticleDetailPage.published_at") }}: {{ publishedAt }} ({{
-						t("ArticleDetailPage.updated_at")
-					}}: {{ updatedAt }})
+					{{ t("ArticleDetailPage.published_at") }}: {{ publishedAt }}
+					<span v-if="updatedAt && updatedAt !== publishedAt"
+						>({{ t("ArticleDetailPage.updated_at") }}: {{ updatedAt }})</span
+					>
 				</div>
 				<NuxtImg
 					:alt="article.cover_alt"
@@ -147,7 +162,6 @@ usePageMetadata({
 					:src="article.cover"
 				/>
 				<hr class="mt-5" />
-
 				<div class="article-content" v-html="article.content"></div>
 				<div v-if="article.bibliography && article.bibliography.length" class="article-content">
 					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>

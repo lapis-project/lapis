@@ -4,6 +4,7 @@ interface UsePageMetadataParams {
 	description?: MaybeRef<string>;
 	url?: MaybeRef<string>;
 	contentType?: MaybeRef<string>;
+	jsonld?: Record<string, unknown>;
 }
 
 export function usePageMetadata(params: UsePageMetadataParams): void {
@@ -25,5 +26,15 @@ export function usePageMetadata(params: UsePageMetadataParams): void {
 			{ name: "twitter:image", content: params.cover },
 			// NOTE: og:locale is already done by i18n
 		],
+		script:
+			params.jsonld && typeof params.jsonld === "object" && Object.keys(params.jsonld).length > 0
+				? [
+						{
+							hid: "breadcrumbs-json-ld",
+							type: "application/ld+json",
+							textContent: JSON.stringify(params.jsonld),
+						},
+					]
+				: [],
 	});
 }

@@ -118,6 +118,7 @@
 		},
 		"title": "Articles",
 		"filters": {
+			"apply": "Apply",
 			"label": "Refine results",
 			"category": "Category",
 			"reset": "Reset",

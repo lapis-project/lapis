@@ -1,20 +1,26 @@
 <script lang="ts" setup>
-import { RotateCcwIcon } from "lucide-vue-next";
+import { RotateCcwIcon, SearchIcon } from "lucide-vue-next";
 
 import type { DropdownOption } from "@/types/dropdown-option";
 import { formatAuthors } from "@/utils/article-helper";
 
 const t = useTranslations();
 
+const selectedCategory = ref<string | null>(null);
+
+const selectedLanguage = ref<"de" | "en" | null>(null);
+
 const {
 	articles,
-	selectedCategory,
-	selectedLanguage,
 	currentPage,
+	isPending,
 	setCurrentPage,
+	setSearchParams,
 	totalPages,
 	totalResults,
 } = useArticles();
+
+const searchInput = ref("");
 
 const categoryOptions = ref<Array<DropdownOption>>([
 	{ id: 1, value: "commentary", label: t("Categories.commentary") },
@@ -23,13 +29,15 @@ const categoryOptions = ref<Array<DropdownOption>>([
 ]);
 
 const languageOptions = [
-	{ value: "en", label: t("AdminPage.editor.language.english") },
-	{ value: "de", label: t("AdminPage.editor.language.german") },
+	{ value: "en", label: t("LocaleSwitcher.english") },
+	{ value: "de", label: t("LocaleSwitcher.german") },
 ];
 
 const resetSelection = () => {
 	selectedCategory.value = null;
 	selectedLanguage.value = null;
+	searchInput.value = "";
+	applySearchParams();
 };
 
 // const formatPublishDate = (publishedAt: string) => {
@@ -40,6 +48,16 @@ const resetSelection = () => {
 // 		day: "numeric",
 // 	});
 // };
+
+const applySearchParams = () => {
+	setSearchParams({
+		category: selectedCategory.value ?? undefined,
+		language: selectedLanguage.value ?? undefined,
+		searchTerm: searchInput.value || undefined,
+	});
+};
+
+applySearchParams();
 
 usePageMetadata({
 	title: t("ArticlesPage.meta.title"),
@@ -52,6 +70,21 @@ usePageMetadata({
 		<aside class="w-1/4 rounded border p-5">
 			<div class="mb-6 uppercase">
 				{{ t("ArticlesPage.filters.label") }}
+			</div>
+			<div class="mb-5 grid items-center gap-1.5">
+				<Label for="search">{{ t("ArticlesPage.filters.search.label") }}</Label>
+				<div class="relative w-64">
+					<Input
+						id="search"
+						v-model="searchInput"
+						class="pl-10"
+						:placeholder="t('ArticlesPage.filters.search.placeholder')"
+						type="text"
+					/>
+					<span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
+						<SearchIcon class="size-6 text-muted-foreground" />
+					</span>
+				</div>
 			</div>
 			<div v-if="categoryOptions" class="mb-5 grid max-w-sm items-center gap-1.5">
 				<Label for="category">{{ t("ArticlesPage.filters.category") }}</Label>
@@ -71,13 +104,16 @@ usePageMetadata({
 					:placeholder="t('AdminPage.editor.language.placeholder')"
 				/>
 			</div>
-			<Button class="gap-2" variant="outline" @click="resetSelection"
+			<Button class="mb-5 block w-64" type="submit" @click="applySearchParams">
+				{{ t("ArticlesPage.filters.apply") }}
+			</Button>
+			<Button class="w-64 gap-2" variant="outline" @click="resetSelection"
 				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon class="size-4"
 			/></Button>
 		</aside>
 		<div class="flex w-3/4 flex-col gap-8">
 			<div class="text-3xl">{{ totalResults }} Artikel</div>
-			<div v-for="article in articles" :key="article.alias">
+			<div v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
 				<div>
 					<div
 						class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 text-sm font-light tracking-wider dark:text-primary-foreground"

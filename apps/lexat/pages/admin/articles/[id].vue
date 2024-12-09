@@ -37,8 +37,8 @@ const cover = ref<string>("");
 const coverAlt = ref<string>("");
 const citation = ref<string>("");
 const languageOptions = [
-	{ value: "en", label: t("AdminPage.editor.language.english") },
-	{ value: "de", label: t("AdminPage.editor.language.german") },
+	{ value: "en", label: t("LocaleSwitcher.english") },
+	{ value: "de", label: t("LocaleSwitcher.german") },
 ];
 const selectedAuthors = ref<Array<string>>([]);
 const selectedCategory = ref<string | null>(null);
@@ -74,7 +74,31 @@ interface Article {
 	authors: Array<Author>;
 }
 
-const { data: informationList } = await useFetch("/cms/articles/create/info", {
+interface IAPIInformationList {
+	authors: Array<{
+		id: number;
+		value: number;
+		firstName: string;
+		lastName: string;
+	}>;
+	categories: Array<{
+		id: number;
+		name: string;
+		category: string;
+	}>;
+	phenomenon: Array<{
+		id: number;
+		name: string;
+		category: string;
+	}>;
+	survey: Array<{
+		id: number;
+		name: string;
+		category: string;
+	}>;
+}
+
+const { data: informationList } = await useFetch<IAPIInformationList>("/cms/articles/create/info", {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 	credentials: "include",
@@ -82,7 +106,7 @@ const { data: informationList } = await useFetch("/cms/articles/create/info", {
 
 const categoryOptions = ref<Array<DropdownOption>>([]);
 const mappedQuestions = ref<Array<DropdownOption>>([]);
-const users = ref<Array<{ id: number; value: string; firstName: string; lastName: string }>>([]);
+const users = ref<Array<{ id: number; value: number; firstName: string; lastName: string }>>([]);
 
 if (informationList.value) {
 	categoryOptions.value = informationList.value.categories.map((c) => ({

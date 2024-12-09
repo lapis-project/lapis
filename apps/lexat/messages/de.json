@@ -66,9 +66,7 @@
 			"created-at": "Erstellt am",
 			"language": {
 				"label": "Sprache",
-				"placeholder": "Sprache",
-				"german": "Deutsch",
-				"english": "Englisch"
+				"placeholder": "Sprache"
 			},
 			"published-at": "Veröffentlicht am",
 			"question": {
@@ -120,9 +118,14 @@
 		},
 		"title": "Artikel",
 		"filters": {
+			"apply": "Anwenden",
 			"label": "Suche verfeinern",
 			"category": "Kategorie",
-			"reset": "Auswahl zurücksetzen"
+			"reset": "Zurücksetzen",
+			"search": {
+				"label": "Suche",
+				"placeholder": "Suchbegriff eingeben..."
+			}
 		}
 	},
 	"ArticleDetailPage": {
@@ -206,7 +209,9 @@
 	},
 	"LocaleSwitcher": {
 		"current-locale": "Aktuelle Sprache: {locale}",
-		"switch-locale": "Zu {locale} wechseln"
+		"switch-locale": "Zu {locale} wechseln",
+		"german": "Deutsch",
+		"english": "Englisch"
 	},
 	"Manifest": {
 		"name": "ACDH-CH App",

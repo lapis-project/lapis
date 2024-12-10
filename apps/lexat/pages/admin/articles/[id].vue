@@ -257,10 +257,10 @@ const generateCitation = () => {
 	// Map the authors to the "<lastName>, <firstName>" format
 	const authorNames = filteredAuthors.map((author) => `${author.lastName}, ${author.firstName}`);
 
-	// Join the authors with commas and handle the last author with "and" if needed
+	// Join the authors with "/" for all but the last pair, and "&" for the last pair
 	let authorsString = "";
 	if (authorNames.length > 1) {
-		authorsString = `${authorNames.slice(0, -1).join(", ")} / ${authorNames[authorNames.length - 1]}`;
+		authorsString = `${authorNames.slice(0, -1).join(" / ")} & ${authorNames[authorNames.length - 1]}`;
 	} else if (authorNames.length === 1) {
 		authorsString = authorNames[0] ?? "";
 	}
@@ -521,9 +521,10 @@ usePageMetadata({
 								:key="item.key"
 								class="flex items-center gap-2"
 							>
-								<span class="line-clamp-1 grow overflow-hidden rounded-lg border px-2 py-0.5">{{
-									item.title
-								}}</span>
+								<span class="grow overflow-hidden rounded-lg border px-2 py-0.5"
+									>{{ truncateString(item.title, 60) }} ({{ item.date }})</span
+								>
+
 								<div>
 									<Trash
 										class="size-5 cursor-pointer hover:text-accent-foreground"

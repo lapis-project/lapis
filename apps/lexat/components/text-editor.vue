@@ -68,6 +68,18 @@ const editor = ref(
 		onUpdate: () => {
 			emit("update:modelValue", editor.value.getHTML());
 		},
+		editorProps: {
+			// https://www.codemzy.com/blog/tiptap-pasting-images
+			transformPastedHTML(html) {
+				// remove any non self-hosted images on paste
+				return html.replace(/<img[^>]*\ssrc="([^"]+)"[^>]*>/g, (match, imgSrc) => {
+					if (imgSrc.startsWith("https://imgproxy-test.acdh-ch-dev.oeaw.ac.at/")) {
+						return match;
+					}
+					return "";
+				});
+			},
+		},
 	}),
 );
 

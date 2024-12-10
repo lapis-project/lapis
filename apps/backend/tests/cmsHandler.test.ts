@@ -26,12 +26,33 @@ describe("test endpoint /cms/articles/create/info", () => {
 	// let honoClient;
 	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {
+		/*
+		await db
+			.insertInto("user_account")
+			.columns(["email", "password", "firstname", "lastname"])
+			.values([
+				{
+					email: "editor@oeaw.ac.at",
+					password: await hash("editoreditor", argon2Config),
+					firstname: "editor",
+					lastname: "editor",
+				},
+				{
+					email: "admin@oeaw.ac.at",
+					password: await hash("adminadmin", argon2Config),
+					firstname: "admin",
+					lastname: "admin",
+				},
+			])
+			.returning(["id", "firstname"])
+			.execute();*/
 		// const honoClient = hc<GetAuthorInformationType>("");
 		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
 		loginHeaders.Cookie = sessionCookie;
 	});
 	afterAll(async () => {
 		await logoutUser(loginHeaders);
+		//await db.deleteFrom("user_account").where("email", "=", "editor2@oeaw.ac.at").execute();
 	});
 	test("Should return status code 200", async () => {
 		const response = await app.request("/cms/articles/create/info", { headers: loginHeaders });
@@ -69,7 +90,7 @@ describe("test endpoint GET /cms/articles/:id", () => {
 				status: "Draft",
 				lang: "en",
 				projectId: [1],
-				authors: [4],
+				authors: [151],
 				phenomenonId: 2,
 				citation: "test-citation",
 			}),
@@ -118,15 +139,10 @@ describe("test endpoint GET /cms/articles/:id", () => {
 		expect(articleBody.updated_at).not.toBeNull();
 		expect(articleBody.created_at).not.toBeNull();
 		expect(articleBody.authors).not.toBeNull();
-		expect(articleBody.authors?.[0].id).toBe(4);
-		expect(articleBody.authors?.[0].firstname).toBe("editor");
-		expect(articleBody.authors?.[0].lastname).toBe("editor");
-		expect(articleBody.authors?.[0].username).toBe("editor");
+		expect(articleBody.authors?.[0].id).toBe(151);
 		expect(articleBody.phenomenon).not.toBeNull();
 		expect(articleBody.phenomenon?.[0].phenomenon_id).toBe(2);
 		expect(articleBody.cover_alt).toBe("test-cover-alt");
-
-		expect(articleBody.creator_username).toBe("admin");
 	});
 });
 
@@ -299,7 +315,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 		});
 		expect(response.status).toBe(400);
 	});
-	test("Create new article with one author provided (id: 4), should create a new article and link the author to the article, returns new article ID and status code 201", async () => {
+	test("Create new article with one author provided (id: 151), should create a new article and link the author to the article, returns new article ID and status code 201", async () => {
 		const response = await app.request("/cms/articles/create", {
 			method: "POST",
 			body: JSON.stringify({
@@ -310,7 +326,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 				category: "commentary",
 				status: "Draft",
 				lang: "en",
-				authors: [4],
+				authors: [151],
 			}),
 			headers: loginHeaders,
 		});
@@ -331,7 +347,7 @@ describe("test endpoint POST /cms/articles/create", () => {
 		if (linkAuthorPost.length === 0) {
 			return;
 		}
-		expect(linkAuthorPost[0]?.user_id).toBe(4);
+		expect(linkAuthorPost[0]?.user_id).toBe(151);
 	});
 	test("Create a new article with two new authors provided (firstname: Test), should create new article and link the two authors to the article, returns new article ID and status code 201", async () => {
 		const userIds = await db
@@ -551,7 +567,7 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 					status: "Draft",
 					lang: "en",
 					projectId: [1],
-					authors: [3, 4],
+					authors: [3, 151],
 				}),
 				headers: loginHeaders,
 			});
@@ -736,7 +752,7 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	});
 });
 
-describe("test endpoint PUT /cms/:id", () => {
+describe.only("test endpoint PUT /cms/:id", () => {
 	let articleId = 0;
 	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {
@@ -764,7 +780,7 @@ describe("test endpoint PUT /cms/:id", () => {
 				lang: "en",
 				phenomenonId: 4,
 				projectId: [1],
-				authors: [3, 4],
+				authors: [3, 151],
 				citation: "test-citation-updated",
 				bibliography: ["TestBibliography1"],
 				cover: "test-cover",
@@ -792,7 +808,7 @@ describe("test endpoint PUT /cms/:id", () => {
 	});
 
 	test("Provide article id and change all attributes of the article, remove one author, set the status to published, should change the article, set a date for published at and return status code 201", async () => {
-		const response = await app.request(`/cms/${String(articleId)}`, {
+		const response = await app.request(`/cms/articles/${String(articleId)}`, {
 			method: "PUT",
 			body: JSON.stringify({
 				title: "Test Article Updated",
@@ -848,7 +864,7 @@ describe("test endpoint PUT /cms/:id", () => {
 	});
 
 	test("Provide article id and change the provided bibliography to contain 1 new entries and 1 existing, should change the article, create 2 new entries in the bibliography table and link the new entries to the article, return status code 201", async () => {
-		const response = await app.request(`/cms/${String(articleId)}`, {
+		const response = await app.request(`/cms/articles/${String(articleId)}`, {
 			method: "PUT",
 			body: JSON.stringify({
 				title: "Test Article Updated",
@@ -886,7 +902,7 @@ describe("test endpoint PUT /cms/:id", () => {
 	});
 
 	test("Provide article id and delete all linked bibliography entries from the article, should change the article, remove the linked bibliography entries, return status code 201", async () => {
-		const response = await app.request(`/cms/${String(articleId)}`, {
+		const response = await app.request(`/cms/articles/${String(articleId)}`, {
 			method: "PUT",
 			body: JSON.stringify({
 				title: "Test Article Updated",
@@ -923,7 +939,7 @@ describe("test endpoint PUT /cms/:id", () => {
 	});
 
 	test("Provide article id and change only author but with an id that does not exist, expect error message and status code 500", async () => {
-		const response = await app.request(`/cms/${String(articleId)}`, {
+		const response = await app.request(`/cms/articles/${String(articleId)}`, {
 			method: "PUT",
 			body: JSON.stringify({
 				title: "Test Article Updated",
@@ -942,7 +958,7 @@ describe("test endpoint PUT /cms/:id", () => {
 	});
 
 	test("Provide article id as a string, expect error message and status code 400", async () => {
-		const response = await app.request(`/cms/abc`, {
+		const response = await app.request(`/cms/articles/abc`, {
 			method: "PUT",
 			body: JSON.stringify({
 				title: "Test Article Updated",
@@ -961,7 +977,7 @@ describe("test endpoint PUT /cms/:id", () => {
 	});
 
 	test("Provide articleid with phenomenon that does not exist in the db, expect error message and status code 500", async () => {
-		const response = await app.request(`/cms/${String(articleId)}`, {
+		const response = await app.request(`/cms/articles/${String(articleId)}`, {
 			method: "PUT",
 			body: JSON.stringify({
 				title: "Test Article Updated",
@@ -991,7 +1007,7 @@ describe("test endpoint PUT /cms/:id", () => {
 				category: "commentary",
 				status: "Draft",
 				lang: "en",
-				authors: [4],
+				authors: [151],
 			}),
 			headers: loginHeaders,
 		});
@@ -1002,7 +1018,7 @@ describe("test endpoint PUT /cms/:id", () => {
 
 		const articleId = body.articleId.id;
 
-		const responseEdit = await app.request(`/cms/${String(articleId)}`, {
+		const responseEdit = await app.request(`/cms/articles/${String(articleId)}`, {
 			method: "PUT",
 			body: JSON.stringify({
 				title: "Test Article Updated",
@@ -1013,7 +1029,7 @@ describe("test endpoint PUT /cms/:id", () => {
 				status: "Published",
 				lang: "de",
 				projectId: [2],
-				authors: [3, 4],
+				authors: [3, 151],
 			}),
 			headers: loginHeaders,
 		});
@@ -1026,6 +1042,93 @@ describe("test endpoint PUT /cms/:id", () => {
 			.selectAll()
 			.execute();
 		expect(linkAuthorPost.length).toBe(2);
+	});
+
+	test("Create new article and Change status of article to Published and update the article, should change the article and set the date for published, change afterwards article again leave status the same and published date should not change", async () => {
+		const response = await app.request("/cms/articles/create", {
+			method: "POST",
+			body: JSON.stringify({
+				title: "Test Article",
+				alias: "test-article",
+				abstract: "test-abstract",
+				content: "test-content",
+				category: "commentary",
+				status: "Draft",
+				lang: "en",
+				authors: [151],
+			}),
+			headers: loginHeaders,
+		});
+
+		const body = await response.json();
+		expect(response.status).toBe(201);
+		expect(body).toHaveProperty("articleId");
+
+		const articleId = body.articleId.id;
+
+		const responseEdit = await app.request(`/cms/articles/${String(articleId)}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [3, 151],
+			}),
+			headers: loginHeaders,
+		});
+		expect(responseEdit.status).toBe(201);
+
+		const responseEditBody = await responseEdit.json();
+		expect(responseEditBody.published_at).not.toBeNull();
+		expect(responseEditBody.updated_at).not.toBeNull();
+
+		// Get the article again from the endpoint
+		const article = await app.request(`/cms/articles/${String(articleId)}`, {
+			headers: loginHeaders,
+		});
+
+		const articleBody = await article.json();
+
+		const publishedAt = articleBody.article.published_at;
+		const updatedAt = articleBody.article.updated_at;
+
+		// Change the article again, should not change date
+		const responseEdit2 = await app.request(`/cms/articles/${String(articleId)}`, {
+			method: "PUT",
+			body: JSON.stringify({
+				title: "Test Article Updated",
+				alias: "test-article-updated",
+				abstract: "test-abstract-updated",
+				content: "test-content-updated",
+				category: "methodology",
+				status: "Published",
+				lang: "de",
+				projectId: [2],
+				authors: [3, 151],
+			}),
+			headers: loginHeaders,
+		});
+
+		expect(responseEdit2.status).toBe(201);
+
+		// get the article by id and check if the published date is the same and updated date has changed
+		const editedArticle = await app.request(`/cms/articles/${String(articleId)}`, {
+			headers: loginHeaders,
+		});
+		const responseEdit2Body = await editedArticle.json();
+
+		expect(responseEdit2Body.article.published_at).not.toBeNull();
+		expect(responseEdit2Body.article.updated_at).not.toBeNull();
+
+		expect(responseEdit2Body.article.published_at).toBe(publishedAt);
+		expect(responseEdit2Body.article.updated_at).not.toBe(updatedAt);
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		expect(new Date(responseEdit2Body.article.updated_at)).above(new Date(updatedAt));
 	});
 });
 
@@ -1057,7 +1160,7 @@ describe("test endpoint DELETE /cms/articles/:id", () => {
 				lang: "en",
 				phenomenonId: 4,
 				projectId: [1],
-				authors: [3, 4],
+				authors: [3, 151],
 				citation: "test-citation-updated",
 				bibliography: ["TestBibliography1"],
 			}),

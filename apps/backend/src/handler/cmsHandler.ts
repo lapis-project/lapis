@@ -118,6 +118,20 @@ const editArticle = cms.put(
 			return c.json("Error while fetching data", 500);
 		}
 
+		// get the instance of the article to check the date
+		const articleInstance = await getArticleById(Number(articleId));
+
+		// Has the article been found?
+		if (!articleInstance) {
+			return c.json("Article not found", 404);
+		}
+
+		let publishedDate = articleInstance.published_at;
+
+		if (articleInstance.post_status !== "Published" && body.status === "Published") {
+			publishedDate = new Date();
+		}
+
 		const updatedArticle: Article = {
 			title: body.title,
 			alias: body.alias,
@@ -129,7 +143,7 @@ const editArticle = cms.put(
 			post_type_id: postTypeId,
 			post_status: body.status,
 			lang: body.lang,
-			publishedAt: body.status === "Published" ? new Date() : null,
+			publishedAt: publishedDate,
 			updatedAt: new Date(),
 			bibliography: body.bibliography ?? [],
 			citation: body.citation ?? null,

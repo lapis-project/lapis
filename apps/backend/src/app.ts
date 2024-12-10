@@ -92,14 +92,13 @@ app.use("*", async (c, next) => {
 // Healthcheck for the k8s server
 const healthCheck = new Hono();
 
-const hc = healthCheck.get("/", (c) => {
+const hc = app.get("/", (c) => {
 	return c.json("OK", 201);
 });
 
 app.notFound((c) => c.json({ message: "Not Found", ok: false }, 404));
 
 // Including all new routes
-app.route("/health", healthCheck);
 app.route("/articles", articles);
 app.route("/questions", questions);
 app.route("/cms", cms);

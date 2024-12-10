@@ -752,7 +752,7 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 	});
 });
 
-describe.only("test endpoint PUT /cms/:id", () => {
+describe("test endpoint PUT /cms/:id", () => {
 	let articleId = 0;
 	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {

@@ -102,7 +102,7 @@ const tableOfContents = computed(() => {
 });
 
 if (!bibliographyItems.value.length) {
-	await fetchBibliographyItems();
+	await fetchBibliographyItems(article.value?.bibliography.map((b) => b.name).join(",") ?? null);
 }
 
 if (article.value?.content) {

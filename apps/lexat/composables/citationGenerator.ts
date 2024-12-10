@@ -1,3 +1,5 @@
+import { StorageSerializers } from "@vueuse/core";
+
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem, BibliographyItemCreator } from "@/types/zotero";
 
@@ -8,6 +10,7 @@ export function useCitationGenerator() {
 
 	const bibliographyItems = ref<Array<BibliographyItem>>([]);
 
+	// two authors: x & y, three authors: x / y & z
 	const formatAuthors = (creators: Array<BibliographyItemCreator>): string => {
 		if (creators.length === 0) return "";
 		if (creators.length === 1) {
@@ -17,21 +20,36 @@ export function useCitationGenerator() {
 		const lastAuthor = creators[creators.length - 1];
 		const otherAuthors = creators.slice(0, -1);
 
-		return `${otherAuthors
+		const formattedAuthors = otherAuthors
 			.map((creator) => `${creator.lastName}, ${creator.firstName}`)
-			.join(", ")} & ${lastAuthor.lastName}, ${lastAuthor.firstName}`;
+			.join(" / ");
+
+		return `${formattedAuthors} & ${lastAuthor.lastName}, ${lastAuthor.firstName}`;
 	};
 
-	const fetchBibliographyItems = async () => {
-		const result = await $fetch<Array<{ data: BibliographyItem }>>(
-			`/groups/${collectionId}/items`,
-			{
-				baseURL: env.public.zoteroBaseUrl,
-				method: "GET",
-			},
-		);
-		if (result.length) {
-			bibliographyItems.value = result.map((i) => i.data).filter((i) => i.itemType !== "note");
+	const fetchBibliographyItems = async (keyList: string | null = null) => {
+		const cached = useSessionStorage<Array<BibliographyItem> | null>("bibliography", null, {
+			serializer: StorageSerializers.object,
+		});
+
+		if (!cached.value || keyList) {
+			const result = await $fetch<Array<{ data: BibliographyItem }>>(
+				`/groups/${collectionId}/items`,
+				{
+					query: { limit: 100, itemKey: keyList },
+					baseURL: env.public.zoteroBaseUrl,
+					method: "GET",
+				},
+			);
+			if (result.length) {
+				const items = result.map((i) => i.data).filter((i) => i.itemType !== "note");
+				if (!keyList) {
+					cached.value = items;
+				}
+				bibliographyItems.value = items;
+			}
+		} else {
+			bibliographyItems.value = cached.value;
 		}
 	};
 
@@ -67,7 +85,7 @@ export function useCitationGenerator() {
 	const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
 		return bibliographyItems.value.map((i) => ({
 			value: i.key,
-			label: truncateString(i.title, 60),
+			label: `${truncateString(i.title, 60)} (${i.date})`,
 		}));
 	});
 

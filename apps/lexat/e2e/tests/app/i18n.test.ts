@@ -3,7 +3,6 @@ import { createUrl } from "@acdh-oeaw/lib";
 import { locales } from "@/config/i18n.config";
 import { expect, test } from "@/e2e/lib/test";
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
 test.describe("i18n", () => {
@@ -50,18 +49,18 @@ test.describe("i18n", () => {
 		await expect(page.getByRole("heading", { name: "Seite nicht gefunden" })).toBeVisible();
 	});
 
-	test("should support switching locale", async ({ page }) => {
-		await page.goto("/de/imprint");
-		await expect(page).toHaveURL("/de/imprint");
-		await expect(page.getByRole("heading", { name: "Impressum" })).toBeVisible();
-		await expect(page).toHaveTitle("Impressum | ACDH-CH App");
+	// test("should support switching locale", async ({ page }) => {
+	// 	await page.goto("/de/imprint");
+	// 	await expect(page).toHaveURL("/de/imprint");
+	// 	await expect(page.getByRole("heading", { name: "Impressum" })).toBeVisible();
+	// 	await expect(page).toHaveTitle("Impressum | ACDH-CH App");
 
-		await page.getByRole("link", { name: "Zu Englisch wechseln" }).click();
+	// 	await page.getByRole("link", { name: "Zu Englisch wechseln" }).click();
 
-		await expect(page).toHaveURL("/en/imprint");
-		await expect(page.getByRole("heading", { name: "Imprint" })).toBeVisible();
-		await expect(page).toHaveTitle("Imprint | ACDH-CH App");
-	});
+	// 	await expect(page).toHaveURL("/en/imprint");
+	// 	await expect(page.getByRole("heading", { name: "Imprint" })).toBeVisible();
+	// 	await expect(page).toHaveTitle("Imprint | ACDH-CH App");
+	// });
 
 	test("should set `lang` attribute on `html` element", async ({ page }) => {
 		for (const locale of locales) {

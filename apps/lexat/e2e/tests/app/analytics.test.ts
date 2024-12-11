@@ -15,7 +15,7 @@ if (process.env.NUXT_PUBLIC_MATOMO_BASE_URL && process.env.NUXT_PUBLIC_MATOMO_ID
 			expect(initialResponse.status()).toBe(204);
 
 			const responsePromise = page.waitForResponse(baseUrl);
-			await page.getByRole("link", { name: "Imprint" }).click();
+			await page.getByRole("link", { name: "Articles" }).click();
 			const response = await responsePromise;
 			expect(response.status()).toBe(204);
 		});

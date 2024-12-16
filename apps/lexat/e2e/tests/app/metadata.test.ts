@@ -1,10 +1,14 @@
-import { createUrl } from "@acdh-oeaw/lib";
+import { assert, createUrl } from "@acdh-oeaw/lib";
 
 import { locales } from "@/config/i18n.config";
 import { expect, test } from "@/e2e/lib/test";
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
+assert(
+	process.env.NUXT_PUBLIC_APP_BASE_URL,
+	"Missing NUXT_PUBLIC_APP_BASE_URL environment variable.",
+);
+
+const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL;
 
 test("should set a canonical url", async ({ page }) => {
 	for (const locale of locales) {

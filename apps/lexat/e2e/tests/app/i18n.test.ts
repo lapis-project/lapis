@@ -23,11 +23,7 @@ test.describe("i18n", () => {
 	test.describe("should redirect root route to preferred locale", () => {
 		test.use({ locale: "de" });
 
-		/**
-		 * FIXME: Currently, this breaks when pre-rendering the page via `routeRules`.
-		 * This is an upstream issue in `@nuxtjs/i18n`.
-		 */
-		test.fixme("with supported locale", async ({ page }) => {
+		test("with supported locale", async ({ page }) => {
 			await page.goto("/");
 			await expect(page).toHaveURL("/de");
 		});
@@ -79,7 +75,7 @@ test.describe("i18n", () => {
 			return String(createUrl({ baseUrl, pathname }));
 		}
 
-		const pathnames = ["", "/imprint"];
+		const pathnames = ["", "/articles"];
 
 		for (const pathname of pathnames) {
 			for (const locale of locales) {

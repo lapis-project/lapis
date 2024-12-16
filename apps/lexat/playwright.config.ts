@@ -5,7 +5,13 @@ import { isCI } from "ci-info";
 import { config as dotenv } from "dotenv";
 import { expand } from "dotenv-expand";
 
-for (const envFilePath of [".env.test.local", ".env.local", ".env.test", ".env"]) {
+for (const envFilePath of [
+	".env.test.local",
+	".env.dev.local",
+	".env.local",
+	".env.test",
+	".env",
+]) {
 	expand(dotenv({ path: join(process.cwd(), envFilePath) }));
 }
 

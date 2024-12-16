@@ -89,12 +89,12 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  build-deploy:
-    if: ${{ github.event_name == 'push' }}
-    needs: [validate]
-    uses: ./.github/workflows/build-deploy.yml
-    secrets: inherit
-    # https://docs.github.com/en/actions/using-workflows/reusing-workflows#access-and-permissions
-    permissions:
-      contents: read
-      packages: write
+  # build-deploy:
+  #   if: ${{ github.event_name == 'push' }}
+  #   needs: [validate]
+  #   uses: ./.github/workflows/build-deploy.yml
+  #   secrets: inherit
+  #   # https://docs.github.com/en/actions/using-workflows/reusing-workflows#access-and-permissions
+  #   permissions:
+  #     contents: read
+  #     packages: write

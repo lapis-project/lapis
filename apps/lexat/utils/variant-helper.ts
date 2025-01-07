@@ -19,20 +19,29 @@ export const countUniqueVariants = (points: Array<SurveyResponse>) => {
 	return annoCounts;
 };
 
-export const getSortedVariants = (variants: Map<string, number>, specialSortOrder = {}) => {
-	const unsortedVariants = variants;
+export const getSortedVariants = (
+	variants: Map<string, number>,
+	specialSortOrder?: Record<string, number>,
+) => {
+	// Convert the Map entries to an array
+	const unsortedVariants = Array.from(variants.entries()).map(([anno, count]) => ({ anno, count }));
 
 	// Apply special sort order if provided
-	for (const [key, value] of Object.entries(specialSortOrder)) {
-		if (unsortedVariants.has(key)) {
-			unsortedVariants.set(key, value as number);
-		}
-	}
+	const sortedVariants = unsortedVariants.sort((a, b) => {
+		// If special order exists, use it to sort
+		if (specialSortOrder) {
+			const aSpecialOrder = specialSortOrder[a.anno] ?? 0;
+			const bSpecialOrder = specialSortOrder[b.anno] ?? 0;
 
-	// Convert the Map entries to an array and sort it by count in descending order
-	const sortedVariants = Array.from(unsortedVariants.entries())
-		.sort((a, b) => b[1] - a[1])
-		.map((entry) => ({ anno: entry[0], count: entry[1] }));
+			// First, sort by the special order if it exists
+			if (aSpecialOrder !== bSpecialOrder) {
+				return bSpecialOrder - aSpecialOrder; // Higher special order first
+			}
+		}
+
+		// If special orders are equal, sort by the count in descending order
+		return b.count - a.count;
+	});
 
 	return sortedVariants;
 };

@@ -183,6 +183,9 @@ const points = computed(() => {
 		f.id = `${f.plz.toString()}-${f.place_name}`;
 	});
 
+	// TODO experiment without Vienna point
+	// features = features.filter((f) => f.place_name !== "Wien");
+
 	// only entries with coordinates are considered valid points
 	// let filteredFeatures = features.filter((f) => f.geometry.coordinates);
 
@@ -340,10 +343,17 @@ function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "
 	}
 }
 
-type OccurrenceCount = Record<string, Record<string, number>>;
+type OccurrenceCount = Record<
+	string,
+	{
+		varieties: Record<string, number>;
+		total: number;
+	}
+>;
 
 const countOccurrences = (properties: Array<Coalesce>) => {
-	const occurrenceCount: OccurrenceCount = {};
+	const occurrenceCount: Record<string, Record<string, number>> = {};
+
 	for (const informant of properties) {
 		for (const answer of informant.answers) {
 			const annotation = answer.annotation;
@@ -373,7 +383,7 @@ const countOccurrences = (properties: Array<Coalesce>) => {
 			const aSpecialOrder = specialOrder[a.annotation] ?? 0;
 			const bSpecialOrder = specialOrder[b.annotation] ?? 0;
 
-			// first sort by special order
+			// sort by special order
 			if (aSpecialOrder !== bSpecialOrder) {
 				return bSpecialOrder - aSpecialOrder;
 			}
@@ -384,7 +394,10 @@ const countOccurrences = (properties: Array<Coalesce>) => {
 	// convert back to the desired format
 	const sortedOccurrenceCount: OccurrenceCount = {};
 	for (const item of sortedOccurrences) {
-		sortedOccurrenceCount[item.annotation] = item.varieties;
+		sortedOccurrenceCount[item.annotation] = {
+			varieties: item.varieties,
+			total: item.total,
+		};
 	}
 
 	return sortedOccurrenceCount;
@@ -767,9 +780,6 @@ watch(activeVariants, updateUrlParams, {
 							v-for="variant in filteredUniqueVariants"
 							:key="variant.anno"
 							class="flex items-center gap-1"
-							:class="{
-								italic: !Object.keys(specialOrder).includes(variant.anno),
-							}"
 						>
 							<svg class="inline align-baseline" height="12" width="12">
 								<circle
@@ -782,7 +792,12 @@ watch(activeVariants, updateUrlParams, {
 									stroke-width="1"
 								/>
 							</svg>
-							{{ variant.anno }}
+							<span
+								:class="{
+									italic: !Object.keys(specialOrder).includes(variant.anno),
+								}"
+								>{{ variant.anno }}</span
+							>({{ variant.count }})
 						</li>
 					</ul>
 				</div>
@@ -840,7 +855,7 @@ watch(activeVariants, updateUrlParams, {
 							</p>
 							<ul>
 								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">
-									<details :name="value">
+									<details :name="key">
 										<summary>
 											<div class="inline-flex items-center gap-1 align-top">
 												<svg height="12" width="12">
@@ -853,10 +868,10 @@ watch(activeVariants, updateUrlParams, {
 														stroke-width="1"
 													/>
 												</svg>
-												{{ key }}
+												{{ key }} ({{ value.total }})
 											</div>
 										</summary>
-										<p v-for="(v, k) in value" :key="k" class="">
+										<p v-for="(v, k) in value.varieties" :key="k" class="">
 											- {{ sanititzeReg(k) }}: {{ v }}
 										</p>
 									</details>

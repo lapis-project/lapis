@@ -140,6 +140,7 @@ const mappedQuestions = computed(() => {
 });
 
 const activeAgeGroup = ref([10, 100]);
+const changedColors = ref<Record<string, string>>({});
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const activeQuestion = ref<string | null>(null);
@@ -531,10 +532,11 @@ const updateUrlParams = async () => {
 	await router.replace({
 		query: {
 			...route.query,
-			ageGroup: activeAgeGroup.value.join(","),
-			question: activeQuestion.value,
-			registers: activeRegisters.value.join(","),
-			variants: activeVariants.value.join(","),
+			a: activeAgeGroup.value.join(","),
+			q: activeQuestion.value,
+			r: activeRegisters.value.join(","),
+			v: activeVariants.value.join(","),
+			c: Object.values(changedColors.value).join(","),
 		},
 	});
 };
@@ -551,17 +553,37 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	}
 	activeVariants.value = [];
 	popover.value = null;
+	changedColors.value = {};
 	await updateUrlParams();
 };
 
 // Function to initialize states from URL parameters
 const initializeFromUrl = () => {
-	const { ageGroup, question, registers, variants } = route.query;
+	const { a, q, r, v, c } = route.query;
 
-	if (ageGroup) activeAgeGroup.value = String(ageGroup).split(",").map(Number);
-	if (question) activeQuestion.value = String(question);
-	if (registers) activeRegisters.value = String(registers).split(",");
-	if (variants) activeVariants.value = String(variants).split(",");
+	if (a) activeAgeGroup.value = String(a).split(",").map(Number);
+	if (q) activeQuestion.value = String(q);
+	if (r) activeRegisters.value = String(r).split(",");
+	if (v) activeVariants.value = String(v).split(",");
+	if (c) {
+		const tempColors = String(c).split(",");
+		console.log(mappedColors.value);
+		tempColors.forEach((entry) => {
+			// split string into index, hexcode and optional key for special colors
+			// e.g. "1-#ffffff-i" to ["1", "#ffffff", "i"]
+			const [index, hexCode, key] = entry.split("-");
+			if (index && hexCode) {
+				if (key === "i") {
+					specialColors.value.Irrelevant = hexCode;
+				} else if (key === "s") {
+					specialColors.value.Sonstige = hexCode;
+				} else {
+					colors.value[index] = hexCode;
+				}
+				changedColors.value[index] = `${index}-${hexCode}${key ? `-${key}` : ""}`;
+			}
+		});
+	}
 };
 
 const setAgeGroup = (newValues: Array<number>) => {
@@ -569,13 +591,20 @@ const setAgeGroup = (newValues: Array<number>) => {
 };
 
 const handleColorUpdate = (index: number, newColor: string) => {
-	if (Object.keys(mappedColors.value)[index] === "Irrelevant") {
+	let key = Object.keys(mappedColors.value)[index];
+	if (key === "Irrelevant") {
 		specialColors.value.Irrelevant = newColor;
-	} else if (Object.keys(mappedColors.value)[index] === "Sonstige") {
+		key = "i";
+	} else if (key === "Sonstige") {
 		specialColors.value.Sonstige = newColor;
+		key = "s";
 	} else {
 		colors.value[index] = newColor;
+		key = undefined;
 	}
+	// keep track of every color change to save them in url params
+	changedColors.value[index] = `${index}-${newColor}${key ? `-${key}` : ""}`;
+	updateUrlParams();
 };
 
 // Call the initialize function on component mount

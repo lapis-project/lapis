@@ -11,6 +11,13 @@ export interface Coalesce {
 	answers: Array<Answer>;
 }
 
+interface SurveyResponseProperty {
+	age: string;
+	gender: string;
+	answers: Array<Answer>;
+	informant_id: number;
+}
+
 export interface SurveyResponse {
 	id: string;
 	place_name: string;
@@ -18,6 +25,7 @@ export interface SurveyResponse {
 	lat: number;
 	lon: number;
 	coalesce: Array<Coalesce>;
+	properties?: Array<SurveyResponseProperty>;
 }
 
 type Coordinates = Array<Array<Array<number>>>;

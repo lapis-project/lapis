@@ -12,13 +12,18 @@ import {
 } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
+import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
 
 import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
 import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import { useMapColors } from "@/composables/use-map-colors";
 import type { DropdownOption } from "@/types/dropdown-option";
-import type { Coalesce, RegionFeature, SurveyResponse } from "@/types/feature-collection";
+import type {
+	RegionFeature,
+	SurveyResponse,
+	SurveyResponseProperty,
+} from "@/types/feature-collection";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 import { countUniqueVariants, getSortedVariants } from "@/utils/variant-helper";
 
@@ -352,7 +357,7 @@ type OccurrenceCount = Record<
 	}
 >;
 
-const countOccurrences = (properties: Array<Coalesce>) => {
+const countOccurrences = (properties: Array<SurveyResponseProperty>) => {
 	const occurrenceCount: Record<string, Record<string, number>> = {};
 
 	for (const informant of properties) {
@@ -402,6 +407,15 @@ const countOccurrences = (properties: Array<Coalesce>) => {
 	}
 
 	return sortedOccurrenceCount;
+};
+
+const getEntityOccurrences = (entity: SurveyResponse) => {
+	return countOccurrences(entity.properties ?? []);
+};
+
+const getEntityTotal = (entity: SurveyResponse) => {
+	const occurrences = getEntityOccurrences(entity);
+	return Object.values(occurrences).reduce((sum, item) => sum + item.total, 0);
 };
 
 // watch(data2, () => {
@@ -528,16 +542,42 @@ const columnsRegisters = ref<Array<TableColumn>>([
 	},
 ]);
 
+const getQueryArray = (
+	route: RouteLocationNormalizedLoaded,
+	key: string,
+): Array<LocationQueryValue> => {
+	const value = route.query[key];
+	if (Array.isArray(value)) return value;
+	if (typeof value === "string") return [value];
+	return [];
+};
+
 const updateUrlParams = async () => {
+	const queryObject: Record<string, string | Array<string>> = {};
+	Object.entries(route.query).forEach(([key, value]) => {
+		if (!["a", "q", "r", "v", "c"].includes(key)) {
+			queryObject[key] = value;
+		}
+	});
+
+	if (activeAgeGroup.value.length > 0) {
+		queryObject.a = activeAgeGroup.value.toString();
+	}
+	if (activeQuestion.value) {
+		queryObject.q = activeQuestion.value;
+	}
+	if (activeRegisters.value.length > 0) {
+		queryObject.r = activeRegisters.value;
+	}
+	if (activeVariants.value.length > 0) {
+		queryObject.v = activeVariants.value;
+	}
+	const colors = Object.values(changedColors.value);
+	if (colors.length > 0) {
+		queryObject.c = colors;
+	}
 	await router.replace({
-		query: {
-			...route.query,
-			a: activeAgeGroup.value.join(","),
-			q: activeQuestion.value,
-			r: activeRegisters.value.join(","),
-			v: activeVariants.value.join(","),
-			c: Object.values(changedColors.value).join(","),
-		},
+		query: queryObject,
 	});
 };
 
@@ -557,30 +597,41 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	await updateUrlParams();
 };
 
-// Function to initialize states from URL parameters
 const initializeFromUrl = () => {
-	const { a, q, r, v, c } = route.query;
+	const ageParams = getQueryArray(route, "a");
+	if (ageParams.length > 0 && ageParams[0]) {
+		activeAgeGroup.value = ageParams[0].split(",").map(Number);
+	}
+	const questionParam = route.query.q;
+	if (typeof questionParam === "string") {
+		activeQuestion.value = questionParam;
+	}
+	const registerParams = getQueryArray(route, "r");
+	if (registerParams.length > 0) {
+		activeRegisters.value = registerParams.map(String);
+	}
+	const variantParams = getQueryArray(route, "v");
+	if (variantParams.length > 0) {
+		activeVariants.value = variantParams.map(String);
+	}
 
-	if (a) activeAgeGroup.value = String(a).split(",").map(Number);
-	if (q) activeQuestion.value = String(q);
-	if (r) activeRegisters.value = String(r).split(",");
-	if (v) activeVariants.value = String(v).split(",");
-	if (c) {
-		const tempColors = String(c).split(",");
-		console.log(mappedColors.value);
-		tempColors.forEach((entry) => {
-			// split string into index, hexcode and optional key for special colors
-			// e.g. "1-#ffffff-i" to ["1", "#ffffff", "i"]
-			const [index, hexCode, key] = entry.split("-");
-			if (index && hexCode) {
-				if (key === "i") {
-					specialColors.value.Irrelevant = hexCode;
-				} else if (key === "s") {
-					specialColors.value.Sonstige = hexCode;
-				} else {
-					colors.value[index] = hexCode;
+	const colorParams = getQueryArray(route, "c");
+	if (colorParams.length > 0) {
+		colorParams.forEach((entry) => {
+			if (entry) {
+				// split string into index, hexcode and optional key for special colors
+				// e.g. "1-#ffffff-i" to ["1", "#ffffff", "i"]
+				const [index, hexCode, key] = entry.split("-");
+				if (index && hexCode) {
+					if (key === "i") {
+						specialColors.value.Irrelevant = hexCode;
+					} else if (key === "s") {
+						specialColors.value.Sonstige = hexCode;
+					} else {
+						colors.value[index] = hexCode;
+					}
+					changedColors.value[index] = `${index}-${hexCode}${key ? `-${key}` : ""}`;
 				}
-				changedColors.value[index] = `${index}-${hexCode}${key ? `-${key}` : ""}`;
 			}
 		});
 	}
@@ -880,10 +931,10 @@ watch(activeVariants, updateUrlParams, {
 						<div v-for="entity in popover.entities" :key="entity.id">
 							<p>
 								<strong>{{ entity.place_name }}</strong
-								>, {{ entity.plz }}
+								>, {{ entity.plz }} ({{ getEntityTotal(entity) }})
 							</p>
 							<ul>
-								<li v-for="(value, key) in countOccurrences(entity.properties)" :key="key">
+								<li v-for="(value, key) in getEntityOccurrences(entity)" :key="key">
 									<details :name="key">
 										<summary>
 											<div class="inline-flex items-center gap-1 align-top">
@@ -897,7 +948,14 @@ watch(activeVariants, updateUrlParams, {
 														stroke-width="1"
 													/>
 												</svg>
-												{{ key }} ({{ value.total }})
+												<span
+													:class="{
+														italic: !Object.keys(specialOrder).includes(key),
+													}"
+												>
+													{{ key }}</span
+												>
+												({{ value.total }})
 											</div>
 										</summary>
 										<p v-for="(v, k) in value.varieties" :key="k" class="">

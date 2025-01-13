@@ -320,12 +320,21 @@ const uniqueVariants = computed(() => {
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
-	return uniqueVariants.value.map((variant) => ({
-		label: variant.anno,
-		value: variant.anno,
-		level: 1,
-		group: variant.anno.toLocaleLowerCase(),
-	}));
+	return uniqueVariants.value
+		.map((variant) => ({
+			label: variant.anno,
+			value: variant.anno,
+			level: 1,
+			group: variant.anno.toLocaleLowerCase(),
+		}))
+		.sort((a, b) => {
+			// extract priority values from the specialOrder object or default to 0
+			const priorityA = specialOrder[a.label] ?? 0;
+			const priorityB = specialOrder[b.label] ?? 0;
+
+			// sort by priority, with lower values appearing later
+			return priorityB - priorityA;
+		});
 });
 
 function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "properties">>) {

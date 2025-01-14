@@ -46,7 +46,7 @@ export interface WebGLContext {
 	canvas: HTMLCanvasElement;
 }
 
-const size = 45; // size for pie chart width and height
+const size = 100; // size for pie chart width and height
 const canvas = document.createElement("canvas");
 canvas.width = size;
 canvas.height = size;
@@ -198,9 +198,25 @@ function init() {
 		source: sourcePointsId,
 		layout: {
 			"icon-image": ["concat", ["concat", "id-", ["get", "chartData"]], ["get", "colors"]],
-			"icon-size": ["interpolate", ["linear"], ["get", "answerCount"], 1, 0.35, 20, 1],
+			"icon-size": [
+				"interpolate",
+				["linear"],
+				["zoom"], // base scaling on zoom level
+				8,
+				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.08, 12, 0.5], // at zoom level 8
+				9,
+				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.2, 12, 0.5], // at zoom level 9
+				10,
+				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
+				11,
+				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
+			],
 			"icon-allow-overlap": props.showAllPoints,
+			"symbol-sort-key": ["-", ["get", "answerCount"]],
 		},
+		// paint: {
+		// 	"icon-opacity": ["interpolate", ["linear"], ["get", "answerCount"], 1, 1, 10, 0.75],
+		// },
 	});
 
 	map.on("click", "points", (event) => {

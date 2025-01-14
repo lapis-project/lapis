@@ -80,3 +80,10 @@ docker run -it \
 To completely shut down the db container and delete any associated volumes:
 
 `docker compose --env-file .env.localsetup down`
+
+## Dependencies
+
+### Playwright
+
+after every playwright update, execute `pnpm exec playwright install` in the lexat folder to
+download the latest browser runtimes

@@ -23,7 +23,8 @@ import { ResetViewControl } from "./reset-view-control";
 const props = defineProps<{
 	features: Array<GeoJsonFeature>;
 	geoOutline: Array<GeoJsonFeature>;
-	points: Array<GeoJsonFeature>;
+	urbanLocations: Array<GeoJsonFeature>;
+	// stateCapitals: Array<GeoJsonFeature>;
 	height: number;
 	width: number;
 	showAllPoints: boolean;
@@ -51,7 +52,7 @@ const canvas = document.createElement("canvas");
 canvas.width = size;
 canvas.height = size;
 const webglcontext: WebGLContext = {
-	renderer: new THREE.WebGLRenderer({ canvas: canvas, alpha: true }),
+	renderer: new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true }),
 	scene: new THREE.Scene(),
 	camera: new THREE.OrthographicCamera(size / -2, size / 2, size / 2, size / -2, 1, 1000),
 	canvas: canvas,
@@ -66,7 +67,8 @@ const elementRef = ref<HTMLElement | null>(null);
 const context: GeoMapContext = {
 	map: null,
 };
-const sourcePointsId = "points";
+const urbanLocationsPointsId = "points";
+// const stateCapitalsPointsId = "pointss";
 const sourcePolygonsId = "poly";
 const sourceOutlineId = "outline";
 
@@ -149,13 +151,17 @@ function init() {
 	map.addControl(exportControl, "top-left");
 	//
 
-	map.addSource(sourcePointsId, {
+	map.addSource(urbanLocationsPointsId, {
 		type: "geojson",
 		data: createFeatureCollection([]),
 		// cluster: true,
 		// clusterMaxZoom: 14,
 		// clusterRadius: 40,
 	});
+	// map.addSource(stateCapitalsPointsId, {
+	// 	type: "geojson",
+	// 	data: createFeatureCollection([]),
+	// });
 	map.addSource(sourcePolygonsId, {
 		type: "geojson",
 		data: createFeatureCollection([]),
@@ -192,10 +198,36 @@ function init() {
 	});
 	map.setLayoutProperty("outline", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
+	// map.addLayer({
+	// 	id: "pointss",
+	// 	type: "symbol",
+	// 	source: stateCapitalsPointsId,
+	// 	layout: {
+	// 		"icon-image": ["concat", ["concat", "id-", ["get", "chartData"]], ["get", "colors"]],
+	// 		"icon-size": [
+	// 			"interpolate",
+	// 			["linear"],
+	// 			["zoom"], // base scaling on zoom level
+	// 			8,
+	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.08, 12, 0.5], // at zoom level 8
+	// 			9,
+	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.2, 12, 0.5], // at zoom level 9
+	// 			10,
+	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
+	// 			11,
+	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
+	// 		],
+	// 		"symbol-sort-key": ["-", ["get", "answerCount"]],
+	// 	},
+	// 	// paint: {
+	// 	// 	"icon-opacity": ["interpolate", ["linear"], ["get", "answerCount"], 1, 1, 10, 0.75],
+	// 	// },
+	// });
+
 	map.addLayer({
 		id: "points",
 		type: "symbol",
-		source: sourcePointsId,
+		source: urbanLocationsPointsId,
 		layout: {
 			"icon-image": ["concat", ["concat", "id-", ["get", "chartData"]], ["get", "colors"]],
 			"icon-size": [
@@ -211,13 +243,14 @@ function init() {
 				11,
 				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
 			],
-			"icon-allow-overlap": props.showAllPoints,
+			"icon-allow-overlap": !props.showAllPoints,
 			"symbol-sort-key": ["-", ["get", "answerCount"]],
 		},
 		// paint: {
 		// 	"icon-opacity": ["interpolate", ["linear"], ["get", "answerCount"], 1, 1, 10, 0.75],
 		// },
 	});
+
 
 	map.on("click", "points", (event) => {
 		emit(
@@ -313,22 +346,29 @@ function dispose() {
 }
 
 watch(() => {
-	return props.points;
+	return props.urbanLocations;
 }, updateScope);
+
+// watch(() => {
+// 	return props.stateCapitals;
+// }, updateScope);
 
 function updateScope() {
 	assert(context.map != null);
 	const map = context.map;
 
-	const source = map.getSource(sourcePointsId) as GeoJSONSource | undefined;
-	const source2 = map.getSource(sourcePolygonsId) as GeoJSONSource | undefined;
-	const source3 = map.getSource(sourceOutlineId) as GeoJSONSource | undefined;
-	const geojson = createFeatureCollection(props.points);
-	const geojson2 = createFeatureCollection(props.features);
-	const geojson3 = createFeatureCollection(props.geoOutline);
+	const source = map.getSource(urbanLocationsPointsId) as GeoJSONSource | undefined;
+	// const source2 = map.getSource(stateCapitalsPointsId) as GeoJSONSource | undefined;
+	const source3 = map.getSource(sourcePolygonsId) as GeoJSONSource | undefined;
+	const source4 = map.getSource(sourceOutlineId) as GeoJSONSource | undefined;
+	const geojson = createFeatureCollection(props.urbanLocations);
+	// const geojson2 = createFeatureCollection(props.stateCapitals);
+	const geojson3 = createFeatureCollection(props.features);
+	const geojson4 = createFeatureCollection(props.geoOutline);
 	source?.setData(geojson);
-	source2?.setData(geojson2);
+	// source2?.setData(geojson2);
 	source3?.setData(geojson3);
+	source4?.setData(geojson4);
 }
 
 const toggleLayer = (layer: "outline" | "polygon-labels" | "polygons") => {

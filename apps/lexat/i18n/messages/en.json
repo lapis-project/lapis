@@ -219,9 +219,11 @@
 		"title": "Maps",
 		"selection": {
 			"colors": "Legend colors",
-			"show-all-points": "Show all data points",
+			"show-all-points": "Simplified view",
 			"show-region-names": "Show dialect region names",
 			"show-regions": "Show dialect regions",
+			"show-state-capitals": "State capitals",
+			"show-urban-locations": "Locations (exempt state capitals)",
 			"variable": {
 				"title": "Phenomenon",
 				"placeholder": "phenomenon",

@@ -41,6 +41,8 @@ const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyRespo
 
 const { colors, specialColors, resetColors } = useMapColors();
 
+const stateCapitalsList = ['Wien', 'St. Pölten', 'Graz', 'Linz', 'Innsbruck', 'Klagenfurt', 'Salzburg', 'Bregenz', 'Eisenstadt']
+
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 const basemapOptions: Array<DropdownOption> = [
 	{
@@ -155,6 +157,8 @@ const mapExpanded = ref<boolean>(false);
 const showAllPoints = ref<boolean>(false);
 const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
+const showStateCapitals = ref<boolean>(true);
+const showUrbanLocations = ref<boolean>(true);
 const showAdvancedFilters = ref<boolean>(false);
 
 const activeQuestionId = computed(() => {
@@ -295,13 +299,35 @@ const filteredPoints = computed(() => {
 	return filteredPoints;
 });
 
+// const dataPoints = computed(() => {
+// 	const geoJsonPoints = filteredPoints.value.map((entity) => {
+// 		return createGeoJsonFeature(entity, mappedColors.value);
+// 	});
+
+// 	return geoJsonPoints.sort((a, b) => b.properties.answerCount! - a.properties.answerCount!);
+// });
+
 const dataPoints = computed(() => {
-	const geoJsonPoints = filteredPoints.value.map((entity) => {
+	let visibleLocationPoints = structuredClone(filteredPoints.value);
+	if(!showStateCapitals.value){
+		visibleLocationPoints = visibleLocationPoints.filter(p => !stateCapitalsList.includes(p.place_name))
+	}
+	if(!showUrbanLocations.value) {
+		visibleLocationPoints = visibleLocationPoints.filter(p => stateCapitalsList.includes(p.place_name))
+	}
+	const geoJsonPoints = visibleLocationPoints.map((entity) => {
 		return createGeoJsonFeature(entity, mappedColors.value);
 	});
 
 	return geoJsonPoints.sort((a, b) => b.properties.answerCount! - a.properties.answerCount!);
-});
+})
+
+// const stateCapitals = computed(() => {
+// 	const stateCapitalPoints = filteredPoints.value.filter(p => stateCapitalsList.includes(p.placeName))
+// 	return stateCapitalPoints.map((entity) => {
+// 		return createGeoJsonFeature(entity, mappedColors.value);
+// 	});
+// })
 
 const entitiesById = computed(() => {
 	return keyByToMap(filteredPoints.value, (entity) => {
@@ -820,9 +846,30 @@ watch(activeVariants, updateUrlParams, {
 									</label>
 								</div>
 							</div>
+							<div class="">
+								<div class="mb-1 ml-1 text-sm font-semibold">Ortspunkte filtern</div>
+								<div class="flex w-64 space-x-2 self-center rounded border p-2">
+									<Checkbox id="showStateCapitals" v-model:checked="showStateCapitals" />
+									<label
+										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+										for="showStateCapitals"
+									>
+										{{ t("MapsPage.selection.show-state-capitals") }}
+									</label>
+								</div>
+								<div class="flex w-64 space-x-2 self-center rounded border p-2">
+									<Checkbox id="showUrbanLocations" v-model:checked="showUrbanLocations" />
+									<label
+										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+										for="showUrbanLocations"
+									>
+										{{ t("MapsPage.selection.show-urban-locations") }}
+									</label>
+								</div>
+							</div>
 							<div
 								v-if="mappedColors && Object.values(mappedColors).length"
-								class="col-span-2 space-y-1 text-sm font-semibold"
+								class="col-span-1 space-y-1 text-sm font-semibold"
 							>
 								<p>{{ t("MapsPage.selection.colors") }}</p>
 								<div class="flex gap-2">
@@ -924,10 +971,10 @@ watch(activeVariants, updateUrlParams, {
 				:features="features"
 				:geo-outline="geoOutline"
 				:height="height"
-				:points="dataPoints"
 				:show-all-points="showAllPoints"
 				:show-region-names="showRegionNames"
 				:show-regions="showRegions"
+				:urban-locations="dataPoints"
 				:width="width"
 				@layer-click="onLayerClick"
 			>

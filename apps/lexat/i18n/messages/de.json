@@ -219,9 +219,11 @@
 		"title": "Kartierung",
 		"selection": {
 			"colors": "Legendenfarben",
-			"show-all-points": "Zeige alle Datenpunkte",
+			"show-all-points": "Simplifizierte Darstellung",
 			"show-region-names": "Dialektregionennamen",
 			"show-regions": "Dialektregionen anzeigen",
+			"show-state-capitals": "Landeshauptstädte",
+			"show-urban-locations": "Ortspunkte (ausgenommen Landeshauptstädte)",
 			"variable": {
 				"title": "Phänomen",
 				"placeholder": "Phänomen",

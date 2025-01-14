@@ -73,7 +73,7 @@ const registerOptions: Array<DropdownOption> = [
 		level: 0,
 	},
 	{
-		label: "standardnahe Register",
+		label: "Standardsprachliche Register",
 		value: "st",
 		level: 1,
 		group: "st",
@@ -91,13 +91,13 @@ const registerOptions: Array<DropdownOption> = [
 		group: "st",
 	},
 	{
-		label: "bestes Hochdeutsch",
+		label: "Ihr bestes Hochdeutsch",
 		value: "bhd",
 		level: 2,
 		group: "st",
 	},
 	{
-		label: "standardferne Register",
+		label: "Standardfernere Register",
 		value: "diaf",
 		level: 1,
 		group: "dia",
@@ -123,7 +123,7 @@ const registerGroups = [
 	},
 	{
 		name: "st",
-		values: ["Ihr Hochdeutsch", "bestes Hochdeutsch", "Ihr österreichisches Hochdeutsch"],
+		values: ["Ihr Hochdeutsch", "Ihr bestes Hochdeutsch", "Ihr österreichisches Hochdeutsch"],
 	},
 ];
 

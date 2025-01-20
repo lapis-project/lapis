@@ -18,6 +18,8 @@ const t = useTranslations();
 
 const user = useUser();
 
+const route = useRoute();
+
 const signInSchema = toTypedSchema(
 	z.object({
 		email: z.string({ required_error: "Please specify an e-mail address" }),
@@ -33,15 +35,23 @@ const onSubmit = handleSubmit(async (formValues) => {
 	try {
 		const apiUrl = "/auth/login";
 
-		const response = await $fetch(apiUrl, {
+		const response = await $fetch<{
+			email: string;
+			firstname: string | null;
+			id: number;
+			lastname: string | null;
+			username: string | null;
+			role_name: string | null;
+		}>(apiUrl, {
 			baseURL: env.public.apiBaseUrl,
 			method: "POST",
 			body: { ...formValues },
 			credentials: "include",
 		});
+		const redirectPath = route.query.redirect;
 		if (response) {
 			user.value = response;
-			await navigateTo(localePath("/admin/articles"));
+			await navigateTo(localePath(redirectPath?.toString() ?? "/"));
 		}
 	} catch (error) {
 		toast({

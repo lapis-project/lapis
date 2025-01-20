@@ -30,6 +30,6 @@ export interface User {
 
 export interface AuthUser {
 	id: number;
-	role_id: number | null;
+	role_name: string | null;
 	username: string | null;
 }

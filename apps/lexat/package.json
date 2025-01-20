@@ -22,7 +22,7 @@
 		"test:e2e:install": "playwright install --with-deps",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:update-snapshots": "playwright test --update-snapshots",
-		"format:check": "prettier . \"!./content/**\" --cache --check",
+		"format:check": "prettier . \"!./@(content|public)/**\" --cache --cache-location ./.prettiercache --check",
 		"format:fix": "pnpm run format:check --write",
 		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
 		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
@@ -125,25 +125,25 @@
 	"lint-staged": {
 		"*.@(vue)": [
 			"eslint --cache --fix",
-			"stylelint --cache --fix",
-			"prettier --cache --write"
+			"stylelint --cache --fix --allow-empty-input",
+			"prettier --cache --cache-location ./.prettiercache --write"
 		],
 		"*.@(js|ts)": [
 			"eslint --cache --fix",
-			"prettier --cache --write"
+			"prettier --cache --cache-location ./.prettiercache --write"
 		],
 		"*.@(css)": [
 			"stylelint --cache --fix",
-			"prettier --cache --write"
+			"prettier --cache --cache-location ./.prettiercache --write"
 		],
-		"*.!(css|js|ts|vue),!./content/**": "prettier --cache --ignore-unknown --write"
-	},
-	"stylelint": {
-		"extends": "@acdh-oeaw/stylelint-config"
+		"*.!(css|js|ts|vue),!./@(content|public)/**": "prettier --cache --cache-location ./.prettiercache --ignore-unknown --write"
 	},
 	"postcss": {
 		"plugins": {
 			"tailwindcss": {}
 		}
+	},
+	"stylelint": {
+		"extends": "@acdh-oeaw/stylelint-config"
 	}
 }

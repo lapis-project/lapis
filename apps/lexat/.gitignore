@@ -12,6 +12,7 @@ node_modules/
 # caches
 .eslintcache
 .stylelintcache
+.prettiercache
 *.tsbuildinfo
 
 # vercel

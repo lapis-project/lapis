@@ -1,9 +1,14 @@
-import { createUrl } from "@acdh-oeaw/lib";
+import { assert, createUrl } from "@acdh-oeaw/lib";
 
 import { locales } from "@/config/i18n.config";
 import { expect, test } from "@/e2e/lib/test";
 
-const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
+assert(
+	process.env.NUXT_PUBLIC_APP_BASE_URL,
+	"Missing NUXT_PUBLIC_APP_BASE_URL environment variable.",
+);
+
+const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL;
 
 test.describe("app", () => {
 	if (process.env.NUXT_PUBLIC_BOTS !== "enabled") {
@@ -57,16 +62,17 @@ test.describe("app", () => {
 		}
 	});
 
-	test("should serve a webmanifest", async ({ request }) => {
+	test("should serve a webmanifest", async ({ createI18n, request }) => {
 		const response = await request.get("/manifest.webmanifest");
 		const body = await response.body();
 
-		// TODO: use toMatchSnapshot
+		const i18n = await createI18n(defaultLocale);
+
 		expect(body.toString()).toEqual(
 			JSON.stringify({
-				name: "ACDH-CH App",
-				short_name: "ACDH-CH App",
-				description: "ACDH-CH App",
+				name: i18n.t("Manifest.name"),
+				short_name: i18n.t("Manifest.short-name"),
+				description: i18n.t("Manifest.description"),
 				start_url: "/",
 				display: "standalone",
 				background_color: "#fff",

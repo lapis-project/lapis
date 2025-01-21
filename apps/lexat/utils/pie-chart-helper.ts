@@ -15,69 +15,62 @@ export const generatePieChartWebGL = (
 	const total = data.reduce((sum, value) => sum + value, 0);
 	let startAngle = 0;
 
-	const pieSlices = data.map(
-		(value, index): THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMaterial> => {
-			const sliceAngle = (value / total) * 2 * Math.PI;
-			// console.log("sliceAngle", sliceAngle, value, index, colors);
-			const geometry = new THREE.CircleGeometry(size / 2, 32, startAngle, sliceAngle);
-			const material = new THREE.MeshBasicMaterial({ color: colors[index] });
-			const slice = new THREE.Mesh(geometry, material);
-			startAngle += sliceAngle;
-			return slice;
-		},
-	);
+	// calculate outline thickness (5% of the adjusted size)
+	const outlineThickness = size * 0.05;
 
+	// create outer circle (outline)
+	const outerRadius = size / 2;
+	const innerRadius = outerRadius - outlineThickness;
+
+	// create pie slices with outline
+	const pieSlices = data.map((value, index) => {
+		const sliceAngle = (value / total) * 2 * Math.PI;
+
+		// inner filled slice
+		const innerGeometry = new THREE.CircleGeometry(innerRadius, 32, startAngle, sliceAngle);
+		const innerMaterial = new THREE.MeshBasicMaterial({ color: colors[index] });
+		const innerSlice = new THREE.Mesh(innerGeometry, innerMaterial);
+
+		// outer outline ring
+		const ringGeometry = new THREE.RingGeometry(
+			innerRadius,
+			outerRadius,
+			32,
+			1,
+			startAngle,
+			sliceAngle,
+		);
+		const outlineMaterial = new THREE.MeshBasicMaterial({
+			color: 0x000000, // black outline
+			side: THREE.DoubleSide,
+		});
+		const outlineRing = new THREE.Mesh(ringGeometry, outlineMaterial);
+
+		// group the slice and its outline
+		const sliceGroup = new THREE.Group();
+		sliceGroup.add(innerSlice);
+		sliceGroup.add(outlineRing);
+
+		startAngle += sliceAngle;
+		return sliceGroup;
+	});
+
+	// add all slices to the scene
 	pieSlices.forEach((slice) => context.scene.add(slice));
+
+	// render the scene
 	context.renderer.render(context.scene, context.camera);
 
+	// read pixels
 	const gl = context.renderer.getContext();
 	const pixels = new Uint8Array(size * size * 4);
 	gl.readPixels(0, 0, size, size, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 
-	pieSlices.forEach((slice) => context.scene.remove(slice)); // Clean up
+	// clean up
+	pieSlices.forEach((slice) => context.scene.remove(slice));
 
 	return pixels;
 };
-
-// export const generatePieChartWebGL = (data, colors, size, context) => {
-// 	const total = data.reduce((sum, value) => sum + value, 0);
-// 	let startAngle = 0;
-
-// 	// Create the border circle
-// 	const borderThickness = 2; // Adjust as needed
-// 	const borderRadius = 80 / 2 + borderThickness;
-// 	const borderGeometry = new THREE.RingGeometry(64 / 2, borderRadius, 64);
-// 	const borderMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 }); // Border color
-// 	const borderCircle = new THREE.Mesh(borderGeometry, borderMaterial);
-// 	context.scene.add(borderCircle);
-
-// 	const pieSlices = data.map((value, index) => {
-// 		const sliceAngle = (value / total) * 2 * Math.PI;
-
-// 		const geometry = new THREE.CircleGeometry(64 / 2, 32, startAngle, sliceAngle);
-// 		const material = new THREE.MeshBasicMaterial({ color: colors[index] });
-// 		const slice = new THREE.Mesh(geometry, material);
-// 		startAngle += sliceAngle;
-// 		context.scene.add(slice);
-// 		return slice;
-// 	});
-
-// 	// Adjust canvas and renderer size
-// 	const canvasSize = 80 + 2 * borderThickness;
-// 	context.renderer.setSize(canvasSize, canvasSize);
-// 	context.renderer.setViewport(0, 0, canvasSize, canvasSize);
-// 	context.renderer.render(context.scene, context.camera);
-
-// 	const gl = context.renderer.getContext();
-// 	const pixels = new Uint8Array(canvasSize * canvasSize * 4);
-// 	gl.readPixels(0, 0, canvasSize, canvasSize, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-
-// 	// Clean up: Remove slices and border from the scene
-// 	pieSlices.forEach((slice) => context.scene.remove(slice));
-// 	context.scene.remove(borderCircle);
-
-// 	return pixels;
-// };
 
 export const parseString = (input: string): { ids: Array<number>; hexcodes: Array<string> } => {
 	// Remove "-id" from the start of the string

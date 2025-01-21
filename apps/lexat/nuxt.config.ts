@@ -65,7 +65,7 @@ export default defineNuxtConfig({
 		detectBrowserLanguage: {
 			redirectOn: "root",
 		},
-		langDir: "./i18n/messages",
+		langDir: "./messages",
 		lazy: true,
 		locales: Object.values(localesMap),
 		strategy: "prefix",

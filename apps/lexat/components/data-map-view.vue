@@ -41,7 +41,17 @@ const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyRespo
 
 const { colors, specialColors, resetColors } = useMapColors();
 
-const stateCapitalsList = ['Wien', 'St. Pölten', 'Graz', 'Linz', 'Innsbruck', 'Klagenfurt', 'Salzburg', 'Bregenz', 'Eisenstadt']
+const stateCapitalsList = [
+	"Wien",
+	"St. Pölten",
+	"Graz",
+	"Linz",
+	"Innsbruck",
+	"Klagenfurt",
+	"Salzburg",
+	"Bregenz",
+	"Eisenstadt",
+];
 
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
 const basemapOptions: Array<DropdownOption> = [
@@ -154,7 +164,7 @@ const activeQuestion = ref<string | null>(null);
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
 const mapExpanded = ref<boolean>(false);
-const showAllPoints = ref<boolean>(false);
+const simplifiedView = ref<boolean>(true);
 const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
 const showStateCapitals = ref<boolean>(true);
@@ -185,8 +195,8 @@ const points = computed(() => {
 	let features = questionData.value ?? [];
 	features.forEach((f) => {
 		if (Array.isArray(f.coalesce)) {
+			// filter the answers array to remove answers with annotation "Keine Angabe"
 			f.coalesce.forEach((entry) => {
-				// Filter the answers array to remove answers with annotation "Keine Angabe"
 				entry.answers = entry.answers.filter((answer) => answer.annotation !== "Keine Angabe");
 			});
 		}
@@ -291,10 +301,10 @@ const filteredPoints = computed(() => {
 
 			return {
 				...item,
-				properties: filteredProperties,
+				coalesce: filteredProperties,
 			};
 		})
-		.filter((item) => item.properties.length > 0);
+		.filter((item) => item.coalesce.length > 0);
 
 	return filteredPoints;
 });
@@ -309,18 +319,22 @@ const filteredPoints = computed(() => {
 
 const dataPoints = computed(() => {
 	let visibleLocationPoints = structuredClone(filteredPoints.value);
-	if(!showStateCapitals.value){
-		visibleLocationPoints = visibleLocationPoints.filter(p => !stateCapitalsList.includes(p.place_name))
+	if (!showStateCapitals.value) {
+		visibleLocationPoints = visibleLocationPoints.filter(
+			(p) => !stateCapitalsList.includes(p.place_name),
+		);
 	}
-	if(!showUrbanLocations.value) {
-		visibleLocationPoints = visibleLocationPoints.filter(p => stateCapitalsList.includes(p.place_name))
+	if (!showUrbanLocations.value) {
+		visibleLocationPoints = visibleLocationPoints.filter((p) =>
+			stateCapitalsList.includes(p.place_name),
+		);
 	}
 	const geoJsonPoints = visibleLocationPoints.map((entity) => {
 		return createGeoJsonFeature(entity, mappedColors.value);
 	});
 
 	return geoJsonPoints.sort((a, b) => b.properties.answerCount! - a.properties.answerCount!);
-})
+});
 
 // const stateCapitals = computed(() => {
 // 	const stateCapitalPoints = filteredPoints.value.filter(p => stateCapitalsList.includes(p.placeName))
@@ -445,7 +459,7 @@ const countOccurrences = (properties: Array<SurveyResponseProperty>) => {
 };
 
 const getEntityOccurrences = (entity: SurveyResponse) => {
-	return countOccurrences(entity.properties ?? []);
+	return countOccurrences(entity.coalesce ?? []);
 };
 
 const getEntityTotal = (entity: SurveyResponse) => {
@@ -607,6 +621,11 @@ const updateUrlParams = async () => {
 	if (activeVariants.value.length > 0) {
 		queryObject.v = activeVariants.value;
 	}
+	if (simplifiedView.value === false) {
+		queryObject.sv = simplifiedView.value.toString();
+	} else {
+		delete queryObject.sv;
+	}
 	const colors = Object.values(changedColors.value);
 	if (colors.length > 0) {
 		queryObject.c = colors;
@@ -648,6 +667,10 @@ const initializeFromUrl = () => {
 	const variantParams = getQueryArray(route, "v");
 	if (variantParams.length > 0) {
 		activeVariants.value = variantParams.map(String);
+	}
+	const simplifiedViewParam = route.query.sv;
+	if (typeof simplifiedViewParam === "string") {
+		simplifiedView.value = false;
 	}
 
 	const colorParams = getQueryArray(route, "c");
@@ -712,6 +735,11 @@ watch(
 );
 
 watch(activeAgeGroup, async () => {
+	popover.value = null;
+	await updateUrlParams();
+});
+
+watch(simplifiedView, async () => {
 	popover.value = null;
 	await updateUrlParams();
 });
@@ -819,12 +847,12 @@ watch(activeVariants, updateUrlParams, {
 							<div class="">
 								<div class="mb-1 ml-1 text-sm font-semibold">Anzeigeoptionen</div>
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showData" v-model:checked="showAllPoints" />
+									<Checkbox id="showData" v-model:checked="simplifiedView" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showData"
 									>
-										{{ t("MapsPage.selection.show-all-points") }}
+										{{ t("MapsPage.selection.simplified-view") }}
 									</label>
 								</div>
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
@@ -848,7 +876,7 @@ watch(activeVariants, updateUrlParams, {
 							</div>
 							<div class="">
 								<div class="mb-1 ml-1 text-sm font-semibold">Ortspunkte filtern</div>
-								<div class="flex w-64 space-x-2 self-center rounded border p-2">
+								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showStateCapitals" v-model:checked="showStateCapitals" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -872,7 +900,7 @@ watch(activeVariants, updateUrlParams, {
 								class="col-span-1 space-y-1 text-sm font-semibold"
 							>
 								<p>{{ t("MapsPage.selection.colors") }}</p>
-								<div class="flex gap-2">
+								<div class="flex flex-wrap gap-2">
 									<ColorPicker
 										v-for="(color, index) in Object.values(mappedColors)"
 										:key="index"
@@ -971,10 +999,10 @@ watch(activeVariants, updateUrlParams, {
 				:features="features"
 				:geo-outline="geoOutline"
 				:height="height"
-				:show-all-points="showAllPoints"
+				:locations="dataPoints"
 				:show-region-names="showRegionNames"
 				:show-regions="showRegions"
-				:urban-locations="dataPoints"
+				:simplified-view="simplifiedView"
 				:width="width"
 				@layer-click="onLayerClick"
 			>

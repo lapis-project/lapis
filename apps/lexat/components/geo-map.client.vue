@@ -13,7 +13,6 @@ import * as THREE from "three";
 
 import { type GeoMapContext, geoMapContextKey } from "@/components/geo-map.context";
 import { initialViewState } from "@/config/geo-map.config";
-// import { project } from "@/config/project.config";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 import { DPI, Format, MaplibreExportControl, PageOrientation, Size } from "@/utils/map-exporter";
 import { generatePieChartWebGL, parseString } from "@/utils/pie-chart-helper";
@@ -23,14 +22,14 @@ import { ResetViewControl } from "./reset-view-control";
 const props = defineProps<{
 	features: Array<GeoJsonFeature>;
 	geoOutline: Array<GeoJsonFeature>;
-	urbanLocations: Array<GeoJsonFeature>;
-	// stateCapitals: Array<GeoJsonFeature>;
+	locations: Array<GeoJsonFeature>;
 	height: number;
 	width: number;
-	showAllPoints: boolean;
+	simplifiedView: boolean;
 	showRegionNames: boolean;
 	showRegions: boolean;
 	basemap: string;
+	// totalAnswers: number;
 }>();
 
 const emit = defineEmits<{
@@ -67,8 +66,7 @@ const elementRef = ref<HTMLElement | null>(null);
 const context: GeoMapContext = {
 	map: null,
 };
-const urbanLocationsPointsId = "points";
-// const stateCapitalsPointsId = "pointss";
+const locationPointsId = "points";
 const sourcePolygonsId = "poly";
 const sourceOutlineId = "outline";
 
@@ -151,17 +149,14 @@ function init() {
 	map.addControl(exportControl, "top-left");
 	//
 
-	map.addSource(urbanLocationsPointsId, {
+	map.addSource(locationPointsId, {
 		type: "geojson",
 		data: createFeatureCollection([]),
 		// cluster: true,
 		// clusterMaxZoom: 14,
 		// clusterRadius: 40,
 	});
-	// map.addSource(stateCapitalsPointsId, {
-	// 	type: "geojson",
-	// 	data: createFeatureCollection([]),
-	// });
+
 	map.addSource(sourcePolygonsId, {
 		type: "geojson",
 		data: createFeatureCollection([]),
@@ -198,59 +193,60 @@ function init() {
 	});
 	map.setLayoutProperty("outline", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
-	// map.addLayer({
-	// 	id: "pointss",
-	// 	type: "symbol",
-	// 	source: stateCapitalsPointsId,
-	// 	layout: {
-	// 		"icon-image": ["concat", ["concat", "id-", ["get", "chartData"]], ["get", "colors"]],
-	// 		"icon-size": [
-	// 			"interpolate",
-	// 			["linear"],
-	// 			["zoom"], // base scaling on zoom level
-	// 			8,
-	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.08, 12, 0.5], // at zoom level 8
-	// 			9,
-	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.2, 12, 0.5], // at zoom level 9
-	// 			10,
-	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
-	// 			11,
-	// 			["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
-	// 		],
-	// 		"symbol-sort-key": ["-", ["get", "answerCount"]],
-	// 	},
-	// 	// paint: {
-	// 	// 	"icon-opacity": ["interpolate", ["linear"], ["get", "answerCount"], 1, 1, 10, 0.75],
-	// 	// },
-	// });
-
 	map.addLayer({
 		id: "points",
 		type: "symbol",
-		source: urbanLocationsPointsId,
+		source: locationPointsId,
 		layout: {
 			"icon-image": ["concat", ["concat", "id-", ["get", "chartData"]], ["get", "colors"]],
 			"icon-size": [
 				"interpolate",
 				["linear"],
-				["zoom"], // base scaling on zoom level
+				["zoom"],
 				8,
-				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.08, 12, 0.5], // at zoom level 8
+				[
+					"interpolate",
+					["linear"],
+					["get", "answerCount"],
+					1,
+					0.09, // Minimum size
+					5,
+					0.12,
+					15,
+					0.25,
+					50,
+					0.3,
+					100,
+					0.35,
+					500,
+					0.42,
+					1000,
+					0.5, // Maximum size
+					/*** Logarithmic version which doesnt scale as well
+					// "+",
+					// 0.02, // Starting point (minimum size)
+					// [
+					// 	"*",
+					// 	0.42, // Range (0.50 - 0.08 = max - min)
+					// 	[
+					// 		"/",
+					// 		["ln", ["+", ["get", "answerCount"], 1]],
+					// 		["ln", props.totalAnswers], // ln(max_value + 1)
+					// 	],
+					// ],
+					***/
+				], // at zoom level 8
 				9,
-				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.2, 12, 0.5], // at zoom level 9
+				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.25, 12, 0.45], // at zoom level 9
 				10,
 				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
 				11,
 				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
 			],
-			"icon-allow-overlap": !props.showAllPoints,
+			"icon-allow-overlap": !props.simplifiedView,
 			"symbol-sort-key": ["-", ["get", "answerCount"]],
 		},
-		// paint: {
-		// 	"icon-opacity": ["interpolate", ["linear"], ["get", "answerCount"], 1, 1, 10, 0.75],
-		// },
 	});
-
 
 	map.on("click", "points", (event) => {
 		emit(
@@ -346,29 +342,22 @@ function dispose() {
 }
 
 watch(() => {
-	return props.urbanLocations;
+	return props.locations;
 }, updateScope);
-
-// watch(() => {
-// 	return props.stateCapitals;
-// }, updateScope);
 
 function updateScope() {
 	assert(context.map != null);
 	const map = context.map;
 
-	const source = map.getSource(urbanLocationsPointsId) as GeoJSONSource | undefined;
-	// const source2 = map.getSource(stateCapitalsPointsId) as GeoJSONSource | undefined;
-	const source3 = map.getSource(sourcePolygonsId) as GeoJSONSource | undefined;
-	const source4 = map.getSource(sourceOutlineId) as GeoJSONSource | undefined;
-	const geojson = createFeatureCollection(props.urbanLocations);
-	// const geojson2 = createFeatureCollection(props.stateCapitals);
-	const geojson3 = createFeatureCollection(props.features);
-	const geojson4 = createFeatureCollection(props.geoOutline);
-	source?.setData(geojson);
-	// source2?.setData(geojson2);
-	source3?.setData(geojson3);
-	source4?.setData(geojson4);
+	const sourceLocations = map.getSource(locationPointsId) as GeoJSONSource | undefined;
+	const sourceRegions = map.getSource(sourcePolygonsId) as GeoJSONSource | undefined;
+	const sourceAustria = map.getSource(sourceOutlineId) as GeoJSONSource | undefined;
+	const geojsonLocations = createFeatureCollection(props.locations);
+	const geojsonRegions = createFeatureCollection(props.features);
+	const geojsonAustria = createFeatureCollection(props.geoOutline);
+	sourceLocations?.setData(geojsonLocations);
+	sourceRegions?.setData(geojsonRegions);
+	sourceAustria?.setData(geojsonAustria);
 }
 
 const toggleLayer = (layer: "outline" | "polygon-labels" | "polygons") => {
@@ -385,7 +374,7 @@ const toggleLayer = (layer: "outline" | "polygon-labels" | "polygons") => {
 
 watch(
 	() => {
-		return props.showAllPoints;
+		return props.simplifiedView;
 	},
 	async () => {
 		dispose();

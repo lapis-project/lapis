@@ -219,7 +219,7 @@
 		"title": "Kartierung",
 		"selection": {
 			"colors": "Legendenfarben",
-			"show-all-points": "Simplifizierte Darstellung",
+			"simplified-view": "Simplifizierte Darstellung",
 			"show-region-names": "Dialektregionennamen",
 			"show-regions": "Dialektregionen anzeigen",
 			"show-state-capitals": "Landeshauptstädte",
@@ -257,7 +257,7 @@
 		},
 		"map": {
 			"datapoints": "Ortspunkte",
-			"informants": "Teilnehmende"
+			"informants": "Antwortende"
 		},
 		"table": {
 			"locations": {

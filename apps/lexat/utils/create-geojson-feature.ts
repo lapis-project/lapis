@@ -51,6 +51,9 @@ export function createGeoJsonFeature(
 	const uniqueOccurrenceCounts = countUniqueOccurrences(entity.coalesce);
 	const sortedVariants = getSortedVariants(uniqueOccurrenceCounts);
 	const uniqueColorsArray = sortedVariants.map((k) => mappedColors[k.anno]).join("-");
+	const answerCount = entity.coalesce.reduce((count, obj) => {
+		return count + obj.answers.length;
+	}, 0);
 	return {
 		type: "Feature",
 		geometry: { type: "Point", coordinates: [entity.lon, entity.lat] },
@@ -61,7 +64,7 @@ export function createGeoJsonFeature(
 			id: entity.id,
 			chartData: generatePercentageString(sortedVariants.map((v) => v.count)),
 			colors: uniqueColorsArray,
-			answerCount: entity.coalesce.length,
+			answerCount,
 		},
 	};
 }

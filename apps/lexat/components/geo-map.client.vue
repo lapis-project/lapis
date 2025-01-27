@@ -78,10 +78,11 @@ function getPieChartTexture(
 	colors: Array<string>,
 	size: number,
 	context: WebGLContext,
+	answerCount: number,
 ) {
 	const key = JSON.stringify({ data, colors });
 	if (!pieChartCache.has(key)) {
-		const pixels = generatePieChartWebGL(data, colors, size, context);
+		const pixels = generatePieChartWebGL(data, colors, size, context, answerCount);
 		pieChartCache.set(key, pixels);
 	}
 	return pieChartCache.get(key);
@@ -105,15 +106,28 @@ async function create() {
 
 	// reference: https://docs.mapbox.com/mapbox-gl-js/example/add-image-missing-generated/
 	map.on("styleimagemissing", (e) => {
-		const id = e.id; // id of the missing image
+		const id = e.id;
 		const prefix = "id-";
-		if (!id.includes(prefix) || id === prefix) {
-			return;
-		}
-		const result = parseString(id);
 
-		const data = getPieChartTexture(result.ids, result.hexcodes, size, webglcontext);
-		map.addImage(id, { width: size, height: size, data: data });
+		if (!id.startsWith(prefix)) {
+			return; // Not a custom pie chart icon
+		}
+
+		try {
+			const result = parseString(id);
+
+			const data = getPieChartTexture(
+				result.ids,
+				result.hexcodes,
+				size,
+				webglcontext,
+				result.answerCount,
+			);
+
+			map.addImage(id, { width: size, height: size, data: data });
+		} catch (error) {
+			console.error(`Failed to parse icon-image id "${id}":`, error.message);
+		}
 	});
 
 	map.on("load", init);
@@ -198,51 +212,61 @@ function init() {
 		type: "symbol",
 		source: locationPointsId,
 		layout: {
-			"icon-image": ["concat", ["concat", "id-", ["get", "chartData"]], ["get", "colors"]],
+			"icon-image": [
+				"concat",
+				"id-",
+				["get", "chartData"],
+				";",
+				["get", "colors"],
+				";",
+				["to-string", ["get", "answerCount"]],
+			],
 			"icon-size": [
 				"interpolate",
 				["linear"],
-				["zoom"],
-				8,
-				[
-					"interpolate",
-					["linear"],
-					["get", "answerCount"],
-					1,
-					0.09, // Minimum size
-					5,
-					0.12,
-					15,
-					0.25,
-					50,
-					0.3,
-					100,
-					0.35,
-					500,
-					0.42,
-					1000,
-					0.5, // Maximum size
-					/*** Logarithmic version which doesnt scale as well
-					// "+",
-					// 0.02, // Starting point (minimum size)
-					// [
-					// 	"*",
-					// 	0.42, // Range (0.50 - 0.08 = max - min)
-					// 	[
-					// 		"/",
-					// 		["ln", ["+", ["get", "answerCount"], 1]],
-					// 		["ln", props.totalAnswers], // ln(max_value + 1)
-					// 	],
-					// ],
-					***/
-				], // at zoom level 8
-				9,
-				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.25, 12, 0.45], // at zoom level 9
-				10,
-				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
-				11,
-				["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
+				["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
+				0,
+				0.09,
+				0.5,
+				0.1,
+				1,
+				0.2,
+				2,
+				0.3,
+				3,
+				0.5,
 			],
+			// "icon-size": [
+			// 	"interpolate",
+			// 	["linear"],
+			// 	["zoom"],
+			// 	8,
+			// 	[
+			// 		// "interpolate",
+			// 		// ["linear"],
+			// 		// ["get", "answerCount"],
+			// 		// 1,
+			// 		// 0.09, // Minimum size
+			// 		// 5,
+			// 		// 0.12,
+			// 		// 15,
+			// 		// 0.25,
+			// 		// 50,
+			// 		// 0.3,
+			// 		// 100,
+			// 		// 0.35,
+			// 		// 500,
+			// 		// 0.42,
+			// 		// 1000,
+			// 		// 0.5, // Maximum size
+			// 	], // at zoom level 8
+			// 	9,
+			// 	["interpolate", ["linear"], ["get", "answerCount"], 1, 0.25, 12, 0.45], // at zoom level 9
+			// 	10,
+			// 	["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
+			// 	11,
+			// 	["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
+			// ],
 			"icon-allow-overlap": !props.simplifiedView,
 			"symbol-sort-key": ["-", ["get", "answerCount"]],
 		},

@@ -63,6 +63,8 @@ const pieChartCache = new Map();
 
 const elementRef = ref<HTMLElement | null>(null);
 
+let zoomfactor = 0;
+
 const context: GeoMapContext = {
 	map: null,
 };
@@ -89,6 +91,7 @@ function getPieChartTexture(
 			context,
 			answerCount,
 			props.capitalsOnly,
+			zoomfactor,
 		);
 		pieChartCache.set(key, pixels);
 	}
@@ -227,31 +230,13 @@ function init() {
 				["get", "colors"],
 				";",
 				["to-string", ["get", "answerCount"]],
+				";",
+				["to-string", ["get", "zoomFactor"]],
 			],
 			"icon-size": [
-				"interpolate",
-				["linear"],
+				"step",
 				["zoom"],
-				8,
 				[
-					// "interpolate",
-					// ["linear"],
-					// ["get", "answerCount"],
-					// 1,
-					// 0.09, // Minimum size
-					// 5,
-					// 0.12,
-					// 15,
-					// 0.25,
-					// 50,
-					// 0.3,
-					// 100,
-					// 0.35,
-					// 500,
-					// 0.42,
-					// 1000,
-					// 0.5, // Maximum size
-					// 	"interpolate",
 					"interpolate",
 					["linear"],
 					["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
@@ -265,27 +250,39 @@ function init() {
 					0.3 + (props.capitalsOnly ? 0.3 : 0),
 					3,
 					0.5 + (props.capitalsOnly ? 0.3 : 0),
+				], // at zoom level < 8
+				8,
+				[
+					"interpolate",
+					["linear"],
+					["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
+					0,
+					["+", 0.09 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					0.5,
+					["+", 0.1 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					1,
+					["+", 0.2 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					2,
+					["+", 0.3 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					3,
+					["+", 0.5 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
 				], // at zoom level 8
-				// 9,
-				// ["interpolate", ["linear"], ["get", "answerCount"], 1, 0.25, 12, 0.45], // at zoom level 9
-				// 10,
-				// ["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
-				// 11,
-				// [
-				// 	"interpolate",
-				// 	["linear"],
-				// 	["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
-				// 	0,
-				// 	0.09 + (props.capitalsOnly ? 0.3 : 0),
-				// 	0.5,
-				// 	0.1 + (props.capitalsOnly ? 0.3 : 0),
-				// 	1,
-				// 	0.2 + (props.capitalsOnly ? 0.3 : 0),
-				// 	2,
-				// 	0.3 + (props.capitalsOnly ? 0.3 : 0),
-				// 	3,
-				// 	0.5 + (props.capitalsOnly ? 0.3 : 0),
-				// ], // at zoom level 11
+				9,
+				[
+					"interpolate",
+					["linear"],
+					["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
+					0,
+					["+", 0.09 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					0.5,
+					["+", 0.1 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					1,
+					["+", 0.2 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					2,
+					["+", 0.3 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+					3,
+					["+", 0.5 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
+				], // at zoom level 9
 			],
 			"icon-allow-overlap": !props.simplifiedView,
 			"symbol-sort-key": ["-", ["get", "answerCount"]],
@@ -297,6 +294,29 @@ function init() {
 			"layer-click",
 			(event.features ?? []) as Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "properties">>,
 		);
+	});
+
+	// TODO make this more efficient
+	map.on("zoomend", async () => {
+		const currentZoom = Math.floor(map.getZoom());
+		zoomfactor = 0;
+		if (currentZoom >= 9) {
+			zoomfactor = 0.3 * (props.capitalsOnly ? 2 : 1);
+		} else if (currentZoom === 8) {
+			zoomfactor = 0.1 * (props.capitalsOnly ? 2 : 1);
+		}
+		// Get the existing GeoJSON
+		const source = map.getSource(locationPointsId) as maplibregl.GeoJSONSource;
+		if (!source) return;
+
+		const data = source._data as GeoJSON.FeatureCollection;
+		// Update zoomFactor on each feature
+		data.features.forEach((feature) => {
+			feature.properties.zoomFactor = zoomfactor;
+		});
+		pieChartCache.clear();
+		// Re-set the data -> triggers styleimagemissing for new icon IDs
+		source.setData(data);
 	});
 
 	// map.on("click", "polygons", (event) => {

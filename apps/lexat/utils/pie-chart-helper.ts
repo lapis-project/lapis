@@ -23,13 +23,23 @@ import type { WebGLContext } from "@/components/geo-map.client.vue";
  * @param {number} answerCount - The answer count value.
  * @returns {number} - The corresponding scale factor.
  */
-function computeScaleFromAnswerCount(answerCount: number, capitalsOnly: boolean) {
+function computeScaleFromAnswerCount(
+	answerCount: number,
+	capitalsOnly: boolean,
+	zoomfactor: number,
+) {
 	// 1. Compute log base 10 of answerCount (clamp at min 1 to avoid negative or zero)
 	const logCount = Math.log(Math.max(answerCount, 1)) / Math.log(10);
 
 	// 2. Define the domain (input) and range (output) breakpoints
 	const domain = [0, 0.5, 1, 2, 3];
-	let range = [0.09, 0.1, 0.2, 0.3, 0.5];
+	let range = [
+		0.09 + zoomfactor,
+		0.1 + zoomfactor,
+		0.2 + zoomfactor,
+		0.3 + zoomfactor,
+		0.5 + zoomfactor,
+	];
 
 	if (capitalsOnly) {
 		range = range.map((value) => value + 0.3);
@@ -63,18 +73,19 @@ function computeScaleFromAnswerCount(answerCount: number, capitalsOnly: boolean)
 }
 
 export const generatePieChartWebGL = (
-	data: Array<number>,
+	data: Array<number>, // array of numbers representing percentual values of each pie slice
 	colors: Array<string>,
-	size: number,
+	size: number, // pixel size of generated image
 	context: WebGLContext,
-	answerCount: number,
+	answerCount: number, // total number of answers
 	capitalsOnly: boolean,
+	zoomfactor: number,
 ) => {
 	const total = data.reduce((sum, value) => sum + value, 0);
 	let startAngle = 0;
 
 	// 1. Compute the scale factor matching MapLibre's "icon-size"
-	const scaleFactor = computeScaleFromAnswerCount(answerCount, capitalsOnly) ?? 1;
+	const scaleFactor = computeScaleFromAnswerCount(answerCount, capitalsOnly, zoomfactor) ?? 1;
 
 	// 2. Desired on-screen outline thickness in pixels
 	const desiredOnScreenThickness = 1;
@@ -151,7 +162,7 @@ export const parseString = (
 
 	const parts = cleanedInput.split(";");
 
-	if (parts.length !== 3) {
+	if (parts.length !== 4) {
 		throw new Error(`Invalid icon-image format: ${input}`);
 	}
 

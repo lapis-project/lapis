@@ -14,6 +14,7 @@ export type GeoJsonFeature = Feature<
 		colors?: string;
 		answerCount?: number;
 		name?: string;
+		zoomFactor?: number;
 	}
 >;
 
@@ -65,6 +66,7 @@ export function createGeoJsonFeature(
 			chartData: generatePercentageString(sortedVariants.map((v) => v.count)),
 			colors: uniqueColorsArray,
 			answerCount,
+			zoomFactor: 0,
 		},
 	};
 }

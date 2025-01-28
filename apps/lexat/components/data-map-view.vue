@@ -996,6 +996,7 @@ watch(activeVariants, updateUrlParams, {
 			<GeoMap
 				v-if="height && width"
 				:basemap="activeBasemap"
+				:capitals-only="showStateCapitals && !showUrbanLocations"
 				:features="features"
 				:geo-outline="geoOutline"
 				:height="height"

@@ -29,7 +29,7 @@ const props = defineProps<{
 	showRegionNames: boolean;
 	showRegions: boolean;
 	basemap: string;
-	// totalAnswers: number;
+	capitalsOnly: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -80,9 +80,16 @@ function getPieChartTexture(
 	context: WebGLContext,
 	answerCount: number,
 ) {
-	const key = JSON.stringify({ data, colors });
+	const key = JSON.stringify({ data, colors, answerCount });
 	if (!pieChartCache.has(key)) {
-		const pixels = generatePieChartWebGL(data, colors, size, context, answerCount);
+		const pixels = generatePieChartWebGL(
+			data,
+			colors,
+			size,
+			context,
+			answerCount,
+			props.capitalsOnly,
+		);
 		pieChartCache.set(key, pixels);
 	}
 	return pieChartCache.get(key);
@@ -224,49 +231,62 @@ function init() {
 			"icon-size": [
 				"interpolate",
 				["linear"],
-				["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
-				0,
-				0.09,
-				0.5,
-				0.1,
-				1,
-				0.2,
-				2,
-				0.3,
-				3,
-				0.5,
+				["zoom"],
+				8,
+				[
+					// "interpolate",
+					// ["linear"],
+					// ["get", "answerCount"],
+					// 1,
+					// 0.09, // Minimum size
+					// 5,
+					// 0.12,
+					// 15,
+					// 0.25,
+					// 50,
+					// 0.3,
+					// 100,
+					// 0.35,
+					// 500,
+					// 0.42,
+					// 1000,
+					// 0.5, // Maximum size
+					// 	"interpolate",
+					"interpolate",
+					["linear"],
+					["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
+					0,
+					0.09 + (props.capitalsOnly ? 0.3 : 0),
+					0.5,
+					0.1 + (props.capitalsOnly ? 0.3 : 0),
+					1,
+					0.2 + (props.capitalsOnly ? 0.3 : 0),
+					2,
+					0.3 + (props.capitalsOnly ? 0.3 : 0),
+					3,
+					0.5 + (props.capitalsOnly ? 0.3 : 0),
+				], // at zoom level 8
+				// 9,
+				// ["interpolate", ["linear"], ["get", "answerCount"], 1, 0.25, 12, 0.45], // at zoom level 9
+				// 10,
+				// ["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
+				// 11,
+				// [
+				// 	"interpolate",
+				// 	["linear"],
+				// 	["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
+				// 	0,
+				// 	0.09 + (props.capitalsOnly ? 0.3 : 0),
+				// 	0.5,
+				// 	0.1 + (props.capitalsOnly ? 0.3 : 0),
+				// 	1,
+				// 	0.2 + (props.capitalsOnly ? 0.3 : 0),
+				// 	2,
+				// 	0.3 + (props.capitalsOnly ? 0.3 : 0),
+				// 	3,
+				// 	0.5 + (props.capitalsOnly ? 0.3 : 0),
+				// ], // at zoom level 11
 			],
-			// "icon-size": [
-			// 	"interpolate",
-			// 	["linear"],
-			// 	["zoom"],
-			// 	8,
-			// 	[
-			// 		// "interpolate",
-			// 		// ["linear"],
-			// 		// ["get", "answerCount"],
-			// 		// 1,
-			// 		// 0.09, // Minimum size
-			// 		// 5,
-			// 		// 0.12,
-			// 		// 15,
-			// 		// 0.25,
-			// 		// 50,
-			// 		// 0.3,
-			// 		// 100,
-			// 		// 0.35,
-			// 		// 500,
-			// 		// 0.42,
-			// 		// 1000,
-			// 		// 0.5, // Maximum size
-			// 	], // at zoom level 8
-			// 	9,
-			// 	["interpolate", ["linear"], ["get", "answerCount"], 1, 0.25, 12, 0.45], // at zoom level 9
-			// 	10,
-			// 	["interpolate", ["linear"], ["get", "answerCount"], 1, 0.3, 12, 0.6], // at zoom level 10
-			// 	11,
-			// 	["interpolate", ["linear"], ["get", "answerCount"], 1, 0.5, 12, 0.8], // at zoom level 11
-			// ],
 			"icon-allow-overlap": !props.simplifiedView,
 			"symbol-sort-key": ["-", ["get", "answerCount"]],
 		},
@@ -295,8 +315,6 @@ function init() {
 	// map.on("mouseenter", "polygons", () => {
 	// 	map.getCanvas().style.cursor = "pointer";
 	// });
-
-	//
 
 	map.on("mouseleave", "points", () => {
 		map.getCanvas().style.cursor = "";
@@ -371,6 +389,7 @@ watch(() => {
 
 function updateScope() {
 	assert(context.map != null);
+	pieChartCache.clear();
 	const map = context.map;
 
 	const sourceLocations = map.getSource(locationPointsId) as GeoJSONSource | undefined;
@@ -402,6 +421,7 @@ watch(
 	},
 	async () => {
 		dispose();
+		pieChartCache.clear();
 		await create();
 	},
 );
@@ -412,6 +432,7 @@ watch(
 	},
 	async () => {
 		dispose();
+		pieChartCache.clear();
 		await create();
 	},
 );
@@ -422,6 +443,17 @@ watch(
 	},
 	() => {
 		toggleLayer("polygon-labels");
+	},
+);
+
+watch(
+	() => {
+		return props.capitalsOnly;
+	},
+	async () => {
+		dispose();
+		pieChartCache.clear();
+		await create();
 	},
 );
 

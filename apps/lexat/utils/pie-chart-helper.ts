@@ -23,13 +23,17 @@ import type { WebGLContext } from "@/components/geo-map.client.vue";
  * @param {number} answerCount - The answer count value.
  * @returns {number} - The corresponding scale factor.
  */
-function computeScaleFromAnswerCount(answerCount: number) {
+function computeScaleFromAnswerCount(answerCount: number, capitalsOnly: boolean) {
 	// 1. Compute log base 10 of answerCount (clamp at min 1 to avoid negative or zero)
 	const logCount = Math.log(Math.max(answerCount, 1)) / Math.log(10);
 
 	// 2. Define the domain (input) and range (output) breakpoints
 	const domain = [0, 0.5, 1, 2, 3];
-	const range = [0.09, 0.1, 0.2, 0.3, 0.5];
+	let range = [0.09, 0.1, 0.2, 0.3, 0.5];
+
+	if (capitalsOnly) {
+		range = range.map((value) => value + 0.3);
+	}
 
 	// 3. Handle values below the first domain breakpoint
 	if (logCount <= domain[0]!) {
@@ -64,12 +68,13 @@ export const generatePieChartWebGL = (
 	size: number,
 	context: WebGLContext,
 	answerCount: number,
+	capitalsOnly: boolean,
 ) => {
 	const total = data.reduce((sum, value) => sum + value, 0);
 	let startAngle = 0;
 
 	// 1. Compute the scale factor matching MapLibre's "icon-size"
-	const scaleFactor = computeScaleFromAnswerCount(answerCount) ?? 1;
+	const scaleFactor = computeScaleFromAnswerCount(answerCount, capitalsOnly) ?? 1;
 
 	// 2. Desired on-screen outline thickness in pixels
 	const desiredOnScreenThickness = 1;
@@ -78,7 +83,14 @@ export const generatePieChartWebGL = (
 	const outlineThickness = desiredOnScreenThickness / scaleFactor;
 
 	// DEBGUGGING
-	// console.log("total:", total, "scaleFactor:", scaleFactor, "outlineThickness:", outlineThickness);
+	// console.log(
+	// 	"answerCount:",
+	// 	answerCount,
+	// 	"scaleFactor:",
+	// 	scaleFactor,
+	// 	"outlineThickness:",
+	// 	outlineThickness,
+	// );
 
 	const outerRadius = size / 2;
 	const innerRadius = outerRadius - outlineThickness;
@@ -87,7 +99,7 @@ export const generatePieChartWebGL = (
 		const sliceAngle = (value / total) * 2 * Math.PI;
 
 		// inner filled slice
-		const innerGeometry = new THREE.CircleGeometry(innerRadius, 32, startAngle, sliceAngle);
+		const innerGeometry = new THREE.CircleGeometry(innerRadius, 128, startAngle, sliceAngle);
 		const innerMaterial = new THREE.MeshBasicMaterial({ color: colors[index] });
 		const innerSlice = new THREE.Mesh(innerGeometry, innerMaterial);
 
@@ -95,7 +107,7 @@ export const generatePieChartWebGL = (
 		const ringGeometry = new THREE.RingGeometry(
 			innerRadius,
 			outerRadius,
-			32,
+			128,
 			1,
 			startAngle,
 			sliceAngle,

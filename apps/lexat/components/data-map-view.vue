@@ -193,12 +193,16 @@ const entities = computed((): Array<RegionFeature> => {
 
 const points = computed(() => {
 	let features = questionData.value ?? [];
+
 	features.forEach((f) => {
 		if (Array.isArray(f.coalesce)) {
-			// filter the answers array to remove answers with annotation "Keine Angabe"
+			// Filter out "Keine Angabe" answers in each coalesce entry
 			f.coalesce.forEach((entry) => {
 				entry.answers = entry.answers.filter((answer) => answer.annotation !== "Keine Angabe");
 			});
+
+			// Remove coalesce entries whose answers array is now empty
+			f.coalesce = f.coalesce.filter((entry) => entry.answers.length > 0);
 		}
 		f.id = `${f.plz.toString()}-${f.place_name}`;
 	});
@@ -213,10 +217,9 @@ const points = computed(() => {
 		const activeRegisterLabels: Array<string> = [];
 		for (const register of activeRegisters.value) {
 			const label = registerOptions.find((r) => r.value === register)?.label;
-			if (label) {
-				activeRegisterLabels.push(label);
-			}
+			if (label) activeRegisterLabels.push(label);
 		}
+
 		features = features
 			.map((feature) => {
 				const filteredProperties = feature.coalesce
@@ -232,6 +235,7 @@ const points = computed(() => {
 			})
 			.filter((feature) => feature.coalesce.length > 0);
 	}
+
 	return features;
 });
 

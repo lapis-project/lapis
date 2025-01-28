@@ -3,8 +3,6 @@ import type { Feature, Geometry, Polygon } from "geojson";
 import type { Coalesce, RegionFeature, SurveyResponse } from "@/types/feature-collection";
 import { getSortedVariants } from "@/utils/variant-helper";
 
-// import type { EntityFeature } from "@/composables/use-create-entity";
-
 export type GeoJsonFeature = Feature<
 	Geometry,
 	{
@@ -58,15 +56,11 @@ export function createGeoJsonFeature(
 	return {
 		type: "Feature",
 		geometry: { type: "Point", coordinates: [entity.lon, entity.lat] },
-		// properties: {
-		// 	_id: entity.properties.name ? entity.properties.name : Date.now().toString(),
-		// },
 		properties: {
 			id: entity.id,
 			chartData: generatePercentageString(sortedVariants.map((v) => v.count)),
 			colors: uniqueColorsArray,
 			answerCount,
-			zoomFactor: 0,
 		},
 	};
 }

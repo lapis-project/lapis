@@ -63,7 +63,7 @@ const pieChartCache = new Map();
 
 const elementRef = ref<HTMLElement | null>(null);
 
-let zoomfactor = 0;
+let zoomFactor = 0;
 
 const context: GeoMapContext = {
 	map: null,
@@ -91,7 +91,7 @@ function getPieChartTexture(
 			context,
 			answerCount,
 			props.capitalsOnly,
-			zoomfactor,
+			zoomFactor,
 		);
 		pieChartCache.set(key, pixels);
 	}
@@ -299,11 +299,11 @@ function init() {
 	// TODO make this more efficient
 	map.on("zoomend", async () => {
 		const currentZoom = Math.floor(map.getZoom());
-		zoomfactor = 0;
+		zoomFactor = 0;
 		if (currentZoom >= 9) {
-			zoomfactor = 0.3 * (props.capitalsOnly ? 2 : 1);
+			zoomFactor = 0.3 * (props.capitalsOnly ? 2 : 1);
 		} else if (currentZoom === 8) {
-			zoomfactor = 0.1 * (props.capitalsOnly ? 2 : 1);
+			zoomFactor = 0.1 * (props.capitalsOnly ? 2 : 1);
 		}
 		// Get the existing GeoJSON
 		const source = map.getSource(locationPointsId) as maplibregl.GeoJSONSource;
@@ -312,7 +312,7 @@ function init() {
 		const data = source._data as GeoJSON.FeatureCollection;
 		// Update zoomFactor on each feature
 		data.features.forEach((feature) => {
-			feature.properties.zoomFactor = zoomfactor;
+			feature.properties.zoomFactor = zoomFactor;
 		});
 		pieChartCache.clear();
 		// Re-set the data -> triggers styleimagemissing for new icon IDs
@@ -418,6 +418,9 @@ function updateScope() {
 	const geojsonLocations = createFeatureCollection(props.locations);
 	const geojsonRegions = createFeatureCollection(props.features);
 	const geojsonAustria = createFeatureCollection(props.geoOutline);
+	geojsonLocations.features.forEach((feature) => {
+		feature.properties.zoomFactor = zoomFactor;
+	});
 	sourceLocations?.setData(geojsonLocations);
 	sourceRegions?.setData(geojsonRegions);
 	sourceAustria?.setData(geojsonAustria);

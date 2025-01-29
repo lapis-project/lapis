@@ -23,27 +23,19 @@ import type { WebGLContext } from "@/components/geo-map.client.vue";
  * @param {number} answerCount - The answer count value.
  * @returns {number} - The corresponding scale factor.
  */
-function computeScaleFromAnswerCount(
-	answerCount: number,
-	capitalsOnly: boolean,
-	zoomfactor: number,
-) {
+function computeScaleFromAnswerCount(answerCount: number, zoomfactor: number) {
 	// 1. Compute log base 10 of answerCount (clamp at min 1 to avoid negative or zero)
 	const logCount = Math.log(Math.max(answerCount, 1)) / Math.log(10);
 
 	// 2. Define the domain (input) and range (output) breakpoints
 	const domain = [0, 0.5, 1, 2, 3];
-	let range = [
+	const range = [
 		0.09 + zoomfactor,
 		0.1 + zoomfactor,
 		0.2 + zoomfactor,
 		0.3 + zoomfactor,
 		0.5 + zoomfactor,
 	];
-
-	if (capitalsOnly) {
-		range = range.map((value) => value + 0.3);
-	}
 
 	// 3. Handle values below the first domain breakpoint
 	if (logCount <= domain[0]!) {
@@ -78,14 +70,13 @@ export const generatePieChartWebGL = (
 	size: number, // pixel size of generated image
 	context: WebGLContext,
 	answerCount: number, // total number of answers
-	capitalsOnly: boolean,
 	zoomfactor: number,
 ) => {
 	const total = data.reduce((sum, value) => sum + value, 0);
 	let startAngle = 0;
 
 	// 1. Compute the scale factor matching MapLibre's "icon-size"
-	const scaleFactor = computeScaleFromAnswerCount(answerCount, capitalsOnly, zoomfactor) ?? 1;
+	const scaleFactor = computeScaleFromAnswerCount(answerCount, zoomfactor) ?? 1;
 
 	// 2. Desired on-screen outline thickness in pixels
 	const desiredOnScreenThickness = 1;

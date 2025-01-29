@@ -83,6 +83,7 @@ function getPieChartTexture(
 	answerCount: number,
 ) {
 	const key = JSON.stringify({ data, colors, answerCount });
+	const currentZoomFactor = zoomFactor + (props.capitalsOnly ? 0.3 : 0);
 	if (!pieChartCache.has(key)) {
 		const pixels = generatePieChartWebGL(
 			data,
@@ -90,8 +91,7 @@ function getPieChartTexture(
 			size,
 			context,
 			answerCount,
-			props.capitalsOnly,
-			zoomFactor,
+			currentZoomFactor,
 		);
 		pieChartCache.set(key, pixels);
 	}
@@ -234,55 +234,19 @@ function init() {
 				["to-string", ["get", "zoomFactor"]],
 			],
 			"icon-size": [
-				"step",
-				["zoom"],
-				[
-					"interpolate",
-					["linear"],
-					["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
-					0,
-					0.09 + (props.capitalsOnly ? 0.3 : 0),
-					0.5,
-					0.1 + (props.capitalsOnly ? 0.3 : 0),
-					1,
-					0.2 + (props.capitalsOnly ? 0.3 : 0),
-					2,
-					0.3 + (props.capitalsOnly ? 0.3 : 0),
-					3,
-					0.5 + (props.capitalsOnly ? 0.3 : 0),
-				], // at zoom level < 8
-				8,
-				[
-					"interpolate",
-					["linear"],
-					["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
-					0,
-					["+", 0.09 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					0.5,
-					["+", 0.1 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					1,
-					["+", 0.2 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					2,
-					["+", 0.3 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					3,
-					["+", 0.5 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-				], // at zoom level 8
-				9,
-				[
-					"interpolate",
-					["linear"],
-					["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
-					0,
-					["+", 0.09 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					0.5,
-					["+", 0.1 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					1,
-					["+", 0.2 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					2,
-					["+", 0.3 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-					3,
-					["+", 0.5 + (props.capitalsOnly ? 0.3 : 0), ["get", "zoomFactor"]],
-				], // at zoom level 9
+				"interpolate",
+				["linear"],
+				["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
+				0,
+				["+", 0.09, ["get", "zoomFactor"]],
+				0.5,
+				["+", 0.1, ["get", "zoomFactor"]],
+				1,
+				["+", 0.2, ["get", "zoomFactor"]],
+				2,
+				["+", 0.3, ["get", "zoomFactor"]],
+				3,
+				["+", 0.5, ["get", "zoomFactor"]],
 			],
 			"icon-allow-overlap": !props.simplifiedView,
 			"symbol-sort-key": ["-", ["get", "answerCount"]],
@@ -309,12 +273,12 @@ function init() {
 		const source = map.getSource(locationPointsId) as maplibregl.GeoJSONSource;
 		if (!source) return;
 
+		pieChartCache.clear();
 		const data = source._data as GeoJSON.FeatureCollection;
 		// Update zoomFactor on each feature
 		data.features.forEach((feature) => {
-			feature.properties.zoomFactor = zoomFactor;
+			feature.properties.zoomFactor = zoomFactor + (props.capitalsOnly ? 0.3 : 0);
 		});
-		pieChartCache.clear();
 		// Re-set the data -> triggers styleimagemissing for new icon IDs
 		source.setData(data);
 	});
@@ -419,7 +383,7 @@ function updateScope() {
 	const geojsonRegions = createFeatureCollection(props.features);
 	const geojsonAustria = createFeatureCollection(props.geoOutline);
 	geojsonLocations.features.forEach((feature) => {
-		feature.properties.zoomFactor = zoomFactor;
+		feature.properties.zoomFactor = zoomFactor + (props.capitalsOnly ? 0.3 : 0);
 	});
 	sourceLocations?.setData(geojsonLocations);
 	sourceRegions?.setData(geojsonRegions);
@@ -466,17 +430,6 @@ watch(
 	},
 	() => {
 		toggleLayer("polygon-labels");
-	},
-);
-
-watch(
-	() => {
-		return props.capitalsOnly;
-	},
-	async () => {
-		dispose();
-		pieChartCache.clear();
-		await create();
 	},
 );
 

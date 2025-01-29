@@ -16,6 +16,13 @@ import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-rout
 
 import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
 import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import {
+	basemapOptions,
+	registerGroups,
+	registerOptions,
+	specialOrder,
+	stateCapitalsList,
+} from "@/assets/data/static-filter-data";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import { useMapColors } from "@/composables/use-map-colors";
 import type { DropdownOption } from "@/types/dropdown-option";
@@ -41,103 +48,7 @@ const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyRespo
 
 const { colors, specialColors, resetColors } = useMapColors();
 
-const stateCapitalsList = [
-	"Wien",
-	"St. Pölten",
-	"Graz",
-	"Linz",
-	"Innsbruck",
-	"Klagenfurt",
-	"Salzburg",
-	"Bregenz",
-	"Eisenstadt",
-];
-
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
-const basemapOptions: Array<DropdownOption> = [
-	{
-		label: "OpenStreetMaps",
-		value:
-			"https://raw.githubusercontent.com/go2garret/maps/main/src/assets/json/openStreetMap.json",
-	},
-	{
-		label: "Light-themed (Positron)",
-		value: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-	},
-	{
-		label: "Detailed street map (Voyager)",
-		value: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
-	},
-	{
-		label: "Dark-themed (Dark Matter)",
-		value: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-	},
-	{
-		label: "Hypsometry (ICGC)",
-		value: "https://geoserveis.icgc.cat/contextmaps/icgc_ombra_hipsometria_corbes.json",
-	},
-];
-
-const registerOptions: Array<DropdownOption> = [
-	{
-		label: t("MapsPage.selection.register.show-all"),
-		value: "all",
-		level: 0,
-	},
-	{
-		label: "Standardsprachliche Register",
-		value: "st",
-		level: 1,
-		group: "st",
-	},
-	{
-		label: "Ihr Hochdeutsch",
-		value: "hd",
-		level: 2,
-		group: "st",
-	},
-	{
-		label: "Ihr österreichisches Hochdeutsch",
-		value: "oehd",
-		level: 2,
-		group: "st",
-	},
-	{
-		label: "Ihr bestes Hochdeutsch",
-		value: "bhd",
-		level: 2,
-		group: "st",
-	},
-	{
-		label: "Standardfernere Register",
-		value: "diaf",
-		level: 1,
-		group: "dia",
-	},
-	{
-		label: "Dialekt (Mundart)",
-		value: "dia",
-		level: 2,
-		group: "dia",
-	},
-	{
-		label: "Umgangssprache oder Alltagssprache",
-		value: "usas",
-		level: 2,
-		group: "dia",
-	},
-];
-
-const registerGroups = [
-	{
-		name: "dia",
-		values: ["Dialekt (Mundart)", "Umgangssprache oder Alltagssprache"],
-	},
-	{
-		name: "st",
-		values: ["Ihr Hochdeutsch", "Ihr bestes Hochdeutsch", "Ihr österreichisches Hochdeutsch"],
-	},
-];
 
 const { data: questions } = await useFetch<
 	Array<{ id: number; phenomenon_name: string; description: string | null }>
@@ -180,12 +91,6 @@ const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions
 	baseURL: env.public.apiBaseUrl,
 	method: "get",
 });
-
-const specialOrder = {
-	// "keine Angabe": -3, // -3 indicates key to be sorted last
-	Irrelevant: -2,
-	Sonstige: -1,
-};
 
 const entities = computed((): Array<RegionFeature> => {
 	return dialectRegions.features;
@@ -720,6 +625,8 @@ const handleColorUpdate = (index: number, newColor: string) => {
 	updateUrlParams();
 };
 
+const capitalsOnly = computed(() => Boolean(showStateCapitals.value && !showUrbanLocations.value));
+
 // Call the initialize function on component mount
 initializeFromUrl();
 
@@ -1000,7 +907,7 @@ watch(activeVariants, updateUrlParams, {
 			<GeoMap
 				v-if="height && width"
 				:basemap="activeBasemap"
-				:capitals-only="showStateCapitals && !showUrbanLocations"
+				:capitals-only="capitalsOnly"
 				:features="features"
 				:geo-outline="geoOutline"
 				:height="height"

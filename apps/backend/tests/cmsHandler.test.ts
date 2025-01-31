@@ -27,7 +27,7 @@ describe("test endpoint /cms/articles/create/info", () => {
 	const loginHeaders = structuredClone(apiHeaders);
 	beforeAll(async () => {
 		/*
-		await db
+		const userIds = await db
 			.insertInto("user_account")
 			.columns(["email", "password", "firstname", "lastname"])
 			.values([
@@ -44,7 +44,24 @@ describe("test endpoint /cms/articles/create/info", () => {
 					lastname: "admin",
 				},
 			])
-			.returning(["id", "firstname"])
+			.returning(["id"])
+			.execute();
+		if (userIds.length !== 2) {
+			throw new Error("Could not create users");
+		}
+
+		// TS is weird
+		const userIdAdmin = userIds[0] ? userIds[0].id : 0;
+		const editorId = userIds[1] ? userIds[1].id : 0;
+		await db
+			.insertInto("user_has_role")
+			.columns(["user_id", "role_id"])
+			.values({ user_id: userIdAdmin, role_id: 2 })
+			.execute();
+		await db
+			.insertInto("user_has_role")
+			.columns(["user_id", "role_id"])
+			.values({ user_id: editorId, role_id: 2 })
 			.execute();*/
 		// const honoClient = hc<GetAuthorInformationType>("");
 		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
@@ -90,13 +107,13 @@ describe("test endpoint GET /cms/articles/:id", () => {
 				status: "Draft",
 				lang: "en",
 				projectId: [1],
-				authors: [151],
+				authors: [14],
 				phenomenonId: 2,
 				citation: "test-citation",
 			}),
 			headers: loginHeaders,
 		});
-
+		console.error(response.statusText);
 		expect(response.status).toBe(201);
 
 		const body = await response.json();

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { cors } from "hono/cors";
@@ -17,7 +16,17 @@ import cms from "./handler/cmsHandler";
 import media from "./handler/mediaHandler";
 import questions from "./handler/questionHandler";
 
-const app = new Hono<Context>();
+const app = new Hono<Context>()
+	.get("/", (c) => {
+		return c.json("OK", 201);
+	})
+	.notFound((c) => c.json({ message: "Not Found", ok: false }, 404))
+	.route("/articles", articles)
+	.route("/questions", questions)
+	.route("/cms", cms)
+	.route("/auth", auth)
+	.route("/user", user)
+	.route("/media", media);
 
 app.use(logger());
 app.use(prettyJSON());
@@ -89,24 +98,14 @@ app.use("*", async (c, next) => {
 	return next();
 });
 
-// Healthcheck for the k8s server
-const healthCheck = new Hono();
-
-const hc = app.get("/", (c) => {
-	return c.json("OK", 201);
-});
-
-app.notFound((c) => c.json({ message: "Not Found", ok: false }, 404));
-
-// Including all new routes
-app.route("/articles", articles);
-app.route("/questions", questions);
-app.route("/cms", cms);
-app.route("/auth", auth);
-app.route("/user", user);
-app.route("/media", media);
-
-// Export type for the health check route
-export type HealthType = typeof hc;
-
 export { app };
+
+export type AppType = typeof app;
+
+/*
+ * TODO: rewrite the routes to use chained methods for each route => so the typechecker does work
+ * - Properly export the api types and set an export for the api routes in package.json
+ * - Check if the resulting types can be used in the frontend and if the types are correct
+ * - Neue Registerbezeichnungen in das Importskript eintragen
+ * - Neuen dump von der DB erstellen
+ */

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
+import { hc, type InferRequestType, type InferResponseType } from "hono/client";
 import { array, minLength, number, object, optional, pipe, string } from "valibot";
 
 import { getUsersByList } from "@/db/authRepository";
@@ -29,8 +30,6 @@ import {
 } from "@/lib/RepoHelper";
 import type { Article } from "@/types/apiTypes";
 
-const cms = new Hono<Context>();
-
 const createNewArticleSchema = object({
 	title: pipe(string(), minLength(5)),
 	alias: pipe(string(), minLength(5)),
@@ -57,35 +56,29 @@ const searchArticleSchema = object({
 	category: optional(string()), // Does it allow as an enum? ARTICLE | BLOG | NEWS
 });
 
-// Enable in order to restrict the route only to signed in users
-cms.use("*", restrictedRoute);
+const cms = new Hono<Context>()
+	/**
+	 * Delete the article with the provided id as queryparam
+	 * Returns code 200 when the article has been processed
+	 */
+	.delete("/articles/:id", async (c) => {
+		const articleId = c.req.param("id");
+		// Check if the id is a number
+		if (!articleId || Number.isNaN(Number(articleId))) {
+			return c.json("Provided id is not a number", 400);
+		}
 
-/**
- * Delete the article with the provided id as queryparam
- * Returns code 200 when the article has been processed
- */
-const deleteArticle = cms.delete("/articles/:id", async (c) => {
-	const articleId = c.req.param("id");
-	// Check if the id is a number
-	if (!articleId || Number.isNaN(Number(articleId))) {
-		return c.json("Provided id is not a number", 400);
-	}
-
-	// Delete the article
-	await deleteArticleById(Number(articleId));
-	return c.json(`Article with the ID ${String(articleId)} has been deleted`, 200);
-});
-
-/**
- * Edit the article with the provided id as queryparam
- *
- * @returns code 200 when the article has been processed and the relevant entry has been updated with the updated object
- * @returns code 400 when the provided id is not a number
- */
-const editArticle = cms.put(
-	"/articles/:id",
-	vValidator("json", createNewArticleSchema),
-	async (c) => {
+		// Delete the article
+		await deleteArticleById(Number(articleId));
+		return c.json(`Article with the ID ${String(articleId)} has been deleted`, 200);
+	})
+	/**
+	 * Edit the article with the provided id as queryparam
+	 *
+	 * @returns code 200 when the article has been processed and the relevant entry has been updated with the updated object
+	 * @returns code 400 when the provided id is not a number
+	 */
+	.put("/articles/:id", vValidator("json", createNewArticleSchema), async (c) => {
 		const articleId = c.req.param("id");
 		const body = c.req.valid("json");
 		// Check if articleId is valid
@@ -179,81 +172,82 @@ const editArticle = cms.put(
 			}
 		}
 		return c.json({ updatedRows: Number(result.numUpdatedRows) }, 201);
-	},
-);
+	})
 
-/**
- * Get all articles (posts) from a project, Does not return articles where no project has been assigned
- * @returns Object with all articleIds from the provided project id with the users who wrote them,
- * Comes in a paged format
- */
-const cmsRoute = cms.get("/articles/all/:project", async (c) => {
-	const projectId = c.req.param("project");
+	/**
+	 * Get all articles (posts) from a project, Does not return articles where no project has been assigned
+	 * @returns Object with all articleIds from the provided project id with the users who wrote them,
+	 * Comes in a paged format
+	 */
+	.get("/articles/all/:project", async (c) => {
+		const projectId = c.req.param("project");
 
-	const { page, offset, pageSize, category, searchTerm } = c.req.query();
+		const { page, offset, pageSize, category, searchTerm } = c.req.query();
 
-	// Check if the id is a number
-	if (!projectId || Number.isNaN(Number(projectId))) {
-		return c.json("Provided id is not a number", 400);
-	}
-	const pageSizeParsed = Number(pageSize ?? 20);
-	const pageNumParsed = Number(page ?? 1);
-	const queryOffset = (pageNumParsed - 1) * pageSizeParsed + Number(offset ?? 0);
-	const allArticles = await getAllArticlesByProjectId(
-		Number(projectId),
-		pageSizeParsed,
-		queryOffset,
-		searchTerm ?? "",
-		category ?? "",
-	);
-	const articles = allArticles[0]?.articles;
-	const totalCount = Number(allArticles[0]?.total);
-	const requestUrl = c.req.url;
-	return c.json(
-		{
-			prev:
-				pageNumParsed > 1 && totalCount !== 0 && !(queryOffset > totalCount)
-					? requestUrl.replace(`page=${String(pageNumParsed)}`, `page=${String(pageNumParsed - 1)}`)
-					: null,
-			next:
-				totalCount > pageSizeParsed + queryOffset
-					? requestUrl.replace(`page=${String(pageNumParsed)}`, `page=${String(pageNumParsed + 1)}`)
-					: null,
-			articles: articles ? articles : [],
-			currentPage: requestUrl,
-			totalResults: totalCount,
-		},
-		201,
-	);
-});
+		// Check if the id is a number
+		if (!projectId || Number.isNaN(Number(projectId))) {
+			return c.json("Provided id is not a number", 400);
+		}
+		const pageSizeParsed = Number(pageSize ?? 20);
+		const pageNumParsed = Number(page ?? 1);
+		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + Number(offset ?? 0);
+		const allArticles = await getAllArticlesByProjectId(
+			Number(projectId),
+			pageSizeParsed,
+			queryOffset,
+			searchTerm ?? "",
+			category ?? "",
+		);
+		const articles = allArticles[0]?.articles;
+		const totalCount = Number(allArticles[0]?.total);
+		const requestUrl = c.req.url;
+		return c.json(
+			{
+				prev:
+					pageNumParsed > 1 && totalCount !== 0 && !(queryOffset > totalCount)
+						? requestUrl.replace(
+								`page=${String(pageNumParsed)}`,
+								`page=${String(pageNumParsed - 1)}`,
+							)
+						: null,
+				next:
+					totalCount > pageSizeParsed + queryOffset
+						? requestUrl.replace(
+								`page=${String(pageNumParsed)}`,
+								`page=${String(pageNumParsed + 1)}`,
+							)
+						: null,
+				articles: articles ? articles : [],
+				currentPage: requestUrl,
+				totalResults: totalCount,
+			},
+			201,
+		);
+	})
 
-/*
- * returns all fields of an article, Is identified by the id
- */
-const articleCMSDetail = cms.get("/articles/:id", async (c) => {
-	const providedId = c.req.param("id");
+	/*
+	 * returns all fields of an article, Is identified by the id
+	 */
+	.get("/articles/:id", async (c) => {
+		const providedId = c.req.param("id");
 
-	if (!providedId) {
-		return c.json("No id provided", 400);
-	}
-	// Check if the id is a number
-	if (Number.isNaN(Number(providedId))) {
-		return c.json("Provided id is not a number", 400);
-	}
+		if (!providedId) {
+			return c.json("No id provided", 400);
+		}
+		// Check if the id is a number
+		if (Number.isNaN(Number(providedId))) {
+			return c.json("Provided id is not a number", 400);
+		}
 
-	const fetchedArticle = await getArticleById(Number(providedId));
-	return c.json({ article: fetchedArticle }, 201);
-});
-
-/**
- * Creates a new article with the provided information in the body
- * Will also create the necessary relations to authors, bibliography and projects
- * If a new bibliography entry is provided, which is not available in the bibliography table, it will be created and linked to the article
- */
-const createNewArticle = cms.post(
-	"/articles/create",
-	vValidator("json", createNewArticleSchema),
-	async (c) => {
+		const fetchedArticle = await getArticleById(Number(providedId));
+		return c.json({ article: fetchedArticle }, 201);
+	})
+	/**
+	 * Creates a new article with the provided information in the body
+	 * Will also create the necessary relations to authors, bibliography and projects
+	 * If a new bibliography entry is provided, which is not available in the bibliography table, it will be created and linked to the article
+	 */
+	.post("/articles/create", vValidator("json", createNewArticleSchema), async (c) => {
 		// get the body
 		const body = c.req.valid("json");
 
@@ -348,47 +342,57 @@ const createNewArticle = cms.post(
 			},
 			201,
 		);
-	},
-);
+	})
+	/**
+	 * Provides all information about authors, categories and phenomenon based on the provided project id
+	 * @returns Object with all authors, categories and phenomenon with a status code of 200 on success
+	 * It contains the following fields:
+	 * authors: Array of authors with the following fields: id, name, email
+	 * categories: Array of categories with the following fields: id, name
+	 * phenomenon: Array of phenomenon with the following fields: id, name
+	 */
+	.get("/articles/create/info", async (c) => {
+		const information = await getAllUserPhenKat("1");
+		const authors = information.filter((el) => el.category === "user");
+		const categories = information.filter((el) => el.category === "category");
+		const phenomenon = information.filter((el) => el.category === "phenomenon");
+		const survey = information.filter((el) => el.category === "survey");
+		const mappedAuthors = authors.map((a) => {
+			const splitName = a.name?.split("$");
+			return {
+				id: a.id,
+				value: a.id,
+				firstName: splitName?.[0] ?? "",
+				lastName: splitName?.[1] ?? "",
+			};
+		});
 
-/**
- * Provides all information about authors, categories and phenomenon based on the provided project id
- * @returns Object with all authors, categories and phenomenon with a status code of 200 on success
- * It contains the following fields:
- * authors: Array of authors with the following fields: id, name, email
- * categories: Array of categories with the following fields: id, name
- * phenomenon: Array of phenomenon with the following fields: id, name
- */
-const getAuthorInformation = cms.get("/articles/create/info", async (c) => {
-	const information = await getAllUserPhenKat("1");
-	const authors = information.filter((el) => el.category === "user");
-	const categories = information.filter((el) => el.category === "category");
-	const phenomenon = information.filter((el) => el.category === "phenomenon");
-	const survey = information.filter((el) => el.category === "survey");
-	const mappedAuthors = authors.map((a) => {
-		const splitName = a.name?.split("$");
-		return {
-			id: a.id,
-			value: a.id,
-			firstName: splitName?.[0] ?? "",
-			lastName: splitName?.[1] ?? "",
+		const informationList = {
+			authors: mappedAuthors,
+			categories: categories,
+			phenomenon: phenomenon,
+			survey: survey,
 		};
+		return c.json(informationList, 200);
 	});
 
-	const informationList = {
-		authors: mappedAuthors,
-		categories: categories,
-		phenomenon: phenomenon,
-		survey: survey,
-	};
-	return c.json(informationList, 200);
-});
-
-export type DeleteArticleType = typeof deleteArticle;
-export type EditArticleType = typeof editArticle;
-export type CmsRouteType = typeof cmsRoute;
-export type ArticleCMSDetailType = typeof articleCMSDetail;
-export type CreateNewArticleType = typeof createNewArticle;
-export type GetAuthorInformationType = typeof getAuthorInformation;
+// Enable in order to restrict the route only to signed in users
+cms.use("*", restrictedRoute);
 
 export default cms;
+export type CmsRoute = typeof cms;
+
+/*
+
+const apiClient = hc<CmsRoute>("");
+const $delete = apiClient.articles.create.info.$get;
+type DeleteResponseType = InferResponseType<typeof $delete, 200>;
+
+type DeleteRequestType = InferRequestType<typeof $delete>;
+
+export namespace DeleteEntity {
+	export type ResponseType = InferResponseType<typeof $delete, 200>;
+}
+
+type X = DeleteEntity.ResponseType;
+*/

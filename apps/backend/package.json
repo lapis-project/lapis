@@ -8,6 +8,26 @@
 		"node": "22.x",
 		"pnpm": "9.x"
 	},
+	"exports": {
+		"./cms": {
+			"types": "./src/handler/cmsHandler.ts"
+		},
+		"./article": {
+			"types": "./src/handler/articleHandler.ts"
+		},
+		"./auth": {
+			"types": "./src/handler/authHandler.ts"
+		},
+		"./question": {
+			"types": "./src/handler/questionHandler.ts"
+		},
+		"./user": {
+			"types": "./src/handler/userHandler.ts"
+		},
+		"./api": {
+			"types": "./src/app.ts"
+		}
+	},
 	"scripts": {
 		"dev": "tsx watch --env-file .env.local src/index.ts",
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",

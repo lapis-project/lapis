@@ -46,19 +46,24 @@ export interface WebGLContext {
 	canvas: HTMLCanvasElement;
 }
 
-const size = 100; // size for pie chart width and height
+let size = 100; // size for pie chart width and height
 const canvas = document.createElement("canvas");
 canvas.width = size;
 canvas.height = size;
-const webglcontext: WebGLContext = {
-	renderer: new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true }),
-	scene: new THREE.Scene(),
-	camera: new THREE.OrthographicCamera(size / -2, size / 2, size / 2, size / -2, 1, 1000),
-	canvas: canvas,
-};
+let webglcontext: WebGLContext | undefined = undefined;
+function initWebGl() {
+	webglcontext = {
+		renderer: new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true }),
+		scene: new THREE.Scene(),
+		camera: new THREE.OrthographicCamera(size / -2, size / 2, size / 2, size / -2, 1, 1000),
+		canvas: canvas,
+	};
 
-webglcontext.renderer.setSize(size, size);
-webglcontext.camera.position.z = 10;
+	webglcontext.renderer.setSize(size, size);
+	webglcontext.camera.position.z = 10;
+}
+initWebGl();
+
 const pieChartCache = new Map();
 
 const elementRef = ref<HTMLElement | null>(null);
@@ -83,7 +88,7 @@ function getPieChartTexture(
 	answerCount: number,
 ) {
 	const key = JSON.stringify({ data, colors, answerCount });
-	const currentZoomFactor = zoomFactor + (props.capitalsOnly ? 0.3 : 0);
+	const currentZoomFactor = zoomFactor;
 	if (!pieChartCache.has(key)) {
 		const pixels = generatePieChartWebGL(
 			data,
@@ -133,7 +138,6 @@ async function create() {
 				webglcontext,
 				result.answerCount,
 			);
-
 			map.addImage(id, { width: size, height: size, data: data });
 		} catch (error) {
 			console.error(`Failed to parse icon-image id "${id}":`, error.message);
@@ -265,9 +269,9 @@ function init() {
 		const currentZoom = Math.floor(map.getZoom());
 		zoomFactor = 0;
 		if (currentZoom >= 9) {
-			zoomFactor = 0.3 * (props.capitalsOnly ? 2 : 1);
+			zoomFactor = 0.3;
 		} else if (currentZoom === 8) {
-			zoomFactor = 0.1 * (props.capitalsOnly ? 2 : 1);
+			zoomFactor = 0.1;
 		}
 		// Get the existing GeoJSON
 		const source = map.getSource(locationPointsId) as maplibregl.GeoJSONSource;
@@ -277,7 +281,7 @@ function init() {
 		const data = source._data as GeoJSON.FeatureCollection;
 		// Update zoomFactor on each feature
 		data.features.forEach((feature) => {
-			feature.properties.zoomFactor = zoomFactor + (props.capitalsOnly ? 0.3 : 0);
+			feature.properties.zoomFactor = zoomFactor;
 		});
 		// Re-set the data -> triggers styleimagemissing for new icon IDs
 		source.setData(data);
@@ -383,7 +387,7 @@ function updateScope() {
 	const geojsonRegions = createFeatureCollection(props.features);
 	const geojsonAustria = createFeatureCollection(props.geoOutline);
 	geojsonLocations.features.forEach((feature) => {
-		feature.properties.zoomFactor = zoomFactor + (props.capitalsOnly ? 0.3 : 0);
+		feature.properties.zoomFactor = zoomFactor;
 	});
 	sourceLocations?.setData(geojsonLocations);
 	sourceRegions?.setData(geojsonRegions);
@@ -440,6 +444,20 @@ watch(
 	() => {
 		toggleLayer("polygons");
 		toggleLayer("outline");
+	},
+);
+
+watch(
+	() => {
+		return props.capitalsOnly;
+	},
+	async (newVal) => {
+		pieChartCache.clear();
+		size = newVal === true ? 250 : 100;
+		zoomFactor = 0;
+		initWebGl();
+		dispose();
+		await create();
 	},
 );
 

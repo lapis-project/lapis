@@ -141,8 +141,8 @@ export async function getAllArticlesByProject(
 							eb.fn
 								.jsonAgg(
 									jsonBuildObject({
-										firstname: eb.ref("user_account.firstname"),
-										lastname: eb.ref("user_account.lastname"),
+										firstname: eb.cast<string>(eb.ref("user_account.firstname"), "text"),
+										lastname: eb.cast<string>(eb.ref("user_account.lastname"), "text"),
 									}),
 								)
 								.filterWhere("user_post.post_id", "is not", null)
@@ -159,15 +159,15 @@ export async function getAllArticlesByProject(
 			fn
 				.jsonAgg(
 					jsonBuildObject({
-						post_id: eb.ref("post_query.post_id"),
-						title: eb.ref("post_query.title"),
-						alias: eb.ref("post_query.alias"),
-						abstract: eb.ref("post_query.abstract"),
-						post_type: eb.ref("post_query.post_type"),
+						post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
+						title: eb.cast<string>(eb.ref("post_query.title"), "text"),
+						alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
+						abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
+						post_type: eb.cast<string>(eb.ref("post_query.post_type"), "text"),
 						authors: eb.ref("post_query.authors"),
-						cover: eb.ref("post_query.cover"),
-						cover_alt: eb.ref("post_query.cover_alt"),
-						published_at: eb.ref("post_query.published_at"),
+						cover: eb.cast<string>(eb.ref("post_query.cover"), "text"),
+						cover_alt: eb.cast<string>(eb.ref("post_query.cover_alt"), "text"),
+						published_at: eb.cast<string>(eb.ref("post_query.published_at"), "text"),
 					}),
 				)
 				.filterWhere("rn", ">", offset)

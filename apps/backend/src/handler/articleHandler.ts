@@ -68,7 +68,7 @@ const articles = new Hono()
 			lang,
 		);
 
-		const articles = fetchedArticles[0]?.articles;
+		const articles = fetchedArticles[0]?.articles ? fetchedArticles[0].articles : [];
 		const totalCount = Number(fetchedArticles[0]?.total);
 		const requestUrl = c.req.url;
 		return c.json(
@@ -87,11 +87,11 @@ const articles = new Hono()
 								`page=${String(pageNumParsed + 1)}`,
 							)
 						: null,
-				articles: articles ? articles : [],
+				articles: articles,
 				currentPage: requestUrl,
 				totalResults: totalCount,
 			},
-			201,
+			200,
 		);
 	})
 
@@ -114,7 +114,7 @@ const articles = new Hono()
 		}
 
 		const fetchedArticle = await getArticleByAlias(articleAlias);
-		return c.json({ article: fetchedArticle }, 201);
+		return c.json({ article: fetchedArticle }, 200);
 	});
 
 export default articles;

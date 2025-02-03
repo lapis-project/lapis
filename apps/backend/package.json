@@ -25,7 +25,7 @@
 			"types": "./src/handler/userHandler.ts"
 		},
 		"./api": {
-			"types": "./src/app.ts"
+			"types": "./src/backend-types/app.d.ts"
 		}
 	},
 	"scripts": {
@@ -36,7 +36,7 @@
 		"test:user-handler": "vitest userHandler",
 		"start": "node --env-file .env.local ./dist/index.js",
 		"build": "tsup-node --dts",
-		"build:types": "tsup --dts-only ./src/**/*.ts --out-dir ./../../backend-types"
+		"build:types": "tsup --dts-only ./src/app.ts --out-dir ./backend-types"
 	},
 	"dependencies": {
 		"@acdh-oeaw/lib": "^0.1.12",

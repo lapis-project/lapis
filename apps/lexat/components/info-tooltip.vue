@@ -7,7 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
-	<TooltipProvider>
+	<TooltipProvider :delay-duration="100">
 		<Tooltip>
 			<TooltipTrigger><slot></slot></TooltipTrigger>
 			<TooltipContent>

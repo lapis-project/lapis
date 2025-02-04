@@ -219,7 +219,10 @@
 		"title": "Kartierung",
 		"selection": {
 			"colors": "Legendenfarben",
-			"simplified-view": "Simplifizierte Darstellung",
+			"simplified-view": {
+				"label": "Simplifizierte Darstellung",
+				"tooltip": "Bei einer Überlagerung zweier Ortspunkte wird der kleinere Ortspunkt automatisch ausgeblendet."
+			},
 			"show-region-names": "Dialektregionennamen",
 			"show-regions": "Dialektregionen anzeigen",
 			"show-state-capitals": "Landeshauptstädte",

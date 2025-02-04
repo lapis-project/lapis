@@ -760,10 +760,13 @@ watch(activeVariants, updateUrlParams, {
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showData" v-model:checked="simplifiedView" />
 									<label
-										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+										class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showData"
 									>
-										{{ t("MapsPage.selection.simplified-view") }}
+										{{ t("MapsPage.selection.simplified-view.label") }}
+										<InfoTooltip :content="t('MapsPage.selection.simplified-view.tooltip')">
+											<InfoIcon class="size-4"></InfoIcon>
+										</InfoTooltip>
 									</label>
 								</div>
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">

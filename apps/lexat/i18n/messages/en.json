@@ -219,7 +219,10 @@
 		"title": "Maps",
 		"selection": {
 			"colors": "Legend colors",
-			"simplified-view": "Simplified view",
+			"simplified-view": {
+				"label": "Simplified view",
+				"tooltip": "If two localities overlap, the smaller locality is automatically hidden"
+			},
 			"show-region-names": "Show dialect region names",
 			"show-regions": "Show dialect regions",
 			"show-state-capitals": "State capitals",

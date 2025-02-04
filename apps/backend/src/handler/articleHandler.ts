@@ -3,123 +3,120 @@ import { minLength, number, optional, pipe, safeParse, string } from "valibot";
 
 import { getAllArticlesByProject, getArticleByAlias } from "@/db/articleRepository";
 
-const articles = new Hono();
+const articles = new Hono()
 
-/*
-* Currently commented out
-* Maybe needed a bit later?
-const articleRouteSchmema = object({
-	category: string(), // Does it allow as an enum? ARTICLE | BLOG | NEWS
-});
-*/
+	/**
+	 * Fetches all articles by project id which have the status as published.
+	 * Will return this in a paged format as a json. The page size is 20 by default and it starts from page 1 with an offset of 0.
+	 * The projectId is passed as a parameter in the URL and is required.
+	 *
+	 * searchTerm, page, offset, pageSize, category and language (lang) are optional query parameters and will be included if they are provided.
+	 *
+	 * @returns status code 400 if the projectId is not a number
+	 * @returns status code 201 with an result object containing the articles, the total number of articles and the current page.
+	 * The articles are in a result array under the key articles. If there are no results the array is empty.
+	 * prev and next contain the links for the previous and next pages if they exist.
+	 * totalResults delivers the total number of results over all pages
+	 */
 
-/**
- * Fetches all articles by project id which have the status as published.
- * Will return this in a paged format as a json. The page size is 20 by default and it starts from page 1 with an offset of 0.
- * The projectId is passed as a parameter in the URL and is required.
- *
- * searchTerm, page, offset, pageSize, category and language (lang) are optional query parameters and will be included if they are provided.
- *
- * @returns status code 400 if the projectId is not a number
- * @returns status code 201 with an result object containing the articles, the total number of articles and the current page.
- * The articles are in a result array under the key articles. If there are no results the array is empty.
- * prev and next contain the links for the previous and next pages if they exist.
- * totalResults delivers the total number of results over all pages
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const articleRoute = articles.get("/articles/:project", async (c) => {
-	const projectId = c.req.param("project");
+	.get("/articles/:project", async (c) => {
+		const projectId = c.req.param("project");
 
-	if (!projectId || Number.isNaN(Number(projectId))) {
-		return c.json("Provided projectId is not a number", 400);
-	}
+		if (!projectId || Number.isNaN(Number(projectId))) {
+			return c.json("Provided projectId is not a number", 400);
+		}
 
-	const { searchTerm, page, offset, pageSize, category, lang } = c.req.query();
+		const { searchTerm, page, offset, pageSize, category, lang } = c.req.query();
 
-	// TODO Refactor this functions into utilities
-	const stringSchema = optional(string());
-	const numberSchema = optional(number());
+		// TODO Refactor this functions into utilities
+		const stringSchema = optional(string());
+		const numberSchema = optional(number());
 
-	const pageSizeParsed = Number(pageSize ?? 20);
-	const pageNumParsed = Number(page ?? 1);
+		const pageSizeParsed = Number(pageSize ?? 20);
+		const pageNumParsed = Number(page ?? 1);
 
-	const offsetParsed = Number(offset ?? 0);
-	if (!safeParse(stringSchema, searchTerm).success) {
-		return c.json("Provided search term is not a string", 400);
-	}
+		const offsetParsed = Number(offset ?? 0);
+		if (!safeParse(stringSchema, searchTerm).success) {
+			return c.json("Provided search term is not a string", 400);
+		}
 
-	if (!safeParse(numberSchema, pageNumParsed).success) {
-		return c.json("Provided page number is not a number", 400);
-	}
+		if (!safeParse(numberSchema, pageNumParsed).success) {
+			return c.json("Provided page number is not a number", 400);
+		}
 
-	if (!safeParse(numberSchema, offsetParsed).success) {
-		return c.json("Provided offset number is not a number", 400);
-	}
+		if (!safeParse(numberSchema, offsetParsed).success) {
+			return c.json("Provided offset number is not a number", 400);
+		}
 
-	if (!safeParse(numberSchema, pageSizeParsed).success) {
-		return c.json("Provided pagesize number is not a number", 400);
-	}
+		if (!safeParse(numberSchema, pageSizeParsed).success) {
+			return c.json("Provided pagesize number is not a number", 400);
+		}
 
-	if (!safeParse(stringSchema, lang).success) {
-		return c.json("Provided language is not a string", 400);
-	}
+		if (!safeParse(stringSchema, lang).success) {
+			return c.json("Provided language is not a string", 400);
+		}
 
-	const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
+		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
 
-	const fetchedArticles = await getAllArticlesByProject(
-		Number(projectId),
-		pageSizeParsed,
-		queryOffset,
-		searchTerm ?? "",
-		category ?? "",
-		"Published",
-		lang,
-	);
+		const fetchedArticles = await getAllArticlesByProject(
+			Number(projectId),
+			pageSizeParsed,
+			queryOffset,
+			searchTerm ?? "",
+			category ?? "",
+			"Published",
+			lang,
+		);
 
-	const articles = fetchedArticles[0]?.articles;
-	const totalCount = Number(fetchedArticles[0]?.total);
-	const requestUrl = c.req.url;
-	return c.json(
-		{
-			prev:
-				pageNumParsed > 1 && totalCount !== 0 && !(queryOffset > totalCount)
-					? requestUrl.replace(`page=${String(pageNumParsed)}`, `page=${String(pageNumParsed - 1)}`)
-					: null,
-			next:
-				totalCount > pageSizeParsed + queryOffset
-					? requestUrl.replace(`page=${String(pageNumParsed)}`, `page=${String(pageNumParsed + 1)}`)
-					: null,
-			articles: articles ? articles : [],
-			currentPage: requestUrl,
-			totalResults: totalCount,
-		},
-		201,
-	);
-});
+		const articles = fetchedArticles[0]?.articles ? fetchedArticles[0].articles : [];
+		const totalCount = Number(fetchedArticles[0]?.total);
+		const requestUrl = c.req.url;
+		return c.json(
+			{
+				prev:
+					pageNumParsed > 1 && totalCount !== 0 && !(queryOffset > totalCount)
+						? requestUrl.replace(
+								`page=${String(pageNumParsed)}`,
+								`page=${String(pageNumParsed - 1)}`,
+							)
+						: null,
+				next:
+					totalCount > pageSizeParsed + queryOffset
+						? requestUrl.replace(
+								`page=${String(pageNumParsed)}`,
+								`page=${String(pageNumParsed + 1)}`,
+							)
+						: null,
+				articles: articles,
+				currentPage: requestUrl,
+				totalResults: totalCount,
+			},
+			200,
+		);
+	})
 
-/**
- * Fetches an article by its alias.
- * The provided alias needs to be at least 5 characters long.
- * The resulting object contains all information about the article as well as the linked phenomenona, the authors and the linked bibliographies
- *
- * @returns status code 400 if the provided alias is not a string or too short
- * @returns status code 201 with the article object. If no article was found the object is empty
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const articleDetail = articles.get("/detail/:alias", async (c) => {
-	const articleAlias = c.req.param("alias");
-	const aliasSchema = pipe(string(), minLength(5));
-	const result = safeParse(aliasSchema, articleAlias);
+	/**
+	 * Fetches an article by its alias.
+	 * The provided alias needs to be at least 5 characters long.
+	 * The resulting object contains all information about the article as well as the linked phenomenona, the authors and the linked bibliographies
+	 *
+	 * @returns status code 400 if the provided alias is not a string or too short
+	 * @returns status code 201 with the article object. If no article was found the object is empty
+	 */
 
-	if (!result.success) {
-		return c.json("Provided alias is not a string", 400);
-	}
+	.get("/detail/:alias", async (c) => {
+		const articleAlias = c.req.param("alias");
+		const aliasSchema = pipe(string(), minLength(5));
+		const result = safeParse(aliasSchema, articleAlias);
 
-	const fetchedArticle = await getArticleByAlias(articleAlias);
-	return c.json({ article: fetchedArticle }, 201);
-});
+		if (!result.success) {
+			return c.json("Provided alias is not a string", 400);
+		}
 
-export type ArticleRouteType = typeof articleRoute;
-export type ArticleDetailType = typeof articleDetail;
+		const fetchedArticle = await getArticleByAlias(articleAlias);
+		return c.json({ article: fetchedArticle }, 200);
+	});
 
 export default articles;
+
+export type ArticleRoute = typeof articles;

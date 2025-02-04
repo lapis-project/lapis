@@ -31,7 +31,7 @@ describe("test endpoint GET /articles/articles/:project", () => {
 					status: i < 10 ? "Draft" : "Published",
 					lang: "en",
 					projectId: [1],
-					authors: [3, 4],
+					authors: [391, 392],
 				}),
 				headers: loginHeaders,
 			});
@@ -53,12 +53,12 @@ describe("test endpoint GET /articles/articles/:project", () => {
 			headers: loginHeaders,
 		});
 
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(200);
 
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
 
-		expect(body.articles.length).toBe(20);
+		expect(body.articles.length).toBe(27);
 
 		const singleArticle = body.articles[0];
 		expect(singleArticle).toHaveProperty("authors");
@@ -74,7 +74,7 @@ describe("test endpoint GET /articles/articles/:project", () => {
 			headers: loginHeaders,
 		});
 
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(200);
 
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
@@ -87,7 +87,7 @@ describe("test endpoint GET /articles/articles/:project", () => {
 			headers: loginHeaders,
 		});
 
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(200);
 
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
@@ -102,7 +102,7 @@ describe("test endpoint GET /articles/articles/:project", () => {
 			headers: loginHeaders,
 		});
 
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(200);
 
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
@@ -122,7 +122,7 @@ describe("test endpoint GET /articles/articles/:project", () => {
 			headers: loginHeaders,
 		});
 
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(200);
 
 		const body = await response.json();
 		expect(body).toHaveProperty("articles");
@@ -162,7 +162,7 @@ describe("test endpoint GET /articles/detail/:alias", () => {
 				status: "Draft",
 				lang: "en",
 				projectId: [1],
-				authors: [4],
+				authors: [391, 392],
 				bibliography: ["TestBibliography1"],
 				phenomenonId: 2,
 				citation: "test-citation",
@@ -184,7 +184,7 @@ describe("test endpoint GET /articles/detail/:alias", () => {
 
 	test("fetch article with alias, should return 201 and article with all parameters which were provided by the post request without emails usernames and userids", async () => {
 		const response = await app.request("/articles/detail/test-article", { headers: loginHeaders });
-		expect(response.status).toBe(201);
+		expect(response.status).toBe(200);
 		const body = await response.json();
 		expect(body).toHaveProperty("article");
 

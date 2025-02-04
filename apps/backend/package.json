@@ -8,6 +8,26 @@
 		"node": "22.x",
 		"pnpm": "9.x"
 	},
+	"exports": {
+		"./cms": {
+			"types": "./src/handler/cmsHandler.ts"
+		},
+		"./article": {
+			"types": "./src/handler/articleHandler.ts"
+		},
+		"./auth": {
+			"types": "./src/handler/authHandler.ts"
+		},
+		"./question": {
+			"types": "./src/handler/questionHandler.ts"
+		},
+		"./user": {
+			"types": "./src/handler/userHandler.ts"
+		},
+		"./api": {
+			"types": "./backend-types/app.d.ts"
+		}
+	},
 	"scripts": {
 		"dev": "tsx watch --env-file .env.local src/index.ts",
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
@@ -16,7 +36,7 @@
 		"test:user-handler": "vitest userHandler",
 		"start": "node --env-file .env.local ./dist/index.js",
 		"build": "tsup-node --dts",
-		"build:types": "tsup --dts-only ./src/**/*.ts --out-dir ./../../backend-types"
+		"build:types": "tsup --dts-only ./src/app.ts --out-dir ./backend-types"
 	},
 	"dependencies": {
 		"@acdh-oeaw/lib": "^0.1.12",

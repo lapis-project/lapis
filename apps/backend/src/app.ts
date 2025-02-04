@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Hono } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { cors } from "hono/cors";
@@ -17,96 +16,100 @@ import cms from "./handler/cmsHandler";
 import media from "./handler/mediaHandler";
 import questions from "./handler/questionHandler";
 
-const app = new Hono<Context>();
+const app = new Hono<Context>()
 
-app.use(logger());
-app.use(prettyJSON());
+	.use(logger())
+	.use(prettyJSON())
 
-// CORS Setup for the backend
-app.use(
-	"*",
-	cors({
-		origin: process.env.ALLOWED_ORIGINS
-			? process.env.ALLOWED_ORIGINS.trim()
-					.split(",")
-					.map((el) => el.trim())
-			: "",
-		allowMethods: ["GET", "POST", "PUT", "DELETE"],
-		allowHeaders: ["Content-Type", "Authorization", "X-Custom-Header", "Upgrade-Insecure-Requests"],
-		exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
-		maxAge: 600,
-		credentials: true,
-	}),
-);
-
-app.use("*", async (c, next) => {
-	if (c.req.method === "GET") {
-		return next();
-	}
-	const originHeader = c.req.header("Origin") ?? null;
-	const hostHeader = c.req.header("Host") ?? null;
-
-	if (
-		!originHeader ||
-		!hostHeader ||
-		!verifyRequestOrigin(
-			originHeader,
-			process.env.ALLOWED_ORIGINS
+	// CORS Setup for the backend
+	.use(
+		"*",
+		cors({
+			origin: process.env.ALLOWED_ORIGINS
 				? process.env.ALLOWED_ORIGINS.trim()
 						.split(",")
 						.map((el) => el.trim())
-				: [],
-		)
-	) {
-		return c.body(null, 403);
-	}
-	return next();
-});
+				: "",
+			allowMethods: ["GET", "POST", "PUT", "DELETE"],
+			allowHeaders: [
+				"Content-Type",
+				"Authorization",
+				"X-Custom-Header",
+				"Upgrade-Insecure-Requests",
+			],
+			exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
+			maxAge: 600,
+			credentials: true,
+		}),
+	)
+	.use("*", async (c, next) => {
+		if (c.req.method === "GET") {
+			return next();
+		}
+		const originHeader = c.req.header("Origin") ?? null;
+		const hostHeader = c.req.header("Host") ?? null;
 
-app.use("*", async (c, next) => {
-	const cookie = getCookie(c, "Set-Cookie");
-	const sessionId = lucia.readSessionCookie(cookie ?? "");
-	if (!sessionId) {
-		c.set("user", null);
-		c.set("session", null);
+		if (
+			!originHeader ||
+			!hostHeader ||
+			!verifyRequestOrigin(
+				originHeader,
+				process.env.ALLOWED_ORIGINS
+					? process.env.ALLOWED_ORIGINS.trim()
+							.split(",")
+							.map((el) => el.trim())
+					: [],
+			)
+		) {
+			return c.body(null, 403);
+		}
 		return next();
-	}
+	})
+	.use("*", async (c, next) => {
+		const cookie = getCookie(c, "Set-Cookie");
+		const sessionId = lucia.readSessionCookie(cookie ?? "");
+		if (!sessionId) {
+			c.set("user", null);
+			c.set("session", null);
+			return next();
+		}
 
-	const { session, user } = await lucia.validateSession(sessionId);
-	if (session?.fresh) {
-		setCookie(c, "Set-Cookie", lucia.createSessionCookie(session.id).serialize());
-	}
-	if (!session) {
-		setCookie(c, "Set-Cookie", lucia.createBlankSessionCookie().serialize());
-	}
+		const { session, user } = await lucia.validateSession(sessionId);
+		if (session?.fresh) {
+			setCookie(c, "Set-Cookie", lucia.createSessionCookie(session.id).serialize());
+		}
+		if (!session) {
+			setCookie(c, "Set-Cookie", lucia.createBlankSessionCookie().serialize());
+		}
 
-	if (user) {
-		const userObject = await getUserById(Number(user.id));
-		c.set("role", userObject?.role_name ?? "editor");
-	}
-	c.set("session", session);
-	c.set("user", user);
-	return next();
-});
-
-// Healthcheck for the k8s server
-const healthCheck = new Hono();
-
-const hc = app.get("/", (c) => {
-	return c.json("OK", 201);
-});
-
-app.notFound((c) => c.json({ message: "Not Found", ok: false }, 404));
-
-// Including all new routes
-app.route("/articles", articles);
-app.route("/questions", questions);
-app.route("/cms", cms);
-app.route("/auth", auth);
-app.route("/user", user);
-app.route("/media", media);
-
-// Export type for the health check route
-export type HealthType = typeof hc;
+		if (user) {
+			const userObject = await getUserById(Number(user.id));
+			c.set("role", userObject?.role_name ?? "editor");
+		}
+		c.set("session", session);
+		c.set("user", user);
+		return next();
+	})
+	.get("/", (c) => {
+		return c.json("OK", 201);
+	})
+	.notFound((c) => c.json({ message: "Not Found", ok: false }, 404))
+	.route("/articles", articles)
+	.route("/questions", questions)
+	.route("/cms", cms)
+	.route("/auth", auth)
+	.route("/user", user)
+	.route("/media", media);
 
 export { app };
+
+export type AppType = typeof app;
+
+/*
+ * TODO: rewrite the routes to use chained methods for each route => so the typechecker does work
+ * - Properly export the api types and set an export for the api routes in package.json
+ * - Check if the resulting types can be used in the frontend and if the types are correct
+ * - Neue Registerbezeichnungen in das Importskript eintragen
+ * - Neuen dump von der DB erstellen
+ * - Generate d.ts mit tsup => generate declaration files um den Type mal genauer anzuschauen
+ */

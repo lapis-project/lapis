@@ -131,14 +131,16 @@ async function create() {
 		try {
 			const result = parseString(id);
 
-			const data = getPieChartTexture(
-				result.ids,
-				result.hexcodes,
-				size,
-				webglcontext,
-				result.answerCount,
-			);
-			map.addImage(id, { width: size, height: size, data: data });
+			if (webglcontext) {
+				const data = getPieChartTexture(
+					result.ids,
+					result.hexcodes,
+					size,
+					webglcontext,
+					result.answerCount,
+				);
+				map.addImage(id, { width: size, height: size, data: data });
+			}
 		} catch (error) {
 			console.error(`Failed to parse icon-image id "${id}":`, error.message);
 		}
@@ -220,6 +222,24 @@ function init() {
 		},
 	});
 	map.setLayoutProperty("outline", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
+
+	// bug: multiple labels on certain zoom levels https://github.com/mapbox/mapbox-gl-js/issues/5583#issuecomment-341840524
+	map.addLayer({
+		id: "polygon-labels",
+		type: "symbol",
+		source: sourcePolygonsId,
+		layout: {
+			"text-field": ["get", "name"],
+			"text-size": 16,
+			"text-anchor": "center",
+		},
+		paint: {
+			"text-color": "#000000",
+			"text-halo-color": "#FFFFFF",
+			"text-halo-width": 2,
+		},
+	});
+	map.setLayoutProperty("polygon-labels", "visibility", props.showRegionNames ? "visible" : "none");
 
 	map.addLayer({
 		id: "points",
@@ -311,24 +331,6 @@ function init() {
 	// map.on("mouseleave", "polygons", () => {
 	// 	map.getCanvas().style.cursor = "";
 	// });
-
-	// bug: multiple labels on certain zoom levels https://github.com/mapbox/mapbox-gl-js/issues/5583#issuecomment-341840524
-	map.addLayer({
-		id: "polygon-labels",
-		type: "symbol",
-		source: sourcePolygonsId,
-		layout: {
-			"text-field": ["get", "name"],
-			"text-size": 16,
-			"text-anchor": "center",
-		},
-		paint: {
-			"text-color": "#000000",
-			"text-halo-color": "#FFFFFF",
-			"text-halo-width": 2,
-		},
-	});
-	map.setLayoutProperty("polygon-labels", "visibility", props.showRegionNames ? "visible" : "none");
 
 	let hoveredPolygonName: string | null = null;
 
@@ -452,11 +454,11 @@ watch(
 		return props.capitalsOnly;
 	},
 	async (newVal) => {
+		// dispose();
 		pieChartCache.clear();
-		size = newVal === true ? 250 : 100;
-		zoomFactor = 0;
+		size = newVal ? 250 : 100;
 		initWebGl();
-		dispose();
+		zoomFactor = 0;
 		await create();
 	},
 );

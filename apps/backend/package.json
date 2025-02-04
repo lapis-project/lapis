@@ -25,7 +25,7 @@
 			"types": "./src/handler/userHandler.ts"
 		},
 		"./api": {
-			"types": "./src/backend-types/app.d.ts"
+			"types": "./backend-types/app.d.ts"
 		}
 	},
 	"scripts": {

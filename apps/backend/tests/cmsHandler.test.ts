@@ -28,7 +28,7 @@ describe("test endpoint /cms/articles/create/info", () => {
 	beforeAll(async () => {
 		/*
 		const userIds = await db
-			.insertInto("user_account")
+		.insertInto("user_account")
 			.columns(["email", "password", "firstname", "lastname"])
 			.values([
 				{
@@ -62,7 +62,8 @@ describe("test endpoint /cms/articles/create/info", () => {
 			.insertInto("user_has_role")
 			.columns(["user_id", "role_id"])
 			.values({ user_id: editorId, role_id: 2 })
-			.execute();*/
+			.execute();
+			*/
 		// const honoClient = hc<GetAuthorInformationType>("");
 		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
 		loginHeaders.Cookie = sessionCookie;

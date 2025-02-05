@@ -1,7 +1,7 @@
 export interface DropdownOption<T = string> {
 	id?: number;
-	value: T;
-	label: string;
+	value: T | null;
+	label: string | null;
 	level?: number;
 	group?: string;
 	color?: string;

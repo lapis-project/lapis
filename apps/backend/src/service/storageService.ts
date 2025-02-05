@@ -56,7 +56,7 @@ export const uploadToS3 = async (file: File, mimeType: string) => {
 	}
 	try {
 		const url = generateImageUrl({
-			endpoint: "https://imgproxy-test.acdh-ch-dev.oeaw.ac.at",
+			endpoint: "https://imgproxy.acdh.oeaw.ac.at",
 			url: `s3://${bucketName}/${randomImageName}`,
 			options: {
 				resizing_type: "fit",

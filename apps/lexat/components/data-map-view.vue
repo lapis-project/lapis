@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
 import { refDebounced } from "@vueuse/core";
+import type { InferResponseType } from "hono/client";
 import {
 	ChevronDownIcon,
 	InfoIcon,
@@ -24,6 +25,7 @@ import {
 	stateCapitalsList,
 } from "@/assets/data/static-filter-data";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
+import { useApiClient } from "@/composables/use-api-client";
 import { useMapColors } from "@/composables/use-map-colors";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type {
@@ -41,6 +43,10 @@ const t = useTranslations();
 const router = useRouter();
 const route = useRoute();
 const env = useRuntimeConfig();
+const { apiClient } = useApiClient();
+
+const _getPhenomenons = apiClient.questions.survey[":project"].$get;
+type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;
 
 const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyResponse> } | null>(
 	null,
@@ -48,11 +54,7 @@ const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyRespo
 
 const { colors, specialColors, resetColors } = useMapColors();
 
-// https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
-
-const { data: questions } = await useFetch<
-	Array<{ id: number; phenomenon_name: string; description: string | null }>
->("/questions/survey/1", {
+const { data: questions } = await useFetch<APIPhenomenons>("/questions/survey/1", {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 });
@@ -86,6 +88,7 @@ const activeQuestionId = computed(() => {
 	return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
 });
 
+// TODO refactor response type when backend ready
 const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
 	query: { id: activeQuestionId, project: "1" },
 	baseURL: env.public.apiBaseUrl,

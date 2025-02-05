@@ -1,7 +1,9 @@
 <script lang="ts" setup>
+import type { InferResponseType } from "hono/client";
 import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "lucide-vue-next";
 
 import { useToast } from "@/components/ui/toast/use-toast";
+import { useApiClient } from "@/composables/use-api-client";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
 
@@ -11,6 +13,12 @@ definePageMeta({
 
 const env = useRuntimeConfig();
 const route = useRoute();
+const { apiClient } = useApiClient();
+
+const _getInformationList = apiClient.cms.articles.create.info.$get;
+type APIInformationList = InferResponseType<typeof _getInformationList, 200>;
+const _getAdminArticle = apiClient.cms.articles[":id"].$get;
+type APIAdminArticle = InferResponseType<typeof _getAdminArticle, 200>;
 
 const { bibliographyItems, bibliographyOptions, fetchBibliographyItems } = useCitationGenerator();
 const { statusOptions } = useArticleStatus();
@@ -32,7 +40,7 @@ const abstract = ref<string>("");
 const activeStatus = ref<Status>("Draft");
 const alias = ref<string>("");
 const postId = ref<number | null>(null);
-const content = ref<string>("<p>Hello Tiptap</p>");
+const content = ref<string>("<p>Beispieltext</p>");
 const cover = ref<string>("");
 const coverAlt = ref<string>("");
 const citation = ref<string>("");
@@ -47,58 +55,7 @@ const selectedQuestion = ref<string | null>(null);
 const selectedBibliographyItems = ref<Array<BibliographyItem>>([]);
 const title = ref<string>("");
 
-interface Author {
-	id: number;
-	firstname: string;
-	lastname: string;
-	username: string;
-	email: string;
-}
-
-interface Article {
-	post_id: number;
-	title: string;
-	alias: string;
-	cover: string;
-	cover_alt: string;
-	abstract: string;
-	citation: string;
-	content: string;
-	post_status: Status;
-	lang: "de" | "en";
-	published_at: string | null;
-	updated_at: string;
-	created_at: string;
-	post_type_name: string;
-	bibliography: Array<string>;
-	authors: Array<Author>;
-}
-
-interface IAPIInformationList {
-	authors: Array<{
-		id: number;
-		value: number;
-		firstName: string;
-		lastName: string;
-	}>;
-	categories: Array<{
-		id: number;
-		name: string;
-		category: string;
-	}>;
-	phenomenon: Array<{
-		id: number;
-		name: string;
-		category: string;
-	}>;
-	survey: Array<{
-		id: number;
-		name: string;
-		category: string;
-	}>;
-}
-
-const { data: informationList } = await useFetch<IAPIInformationList>("/cms/articles/create/info", {
+const { data: informationList } = await useFetch<APIInformationList>("/cms/articles/create/info", {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 	credentials: "include",
@@ -123,7 +80,7 @@ if (informationList.value) {
 }
 
 if (routeId && routeId !== "new") {
-	const { data, error } = await useFetch<{ article: Article }>(`/cms/articles/${routeId}`, {
+	const { data, error } = await useFetch<APIAdminArticle>(`/cms/articles/${routeId}`, {
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
 		credentials: "include",
@@ -135,27 +92,25 @@ if (routeId && routeId !== "new") {
 		// Populate properties with API data
 		const article = data.value.article;
 		const articleBibliography = article.bibliography.map((b) => b.name);
-		abstract.value = article.abstract;
-		alias.value = article.alias;
-		content.value = article.content;
-		cover.value = article.cover;
-		coverAlt.value = article.cover_alt;
-		citation.value = article.citation;
-		title.value = article.title;
+		abstract.value = article.abstract ?? "";
+		alias.value = article.alias ?? "";
+		content.value = article.content ?? "";
+		cover.value = article.cover ?? "";
+		coverAlt.value = article.cover_alt ?? "";
+		citation.value = article.citation ?? "";
+		title.value = article.title ?? "";
 		selectedAuthors.value = article.authors.map(
 			(author) => `${author.firstname} ${author.lastname}`,
 		);
 		selectedCategory.value = article.post_type_name;
-		selectedLanguage.value = article.lang;
+		selectedLanguage.value = article.lang ?? "de";
 		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
 			articleBibliography.includes(b.key),
 		);
 		selectedQuestion.value = article.phenomenon?.[0]?.name ?? null;
 		postId.value = article.post_id;
-		activeStatus.value = article.post_status;
+		activeStatus.value = article.post_status ?? "Draft";
 	}
-} else {
-	console.log("This is a new article creation route.");
 }
 
 const baseURL = "https://lexat.acdh-ch-dev.oeaw.ac.at/";
@@ -174,10 +129,12 @@ const generateAlias = (title: string) => {
 const authorsOptions = computed(
 	(): Array<DropdownOption & { firstName: string; lastName: string }> => {
 		return (
-			users.value?.map((u) => ({
-				// label: nameShortener(u.firstName, u.lastName),
-				label: `${u.firstName} ${u.lastName}`,
-				...u,
+			users.value?.map((user) => ({
+				label: `${user.firstName} ${user.lastName}`,
+				value: user.value.toString(),
+				id: user.id,
+				firstName: user.firstName,
+				lastName: user.lastName,
 			})) ?? []
 		);
 	},
@@ -251,7 +208,7 @@ const saveArticle = async () => {
 const generateCitation = () => {
 	// Filter the authors that are selected
 	const filteredAuthors = authorsOptions.value.filter((author) =>
-		selectedAuthors.value.includes(author.label),
+		selectedAuthors.value.includes(author.label!),
 	);
 
 	// Map the authors to the "<lastName>, <firstName>" format
@@ -287,12 +244,13 @@ const removeBibliographyItem = (key: string) => {
 	selectedBibliographyItems.value = selectedBibliographyItems.value.filter((i) => i.key !== key);
 };
 
-const handleFileChange = async (event) => {
-	const file = event.target.files[0]; // Get the selected file
+const handleFileChange = async (event: Event) => {
+	const file = (event.target as HTMLInputElement)?.files?.[0]; // Get the selected file
 	if (file) {
 		const formData = new FormData();
 		formData.append("image", file);
 		try {
+			// TODO rewrite mediaHandler to new syntax and then refactor reponse type here
 			const result = await $fetch<{ url: string; message: string }>("/media/upload", {
 				baseURL: env.public.apiBaseUrl,
 				credentials: "include",

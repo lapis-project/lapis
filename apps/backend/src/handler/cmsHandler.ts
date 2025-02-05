@@ -221,7 +221,7 @@ const cms = new Hono<Context>()
 				currentPage: requestUrl,
 				totalResults: totalCount,
 			},
-			201,
+			200,
 		);
 	})
 
@@ -240,7 +240,7 @@ const cms = new Hono<Context>()
 		}
 
 		const fetchedArticle = await getArticleById(Number(providedId));
-		return c.json({ article: fetchedArticle }, 201);
+		return c.json({ article: fetchedArticle }, 200);
 	})
 	/**
 	 * Creates a new article with the provided information in the body

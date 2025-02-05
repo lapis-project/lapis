@@ -6,9 +6,6 @@ import type * as hono_types from "hono/types";
 import type { ColumnType } from "kysely";
 import type { Session, User } from "lucia";
 
-// eslint-disable-file @typescript-eslint/no-empty-object-type
-// eslint-disable-file @typescript-eslint/no-explicit-any
-
 /**
  * Extracts a column type.
  */
@@ -2184,7 +2181,7 @@ declare const app: hono_hono_base.HonoBase<
 									totalResults: number;
 								};
 								outputFormat: "json";
-								status: 201;
+								status: 200;
 						  };
 				};
 			} & {
@@ -2256,7 +2253,7 @@ declare const app: hono_hono_base.HonoBase<
 										| undefined;
 								};
 								outputFormat: "json";
-								status: 201;
+								status: 200;
 						  };
 				};
 			} & {

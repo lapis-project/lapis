@@ -1,7 +1,14 @@
+import type { InferResponseType } from "hono/client";
 import { computed } from "vue";
+
+import { useApiClient } from "@/composables/use-api-client";
 
 export function useArticles() {
 	const env = useRuntimeConfig();
+
+	const { apiClient } = useApiClient();
+	const _getArticles = apiClient.articles.articles[":project"].$get;
+	type APIArticles = InferResponseType<typeof _getArticles, 200>;
 
 	const currentPage = ref(1);
 
@@ -11,20 +18,7 @@ export function useArticles() {
 
 	const currentSearchTerm = ref<string | null>(null);
 
-	const { data, refresh, status } = useFetch<{
-		articles: Array<{
-			abstract: string;
-			alias: string;
-			authors: Array<{ lastname: string; firstname: string }>;
-			cover: string;
-			cover_alt: string;
-			post_id: string;
-			post_type: string;
-			title: string;
-			published_at: string;
-		}>;
-		totalResults: number;
-	}>("articles/articles/1", {
+	const { data, refresh, status } = useFetch<APIArticles>("articles/articles/1", {
 		query: {
 			page: currentPage,
 			category: selectedCategory,

@@ -1,5 +1,7 @@
-export const formatAuthors = (authors: Array<{ firstname: string; lastname: string }>) => {
-	const authorNames = authors.map((author) => `${author.firstname} ${author.lastname}`);
+export const formatAuthors = (
+	authors: Array<{ firstname: string | null; lastname: string | null }>,
+) => {
+	const authorNames = authors.map((author) => `${author.firstname ?? ""} ${author.lastname ?? ""}`);
 	if (!authorNames.length) {
 		return "";
 	}

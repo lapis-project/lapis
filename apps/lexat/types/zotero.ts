@@ -1,7 +1,7 @@
 export interface BibliographyItemCreator {
 	creatorType: string;
-	firstName: string;
-	lastName: string;
+	firstName: string | null;
+	lastName: string | null;
 }
 
 export interface BibliographyItem {

@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+/* eslint-disable vue/no-v-html */
+import type { InferResponseType } from "hono/client";
 import { ArrowLeft } from "lucide-vue-next";
 
-import { useCitationGenerator } from "@/composables/citationGenerator";
+import { useApiClient } from "@/composables/use-api-client";
+import { useCitationGenerator } from "@/composables/use-citation-generator";
 import { formatAuthors } from "@/utils/article-helper";
 import { addIdsToHeadings } from "@/utils/html-helpers";
 import { useFetch, useRoute } from "#app";
@@ -11,40 +14,13 @@ const { bibliographyItems, getCitation, fetchBibliographyItems } = useCitationGe
 const t = useTranslations();
 const env = useRuntimeConfig();
 const route = useRoute();
+const { apiClient } = useApiClient();
 const alias = route.params.alias;
 
-interface APIArticleResponse {
-	article: {
-		post_id: number;
-		title: string;
-		alias: string;
-		cover: string;
-		cover_alt: string;
-		abstract: string;
-		content: string;
-		lang: string;
-		published_at: string; // ISO date string
-		updated_at: string; // ISO date string
-		created_at: string; // ISO date string
-		citation: string;
-		creator_firstname: string;
-		creator_lastname: string;
-		post_type_name: string;
-		phenomenon: Array<{
-			phenomenon_id: number;
-			name: string;
-		}>;
-		bibliography: Array<{
-			name: string;
-		}>;
-		authors: Array<{
-			firstname: string;
-			lastname: string;
-		}>;
-	};
-}
+const _getArticleByAlias = apiClient.articles.detail[":alias"].$get;
+type APIArticleDetail = InferResponseType<typeof _getArticleByAlias, 200>;
 
-const { data } = await useFetch<APIArticleResponse>(`articles/detail/${alias}`, {
+const { data } = await useFetch<APIArticleDetail>(`articles/detail/${alias}`, {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 	credentials: "include",
@@ -125,9 +101,9 @@ const jsonld = ref({
 
 usePageMetadata({
 	title: article.value?.title ?? "Beitrag",
-	description: article.value?.abstract,
+	description: article.value?.abstract ?? undefined,
 	// cover: article.value?.cover ?? "/default-cover.jpg", TODO: add default cover
-	cover: article.value?.cover,
+	cover: article.value?.cover ?? undefined,
 	url: `${env.public.apiBaseUrl}${route.fullPath}`,
 	contentType: "article",
 	jsonld: jsonld.value,
@@ -147,7 +123,7 @@ usePageMetadata({
 					{{ t(`AdminPage.editor.category.${article.post_type_name}`) }}
 				</div>
 				<PageTitle class="mb-3">{{ article.title }}</PageTitle>
-				<p class="mb-1">
+				<p v-if="article.authors?.length" class="mb-1">
 					{{ t("ArticleDetailPage.authors") }}: {{ formatAuthors(article.authors) }}
 				</p>
 				<div v-if="publishedAt" class="mb-4 italic">
@@ -157,7 +133,8 @@ usePageMetadata({
 					>
 				</div>
 				<NuxtImg
-					:alt="article.cover_alt"
+					v-if="article.cover"
+					:alt="article.cover_alt ?? 'Cover'"
 					class="aspect-[16/9] w-full rounded-t-lg object-cover"
 					:src="article.cover"
 				/>
@@ -165,7 +142,11 @@ usePageMetadata({
 				<div class="article-content" v-html="article.content"></div>
 				<div v-if="article.bibliography && article.bibliography.length" class="article-content">
 					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>
-					<p v-for="key in article.bibliography" :key="key.name" v-html="getCitation(key.name)"></p>
+					<p
+						v-for="key in article.bibliography"
+						:key="key.name!"
+						v-html="getCitation(key.name!)"
+					></p>
 				</div>
 				<hr class="mt-5" />
 				<div v-if="article.citation">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
+import type { InferResponseType } from "hono/client";
 import { useForm } from "vee-validate";
 import * as z from "zod";
 
@@ -20,6 +21,11 @@ const user = useUser();
 
 const route = useRoute();
 
+const { apiClient } = useApiClient();
+
+const _doLogin = apiClient.auth.login.$post;
+type APILogin = InferResponseType<typeof _doLogin, 200>;
+
 const signInSchema = toTypedSchema(
 	z.object({
 		email: z.string({ required_error: "Please specify an e-mail address" }),
@@ -35,14 +41,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 	try {
 		const apiUrl = "/auth/login";
 
-		const response = await $fetch<{
-			email: string;
-			firstname: string | null;
-			id: number;
-			lastname: string | null;
-			username: string | null;
-			role_name: string | null;
-		}>(apiUrl, {
+		const response = await $fetch<APILogin>(apiUrl, {
 			baseURL: env.public.apiBaseUrl,
 			method: "POST",
 			body: { ...formValues },

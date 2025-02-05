@@ -14,17 +14,17 @@ export function useCitationGenerator() {
 	const formatAuthors = (creators: Array<BibliographyItemCreator>): string => {
 		if (creators.length === 0) return "";
 		if (creators.length === 1) {
-			return `${creators[0].lastName}, ${creators[0].firstName}`;
+			return `${creators[0]?.lastName ?? ""}, ${creators[0]?.firstName ?? ""}`;
 		}
 
 		const lastAuthor = creators[creators.length - 1];
 		const otherAuthors = creators.slice(0, -1);
 
 		const formattedAuthors = otherAuthors
-			.map((creator) => `${creator.lastName}, ${creator.firstName}`)
+			.map((creator) => `${creator.lastName ?? ""}, ${creator.firstName ?? ""}`)
 			.join(" / ");
 
-		return `${formattedAuthors} & ${lastAuthor.lastName}, ${lastAuthor.firstName}`;
+		return `${formattedAuthors} & ${lastAuthor?.lastName ?? ""}, ${lastAuthor?.firstName ?? ""}`;
 	};
 
 	const fetchBibliographyItems = async (keyList: string | null = null) => {

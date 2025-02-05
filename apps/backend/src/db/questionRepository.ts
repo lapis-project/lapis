@@ -49,15 +49,15 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 					.innerJoin("task_variety", "task.id", "task_variety.task_id")
 					.innerJoin("variety", "task_variety.variety_id", "variety.id")
 					.where("phenomenon.id", "=", phenomenonIdParsed)
-					.select(({ fn, ref }) => [
+					.select(({ eb }) => [
 						"response.informant_id",
-						fn
+						eb.fn
 							.jsonAgg(
 								jsonBuildObject({
-									annotation: ref("annotation.annotation_name"),
-									response: ref("response.response_text"),
-									phenomenon: ref("phenomenon.phenomenon_name"),
-									variety: ref("variety.variety_name"),
+									annotation: eb.ref("annotation.annotation_name"),
+									response: eb.ref("response.response_text"),
+									phenomenon: eb.ref("phenomenon.phenomenon_name"),
+									variety: eb.ref("variety.variety_name"),
 								}),
 							)
 							.as("annotations"),
@@ -89,18 +89,18 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 			.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
 			.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
 			.where("phenomenon.id", "=", phenomenonIdParsed)
-			.select(({ fn, ref }) => [
+			.select(({ eb }) => [
 				"place.place_name",
 				"place.plz",
 				"place.lat",
 				"place.lon",
-				fn.coalesce(
-					fn.jsonAgg(
+				eb.fn.coalesce(
+					eb.fn.jsonAgg(
 						jsonbBuildObject({
-							age: ref("age_group.age_group_name"),
-							gender: ref("informant.gender"),
-							informant_id: ref("informant.id"),
-							answers: fn.coalesce(ref("annotations"), sql`'[]'`),
+							age: eb.ref("age_group.age_group_name"),
+							gender: eb.ref("informant.gender"),
+							informant_id: eb.ref("informant.id"),
+							answers: eb.fn.coalesce(eb.ref("annotations"), sql`'[]'`),
 						}),
 					),
 				),
@@ -125,6 +125,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 				.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
 				.where("phenomenon.id", "=", phenomenonIdParsed)
 				.where("project_tagset.project_id", "=", projectIdParsed)
+				// eslint-disable-next-line @typescript-eslint/unbound-method
 				.select(({ fn, ref }) => [
 					"response.informant_id",
 					fn
@@ -182,4 +183,52 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 		.groupBy(["place.plz", "place.lat", "place.lon", "place.place_name"]);
 
 	return await request.execute();
+}
+
+export async function getAnnotationsByPhaenAndProjectId(projectId: number, phenId: number) {
+	return await db
+		.selectFrom("annotation")
+		.innerJoin("annotation_tagset", "annotation.id", "annotation_tagset.annotation_id")
+		.innerJoin("tagset", "annotation_tagset.tagset_id", "tagset.id")
+		.innerJoin("phenomenon_tagset", "tagset.id", "phenomenon_tagset.tagset_id")
+		.select(["annotation.id", "annotation.annotation_name", "annotation.description"])
+		.where("annotation.project_id", "=", projectId)
+		.where("phenomenon_tagset.phenomenon_id", "=", phenId)
+		.execute();
+}
+
+export async function getAllRegister() {
+	const query = db
+		.with("variety_entry", (query) =>
+			query
+				.selectFrom("variety as p")
+				.leftJoin("variety as v", "v.variety_id", "p.id")
+				.where("p.variety_id", "is", null)
+				.select(({ eb }) => [
+					"p.id",
+					"p.variety_name",
+					"p.variety_id",
+					eb.fn
+						.jsonAgg(
+							jsonbBuildObject({
+								id: eb.ref("v.id"),
+								variety_name: eb.ref("v.variety_name"),
+								children: sql`'[]'`,
+							}),
+						)
+						.filterWhere("v.id", "is not", null)
+						.as("children"),
+				])
+				.groupBy(["p.id", "p.variety_name", "p.variety_id"]),
+		)
+		.selectFrom("variety_entry")
+		.select(({ eb }) =>
+			jsonbBuildObject({
+				id: eb.ref("variety_entry.id"),
+				variety_name: eb.ref("variety_entry.variety_name"),
+				children: eb.ref("variety_entry.children"),
+			}).as("variety_entry"),
+		);
+	return await query.execute();
+	//return await db.selectFrom("variety").select(["variety.id", "variety.variety_name"]).execute();
 }

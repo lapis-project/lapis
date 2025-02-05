@@ -5,7 +5,12 @@ import { array, number, object, string } from "valibot";
 // import { restrictedRoute } from "@/lib/authHelper";
 import type { Context } from "@/lib/context";
 
-import { getAllPhenomenon, getAllPhenomenonById } from "../db/questionRepository";
+import {
+	getAllPhenomenon,
+	getAllPhenomenonById,
+	getAllRegister,
+	getAnnotationsByPhaenAndProjectId,
+} from "../db/questionRepository";
 
 const saveMapSchema = object({
 	project: string(),
@@ -53,9 +58,6 @@ const questions = new Hono<Context>()
 		const questionById = await getAllPhenomenonById(projectId ?? "", phenomenonId);
 		return c.json(questionById, 200);
 	})
-	.get("/:id", (c) => {
-		return c.json("OK", 201);
-	})
 	.get("/responses", vValidator("json", searchResponseQuerySchema), (c) => {
 		return c.json("OK", 201);
 	})
@@ -64,6 +66,48 @@ const questions = new Hono<Context>()
 	})
 	.get("/map/:id", (c) => {
 		return c.json("OK", 201);
+	})
+	/**
+	 * Get all annotations from the database by the provided projectId
+	 * ProjectId is required and has to be a positive number else the response will be 400
+	 * @param projectId - The project id to get all annotations from
+	 * @returns All annotations from the database by the provided projectId
+	 * @status 200 Returns all annotations from the database by the provided projectId
+	 * @status 400 Returns error if the projectId is missing, not a number or negative
+	 */
+	.get("/annotation/:project", async (c) => {
+		const projectId = c.req.param("project");
+		const { phenomenon } = c.req.query();
+
+		if (!projectId) {
+			return c.json("Project Id is required", 400);
+		}
+
+		if (!phenomenon) {
+			return c.json("Phenomenon is required", 400);
+		}
+
+		const projectIdParsed = parseInt(projectId);
+		if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
+			return c.json("Project Id is not a number or is negative", 400);
+		}
+
+		const phenomenonIdParsed = parseInt(phenomenon);
+		if (Number.isNaN(phenomenonIdParsed) || phenomenonIdParsed < 0) {
+			return c.json("Phenomenon Id is not a number or is negative", 400);
+		}
+		const fetchedAnnotations = await getAnnotationsByPhaenAndProjectId(
+			projectIdParsed,
+			phenomenonIdParsed,
+		);
+		return c.json(fetchedAnnotations, 200);
+	})
+	.get("/variety", async (c) => {
+		const allVariety = await getAllRegister();
+		if (allVariety.length === 0) {
+			return c.json("No varieties found", 404);
+		}
+		return c.json(allVariety, 200);
 	});
 
 export default questions;

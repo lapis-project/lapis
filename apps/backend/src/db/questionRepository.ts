@@ -232,3 +232,84 @@ export async function getAllRegister() {
 	return await query.execute();
 	//return await db.selectFrom("variety").select(["variety.id", "variety.variety_name"]).execute();
 }
+
+export async function getResultsByPhaen(
+	phaenId: number,
+	pageSize: number,
+	offset: number,
+	varIds: Array<number>,
+	annotations: Array<string>,
+	lower_age_limit: number,
+	upper_age_limit: number,
+) {
+	const baseQuery = db.with("post_query", (query) => {
+		let dbQuery = query
+			.selectFrom("response")
+			.innerJoin("annotation_response", "response.id", "annotation_response.response_id")
+			.innerJoin("annotation", "annotation_response.annotation_id", "annotation.id")
+			.innerJoin("task", "response.task_id", "task.id")
+			.innerJoin("phenomenon_task", "task.id", "phenomenon_task.task_id")
+			.innerJoin("phenomenon", "phenomenon_task.phenomenon_id", "phenomenon.id")
+			.leftJoin("task_variety", "task.id", "task_variety.task_id")
+			.leftJoin("variety", "task_variety.variety_id", "variety.id")
+			.innerJoin("informant", "response.informant_id", "informant.id")
+			.innerJoin("age_group", "informant.age_group_id", "age_group.id")
+			.innerJoin(
+				"informant_lives_in_place",
+				"informant.id",
+				"informant_lives_in_place.informant_id",
+			)
+			.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
+			.select(({ eb }) => [
+				sql<number>`ROW_NUMBER() OVER (order by response.id)`.as("rn"),
+				eb.ref("response.response_text").as("response"),
+				eb.ref("annotation.annotation_name").as("annotation"),
+				eb.ref("phenomenon.phenomenon_name").as("phenomenon"),
+				eb.fn.coalesce(eb.ref("variety.variety_name"), eb.val("Weitere Antwort")).as("variety"),
+				eb.ref("place.place_name").as("place"),
+				eb.ref("age_group.age_group_name").as("age"),
+				eb.ref("informant.comment").as("informant"),
+			])
+			.where("phenomenon.id", "=", phaenId)
+			.where("age_group.lower_limit", ">", lower_age_limit)
+			.where("age_group.upper_limit", "<=", upper_age_limit)
+			.groupBy([
+				"response.id",
+				"annotation.annotation_name",
+				"phenomenon.phenomenon_name",
+				"variety.variety_name",
+				"place.place_name",
+				"age_group.age_group_name",
+				"informant.comment",
+			]);
+		if (varIds.length > 0) {
+			dbQuery = dbQuery.where("variety.id", "in", varIds);
+		}
+
+		if (annotations.length > 0) {
+			dbQuery = dbQuery.where("annotation.annotation_name", "in", annotations);
+		}
+
+		return dbQuery;
+	});
+	const query = baseQuery.selectFrom("post_query").select(({ eb, fn }) => [
+		fn
+			.jsonAgg(
+				jsonBuildObject({
+					response: eb.ref("response"),
+					annotation: eb.ref("annotation"),
+					phenomenon: eb.ref("phenomenon"),
+					variety: eb.ref("variety"),
+					place: eb.ref("place"),
+					age: eb.ref("age"),
+					informant: eb.ref("informant"),
+				}),
+			)
+			.filterWhere("rn", ">", offset)
+			.filterWhere("rn", "<=", pageSize + offset)
+			.as("post_query"),
+		eb.fn.countAll().as("total"),
+	]);
+
+	return await query.execute();
+}

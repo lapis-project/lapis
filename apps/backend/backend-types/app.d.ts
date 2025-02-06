@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { Env } from "hono";
 import type * as hono_hono_base from "hono/hono-base";
 import type * as hono_types from "hono/types";
@@ -1794,19 +1794,6 @@ declare const app: hono_hono_base.HonoBase<
 						  };
 				};
 			} & {
-				"/:id": {
-					$get: {
-						input: {
-							param: {
-								id: string;
-							};
-						};
-						output: "OK";
-						outputFormat: "json";
-						status: 201;
-					};
-				};
-			} & {
 				"/responses": {
 					$get: {
 						input: {
@@ -1858,6 +1845,158 @@ declare const app: hono_hono_base.HonoBase<
 						outputFormat: "json";
 						status: 201;
 					};
+				};
+			} & {
+				"/table/:id": {
+					$get:
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: "Provided page number is not a number";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: "Provided offset number is not a number";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: "Provided pagesize number is not a number";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: "Phenomenon id is required";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: {
+									prev: string | null;
+									next: string | null;
+									responses: Array<{
+										response: string | null;
+										annotation: string | null;
+										phenomenon: string | null;
+										variety: string;
+										place: string | null;
+										age: string | null;
+										informant: string | null;
+									}>;
+									currentPage: string;
+									totalResults: number;
+								};
+								outputFormat: "json";
+								status: 200;
+						  };
+				};
+			} & {
+				"/annotation/:project": {
+					$get:
+						| {
+								input: {
+									param: {
+										project: string;
+									};
+								};
+								output: "Project Id is required";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										project: string;
+									};
+								};
+								output: "Phenomenon is required";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										project: string;
+									};
+								};
+								output: "Project Id is not a number or is negative";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										project: string;
+									};
+								};
+								output: "Phenomenon Id is not a number or is negative";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										project: string;
+									};
+								};
+								output: Array<{
+									id: number;
+									description: string | null;
+									annotation_name: string | null;
+								}>;
+								outputFormat: "json";
+								status: 200;
+						  };
+				};
+			} & {
+				"/variety": {
+					$get:
+						| {
+								input: {};
+								output: "No varieties found";
+								outputFormat: "json";
+								status: 404;
+						  }
+						| {
+								input: {};
+								output: Array<{
+									variety_entry: {
+										id: number;
+										variety_name: string | null;
+										children: Array<{
+											id: number | null;
+											variety_name: string | null;
+											children: never;
+										}>;
+									};
+								}>;
+								outputFormat: "json";
+								status: 200;
+						  };
 				};
 			},
 			"/questions"

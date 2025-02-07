@@ -218,7 +218,18 @@ const filteredPoints = computed(() => {
 		})
 		.filter((item) => item.coalesce.length > 0);
 
-	return filteredPoints;
+	let visibleLocationPoints = structuredClone(filteredPoints);
+	if (!showStateCapitals.value) {
+		visibleLocationPoints = visibleLocationPoints.filter(
+			(p) => !stateCapitalsList.includes(p.place_name),
+		);
+	}
+	if (!showUrbanLocations.value) {
+		visibleLocationPoints = visibleLocationPoints.filter((p) =>
+			stateCapitalsList.includes(p.place_name),
+		);
+	}
+	return visibleLocationPoints;
 });
 
 // const dataPoints = computed(() => {
@@ -230,17 +241,7 @@ const filteredPoints = computed(() => {
 // });
 
 const dataPoints = computed(() => {
-	let visibleLocationPoints = structuredClone(filteredPoints.value);
-	if (!showStateCapitals.value) {
-		visibleLocationPoints = visibleLocationPoints.filter(
-			(p) => !stateCapitalsList.includes(p.place_name),
-		);
-	}
-	if (!showUrbanLocations.value) {
-		visibleLocationPoints = visibleLocationPoints.filter((p) =>
-			stateCapitalsList.includes(p.place_name),
-		);
-	}
+	const visibleLocationPoints = structuredClone(filteredPoints.value);
 	const geoJsonPoints = visibleLocationPoints.map((entity) => {
 		return createGeoJsonFeature(entity, mappedColors.value);
 	});

@@ -218,7 +218,7 @@
 		},
 		"title": "Kartierung",
 		"selection": {
-			"colors": "Legendenfarben",
+			"legend": "Legende",
 			"simplified-view": {
 				"label": "Simplifizierte Darstellung",
 				"tooltip": "Bei einer Überlagerung zweier Ortspunkte wird der kleinere Ortspunkt automatisch ausgeblendet."
@@ -227,6 +227,7 @@
 			"show-regions": "Dialektregionen anzeigen",
 			"show-state-capitals": "Landeshauptstädte",
 			"show-urban-locations": "Ortspunkte (ausgenommen Landeshauptstädte)",
+			"show-variant-percentages": "Werte in Prozent",
 			"variable": {
 				"title": "Phänomen",
 				"placeholder": "Phänomen",

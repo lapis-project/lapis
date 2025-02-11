@@ -79,7 +79,8 @@ docker run -it \
 
 To completely shut down the db container and delete any associated volumes:
 
-`docker compose --env-file .env.localsetup down`
+- Run task "Reset DB"
+- OR `docker compose --env-file .env.localsetup down`
 
 ## Dependencies
 

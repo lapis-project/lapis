@@ -45,3 +45,54 @@ export const getSortedVariants = (
 
 	return sortedVariants;
 };
+
+export const processUniqueVariants = (
+	points: Array<SurveyResponse>,
+	specialSortOrder?: Record<string, number>,
+) => {
+	const countedUniqueVariants = countUniqueVariants(points);
+	const total = Array.from(countedUniqueVariants.values()).reduce((sum, count) => sum + count, 0);
+
+	const sortedVariants = getSortedVariants(countedUniqueVariants, specialSortOrder);
+
+	// Step 1: Calculate the raw percentages
+	const rawVariants = sortedVariants.map(({ anno, count }) => {
+		const percentage = (count / total) * 100;
+		return {
+			anno,
+			percentage,
+			count,
+			rounded:
+				Math.round(percentage) < 1 && percentage > 0 ? "<1" : Math.round(percentage).toString(),
+		};
+	});
+
+	// Step 2: Calculate the total of the rounded values
+	const totalRounded = rawVariants.reduce((sum, { rounded }) => {
+		return rounded === "<1" ? sum : sum + parseInt(rounded, 10);
+	}, 0);
+
+	// Step 3: Calculate how much is left to distribute
+	let remaining = 100 - totalRounded;
+
+	// Step 4: Distribute remaining percentage to ensure total equals 100
+	for (let i = 0; i < rawVariants.length && remaining > 0; i++) {
+		if (rawVariants[i]?.rounded !== "<1") {
+			rawVariants[i].rounded = (parseInt(rawVariants[i].rounded, 10) + 1).toString();
+			remaining--;
+		}
+	}
+
+	// Step 5: If any percentage was <1, we should ensure it shows "<1" instead of 0
+	rawVariants.forEach((v) => {
+		if (parseInt(v.rounded, 10) === 0 && v.percentage > 0) {
+			v.rounded = "<1";
+		}
+	});
+
+	return rawVariants.map(({ anno, count, rounded }) => ({
+		anno,
+		count,
+		percentage: rounded,
+	}));
+};

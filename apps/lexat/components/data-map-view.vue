@@ -34,7 +34,11 @@ import type {
 	SurveyResponseProperty,
 } from "@/types/feature-collection";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
-import { countUniqueVariants, getSortedVariants } from "@/utils/variant-helper";
+import {
+	countUniqueVariants,
+	getSortedVariants,
+	processUniqueVariants,
+} from "@/utils/variant-helper";
 
 import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
@@ -83,6 +87,7 @@ const showRegions = ref<boolean>(true);
 const showStateCapitals = ref<boolean>(true);
 const showUrbanLocations = ref<boolean>(true);
 const showAdvancedFilters = ref<boolean>(false);
+const showVariantPercentages = ref<boolean>(true);
 
 const activeQuestionId = computed(() => {
 	return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
@@ -262,10 +267,9 @@ const entitiesById = computed(() => {
 	});
 });
 
-const filteredUniqueVariants = computed(() => {
-	const countedUniqueVariants = countUniqueVariants(filteredPoints.value);
-	return getSortedVariants(countedUniqueVariants, specialOrder);
-});
+const filteredUniqueVariants = computed(() =>
+	processUniqueVariants(filteredPoints.value, specialOrder),
+);
 
 const uniqueVariants = computed(() => {
 	const countedUniqueVariants = countUniqueVariants(points.value);
@@ -815,9 +819,21 @@ watch(activeVariants, updateUrlParams, {
 							</div>
 							<div
 								v-if="mappedColors && Object.values(mappedColors).length"
-								class="col-span-1 space-y-1 text-sm font-semibold"
+								class="col-span-1 text-sm font-semibold"
 							>
-								<p>{{ t("MapsPage.selection.colors") }}</p>
+								<div class="mb-1 ml-1 text-sm font-semibold">
+									{{ t("MapsPage.selection.legend") }}
+								</div>
+
+								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									<Checkbox id="showVariantPercentages" v-model:checked="showVariantPercentages" />
+									<label
+										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+										for="showVariantPercentages"
+									>
+										{{ t("MapsPage.selection.show-variant-percentages") }}
+									</label>
+								</div>
 								<div class="flex flex-wrap gap-2">
 									<ColorPicker
 										v-for="(color, index) in Object.values(mappedColors)"
@@ -879,7 +895,7 @@ watch(activeVariants, updateUrlParams, {
 									italic: !Object.keys(specialOrder).includes(variant.anno),
 								}"
 								>{{ variant.anno }}</span
-							>({{ variant.count }})
+							>({{ showVariantPercentages ? `${variant.percentage}%` : variant.count }})
 						</li>
 					</ul>
 				</div>

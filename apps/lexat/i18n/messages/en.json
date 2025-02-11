@@ -218,7 +218,7 @@
 		},
 		"title": "Maps",
 		"selection": {
-			"colors": "Legend colors",
+			"legend": "Legend",
 			"simplified-view": {
 				"label": "Simplified view",
 				"tooltip": "If two localities overlap, the smaller locality is automatically hidden"
@@ -227,6 +227,7 @@
 			"show-regions": "Show dialect regions",
 			"show-state-capitals": "State capitals",
 			"show-urban-locations": "Locations (exempt state capitals)",
+			"show-variant-percentages": "Values as percentages",
 			"variable": {
 				"title": "Phenomenon",
 				"placeholder": "phenomenon",

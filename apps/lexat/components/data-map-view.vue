@@ -319,60 +319,99 @@ type OccurrenceCount = Record<
 	string,
 	{
 		varieties: Record<string, number>;
-		total: number;
+		total: number; // sum of all variety counts for that annotation
+		percentage?: string;
 	}
 >;
 
-const countOccurrences = (properties: Array<SurveyResponseProperty>) => {
-	const occurrenceCount: Record<string, Record<string, number>> = {};
+interface ProcessedItem {
+	index: number;
+	annotation: string;
+	varieties: Record<string, number>;
+	total: number;
+	rawPercentage: number;
+	floored: number;
+	remainder: number;
+	percentage?: string;
+}
 
-	for (const informant of properties) {
-		for (const answer of informant.answers) {
-			const annotation = answer.annotation;
-			const variety = answer.variety;
-
-			if (!occurrenceCount[annotation]) {
-				occurrenceCount[annotation] = {};
+// TODO refactor with processUniqueVariants logic in mind
+const countOccurrences = (properties: Array<SurveyResponseProperty>): OccurrenceCount => {
+	const occurrenceCount = properties.reduce(
+		(acc, prop) => {
+			for (const { annotation, variety } of prop.answers) {
+				acc[annotation] = acc[annotation] || {};
+				acc[annotation][variety] = (acc[annotation][variety] || 0) + 1;
 			}
+			return acc;
+		},
+		{} as Record<string, Record<string, number>>,
+	);
 
-			if (!occurrenceCount[annotation][variety]) {
-				occurrenceCount[annotation][variety] = 0;
-			}
+	const unsortedArray = Object.entries(occurrenceCount).map(([annotation, varieties]) => ({
+		annotation,
+		varieties,
+		total: Object.values(varieties).reduce((sum, c) => sum + c, 0),
+	}));
 
-			// increment the count for a given variety of an annotation
-			occurrenceCount[annotation][variety]++;
+	unsortedArray.sort((a, b) => {
+		const aOrder = specialOrder[a.annotation] ?? 0;
+		const bOrder = specialOrder[b.annotation] ?? 0;
+		// Higher specialOrder first
+		if (aOrder !== bOrder) return bOrder - aOrder;
+		// Then by total descending
+		return b.total - a.total;
+	});
+
+	// If nothing in total, return empty
+	const grandTotal = unsortedArray.reduce((sum, item) => sum + item.total, 0);
+	if (grandTotal === 0) {
+		return {};
+	}
+
+	// Largest-remainder method for integer percentages
+	const processed: Array<ProcessedItem> = unsortedArray.map((item, index) => {
+		const rawPercentage = (item.total / grandTotal) * 100;
+		const floored = Math.floor(rawPercentage);
+		return {
+			...item,
+			index,
+			rawPercentage,
+			floored,
+			remainder: rawPercentage - floored,
+		};
+	});
+
+	const totalFloored = processed.reduce((sum, p) => sum + p.floored, 0);
+	let remainderToDistribute = 100 - totalFloored;
+
+	processed.sort((a, b) => b.remainder - a.remainder);
+
+	for (const item of processed) {
+		if (remainderToDistribute <= 0) break;
+		if (item.rawPercentage > 0) {
+			item.floored++;
+			remainderToDistribute--;
 		}
 	}
 
-	// convert the occurrenceCount to an array and sort it
-	const sortedOccurrences = Object.entries(occurrenceCount)
-		.map(([annotation, varieties]) => ({
-			annotation,
-			varieties,
-			total: Object.values(varieties).reduce((sum, count) => sum + count, 0),
-		}))
-		.sort((a, b) => {
-			const aSpecialOrder = specialOrder[a.annotation] ?? 0;
-			const bSpecialOrder = specialOrder[b.annotation] ?? 0;
+	processed.sort((a, b) => a.index - b.index);
 
-			// sort by special order
-			if (aSpecialOrder !== bSpecialOrder) {
-				return bSpecialOrder - aSpecialOrder;
-			}
-			// if special orders are equal, sort by total answers
-			return b.total - a.total;
-		});
-
-	// convert back to the desired format
-	const sortedOccurrenceCount: OccurrenceCount = {};
-	for (const item of sortedOccurrences) {
-		sortedOccurrenceCount[item.annotation] = {
-			varieties: item.varieties,
-			total: item.total,
-		};
+	for (const item of processed) {
+		// If raw is between 0 and 1, show "<1"
+		if (item.rawPercentage > 0 && item.rawPercentage < 1) {
+			item.percentage = "<1";
+		} else {
+			item.percentage = String(item.floored);
+		}
 	}
 
-	return sortedOccurrenceCount;
+	const result: OccurrenceCount = {};
+	for (const { annotation, varieties, total, percentage } of processed) {
+		result[annotation] = { varieties, total, percentage: percentage! };
+	}
+
+	return result;
 };
 
 const getEntityOccurrences = (entity: SurveyResponse) => {
@@ -383,14 +422,6 @@ const getEntityTotal = (entity: SurveyResponse) => {
 	const occurrences = getEntityOccurrences(entity);
 	return Object.values(occurrences).reduce((sum, item) => sum + item.total, 0);
 };
-
-// watch(data2, () => {
-// 	/**
-// 	 * Close popover when search results change, to avoid displaying popup for features which are
-// 	 * no longer in the search results set.
-// 	 */
-// 	popover.value = null;
-// });
 
 const numberOfInformants = computed(() => {
 	return filteredPoints.value.reduce((count, obj) => {
@@ -974,7 +1005,7 @@ watch(activeVariants, updateUrlParams, {
 												>
 													{{ key }}</span
 												>
-												({{ value.total }})
+												({{ showVariantPercentages ? `${value.percentage}%` : value.total }})
 											</div>
 										</summary>
 										<p v-for="(v, k) in value.varieties" :key="k" class="">

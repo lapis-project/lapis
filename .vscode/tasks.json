@@ -39,6 +39,13 @@
 			"dependsOn": ["Start DB Container", "Seed DB", "Start Backend", "Start Frontend"],
 			"problemMatcher": [],
 			"group": "build"
+		},
+		{
+			"label": "Reset DB",
+			"type": "shell",
+			"command": "docker compose --env-file .env.localsetup down",
+			"problemMatcher": [],
+			"isBackground": true
 		}
 	]
 }

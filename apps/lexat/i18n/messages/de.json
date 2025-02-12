@@ -195,11 +195,31 @@
 		"title": "Etwas ist schief gelaufen!",
 		"try-again": "Erneut versuchen"
 	},
-	"IndexPage": {
+	"HomePage": {
 		"meta": {
 			"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert"
 		},
-		"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert"
+		"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert",
+		"action": "Daten erkunden",
+		"charts": {
+			"age-distribution": {
+				"label": "Altersverteilung"
+			},
+			"gender-distribution": {
+				"label": "Geschlechterverteilung",
+				"male": "Männlich",
+				"female": "Weiblich"
+			},
+			"register-distribution": {
+				"label": "Verteilung nach Register"
+			}
+		},
+		"counts": {
+			"locations": "Ortspunkte",
+			"participants": "Teilnehmende",
+			"phenomenons": "Phänomene",
+			"survey-rounds": "Fragebogenrunden"
+		}
 	},
 	"LocaleSwitcher": {
 		"current-locale": "Aktuelle Sprache: {locale}",

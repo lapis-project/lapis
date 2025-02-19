@@ -931,6 +931,32 @@ watch(activeVariants, updateUrlParams, {
 					</ul>
 				</div>
 			</div>
+			<div v-if="features.length" id="regions" class="absolute bottom-2 left-28 z-10 mr-2">
+				<div
+					class="rounded-md border-2 border-transparent bg-background px-2 py-1 text-sm text-foreground shadow-md"
+				>
+					<ul class="space-x-2 flex">
+						<li
+							v-for="region in features"
+							:key="region.properties.id"
+							class="flex items-center gap-1"
+						>
+							<svg class="inline align-baseline" height="12" width="12">
+								<circle
+									cx="6"
+									cy="6"
+									:fill="region.properties.color"
+									r="5"
+									stroke="black"
+									stroke-align="inner"
+									stroke-width="1"
+								/>
+							</svg>
+							<span class="italic">{{ region.properties.name }}</span>
+						</li>
+					</ul>
+				</div>
+			</div>
 			<div id="expand" class="absolute right-2 top-2 z-10">
 				<Button
 					aria-label="Fullscreen"

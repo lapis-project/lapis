@@ -58,5 +58,11 @@
 	},
 	"lint-staged": {
 		"*": "prettier --cache --ignore-unknown --write"
+	},
+	"pnpm": {
+		"overrides": {
+			"@typescript-eslint/eslint-plugin": "^8.24.1",
+			"@typescript-eslint/parser": "^8.24.1"
+		}
 	}
 }

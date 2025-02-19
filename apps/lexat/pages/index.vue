@@ -67,7 +67,7 @@ const chartOptions = {
 
 <template>
 	<MainContent class="container py-16">
-		<div class="mb-12 flex flex-col-reverse gap-8 lg:flex-row">
+		<div class="mb-12 flex flex-col-reverse gap-10 lg:flex-row">
 			<div class="article-content flex flex-col lg:w-2/6">
 				<h1 class="text-3xl font-semibold">{{ t("HomePage.title") }}</h1>
 				<template v-if="currentLocale === 'de'">
@@ -112,14 +112,14 @@ const chartOptions = {
 			<div class="lg:w-4/6">
 				<img
 					alt="Beispielkarte des Projekts LexAT21"
-					class="object-cover shadow-xl"
+					class="object-cover shadow-sharp"
 					height="871"
 					src="/images/home.jpg"
 					width="1397"
 				/>
 			</div>
 		</div>
-		<div class="article-content mb-12 border-b pb-12">
+		<div class="article-content mb-12 border-b border-t py-12 flex items-center">
 			<template v-if="currentLocale === 'de'">
 				<p>
 					LexAT21 ist Teil der
@@ -207,3 +207,13 @@ const chartOptions = {
 		</div>
 	</MainContent>
 </template>
+
+<style lang="css" scoped>
+.shadow-sharp {
+	box-shadow:
+		0 1px 1px rgb(0 0 0 / 15%),
+		0 2px 2px rgb(0 0 0 / 15%),
+		0 4px 4px rgb(0 0 0 / 15%),
+		0 8px 8px rgb(0 0 0 / 15%);
+}
+</style>

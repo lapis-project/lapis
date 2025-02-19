@@ -29,10 +29,10 @@ const emitValueChange = (newValue: Array<number> | undefined) => {
 <template>
 	<SliderRoot
 		ref="sliderRef"
-		:model-value="value"
-		:min="props.min"
-		:max="props.max"
 		class="relative flex w-full touch-none select-none items-center"
+		:max="props.max"
+		:min="props.min"
+		:model-value="value"
 		@update:model-value="emitValueChange"
 	>
 		<SliderTrack class="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
@@ -42,8 +42,8 @@ const emitValueChange = (newValue: Array<number> | undefined) => {
 		<SliderThumb
 			v-for="(initial, index) in initialValue"
 			:key="index"
-			class="relative block size-4 cursor-pointer rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
 			:aria-label="accessibilityLabel"
+			class="relative block size-4 cursor-pointer rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
 		>
 			<span
 				:class="[

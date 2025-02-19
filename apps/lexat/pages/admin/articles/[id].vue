@@ -361,7 +361,7 @@ usePageMetadata({
 								}}<span class="text-destructive"> (Try to keep image below 500kb for now)</span>
 							</div>
 							<label
-								class="flex aspect-[16/9] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+								class="flex aspect-16/9 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
 								for="dropzone-file"
 							>
 								<div v-if="!cover" class="flex flex-col items-center justify-center pb-6 pt-5">

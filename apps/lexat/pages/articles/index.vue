@@ -122,7 +122,7 @@ usePageMetadata({
 					</div>
 					<div class="flex gap-4">
 						<NuxtLinkLocale class="inline-flex w-1/4" :to="`/articles/${article.alias}`">
-							<NuxtImg class="aspect-[16/9] object-cover" :src="article.cover"></NuxtImg>
+							<NuxtImg class="aspect-16/9 object-cover" :src="article.cover"></NuxtImg>
 						</NuxtLinkLocale>
 
 						<div class="w-3/4">

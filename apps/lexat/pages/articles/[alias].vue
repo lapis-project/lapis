@@ -135,7 +135,7 @@ usePageMetadata({
 				<NuxtImg
 					v-if="article.cover"
 					:alt="article.cover_alt ?? 'Cover'"
-					class="aspect-[16/9] w-full rounded-t-lg object-cover"
+					class="aspect-16/9 w-full rounded-t-lg object-cover"
 					:src="article.cover"
 				/>
 				<hr class="mt-5" />

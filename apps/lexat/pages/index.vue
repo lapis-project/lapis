@@ -16,7 +16,7 @@ usePageMetadata({
 		<PageTitle class="mb-6">{{ t("IndexPage.title") }}</PageTitle>
 		<img
 			alt="Beispielkarte des Projekts LexAT21"
-			class="mb-6 aspect-[16/9] w-full object-cover"
+			class="mb-6 aspect-16/9 w-full object-cover"
 			src="/images/home.png"
 		/>
 		<div class="article-content">

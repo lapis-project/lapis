@@ -105,3 +105,36 @@ export const specialOrder = {
 	Irrelevant: -2,
 	Sonstige: -1,
 };
+
+export const regions = [
+	{
+		id: "1740056528195",
+		name: "Alemannisch",
+		color: "#212529",
+	},
+	{
+		id: "1740056528195",
+		name: "Bairisch-Alemannisch",
+		color: "#495057",
+	},
+	{
+		id: "1740056528195",
+		name: "Südbairisch",
+		color: "#6c757d",
+	},
+	{
+		id: "1740056528195",
+		name: "Südmittelbairisch",
+		color: "#adb5bd",
+	},
+	{
+		id: "1740056528195",
+		name: "Westmittelbairisch",
+		color: "#ced4da",
+	},
+	{
+		id: "1740056528195",
+		name: "Ostmittelbairisch",
+		color: "#dee2e6",
+	},
+];

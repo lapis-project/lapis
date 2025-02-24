@@ -230,35 +230,39 @@ export abstract class MapGeneratorBase {
 		// Render map
 		let renderMap = this.getRenderedMap(container, style);
 
-		this.addLegend(renderMap, includeLegend).then(() => {
+		this.addLegend(renderMap, includeLegend, "variant").then(() => {
 			renderMap.once("idle", () => {
-				const isAttributionAdded = this.addAttributions(renderMap);
-				if (isAttributionAdded) {
+				this.addLegend(renderMap, includeLegend, "region").then(() => {
 					renderMap.once("idle", () => {
-						renderMap = this.renderMapPost(renderMap);
-						const markers = this.getMarkers();
-						if (markers.length === 0) {
-							this.exportImage(renderMap, hidden, actualPixelRatio);
-						} else {
-							renderMap = this.renderMarkers(renderMap);
+						const isAttributionAdded = this.addAttributions(renderMap);
+						if (isAttributionAdded) {
 							renderMap.once("idle", () => {
-								this.exportImage(renderMap, hidden, actualPixelRatio);
+								renderMap = this.renderMapPost(renderMap);
+								const markers = this.getMarkers();
+								if (markers.length === 0) {
+									this.exportImage(renderMap, hidden, actualPixelRatio);
+								} else {
+									renderMap = this.renderMarkers(renderMap);
+									renderMap.once("idle", () => {
+										this.exportImage(renderMap, hidden, actualPixelRatio);
+									});
+								}
 							});
+						} else {
+							renderMap = this.renderMapPost(renderMap);
+							const markers = this.getMarkers();
+							if (markers.length === 0) {
+								this.exportImage(renderMap, hidden, actualPixelRatio);
+							} else {
+								renderMap = this.renderMarkers(renderMap);
+
+								renderMap.once("idle", () => {
+									this.exportImage(renderMap, hidden, actualPixelRatio);
+								});
+							}
 						}
 					});
-				} else {
-					renderMap = this.renderMapPost(renderMap);
-					const markers = this.getMarkers();
-					if (markers.length === 0) {
-						this.exportImage(renderMap, hidden, actualPixelRatio);
-					} else {
-						renderMap = this.renderMarkers(renderMap);
-
-						renderMap.once("idle", () => {
-							this.exportImage(renderMap, hidden, actualPixelRatio);
-						});
-					}
-				}
+				});
 			});
 		});
 	}
@@ -429,36 +433,45 @@ export abstract class MapGeneratorBase {
 	 * @param renderMap Map object
 	 * @returns void
 	 */
-	private addLegend(renderMap: MaplibreMap, includeLegend: boolean) {
+	private addLegend(renderMap: MaplibreMap, includeLegend: boolean, mode: "variant" | "region") {
 		if (!includeLegend) {
 			return Promise.resolve();
 		}
-		// Query the element with the ID "legend"
-		const element = document.getElementById("legend");
-		if (!element) {
-			console.error('Element with ID "legend" not found');
-			return Promise.resolve(); // Proceed with the chain
+
+		// Determine which element and settings to use based on mode
+		const elementId = mode === "variant" ? "variantLegend" : "regionLegend";
+		const legendElement = document.getElementById(elementId);
+		if (!legendElement) {
+			console.error(`Element with ID "${elementId}" not found`);
+			return Promise.resolve();
 		}
-		// element.style.fontFamily = "Roboto";
+
+		// Define position and offset based on mode
+		const elementPosition = mode === "variant" ? "bottom-right-append" : "bottom-left";
+		const offset = mode === "variant" ? 40 : 8;
+
+		// Capture the element with html2canvas
 		return new Promise<void>((resolve) => {
-			// Use html2canvas to capture the element
-			html2canvas(element, {
+			html2canvas(legendElement, {
 				useCORS: true, // Enable CORS support
 				allowTaint: true, // Allow cross-origin images
 				scrollX: 0, // Adjust if capturing a scrolled element
 				scrollY: 0, // Adjust if capturing a scrolled element
-				scale: 0.97, // scale to get rid of grey background https://stackoverflow.com/questions/58921942/html2canvas-grey-background-removal
-			}).then((html2canvasImage) => {
-				const imageDataUrl = html2canvasImage.toDataURL("image/png");
+				scale: 3, // Capture at a higher scale for better resolution
+			}).then((canvas) => {
+				const imageDataUrl = canvas.toDataURL("image/png");
 				renderMap.loadImage(imageDataUrl).then((image) => {
-					const elementPosition = "bottom-right-append";
-					const pixels = this.getElementPosition(renderMap, elementPosition, 40);
+					// Determine the position for the legend image on the map
+					const pixels = this.getElementPosition(renderMap, elementPosition, offset);
 					const lngLat = renderMap.unproject(pixels);
 
-					renderMap.addImage("legend", image.data);
+					// Use the mode to define the image name
+					const imageName = elementId;
+					renderMap.addImage(imageName, image.data, { pixelRatio: 3 });
 
-					// Add the source with the single data point
-					renderMap.addSource("single-point", {
+					// Add a geojson source for the point
+					const sourceId = `${mode}-single-point`;
+					renderMap.addSource(sourceId, {
 						type: "geojson",
 						data: {
 							type: "FeatureCollection",
@@ -474,15 +487,15 @@ export abstract class MapGeneratorBase {
 						},
 					});
 
-					// Add a symbol layer to display the point
+					// Add a symbol layer to display the legend image
 					renderMap.addLayer({
-						id: "test",
+						id: `${mode}-legend-layer`,
 						type: "symbol",
-						source: "single-point",
+						source: sourceId,
 						layout: {
-							"icon-image": "legend",
+							"icon-image": imageName,
 							"icon-size": 1,
-							"icon-anchor": "bottom-right",
+							"icon-anchor": mode === "variant" ? "bottom-right" : "bottom-left",
 							"icon-allow-overlap": true,
 							"icon-ignore-placement": true,
 						},

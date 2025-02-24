@@ -113,7 +113,22 @@ async function create() {
 		maxZoom: 11,
 		minZoom: 6.5, // a littler bigger than Austria
 		pitch: initialViewState.pitch,
-		style: props.basemap,
+		style:
+			props.basemap === "plain"
+				? {
+						version: 8,
+						sources: {},
+						layers: [
+							{
+								id: "background",
+								type: "background",
+								paint: {
+									"background-color": "white",
+								},
+							},
+						],
+					}
+				: props.basemap,
 		zoom: initialViewState.zoom,
 	});
 
@@ -266,8 +281,17 @@ function init() {
 		source: sourcePolygonsId,
 		layout: {
 			"text-field": ["get", "name"],
-			"text-size": 16,
+			"text-size": [
+				"interpolate",
+				["linear"], // Smooth transition
+				["zoom"], // Zoom level
+				6,
+				13, // At zoom level 3, text size is 10
+				12,
+				24, // At zoom level 8, text size is 14
+			],
 			"text-anchor": "center",
+			// "text-ignore-placement": true,
 		},
 		paint: {
 			"text-color": "#000000",

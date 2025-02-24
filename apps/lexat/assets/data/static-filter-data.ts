@@ -37,6 +37,10 @@ export const basemapOptions: Array<DropdownOption> = [
 	// 	label: "Hypsometry (ICGC)",
 	// 	value: "https://geoserveis.icgc.cat/contextmaps/icgc_ombra_hipsometria_corbes.json",
 	// },
+	{
+		label: "Plain white",
+		value: "plain",
+	},
 ];
 
 export const registerOptions: Array<DropdownOption> = [

@@ -23,11 +23,18 @@ export async function getAllPhenCount() {
 }
 
 export async function getAllStatData() {
-	const dbQuery = db.with("inf_gender", (query) =>
-		query
-			.selectFrom("informant")
-			.select(({ eb }) => [eb.ref("gender").as("type"), eb.fn.count("gender").as("total")])
-			.groupBy("gender"),
-	);
+	const dbQuery = db
+		.with("inf_gender", (query) =>
+			query
+				.selectFrom("informant")
+				.select(({ eb }) => [eb.ref("gender").as("type"), eb.fn.count("gender").as("total")])
+				.groupBy("gender"),
+		)
+		.with("place_count", (query) =>
+			query.selectFrom("place").select(({ eb }) => [eb.fn.countAll().as("total")]),
+		)
+		.with("phen_count", (query) =>
+			query.selectFrom("phenomenon").select(({ eb }) => [eb.fn.countAll().as("total")]),
+		);
 	return await dbQuery.selectFrom("inf_gender").execute();
 }

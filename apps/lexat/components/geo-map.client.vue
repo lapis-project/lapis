@@ -170,7 +170,7 @@ function init() {
 		PageSize: Size.A4,
 		PageOrientation: PageOrientation.Landscape,
 		Format: Format.JPEG,
-		DPI: DPI[96],
+		DPI: DPI[300],
 		Crosshair: false,
 		PrintableArea: false,
 		Filename: "kartierung",
@@ -223,24 +223,6 @@ function init() {
 	});
 	map.setLayoutProperty("outline", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
 
-	// bug: multiple labels on certain zoom levels https://github.com/mapbox/mapbox-gl-js/issues/5583#issuecomment-341840524
-	map.addLayer({
-		id: "polygon-labels",
-		type: "symbol",
-		source: sourcePolygonsId,
-		layout: {
-			"text-field": ["get", "name"],
-			"text-size": 16,
-			"text-anchor": "center",
-		},
-		paint: {
-			"text-color": "#000000",
-			"text-halo-color": "#FFFFFF",
-			"text-halo-width": 2,
-		},
-	});
-	map.setLayoutProperty("polygon-labels", "visibility", props.showRegionNames ? "visible" : "none");
-
 	map.addLayer({
 		id: "points",
 		type: "symbol",
@@ -276,6 +258,24 @@ function init() {
 			"symbol-sort-key": ["-", ["get", "answerCount"]],
 		},
 	});
+
+	// bug: multiple labels on certain zoom levels https://github.com/mapbox/mapbox-gl-js/issues/5583#issuecomment-341840524
+	map.addLayer({
+		id: "polygon-labels",
+		type: "symbol",
+		source: sourcePolygonsId,
+		layout: {
+			"text-field": ["get", "name"],
+			"text-size": 16,
+			"text-anchor": "center",
+		},
+		paint: {
+			"text-color": "#000000",
+			"text-halo-color": "#FFFFFF",
+			"text-halo-width": 2,
+		},
+	});
+	map.setLayoutProperty("polygon-labels", "visibility", props.showRegionNames ? "visible" : "none");
 
 	map.on("click", "points", (event) => {
 		emit(
@@ -481,5 +481,5 @@ provide(geoMapContextKey, context);
 </style>
 
 <style lang="css">
-@import url("@/assets/css/maplibre-gl-export.css");
+@import "@/assets/css/maplibre-gl-export.css";
 </style>

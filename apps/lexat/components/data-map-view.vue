@@ -19,6 +19,7 @@ import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojso
 import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import {
 	basemapOptions,
+	regions,
 	registerGroups,
 	registerOptions,
 	specialOrder,
@@ -43,6 +44,7 @@ import {
 import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
 
+const colorMode = useColorMode();
 const t = useTranslations();
 const router = useRouter();
 const route = useRoute();
@@ -808,7 +810,7 @@ watch(activeVariants, updateUrlParams, {
 										</InfoTooltip>
 									</label>
 								</div>
-								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+								<!-- <div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showRegionNames" v-model:checked="showRegionNames" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -816,7 +818,7 @@ watch(activeVariants, updateUrlParams, {
 									>
 										{{ t("MapsPage.selection.show-region-names") }}
 									</label>
-								</div>
+								</div> -->
 								<div class="flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showRegions" v-model:checked="showRegions" />
 									<label
@@ -898,11 +900,11 @@ watch(activeVariants, updateUrlParams, {
 		>
 			<div
 				v-if="filteredUniqueVariants.length"
-				id="legend"
+				id="variantLegend"
 				class="absolute bottom-12 right-0 z-10 mr-2"
 			>
 				<div
-					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"
+					class="rounded-md border border-input bg-background p-3 text-sm text-foreground shadow-md"
 				>
 					<ul class="space-y-0.5">
 						<li
@@ -916,7 +918,7 @@ watch(activeVariants, updateUrlParams, {
 									cy="6"
 									:fill="mappedColors[variant.anno]"
 									r="5"
-									stroke="black"
+									:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
 									stroke-align="inner"
 									stroke-width="1"
 								/>
@@ -931,28 +933,24 @@ watch(activeVariants, updateUrlParams, {
 					</ul>
 				</div>
 			</div>
-			<div v-if="features.length" id="regions" class="absolute bottom-2 left-28 z-10 mr-2">
+			<div v-if="features.length" id="regionLegend" class="absolute bottom-2 left-28 z-10 mr-2">
 				<div
-					class="rounded-md border-2 border-transparent bg-background px-2 py-1 text-sm text-foreground shadow-md"
+					class="rounded-md border border-input bg-background px-2 py-0.5 text-sm text-foreground shadow-md"
 				>
-					<ul class="space-x-2 flex">
-						<li
-							v-for="region in features"
-							:key="region.properties.id"
-							class="flex items-center gap-1"
-						>
+					<ul class="gap-3 flex">
+						<li v-for="region in regions" :key="region.id" class="flex items-center gap-1">
 							<svg class="inline align-baseline" height="12" width="12">
 								<circle
 									cx="6"
 									cy="6"
-									:fill="region.properties.color"
+									:fill="region.color"
 									r="5"
-									stroke="black"
+									:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
 									stroke-align="inner"
 									stroke-width="1"
 								/>
 							</svg>
-							<span class="italic">{{ region.properties.name }}</span>
+							<span class="italic">{{ region.name }}</span>
 						</li>
 					</ul>
 				</div>
@@ -972,7 +970,7 @@ watch(activeVariants, updateUrlParams, {
 				class="absolute bottom-12 left-0 z-10 ml-2"
 			>
 				<div
-					class="rounded-md border-2 border-transparent bg-background p-3 text-sm text-foreground shadow-md"
+					class="rounded-md border border-input bg-background p-3 text-sm text-foreground shadow-md"
 				>
 					<div class="mb-1 flex items-center gap-1">
 						<MapPinIcon class="size-4" /> {{ t("MapsPage.map.datapoints") }}:

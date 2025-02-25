@@ -8,6 +8,7 @@ import { verifyRequestOrigin } from "lucia";
 import { lucia } from "@/auth/auth";
 import { getUserById } from "@/db/authRepository";
 import auth from "@/handler/authHandler";
+import statistics from "@/handler/statHandler";
 import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
 
@@ -99,17 +100,9 @@ const app = new Hono<Context>()
 	.route("/cms", cms)
 	.route("/auth", auth)
 	.route("/user", user)
-	.route("/media", media);
+	.route("/media", media)
+	.route("/stat", statistics);
 
 export { app };
 
 export type AppType = typeof app;
-
-/*
- * TODO: rewrite the routes to use chained methods for each route => so the typechecker does work
- * - Properly export the api types and set an export for the api routes in package.json
- * - Check if the resulting types can be used in the frontend and if the types are correct
- * - Neue Registerbezeichnungen in das Importskript eintragen
- * - Neuen dump von der DB erstellen
- * - Generate d.ts mit tsup => generate declaration files um den Type mal genauer anzuschauen
- */

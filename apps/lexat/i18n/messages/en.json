@@ -199,9 +199,16 @@
 		"meta": {
 			"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century"
 		},
-		"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century",
-		"action": "Explore data",
+		"maps": {
+			"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century",
+			"action": "Visualize data"
+		},
+		"data": {
+			"title": "Project and research data",
+			"action": "Explore data"
+		},
 		"charts": {
+			"title": "Survey data evaluation",
 			"age-distribution": {
 				"label": "Age distribution"
 			},
@@ -213,6 +220,9 @@
 			"register-distribution": {
 				"label": "Distribution by register"
 			}
+		},
+		"cta": {
+			"action": "To the survey"
 		},
 		"counts": {
 			"locations": "Localities",

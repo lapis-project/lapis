@@ -199,9 +199,16 @@
 		"meta": {
 			"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert"
 		},
-		"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert",
-		"action": "Daten erkunden",
+		"maps": {
+			"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert",
+			"action": "Daten visualisieren"
+		},
+		"data": {
+			"title": "Projekt und Datenerhebung",
+			"action": "Daten erkunden"
+		},
 		"charts": {
+			"title": "Auswertung der Erhebungsdaten",
 			"age-distribution": {
 				"label": "Altersverteilung"
 			},
@@ -213,6 +220,9 @@
 			"register-distribution": {
 				"label": "Verteilung nach Register"
 			}
+		},
+		"cta": {
+			"action": "Jetzt mitmachen"
 		},
 		"counts": {
 			"locations": "Ortspunkte",

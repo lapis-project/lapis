@@ -83,7 +83,7 @@ const activeQuestion = ref<string | null>(null);
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
 const mapExpanded = ref<boolean>(false);
-const simplifiedView = ref<boolean>(true);
+const simplifiedView = ref<boolean>(false);
 const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
 const showStateCapitals = ref<boolean>(true);
@@ -554,7 +554,7 @@ const getQueryArray = (
 const updateUrlParams = async () => {
 	const queryObject: Record<string, string | Array<string>> = {};
 	Object.entries(route.query).forEach(([key, value]) => {
-		if (!["a", "q", "r", "v", "c"].includes(key)) {
+		if (!["a", "q", "r", "v", "c", "sv"].includes(key)) {
 			queryObject[key] = value;
 		}
 	});
@@ -571,11 +571,8 @@ const updateUrlParams = async () => {
 	if (activeVariants.value.length > 0) {
 		queryObject.v = activeVariants.value;
 	}
-	if (simplifiedView.value === false) {
-		queryObject.sv = simplifiedView.value.toString();
-	} else {
-		delete queryObject.sv;
-	}
+	queryObject.sv = simplifiedView.value.toString();
+
 	const colors = Object.values(changedColors.value);
 	if (colors.length > 0) {
 		queryObject.c = colors;
@@ -620,7 +617,7 @@ const initializeFromUrl = () => {
 	}
 	const simplifiedViewParam = route.query.sv;
 	if (typeof simplifiedViewParam === "string") {
-		simplifiedView.value = false;
+		simplifiedView.value = simplifiedViewParam === "false" ? false : true;
 	}
 
 	const colorParams = getQueryArray(route, "c");
@@ -966,7 +963,7 @@ watch(activeVariants, updateUrlParams, {
 			</div>
 			<div
 				v-if="filteredPoints?.length && numberOfInformants"
-				id="datapoints"
+				id="dataLegend"
 				class="absolute bottom-12 left-0 z-10 ml-2"
 			>
 				<div

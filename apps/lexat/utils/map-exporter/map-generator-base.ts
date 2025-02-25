@@ -230,41 +230,49 @@ export abstract class MapGeneratorBase {
 		// Render map
 		let renderMap = this.getRenderedMap(container, style);
 
-		this.addLegend(renderMap, includeLegend, "variant").then(() => {
-			renderMap.once("idle", () => {
-				this.addLegend(renderMap, includeLegend, "region").then(() => {
-					renderMap.once("idle", () => {
-						const isAttributionAdded = this.addAttributions(renderMap);
-						if (isAttributionAdded) {
-							renderMap.once("idle", () => {
-								renderMap = this.renderMapPost(renderMap);
-								const markers = this.getMarkers();
-								if (markers.length === 0) {
-									this.exportImage(renderMap, hidden, actualPixelRatio);
-								} else {
-									renderMap = this.renderMarkers(renderMap);
+		this.addLegend(renderMap, includeLegend, "variantLegend", "bottom-right-append", 40).then(
+			() => {
+				renderMap.once("idle", () => {
+					this.addLegend(renderMap, includeLegend, "regionLegend", "bottom-left", 8).then(() => {
+						renderMap.once("idle", () => {
+							this.addLegend(renderMap, includeLegend, "dataLegend", "bottom-left-append", 40).then(
+								() => {
 									renderMap.once("idle", () => {
-										this.exportImage(renderMap, hidden, actualPixelRatio);
-									});
-								}
-							});
-						} else {
-							renderMap = this.renderMapPost(renderMap);
-							const markers = this.getMarkers();
-							if (markers.length === 0) {
-								this.exportImage(renderMap, hidden, actualPixelRatio);
-							} else {
-								renderMap = this.renderMarkers(renderMap);
+										const isAttributionAdded = this.addAttributions(renderMap);
+										if (isAttributionAdded) {
+											renderMap.once("idle", () => {
+												renderMap = this.renderMapPost(renderMap);
+												const markers = this.getMarkers();
+												if (markers.length === 0) {
+													this.exportImage(renderMap, hidden, actualPixelRatio);
+												} else {
+													renderMap = this.renderMarkers(renderMap);
+													renderMap.once("idle", () => {
+														this.exportImage(renderMap, hidden, actualPixelRatio);
+													});
+												}
+											});
+										} else {
+											renderMap = this.renderMapPost(renderMap);
+											const markers = this.getMarkers();
+											if (markers.length === 0) {
+												this.exportImage(renderMap, hidden, actualPixelRatio);
+											} else {
+												renderMap = this.renderMarkers(renderMap);
 
-								renderMap.once("idle", () => {
-									this.exportImage(renderMap, hidden, actualPixelRatio);
-								});
-							}
-						}
+												renderMap.once("idle", () => {
+													this.exportImage(renderMap, hidden, actualPixelRatio);
+												});
+											}
+										}
+									});
+								},
+							);
+						});
 					});
 				});
-			});
-		});
+			},
+		);
 	}
 
 	private stripHtml(htmlString: string) {
@@ -295,7 +303,13 @@ export abstract class MapGeneratorBase {
 	 */
 	private getElementPosition(
 		renderMap: MaplibreMap,
-		position: "bottom-left" | "bottom-right-append" | "bottom-right" | "top-left" | "top-right",
+		position:
+			| "bottom-left"
+			| "bottom-right-append"
+			| "bottom-right"
+			| "top-left"
+			| "top-right"
+			| "bottom-left-append",
 		offset = 0,
 	) {
 		const containerDiv = renderMap.getContainer();
@@ -321,6 +335,10 @@ export abstract class MapGeneratorBase {
 				break;
 			case "bottom-right-append":
 				width = parseInt(containerDiv.style.width.replace("px", "")) - 8;
+				height = parseInt(containerDiv.style.height.replace("px", "")) - offset;
+				break;
+			case "bottom-left-append":
+				width = 8;
 				height = parseInt(containerDiv.style.height.replace("px", "")) - offset;
 				break;
 			default:
@@ -429,26 +447,26 @@ export abstract class MapGeneratorBase {
 	}
 
 	/**
-	 * Add HTMLElement with ID "legend" to map object
+	 * Add HTMLElement with ID "variantLegend" or "regionLegend" to map object
 	 * @param renderMap Map object
 	 * @returns void
 	 */
-	private addLegend(renderMap: MaplibreMap, includeLegend: boolean, mode: "variant" | "region") {
+	private addLegend(
+		renderMap: MaplibreMap,
+		includeLegend: boolean,
+		elementId: "variantLegend" | "regionLegend" | "dataLegend",
+		elementPosition: "bottom-left" | "bottom-right-append" | "bottom-left-append",
+		offset: number,
+	) {
 		if (!includeLegend) {
 			return Promise.resolve();
 		}
 
-		// Determine which element and settings to use based on mode
-		const elementId = mode === "variant" ? "variantLegend" : "regionLegend";
 		const legendElement = document.getElementById(elementId);
 		if (!legendElement) {
 			console.error(`Element with ID "${elementId}" not found`);
 			return Promise.resolve();
 		}
-
-		// Define position and offset based on mode
-		const elementPosition = mode === "variant" ? "bottom-right-append" : "bottom-left";
-		const offset = mode === "variant" ? 40 : 8;
 
 		// Capture the element with html2canvas
 		return new Promise<void>((resolve) => {
@@ -470,7 +488,7 @@ export abstract class MapGeneratorBase {
 					renderMap.addImage(imageName, image.data, { pixelRatio: 3 });
 
 					// Add a geojson source for the point
-					const sourceId = `${mode}-single-point`;
+					const sourceId = `${elementId}-single-point`;
 					renderMap.addSource(sourceId, {
 						type: "geojson",
 						data: {
@@ -487,15 +505,25 @@ export abstract class MapGeneratorBase {
 						},
 					});
 
+					let iconAnchor;
+					switch (elementPosition) {
+						case "bottom-right-append":
+							iconAnchor = "bottom-right";
+							break;
+						case "bottom-left":
+						case "bottom-left-append":
+							iconAnchor = "bottom-left";
+							break;
+					}
 					// Add a symbol layer to display the legend image
 					renderMap.addLayer({
-						id: `${mode}-legend-layer`,
+						id: `${elementId}-legend-layer`,
 						type: "symbol",
 						source: sourceId,
 						layout: {
 							"icon-image": imageName,
 							"icon-size": 1,
-							"icon-anchor": mode === "variant" ? "bottom-right" : "bottom-left",
+							"icon-anchor": iconAnchor,
 							"icon-allow-overlap": true,
 							"icon-ignore-placement": true,
 						},

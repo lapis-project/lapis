@@ -182,7 +182,7 @@ function init() {
 
 	// initiate image exporter https://maplibre-gl-export.water-gis.com/
 	const exportControl = new MaplibreExportControl({
-		PageSize: Size.A4,
+		PageSize: Size.WEB,
 		PageOrientation: PageOrientation.Landscape,
 		Format: Format.JPEG,
 		DPI: DPI[300],

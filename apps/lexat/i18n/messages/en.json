@@ -195,11 +195,45 @@
 		"title": "Something went wrong!",
 		"try-again": "Try again"
 	},
-	"IndexPage": {
+	"HomePage": {
 		"meta": {
-			"title": "Atlas on Lexis in Austria in the 21st century"
+			"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century"
 		},
-		"title": "Atlas on Lexis in Austria in the 21st century"
+		"maps": {
+			"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century",
+			"action": "Visualize data"
+		},
+		"data": {
+			"title": "Project and research data",
+			"action": "Explore data"
+		},
+		"charts": {
+			"title": "Survey data evaluation",
+			"age-distribution": {
+				"label": "Age distribution"
+			},
+			"gender-distribution": {
+				"label": "Gender distribution",
+				"male": "Male",
+				"female": "Female",
+				"diverse": "Non-binary"
+			},
+			"register-distribution": {
+				"label": "Distribution by register"
+			},
+			"survey-distribution": {
+				"label": "Survey round participants"
+			}
+		},
+		"cta": {
+			"action": "To the survey"
+		},
+		"counts": {
+			"locations": "Localities",
+			"participants": "Participants",
+			"phenomenons": "Phenomenons",
+			"survey-rounds": "Survey rounds"
+		}
 	},
 	"LocaleSwitcher": {
 		"current-locale": "Current language: {locale}",

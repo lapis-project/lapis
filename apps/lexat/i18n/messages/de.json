@@ -215,10 +215,14 @@
 			"gender-distribution": {
 				"label": "Geschlechterverteilung",
 				"male": "Männlich",
-				"female": "Weiblich"
+				"female": "Weiblich",
+				"diverse": "Divers"
 			},
 			"register-distribution": {
 				"label": "Verteilung nach Register"
+			},
+			"survey-distribution": {
+				"label": "Teilnehmer pro Fragebogenrunde"
 			}
 		},
 		"cta": {

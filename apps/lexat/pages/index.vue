@@ -9,11 +9,14 @@ import {
 	Title,
 	Tooltip,
 } from "chart.js";
+// import type { InferResponseType } from "hono/client";
 import { FileText, MapPinned, Microscope, Scroll, Telescope, UserRound } from "lucide-vue-next";
 import { Bar, Doughnut } from "vue-chartjs";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, ArcElement, CategoryScale, LinearScale);
 
+// const { apiClient } = useApiClient();
+// const env = useRuntimeConfig();
 const localePath = useLocalePath();
 const t = useTranslations();
 const currentLocale = useLocale();
@@ -21,6 +24,15 @@ const currentLocale = useLocale();
 usePageMetadata({
 	title: t("HomePage.meta.title"),
 });
+
+// const _getStartPageData = apiClient.home.$get;
+// type APIArticleDetail = InferResponseType<typeof _getStartPageData, 200>;
+
+// const { data } = await useFetch<APIArticleDetail>(`home`, {
+// 	baseURL: env.public.apiBaseUrl,
+// 	method: "GET",
+// 	credentials: "include",
+// });
 
 const ageData = {
 	labels: ["<30", "30-50", "50+"],
@@ -40,34 +52,86 @@ const genderData = {
 	labels: [
 		t("HomePage.charts.gender-distribution.male"),
 		t("HomePage.charts.gender-distribution.female"),
+		t("HomePage.charts.gender-distribution.diverse"),
 	],
 	datasets: [
 		{
 			label: t("HomePage.charts.gender-distribution.label"),
-			data: [14, 25],
-			backgroundColor: ["#bb8588", "#559cad"],
+			data: [48, 47, 5],
+			backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
 		},
 	],
 };
 
-const languageData = {
-	labels: ["Hochdeutsch", "Umgangssprache", "Dialekt"],
+// const languageData = {
+// 	labels: ["Hochdeutsch", "Umgangssprache", "Dialekt"],
+// 	datasets: [
+// 		{
+// 			label: t("HomePage.charts.register-distribution.label"),
+// 			data: [18, 22, 15],
+// 			backgroundColor: ["#bb8588", "#559cad", "#d8a48f"],
+// 		},
+// 	],
+// };
+
+const surveyData = {
+	labels: ["Runde #1", "Runde #2", "Runde #3"],
 	datasets: [
 		{
-			label: t("HomePage.charts.register-distribution.label"),
-			data: [18, 22, 15],
-			backgroundColor: ["#bb8588", "#559cad", "#d8a48f"],
+			label: t("HomePage.charts.survey-distribution.label"),
+			data: [1300, 1400, 1600],
+			backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
 		},
 	],
 };
 
-const chartOptions = {
+const barChartOptions = {
 	responsive: true,
 	maintainAspectRatio: false,
+	plugins: {
+		legend: {
+			labels: {
+				boxWidth: 0, // This hides the colored box
+				font: {
+					size: 14, // Adjust legend font size
+				},
+			},
+		},
+	},
+	scales: {
+		x: {
+			ticks: {
+				font: {
+					size: 14, // Adjust x-axis font size
+				},
+			},
+		},
+		y: {
+			ticks: {
+				font: {
+					size: 14, // Adjust y-axis font size
+				},
+			},
+		},
+	},
+};
+
+const donutChartOptions = {
+	responsive: true,
+	maintainAspectRatio: false,
+	plugins: {
+		legend: {
+			labels: {
+				font: {
+					size: 14, // Adjust legend font size
+				},
+			},
+		},
+	},
 };
 
 const counts = [
-	{ value: 65, icon: MapPinned, translation: "HomePage.counts.locations" },
+	{ value: 122, icon: MapPinned, translation: "HomePage.counts.locations" },
 	{ value: 1923, icon: UserRound, translation: "HomePage.counts.participants" },
 	{ value: 3, icon: FileText, translation: "HomePage.counts.survey-rounds" },
 	{ value: 56, icon: Microscope, translation: "HomePage.counts.phenomenons" },
@@ -76,7 +140,7 @@ const counts = [
 
 <template>
 	<MainContent class="container py-16">
-		<div class="mb-16 flex flex-col-reverse gap-10 lg:flex-row">
+		<div class="mb-16 flex flex-col-reverse gap-14 lg:flex-row">
 			<div class="article-content flex flex-col lg:w-2/6">
 				<h1 class="text-3xl font-semibold">{{ t("HomePage.maps.title") }}</h1>
 				<template v-if="currentLocale === 'de'">
@@ -128,7 +192,7 @@ const counts = [
 				/>
 			</div>
 		</div>
-		<div class="mb-16 border-b border-t py-16 flex gap-10">
+		<div class="mb-16 border-b border-t py-16 flex gap-14">
 			<div class="lg:w-4/6">
 				<img
 					alt="Beispielkarte des Projekts LexAT21"
@@ -152,7 +216,7 @@ const counts = [
 						Infrastruktur, einer momentan in Entstehung begriffenen Plattform zur Vernetzung von
 						Forschungsdaten und -ergebnissen zu Sprache(n) in Österreich. Datengrundlage für diese
 						Untersuchungen sind in der ersten Phase Online-Erhebungen in der Form von Fragebögen.
-						Den momentan laufenden Fragebogen zur Erhebungsrunde 2 finden Sie
+						Den momentan laufenden Fragebogen zur Erhebungsrunde 3 finden Sie
 						<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank"
 							>mit einem Klick hier</a
 						>
@@ -174,7 +238,7 @@ const counts = [
 						(Linguae Austriacae: Platform and Information System on Language(s) in Austria)
 						infrastructure currently being developed at the ACDH-CH. This platform aims to connect
 						research data and results on language(s) in Austria. The data basis for the first phase
-						of LexAT21 are online surveys. The current survey for survey round two can be found
+						of LexAT21 are online surveys. The current survey for survey round three can be found
 						<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank">here</a> (German
 						only).
 						<br />
@@ -183,7 +247,7 @@ const counts = [
 						'Browse data' tab.
 					</p>
 				</template>
-				<Button class="mt-6 self-center" @click="navigateTo(localePath('/maps'))"
+				<Button class="mt-6 self-center" @click="navigateTo(localePath('/db'))"
 					><Telescope class="mr-2 size-5" />{{ t("HomePage.data.action") }}</Button
 				>
 			</div>
@@ -191,15 +255,15 @@ const counts = [
 
 		<section class="mb-16 border-b pb-16 flex flex-col items-center">
 			<h1 class="text-2xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h1>
-			<div class="grid grid-cols-3 gap-6 py-6 lg:px-16 xl:px-24 mb-8">
+			<div class="grid grid-cols-3 gap-8 py-6 lg:px-16 xl:px-20 mb-8">
 				<div class="flex items-center justify-center">
-					<Bar class="h-64 w-full" :data="ageData" :options="chartOptions" />
+					<Bar class="h-64 w-full" :data="ageData" :options="barChartOptions" />
 				</div>
 				<div class="flex items-center justify-center">
-					<Doughnut class="h-64 w-full" :data="genderData" :options="chartOptions" />
+					<Doughnut class="h-64 w-full" :data="genderData" :options="donutChartOptions" />
 				</div>
 				<div class="flex items-center justify-center">
-					<Bar class="h-64 w-full" :data="languageData" :options="chartOptions" />
+					<Bar class="h-64 w-full" :data="surveyData" :options="barChartOptions" />
 				</div>
 			</div>
 

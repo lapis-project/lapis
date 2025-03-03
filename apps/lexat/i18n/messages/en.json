@@ -215,10 +215,14 @@
 			"gender-distribution": {
 				"label": "Gender distribution",
 				"male": "Male",
-				"female": "Female"
+				"female": "Female",
+				"diverse": "Non-binary"
 			},
 			"register-distribution": {
 				"label": "Distribution by register"
+			},
+			"survey-distribution": {
+				"label": "Survey round participants"
 			}
 		},
 		"cta": {

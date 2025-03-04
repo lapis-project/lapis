@@ -90,6 +90,7 @@ const showStateCapitals = ref<boolean>(true);
 const showUrbanLocations = ref<boolean>(true);
 const showAdvancedFilters = ref<boolean>(false);
 const showVariantPercentages = ref<boolean>(true);
+const highlightedRegion = ref<string>("");
 
 const activeQuestionId = computed(() => {
 	return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
@@ -706,6 +707,10 @@ watch(
 watch(activeVariants, updateUrlParams, {
 	deep: true,
 });
+
+const highlightRegion = (regionName: string) => {
+	highlightedRegion.value = regionName;
+};
 </script>
 
 <template>
@@ -935,7 +940,17 @@ watch(activeVariants, updateUrlParams, {
 					class="rounded-md border border-input bg-background px-2 py-0.5 text-sm text-foreground shadow-md"
 				>
 					<ul class="gap-3 flex">
-						<li v-for="region in regions" :key="region.id" class="flex items-center gap-1">
+						<li
+							v-for="region in regions"
+							:key="region.id"
+							class="flex items-center gap-1 cursor-default hover:underline"
+							role="button"
+							tabindex="0"
+							@blur="highlightRegion('')"
+							@focus="highlightRegion(region.name)"
+							@mouseout="highlightRegion('')"
+							@mouseover="highlightRegion(region.name)"
+						>
 							<svg class="inline align-baseline" height="12" width="12">
 								<circle
 									cx="6"
@@ -986,6 +1001,7 @@ watch(activeVariants, updateUrlParams, {
 				:features="features"
 				:geo-outline="geoOutline"
 				:height="height"
+				:highlighted-region="highlightedRegion"
 				:locations="dataPoints"
 				:show-region-names="showRegionNames"
 				:show-regions="showRegions"

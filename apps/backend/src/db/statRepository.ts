@@ -99,6 +99,20 @@ export async function getAllStatData(project_id: number) {
 				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")])
 				.where("project_survey.project_id", "=", project_id)
 				.groupBy("survey_conducted.survey_id"),
+		)
+		.with("survey_conducted_query", (query) =>
+			query
+				.selectFrom("informant")
+				.innerJoin("survey_conducted", "informant.survey_id", "survey_conducted.id")
+				.innerJoin("survey", "survey_conducted.survey_id", "survey.id")
+				.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
+				.where("project_survey.project_id", "=", project_id)
+				.select(({ eb }) => [
+					eb.val("query").as("type"),
+					eb.ref("informant.survey_id").as("survey"),
+					eb.fn.countAll().as("total"),
+				])
+				.groupBy("informant.survey_id"),
 		);
 
 	const unionQuery = dbQuery
@@ -109,6 +123,7 @@ export async function getAllStatData(project_id: number) {
 		.innerJoin("phen_count", "phen_count.type", "gender_count.inftype")
 		.innerJoin("inf_count", "inf_count.type", "gender_count.inftype")
 		.innerJoin("survey_count", "survey_count.type", "gender_count.inftype")
+		.innerJoin("survey_conducted_query", "survey_conducted_query.type", "gender_count.inftype")
 		.select(({ eb }) => [
 			eb.fn
 				.jsonAgg(
@@ -153,8 +168,17 @@ export async function getAllStatData(project_id: number) {
 						total: eb.ref("survey_count.total"),
 					}),
 				)
-				.filterWhere("gender_count.type", "is not", null)
+				.filterWhere("survey_count.type", "is not", null)
 				.as("survey"),
+			eb.fn
+				.jsonAgg(
+					jsonbBuildObject({
+						total: eb.ref("survey_conducted_query.total"),
+						round: eb.ref("survey_conducted_query.survey"),
+					}),
+				)
+				.filterWhere("survey_conducted_query.type", "is not", null)
+				.as("survey_conducted"),
 		]);
 	return await unionQuery.execute();
 }

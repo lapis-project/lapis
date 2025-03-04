@@ -44,7 +44,14 @@ const questions = new Hono<Context>()
 		if (!projectId) {
 			return c.json("Project Id is required", 400);
 		}
+
 		const allQuestions = await getAllPhenomenon(projectId);
+
+		for (const question of allQuestions) {
+			if (question.post_alias) {
+				question.post_alias = `https://lexat.acdh-ch-dev.oeaw.ac.at/de/articles/${question.post_alias}`;
+			}
+		}
 		return c.json(allQuestions, 200);
 	})
 	.get("/", async (c) => {

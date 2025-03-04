@@ -11,9 +11,16 @@ export async function getAllPhenomenon(projectId: string) {
 	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
 		return await db
 			.selectFrom("phenomenon")
+			.leftJoin("phenomenon_post", "phenomenon.id", "phenomenon_post.phenomenon_id")
+			.leftJoin("post", "phenomenon_post.post_id", "post.id")
 			.orderBy("phenomenon.phenomenon_name")
 			.distinct()
-			.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon.description"])
+			.select([
+				"phenomenon.id",
+				"phenomenon.phenomenon_name",
+				"phenomenon.description",
+				"post.alias as post_alias",
+			])
 			.execute();
 	}
 	return await db
@@ -21,10 +28,17 @@ export async function getAllPhenomenon(projectId: string) {
 		.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
 		.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
 		.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
+		.leftJoin("phenomenon_post", "phenomenon.id", "phenomenon_post.phenomenon_id")
+		.leftJoin("post", "phenomenon_post.post_id", "post.id")
 		.where("project_tagset.project_id", "=", projectIdParsed)
 		.orderBy("phenomenon.phenomenon_name")
 		.distinct()
-		.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon.description"])
+		.select([
+			"phenomenon.id",
+			"phenomenon.phenomenon_name",
+			"phenomenon.description",
+			"post.alias as post_alias",
+		])
 		.execute();
 }
 

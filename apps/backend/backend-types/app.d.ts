@@ -650,6 +650,7 @@ declare const app: hono_hono_base.HonoBase<
 									id: number;
 									description: string | null;
 									phenomenon_name: string | null;
+									post_alias: string | null;
 								}>;
 								outputFormat: "json";
 								status: 200;
@@ -3102,6 +3103,53 @@ declare const app: hono_hono_base.HonoBase<
 			"/user"
 	  >
 	| hono_types.MergeSchemaPath<hono_types.BlankSchema, "/media">
+	| hono_types.MergeSchemaPath<
+			{
+				"/": {
+					$get: {
+						input: {};
+						output: {
+							gender?:
+								| Array<{
+										gender: string | null;
+										total: string | number;
+								  }>
+								| undefined;
+							place?:
+								| Array<{
+										total: string | number;
+								  }>
+								| undefined;
+							phen?:
+								| Array<{
+										total: string | number;
+								  }>
+								| undefined;
+							inf?:
+								| Array<{
+										total: string | number;
+								  }>
+								| undefined;
+							survey?:
+								| Array<{
+										total: string | number;
+								  }>
+								| undefined;
+							survey_conducted?:
+								| Array<{
+										total: string | number;
+										round: number | null;
+								  }>
+								| undefined;
+							age: Record<`bucket_${string}_${string}`, string | number> | undefined;
+						};
+						outputFormat: "json";
+						status: 200;
+					};
+				};
+			},
+			"/stat"
+	  >
 >;
 
 type AppType = typeof app;

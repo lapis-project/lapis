@@ -114,31 +114,37 @@ export const regions = [
 	{
 		id: "1740056528195",
 		name: "Alemannisch",
-		color: "#212529",
+		// color: "#070808",
+		color: "#6A6B6B", // OPACITY 0.6
 	},
 	{
 		id: "1740056528195",
 		name: "Bairisch-Alemannisch",
-		color: "#495057",
+		// color: "#495057",
+		color: "#92969A", // OPACITY 0.6
 	},
 	{
 		id: "1740056528195",
 		name: "Südbairisch",
-		color: "#6c757d",
+		// color: "#6c757d",
+		color: "#A7ACB1", // OPACITY 0.6
 	},
 	{
 		id: "1740056528195",
 		name: "Südmittelbairisch",
-		color: "#adb5bd",
+		// color: "#adb5bd",
+		color: "#CED3D7", // OPACITY 0.6
 	},
 	{
 		id: "1740056528195",
 		name: "Westmittelbairisch",
-		color: "#ced4da",
+		// color: "#ced4da",
+		color: "#E2E5E9", // OPACITY 0.6
 	},
 	{
 		id: "1740056528195",
 		name: "Ostmittelbairisch",
-		color: "#dee2e6",
+		// color: "#dee2e6",
+		color: "#EBEEF0", // OPACITY 0.6
 	},
 ];

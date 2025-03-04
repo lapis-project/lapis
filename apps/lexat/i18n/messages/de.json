@@ -41,7 +41,7 @@
 				"placeholder": "Eintrag"
 			},
 			"category": {
-				"label": "Kategorie",
+				"label": "Artikelkategorie",
 				"placeholder": "Kategorie",
 				"commentary": "Kartenkommentar",
 				"methodology": "Methodenbeschreibung",
@@ -120,7 +120,7 @@
 		"filters": {
 			"apply": "Anwenden",
 			"label": "Suche verfeinern",
-			"category": "Kategorie",
+			"category": "Artikelkategorie",
 			"reset": "Zurücksetzen",
 			"search": {
 				"label": "Suche",
@@ -230,7 +230,7 @@
 		},
 		"counts": {
 			"locations": "Ortspunkte",
-			"participants": "Teilnehmende",
+			"participants": "Ausgefüllte Fragebögen",
 			"phenomenons": "Phänomene",
 			"survey-rounds": "Fragebogenrunden"
 		}

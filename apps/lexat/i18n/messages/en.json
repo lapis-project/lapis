@@ -41,7 +41,7 @@
 				"placeholder": "entry"
 			},
 			"category": {
-				"label": "Category",
+				"label": "Article category",
 				"placeholder": "category",
 				"commentary": "Card commentary",
 				"methodology": "Method description",
@@ -120,7 +120,7 @@
 		"filters": {
 			"apply": "Apply",
 			"label": "Refine results",
-			"category": "Category",
+			"category": "Article category",
 			"reset": "Reset",
 			"search": {
 				"label": "Search",
@@ -230,7 +230,7 @@
 		},
 		"counts": {
 			"locations": "Localities",
-			"participants": "Participants",
+			"participants": "Finished questionnaires",
 			"phenomenons": "Phenomenons",
 			"survey-rounds": "Survey rounds"
 		}

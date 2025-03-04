@@ -9,14 +9,14 @@ import {
 	Title,
 	Tooltip,
 } from "chart.js";
-// import type { InferResponseType } from "hono/client";
+import type { InferResponseType } from "hono/client";
 import { FileText, MapPinned, Microscope, Scroll, Telescope, UserRound } from "lucide-vue-next";
 import { Bar, Doughnut } from "vue-chartjs";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, ArcElement, CategoryScale, LinearScale);
 
-// const { apiClient } = useApiClient();
-// const env = useRuntimeConfig();
+const { apiClient } = useApiClient();
+const env = useRuntimeConfig();
 const localePath = useLocalePath();
 const t = useTranslations();
 const currentLocale = useLocale();
@@ -25,65 +25,72 @@ usePageMetadata({
 	title: t("HomePage.meta.title"),
 });
 
-// const _getStartPageData = apiClient.home.$get;
-// type APIArticleDetail = InferResponseType<typeof _getStartPageData, 200>;
+const _getStartPageData = apiClient.stat.$get;
+type APIStartPageData = InferResponseType<typeof _getStartPageData, 200>;
 
-// const { data } = await useFetch<APIArticleDetail>(`home`, {
-// 	baseURL: env.public.apiBaseUrl,
-// 	method: "GET",
-// 	credentials: "include",
-// });
+const { data: startPageData } = await useFetch<APIStartPageData>(`stat`, {
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+	credentials: "include",
+});
 
-const ageData = {
-	labels: ["<30", "30-50", "50+"],
-	datasets: [
-		{
-			label: t("HomePage.charts.age-distribution.label"),
-			data: [12, 19, 8],
-			// backgroundColor: ["#ef4444", "#6366f1", "#ec4899"],
-			// backgroundColor: ["#8580ff", "#ff8080", "#ca80ff"], // sexy
-			// COLOR PALETTE '#d6ce93', '#efebce', '#bb8588', '#559cad', '#d8a48f' https://coolors.co/visualizer/d6ce93-efebce-bb8588-559cad-d8a48f
-			backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
-		},
-	],
-};
+const ageData = computed(() => {
+	return {
+		// LOWER AND UPPER BUCKET BOUNDARY ARE INCLUSIVE
+		labels: ["≤30", "30-50", "51+"],
+		datasets: [
+			{
+				label: t("HomePage.charts.age-distribution.label"),
+				data: [
+					startPageData.value?.age?.bucket_0_30 ?? 0,
+					startPageData.value?.age?.bucket_30_50 ?? 0,
+					startPageData.value?.age?.bucket_50_100 ?? 0,
+				],
+				// backgroundColor: ["#8580ff", "#ff8080", "#ca80ff"], // sexy
+				// COLOR PALETTE '#d6ce93', '#efebce', '#bb8588', '#559cad', '#d8a48f' https://coolors.co/visualizer/d6ce93-efebce-bb8588-559cad-d8a48f
+				backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
+			},
+		],
+	};
+});
 
-const genderData = {
-	labels: [
-		t("HomePage.charts.gender-distribution.male"),
-		t("HomePage.charts.gender-distribution.female"),
-		t("HomePage.charts.gender-distribution.diverse"),
-	],
-	datasets: [
-		{
-			label: t("HomePage.charts.gender-distribution.label"),
-			data: [48, 47, 5],
-			backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
-		},
-	],
-};
+const genderData = computed(() => {
+	return {
+		labels: [
+			t("HomePage.charts.gender-distribution.male"),
+			t("HomePage.charts.gender-distribution.female"),
+			t("HomePage.charts.gender-distribution.diverse"),
+		],
+		datasets: [
+			{
+				label: t("HomePage.charts.gender-distribution.label"),
+				data: [
+					startPageData.value?.gender?.find((g) => g.gender === "männlich")?.total ?? 0,
+					startPageData.value?.gender?.find((g) => g.gender === "weiblich")?.total ?? 0,
+					startPageData.value?.gender?.find((g) => g.gender === "divers")?.total ?? 0,
+				],
+				backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
+			},
+		],
+	};
+});
 
-// const languageData = {
-// 	labels: ["Hochdeutsch", "Umgangssprache", "Dialekt"],
-// 	datasets: [
-// 		{
-// 			label: t("HomePage.charts.register-distribution.label"),
-// 			data: [18, 22, 15],
-// 			backgroundColor: ["#bb8588", "#559cad", "#d8a48f"],
-// 		},
-// 	],
-// };
-
-const surveyData = {
-	labels: ["Runde #1", "Runde #2", "Runde #3"],
-	datasets: [
-		{
-			label: t("HomePage.charts.survey-distribution.label"),
-			data: [1300, 1400, 1600],
-			backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
-		},
-	],
-};
+const surveyData = computed(() => {
+	return {
+		labels: ["Runde #1", "Runde #2", "Runde #3"],
+		datasets: [
+			{
+				label: t("HomePage.charts.survey-distribution.label"),
+				data: [
+					startPageData.value?.survey_conducted?.[0]?.total,
+					startPageData.value?.survey_conducted?.[1]?.total,
+					startPageData.value?.survey_conducted?.[2]?.total,
+				],
+				backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
+			},
+		],
+	};
+});
 
 const barChartOptions = {
 	responsive: true,
@@ -131,10 +138,26 @@ const donutChartOptions = {
 };
 
 const counts = [
-	{ value: 122, icon: MapPinned, translation: "HomePage.counts.locations" },
-	{ value: 1923, icon: UserRound, translation: "HomePage.counts.participants" },
-	{ value: 3, icon: FileText, translation: "HomePage.counts.survey-rounds" },
-	{ value: 56, icon: Microscope, translation: "HomePage.counts.phenomenons" },
+	{
+		value: startPageData.value?.place?.[0]?.total ?? 0,
+		icon: MapPinned,
+		translation: "HomePage.counts.locations",
+	},
+	{
+		value: startPageData.value?.inf?.[0]?.total ?? 0,
+		icon: UserRound,
+		translation: "HomePage.counts.participants",
+	},
+	{
+		value: startPageData.value?.survey?.[0]?.total ?? 0,
+		icon: FileText,
+		translation: "HomePage.counts.survey-rounds",
+	},
+	{
+		value: startPageData.value?.phen?.[0]?.total ?? 0,
+		icon: Microscope,
+		translation: "HomePage.counts.phenomenons",
+	},
 ];
 </script>
 

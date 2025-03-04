@@ -5,10 +5,10 @@ const t = useTranslations();
 
 const links = computed(() => {
 	return {
+		about: { to: { path: "/about" }, label: t("AppHeader.links.about") },
 		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
 		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
 		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
-		about: { to: { path: "/about" }, label: t("AppHeader.links.about") },
 	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
 });
 </script>

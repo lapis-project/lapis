@@ -30,6 +30,7 @@ const props = defineProps<{
 	showRegions: boolean;
 	basemap: string;
 	capitalsOnly: boolean;
+	highlightedRegion: string;
 }>();
 
 const emit = defineEmits<{
@@ -224,6 +225,18 @@ function init() {
 		},
 	});
 	map.setLayoutProperty("polygons", "visibility", props.showRegions ? "visible" : "none"); // has to be set once before being toggle-able
+
+	map.addLayer({
+		id: "polygons-highlight",
+		type: "fill",
+		source: sourcePolygonsId,
+		filter: ["==", "name", ""], // initially show nothing
+		paint: {
+			"fill-color": "#d36e70",
+			"fill-opacity": 0.4,
+			"fill-outline-color": "#b74a4c",
+		},
+	});
 
 	// Umrandung Österreich
 	map.addLayer({
@@ -470,6 +483,17 @@ watch(
 	() => {
 		toggleLayer("polygons");
 		toggleLayer("outline");
+	},
+);
+
+watch(
+	() => {
+		return props.highlightedRegion;
+	},
+	(newVal: string) => {
+		assert(context.map != null);
+		const map = context.map;
+		map.setFilter("polygons-highlight", ["==", "name", newVal]);
 	},
 );
 

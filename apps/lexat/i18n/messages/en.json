@@ -178,6 +178,12 @@
 	"DataTable": {
 		"download": "Download as CSV"
 	},
+	"DbPage": {
+		"meta": {
+			"title": "Browse data"
+		},
+		"title": "Browse data"
+	},
 	"DefaultLayout": {
 		"meta": {
 			"description": "ACDH-CH App",

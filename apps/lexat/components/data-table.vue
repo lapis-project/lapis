@@ -117,7 +117,7 @@ watch(
 					class="sticky top-0 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
 				>
 					<tr>
-						<th v-for="column in columns" :key="column.value" scope="col" class="w-1/4 px-6 py-3">
+						<th v-for="column in columns" :key="column.value" class="w-1/4 px-6 py-3" scope="col">
 							<button
 								class="inline-flex cursor-pointer items-center gap-1 py-2"
 								@click="setSortCriterion(column.value)"
@@ -153,7 +153,7 @@ watch(
 					class="sticky bottom-0 bg-gray-50 text-xs font-bold uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
 				>
 					<tr>
-						<td v-for="column in columns" :key="column.footer" scope="col" class="w-1/4 px-6 py-3">
+						<td v-for="column in columns" :key="column.footer" class="w-1/4 px-6 py-3" scope="col">
 							<template v-if="column.footer">{{ column.footer }}</template>
 							<template v-else-if="column.sum">{{ totalCount(column.value) }}</template>
 						</td>

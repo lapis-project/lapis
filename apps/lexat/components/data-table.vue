@@ -97,6 +97,17 @@ const downloadCSV = () => {
 	URL.revokeObjectURL(url);
 };
 
+// Yes, we have to do this explicitly so that tailwind picks up the full class names
+const columnWidth = computed(() => {
+	switch (props.columns.length) {
+		case 6:
+			return "w-1/6";
+		default:
+		case 4:
+			return "w-1/4";
+	}
+});
+
 watch(
 	() => {
 		return props.data;
@@ -117,7 +128,13 @@ watch(
 					class="sticky top-0 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
 				>
 					<tr>
-						<th v-for="column in columns" :key="column.value" class="w-1/4 px-6 py-3" scope="col">
+						<th
+							v-for="column in columns"
+							:key="column.value"
+							:class="columnWidth"
+							class="px-6 py-3"
+							scope="col"
+						>
 							<button
 								class="inline-flex cursor-pointer items-center gap-1 py-2"
 								@click="setSortCriterion(column.value)"
@@ -144,7 +161,12 @@ watch(
 						:key="JSON.stringify(row)"
 						class="border-b bg-white dark:border-gray-700 dark:bg-gray-800"
 					>
-						<td v-for="value in Object.values(row)" :key="value" class="w-1/4 px-6 py-4">
+						<td
+							v-for="value in Object.values(row)"
+							:key="value"
+							:class="columnWidth"
+							class="px-6 py-4"
+						>
 							{{ value }}
 						</td>
 					</tr>
@@ -153,7 +175,13 @@ watch(
 					class="sticky bottom-0 bg-gray-50 text-xs font-bold uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
 				>
 					<tr>
-						<td v-for="column in columns" :key="column.footer" class="w-1/4 px-6 py-3" scope="col">
+						<td
+							v-for="column in columns"
+							:key="column.footer"
+							:class="columnWidth"
+							class="px-6 py-3"
+							scope="col"
+						>
 							<template v-if="column.footer">{{ column.footer }}</template>
 							<template v-else-if="column.sum">{{ totalCount(column.value) }}</template>
 						</td>

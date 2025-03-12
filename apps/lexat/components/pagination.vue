@@ -31,6 +31,7 @@ const onUpdatePage = (newPage: number) => {
 <template>
 	<Pagination
 		v-slot="{ page }"
+		v-model:page="props.currentPage"
 		:default-page="1"
 		:items-per-page="itemsPerPage"
 		show-edges

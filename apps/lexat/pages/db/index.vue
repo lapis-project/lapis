@@ -29,7 +29,7 @@ const mappedQuestions = computed(() => {
 	return (
 		questions.value?.map((q) => ({
 			id: q.id,
-			value: q.phenomenon_name,
+			value: q.id.toString(),
 			label: q.phenomenon_name,
 		})) ?? []
 	);
@@ -62,13 +62,14 @@ const activeRegistersQuery = computed(() => {
 // });
 
 const activeAgeGroup = ref([10, 100]);
-const activeQuestion = ref<string | null>("AUGENLID");
-const activeQuestionId = ref<number | null>(11);
+const activeQuestion = ref<string>("11");
 const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
+
+const activeQuestionId = computed(() => parseInt(activeQuestion.value));
 
 const currentPage = ref(1);
 
@@ -172,7 +173,6 @@ watch(
 		activeRegisters.value = ["all"];
 		activeAgeGroup.value = [10, 100];
 		activeVariants.value = [];
-		activeQuestionId.value = mappedQuestions.value?.find((q) => q.value === newVal)?.id ?? 11;
 	},
 	{ immediate: true },
 );

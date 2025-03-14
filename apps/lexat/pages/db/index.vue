@@ -22,6 +22,7 @@ type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;
 const { data: questions } = await useFetch<APIPhenomenons>("/questions/survey/1", {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
+	credentials: "include",
 });
 
 const mappedQuestions = computed(() => {
@@ -83,6 +84,7 @@ const { data: annotations } = await useFetch<APIAnnotation>("/questions/annotati
 	},
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
+	credentials: "include",
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
@@ -135,6 +137,7 @@ const { data: tableDataRaw } = await useFetch<APITableData>(
 		},
 		baseURL: env.public.apiBaseUrl,
 		method: "get",
+		credentials: "include",
 	},
 );
 

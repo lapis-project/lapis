@@ -178,6 +178,12 @@
 	"DataTable": {
 		"download": "Als CSV herunterladen"
 	},
+	"DbPage": {
+		"meta": {
+			"title": "Belegdatenbank"
+		},
+		"title": "Belegdatenbank"
+	},
 	"DefaultLayout": {
 		"meta": {
 			"description": "ACDH-CH App",

@@ -23,7 +23,7 @@ export interface Props<T = string> {
 	options: Array<DropdownOption<T>>;
 	placeholder?: string;
 	hasSearch?: boolean;
-	width?: "w-44" | "w-60" | "w-64" | "w-80";
+	width?: "w-24" | "w-44" | "w-60" | "w-64" | "w-80";
 	selectOnly?: boolean;
 }
 

@@ -1,3 +1,277 @@
+<script lang="ts" setup>
+import { refDebounced } from "@vueuse/core";
+import type { InferResponseType } from "hono/client";
+
+import { InfoIcon } from "lucide-vue-next";
+
+import type { TableColumn } from "@/components/data-table.vue";
+import type { DropdownOption } from "@/types/dropdown-option";
+
+import { registerOptions, specialOrder } from "@/assets/data/static-filter-data";
+
+const t = useTranslations();
+const env = useRuntimeConfig();
+const { apiClient } = useApiClient();
+
+usePageMetadata({
+	title: t("DbPage.meta.title"),
+});
+
+const _getPhenomenons = apiClient.questions.survey[":project"].$get;
+type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;
+const { data: questions } = await useFetch<APIPhenomenons>("/questions/survey/1", {
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+});
+
+const mappedQuestions = computed(() => {
+	return (
+		questions.value?.map((q) => ({
+			id: q.id,
+			value: q.phenomenon_name,
+			label: q.phenomenon_name,
+		})) ?? null
+	);
+});
+
+const activeRegistersQuery = computed(() => {
+	if (activeRegisters.value.includes("all")) {
+		return null;
+	} else {
+		return activeRegisters.value.map((r) => Number(r));
+	}
+});
+
+// TODO MAYBE RETHINK ENDPOINT, THE CURRENT MAPPING IS KINDA EXCESSIVE
+// const _getVarieties = apiClient.questions.variety.$get;
+// type APIVarieties = InferResponseType<typeof _getVarieties, 200>;
+// const { data: varieties } = await useFetch<APIVarieties>("/questions/variety", {
+// 	baseURL: env.public.apiBaseUrl,
+// 	method: "GET",
+// });
+
+// const mappedVarieties = computed(() => {
+// 	return (
+// 		varieties.value?.map((q) => ({
+// 			id: q.variety_entry.id,
+// 			value: q.variety_entry.,
+// 			label: q.phenomenon_name,
+// 		})) ?? null
+// 	);
+// });
+
+const activeAgeGroup = ref([10, 100]);
+const activeQuestion = ref<string | null>("AUGENLID");
+const activeQuestionQuery = ref<string | null>("AUGENLID");
+const activePageSizeQuery = ref<number>(100);
+const activePageSize = ref<string>("100");
+const activeRegisters = ref<Array<string>>(["all"]);
+const activeVariants = ref<Array<string>>([]);
+const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
+
+const activeQuestionId = computed(() => {
+	return mappedQuestions.value?.find((q) => q.value === activeQuestionQuery.value)?.id;
+});
+
+const currentPage = ref(1);
+
+const _getAnnotations = apiClient.questions.annotation[":project"].$get;
+type APIAnnotation = InferResponseType<typeof _getAnnotations, 200>;
+const { data: annotations } = await useFetch<APIAnnotation>("/questions/annotation/1", {
+	query: {
+		phenomenon: activeQuestionId,
+	},
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+});
+
+const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
+	return (
+		annotations.value
+			?.map((variant) => ({
+				label: variant.annotation_name,
+				value: variant.annotation_name,
+				level: 1,
+				group: variant.annotation_name?.toLocaleLowerCase(),
+			}))
+			.sort((a, b) => {
+				// extract priority values from the specialOrder object or default to 0
+				const priorityA = specialOrder[a.label] ?? 0;
+				const priorityB = specialOrder[b.label] ?? 0;
+
+				// sort by priority, with lower values appearing later
+				return priorityB - priorityA;
+			}) ?? []
+	);
+});
+
+const pageSizeOption: Array<DropdownOption> = [
+	{ id: 1, value: "100", label: "100" },
+	{ id: 2, value: "250", label: "250" },
+	{ id: 3, value: "500", label: "500" },
+	{ id: 4, value: "1000", label: "1000" },
+];
+
+const lowerAge = computed(() => {
+	return debouncedActiveAgeGroup.value[0];
+});
+
+const upperAge = computed(() => {
+	return debouncedActiveAgeGroup.value[1];
+});
+
+const _getTableData = apiClient.questions.table[":id"].$get;
+type APITableData = InferResponseType<typeof _getTableData, 200>;
+const { data: tableDataRaw } = await useFetch<APITableData>(
+	() => `/questions/table/${activeQuestionId.value}`,
+	{
+		query: {
+			page: currentPage,
+			pageSize: activePageSizeQuery,
+			varIds: activeRegistersQuery,
+			annotations: activeVariants,
+			lowerAge,
+			upperAge,
+		},
+		baseURL: env.public.apiBaseUrl,
+		method: "get",
+	},
+);
+
+const columns = ref<Array<TableColumn>>([
+	{ label: "Informant", value: "informant", sortable: true },
+	{ label: "Response", value: "response", sortable: false },
+	{ label: "Annotation", value: "annotation", sortable: true },
+	// { label: "Phänomen", value: "phenomenon", sortable: true },
+	{ label: "Register", value: "variety", sortable: true },
+	{ label: "Ort", value: "place", sortable: true },
+	{ label: "Alter", value: "age", sortable: true },
+]);
+
+const tableData = computed(() => {
+	return tableDataRaw.value?.responses;
+});
+
+const totalPages = computed(() => {
+	return tableDataRaw.value?.totalResults
+		? Math.ceil(tableDataRaw.value.totalResults / activePageSizeQuery.value)
+		: 0;
+});
+
+const setCurrentPage = (newValue: number) => {
+	currentPage.value = newValue;
+};
+
+const setAgeGroup = (newValues: Array<number>) => {
+	activeAgeGroup.value = newValues;
+};
+
+watch(
+	activeQuestion,
+	async (newVal) => {
+		activeRegisters.value = ["all"];
+		activeAgeGroup.value = [10, 100];
+		activeVariants.value = [];
+		activeQuestionQuery.value = newVal;
+	},
+	{ immediate: true },
+);
+
+watch(
+	activePageSize,
+	(newVal, oldVal) => {
+		if (newVal !== oldVal) {
+			setCurrentPage(1);
+			activePageSizeQuery.value = parseInt(newVal);
+		}
+	},
+	{ immediate: true },
+);
+</script>
+
 <template>
-	<MainContent class="container grid content-start gap-y-8 py-8"> DB </MainContent>
+	<MainContent class="container grid content-start py-8">
+		<section class="grow rounded-lg border p-5 mb-4">
+			<div class="grid grid-cols-4 gap-5">
+				<div>
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.variable.title") }}
+						<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</InfoTooltip>
+					</div>
+					<Combobox
+						v-if="mappedQuestions?.length"
+						v-model="activeQuestion"
+						has-search
+						:options="mappedQuestions"
+						:placeholder="t('MapsPage.selection.variable.placeholder')"
+					/>
+				</div>
+				<div>
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.register.title") }}
+						<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</InfoTooltip>
+					</div>
+					<MultiSelect
+						v-model="activeRegisters"
+						:options="registerOptions"
+						:placeholder="t('MapsPage.selection.register.placeholder')"
+					/>
+				</div>
+				<div>
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.variants.title") }}
+						<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</InfoTooltip>
+					</div>
+					<MultiSelect
+						v-model="activeVariants"
+						:options="uniqueVariantsOptions"
+						:placeholder="t('MapsPage.selection.variants.placeholder')"
+						single-level
+					/>
+				</div>
+				<div>
+					<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.age.title") }}
+					</div>
+					<div class="max-w-64 pl-1">
+						<DualRangeSlider
+							accessibility-label="Age Group"
+							:label="(value) => value"
+							:max="100"
+							:min="10"
+							step="5"
+							:value="activeAgeGroup"
+							@update:value="setAgeGroup"
+						/>
+					</div>
+				</div>
+			</div>
+		</section>
+		<section class="flex justify-between items-center mb-3">
+			<div class="text-2xl font-semibold">{{ tableDataRaw?.totalResults ?? 0 }} Ergebnisse</div>
+			<div class="flex items-center gap-2">
+				<Label for="rows-per-page">Einträge pro Seite:</Label>
+				<Combobox
+					id="rows-per-page"
+					width="w-24"
+					v-model="activePageSize"
+					:options="pageSizeOption"
+					:placeholder="t('AdminPage.editor.category.placeholder')"
+				/>
+			</div>
+		</section>
+		<DataTable :columns="columns" :data="tableData"></DataTable>
+		<Pagination
+			:current-page="currentPage"
+			:items-per-page="activePageSizeQuery"
+			:total-pages="totalPages"
+			@update:page="setCurrentPage"
+		></Pagination>
+	</MainContent>
 </template>

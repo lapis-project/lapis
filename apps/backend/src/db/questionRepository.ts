@@ -310,13 +310,13 @@ export async function getResultsByPhaen(
 		fn
 			.jsonAgg(
 				jsonBuildObject({
+					informant: eb.ref("informant"),
 					response: eb.ref("response"),
 					annotation: eb.ref("annotation"),
-					phenomenon: eb.ref("phenomenon"),
+					// phenomenon: eb.ref("phenomenon"), LETS AWAIT FEEDBACK IF NEEDED
 					variety: eb.ref("variety"),
 					place: eb.ref("place"),
 					age: eb.ref("age"),
-					informant: eb.ref("informant"),
 				}),
 			)
 			.filterWhere("rn", ">", offset)

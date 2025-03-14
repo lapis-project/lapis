@@ -96,7 +96,6 @@ const activeQuestionId = computed(() => {
 	return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
 });
 
-// TODO refactor response type when backend ready
 const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
 	query: { id: activeQuestionId, project: "1" },
 	baseURL: env.public.apiBaseUrl,

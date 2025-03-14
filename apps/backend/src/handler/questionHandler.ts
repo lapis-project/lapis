@@ -77,8 +77,9 @@ const questions = new Hono<Context>()
 	})
 	.get("/table/:id", async (c) => {
 		const phenomenonId = c.req.param("id");
-		const { project, page, offset, pageSize, varIds, annotations, lowerage, upperage } =
-			c.req.query();
+		const { project, page, offset, pageSize, lowerAge, upperAge } = c.req.query();
+
+		const { annotations, varIds } = c.req.queries();
 
 		if (!phenomenonId || Number.isNaN(Number(phenomenonId))) {
 			return c.json("Phenomenon id is required", 400);
@@ -105,28 +106,16 @@ const questions = new Hono<Context>()
 		let varIdsParsed = [] as Array<number>;
 		let annotationsParsed = [] as Array<string>;
 
-		if (varIds) {
-			try {
-				varIdsParsed = JSON.parse(varIds) as Array<number>;
-			} catch {
-				varIdsParsed = [] as Array<number>;
-			}
-		} else {
-			varIdsParsed = [] as Array<number>;
+		if (varIds && !varIds.includes("")) {
+			varIdsParsed = varIds.map((id) => Number(id));
 		}
 
-		if (annotations) {
-			try {
-				annotationsParsed = JSON.parse(annotations) as Array<string>;
-			} catch {
-				annotationsParsed = [] as Array<string>;
-			}
-		} else {
-			annotationsParsed = [] as Array<string>;
+		if (annotations && !annotations.includes("")) {
+			annotationsParsed = annotations;
 		}
 
-		const lowerageParsed = !Number.isNaN(lowerage) ? 0 : Number(lowerage);
-		const upperageParsed = !Number.isNaN(upperage) ? 100 : Number(upperage);
+		const lowerAgeParsed = Number.isNaN(lowerAge) ? 0 : Number(lowerAge);
+		const upperAgeParsed = Number.isNaN(upperAge) ? 100 : Number(upperAge);
 
 		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
 		let projectIdParsed = Number(project);
@@ -141,8 +130,8 @@ const questions = new Hono<Context>()
 			queryOffset,
 			varIdsParsed,
 			annotationsParsed,
-			lowerageParsed,
-			upperageParsed,
+			lowerAgeParsed,
+			upperAgeParsed,
 		);
 
 		const totalCount = Number(fetchedResponses[0]?.total);
@@ -158,7 +147,7 @@ const questions = new Hono<Context>()
 			requestUrl += `pageSize=${String(pageSizeParsed)}`;
 		}
 
-		const returnedResponses = fetchedResponses[0]?.post_query ? fetchedResponses[0].post_query : [];
+		const returnedResponses = fetchedResponses[0]?.post_query ?? [];
 		return c.json(
 			{
 				prev:

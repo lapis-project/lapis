@@ -1,8 +1,13 @@
 <script lang="ts" setup>
+import { refDebounced } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
+
+import { InfoIcon } from "lucide-vue-next";
 
 import type { TableColumn } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
+
+import { registerOptions, specialOrder } from "@/assets/data/static-filter-data";
 
 const t = useTranslations();
 const env = useRuntimeConfig();
@@ -29,15 +34,76 @@ const mappedQuestions = computed(() => {
 	);
 });
 
+const activeRegistersQuery = computed(() => {
+	if (activeRegisters.value.includes("all")) {
+		return null;
+	} else {
+		return activeRegisters.value.map((r) => Number(r));
+	}
+});
+
+// TODO MAYBE RETHINK ENDPOINT, THE CURRENT MAPPING IS KINDA EXCESSIVE
+// const _getVarieties = apiClient.questions.variety.$get;
+// type APIVarieties = InferResponseType<typeof _getVarieties, 200>;
+// const { data: varieties } = await useFetch<APIVarieties>("/questions/variety", {
+// 	baseURL: env.public.apiBaseUrl,
+// 	method: "GET",
+// });
+
+// const mappedVarieties = computed(() => {
+// 	return (
+// 		varieties.value?.map((q) => ({
+// 			id: q.variety_entry.id,
+// 			value: q.variety_entry.,
+// 			label: q.phenomenon_name,
+// 		})) ?? null
+// 	);
+// });
+
+const activeAgeGroup = ref([10, 100]);
 const activeQuestion = ref<string | null>("AUGENLID");
+const activeQuestionQuery = ref<string | null>("AUGENLID");
 const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
+const activeRegisters = ref<Array<string>>(["all"]);
+const activeVariants = ref<Array<string>>([]);
+const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 
 const activeQuestionId = computed(() => {
-	return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
+	return mappedQuestions.value?.find((q) => q.value === activeQuestionQuery.value)?.id;
 });
 
 const currentPage = ref(1);
+
+const _getAnnotations = apiClient.questions.annotation[":project"].$get;
+type APIAnnotation = InferResponseType<typeof _getAnnotations, 200>;
+const { data: annotations } = await useFetch<APIAnnotation>("/questions/annotation/1", {
+	query: {
+		phenomenon: activeQuestionId,
+	},
+	baseURL: env.public.apiBaseUrl,
+	method: "GET",
+});
+
+const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
+	return (
+		annotations.value
+			?.map((variant) => ({
+				label: variant.annotation_name,
+				value: variant.annotation_name,
+				level: 1,
+				group: variant.annotation_name?.toLocaleLowerCase(),
+			}))
+			.sort((a, b) => {
+				// extract priority values from the specialOrder object or default to 0
+				const priorityA = specialOrder[a.label] ?? 0;
+				const priorityB = specialOrder[b.label] ?? 0;
+
+				// sort by priority, with lower values appearing later
+				return priorityB - priorityA;
+			}) ?? []
+	);
+});
 
 const pageSizeOption: Array<DropdownOption> = [
 	{ id: 1, value: "100", label: "100" },
@@ -46,20 +112,26 @@ const pageSizeOption: Array<DropdownOption> = [
 	{ id: 4, value: "1000", label: "1000" },
 ];
 
-// const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
-// 	query: { id: activeQuestionId.value, project: "1" },
-// 	baseURL: env.public.apiBaseUrl,
-// 	method: "get",
-// });
+const lowerAge = computed(() => {
+	return debouncedActiveAgeGroup.value[0];
+});
+
+const upperAge = computed(() => {
+	return debouncedActiveAgeGroup.value[1];
+});
 
 const _getTableData = apiClient.questions.table[":id"].$get;
 type APITableData = InferResponseType<typeof _getTableData, 200>;
 const { data: tableDataRaw } = await useFetch<APITableData>(
-	`/questions/table/${activeQuestionId.value}`,
+	() => `/questions/table/${activeQuestionId.value}`,
 	{
 		query: {
 			page: currentPage,
 			pageSize: activePageSizeQuery,
+			varIds: activeRegistersQuery,
+			annotations: activeVariants,
+			lowerAge,
+			upperAge,
 		},
 		baseURL: env.public.apiBaseUrl,
 		method: "get",
@@ -90,6 +162,21 @@ const setCurrentPage = (newValue: number) => {
 	currentPage.value = newValue;
 };
 
+const setAgeGroup = (newValues: Array<number>) => {
+	activeAgeGroup.value = newValues;
+};
+
+watch(
+	activeQuestion,
+	async (newVal) => {
+		activeRegisters.value = ["all"];
+		activeAgeGroup.value = [10, 100];
+		activeVariants.value = [];
+		activeQuestionQuery.value = newVal;
+	},
+	{ immediate: true },
+);
+
 watch(
 	activePageSize,
 	(newVal, oldVal) => {
@@ -104,6 +191,68 @@ watch(
 
 <template>
 	<MainContent class="container grid content-start py-8">
+		<section class="grow rounded-lg border p-5 mb-4">
+			<div class="grid grid-cols-4 gap-5">
+				<div>
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.variable.title") }}
+						<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</InfoTooltip>
+					</div>
+					<Combobox
+						v-if="mappedQuestions?.length"
+						v-model="activeQuestion"
+						has-search
+						:options="mappedQuestions"
+						:placeholder="t('MapsPage.selection.variable.placeholder')"
+					/>
+				</div>
+				<div>
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.register.title") }}
+						<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</InfoTooltip>
+					</div>
+					<MultiSelect
+						v-model="activeRegisters"
+						:options="registerOptions"
+						:placeholder="t('MapsPage.selection.register.placeholder')"
+					/>
+				</div>
+				<div>
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.variants.title") }}
+						<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</InfoTooltip>
+					</div>
+					<MultiSelect
+						v-model="activeVariants"
+						:options="uniqueVariantsOptions"
+						:placeholder="t('MapsPage.selection.variants.placeholder')"
+						single-level
+					/>
+				</div>
+				<div>
+					<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+						{{ t("MapsPage.selection.age.title") }}
+					</div>
+					<div class="max-w-64 pl-1">
+						<DualRangeSlider
+							accessibility-label="Age Group"
+							:label="(value) => value"
+							:max="100"
+							:min="10"
+							step="5"
+							:value="activeAgeGroup"
+							@update:value="setAgeGroup"
+						/>
+					</div>
+				</div>
+			</div>
+		</section>
 		<section class="flex justify-between items-center mb-3">
 			<div class="text-2xl font-semibold">{{ tableDataRaw?.totalResults ?? 0 }} Ergebnisse</div>
 			<div class="flex items-center gap-2">

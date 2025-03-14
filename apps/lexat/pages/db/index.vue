@@ -31,7 +31,7 @@ const mappedQuestions = computed(() => {
 			id: q.id,
 			value: q.phenomenon_name,
 			label: q.phenomenon_name,
-		})) ?? null
+		})) ?? []
 	);
 });
 
@@ -63,16 +63,12 @@ const activeRegistersQuery = computed(() => {
 
 const activeAgeGroup = ref([10, 100]);
 const activeQuestion = ref<string | null>("AUGENLID");
-const activeQuestionQuery = ref<string | null>("AUGENLID");
+const activeQuestionId = ref<number | null>(11);
 const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
-
-const activeQuestionId = computed(() => {
-	return mappedQuestions.value?.find((q) => q.value === activeQuestionQuery.value)?.id;
-});
 
 const currentPage = ref(1);
 
@@ -85,6 +81,7 @@ const { data: annotations } = await useFetch<APIAnnotation>("/questions/annotati
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 	credentials: "include",
+	server: false,
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
@@ -175,7 +172,7 @@ watch(
 		activeRegisters.value = ["all"];
 		activeAgeGroup.value = [10, 100];
 		activeVariants.value = [];
-		activeQuestionQuery.value = newVal;
+		activeQuestionId.value = mappedQuestions.value?.find((q) => q.value === newVal)?.id ?? 11;
 	},
 	{ immediate: true },
 );
@@ -204,7 +201,6 @@ watch(
 						</InfoTooltip>
 					</div>
 					<Combobox
-						v-if="mappedQuestions?.length"
 						v-model="activeQuestion"
 						has-search
 						:options="mappedQuestions"

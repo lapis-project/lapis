@@ -77,9 +77,11 @@ const tableOfContents = computed(() => {
 	return toc;
 });
 
-if (!bibliographyItems.value.length) {
-	await fetchBibliographyItems(article.value?.bibliography.map((b) => b.name).join(",") ?? null);
-}
+onMounted(async () => {
+	if (!bibliographyItems.value.length) {
+		await fetchBibliographyItems(article.value?.bibliography.map((b) => b.name).join(",") ?? null);
+	}
+});
 
 if (article.value?.content) {
 	const enrichedContent = addIdsToHeadings(article.value.content);
@@ -157,7 +159,10 @@ usePageMetadata({
 				</div>
 			</article>
 			<aside class="w-1/4">
-				<section class="sticky top-10 border p-5">
+				<section
+					v-if="article?.post_type_name !== 'short_description'"
+					class="sticky top-10 border p-5"
+				>
 					<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>
 					<hr class="my-2" />
 					<ul class="-ml-4 list-inside list-disc">

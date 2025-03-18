@@ -26,6 +26,7 @@ const categoryOptions = ref<Array<DropdownOption>>([
 	{ id: 1, value: "commentary", label: t("Categories.commentary") },
 	{ id: 2, value: "methodology", label: t("Categories.methodology") },
 	{ id: 3, value: "project_description", label: t("Categories.project_description") },
+	{ id: 3, value: "short_description", label: t("Categories.short_description") },
 ]);
 
 const languageOptions = [

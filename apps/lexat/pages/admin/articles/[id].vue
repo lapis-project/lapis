@@ -415,7 +415,10 @@ usePageMetadata({
 					</div>
 
 					<div
-						v-if="selectedCategory === 'commentary' && mappedQuestions"
+						v-if="
+							(selectedCategory === 'commentary' || selectedCategory === 'short_description') &&
+							mappedQuestions
+						"
 						class="grid max-w-sm items-center gap-1.5"
 					>
 						<Label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</Label>

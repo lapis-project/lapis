@@ -1,5 +1,9 @@
 # Lapis
 
+## Architecture
+
+For details on the project's architecture, see [Architecture](architecture.md).
+
 ## Requirements
 
 - Node 22

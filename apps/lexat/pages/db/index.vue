@@ -2,7 +2,7 @@
 import { refDebounced } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
 
-import { InfoIcon } from "lucide-vue-next";
+import { InfoIcon, RotateCcw } from "lucide-vue-next";
 
 import type { TableColumn } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
@@ -68,7 +68,6 @@ const activePageSize = ref<string>("100");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
-
 const activeQuestionId = computed(() => parseInt(activeQuestion.value));
 
 const currentPage = ref(1);
@@ -167,6 +166,19 @@ const setAgeGroup = (newValues: Array<number>) => {
 	activeAgeGroup.value = newValues;
 };
 
+const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
+	if (!omit?.includes("age")) {
+		activeAgeGroup.value = [10, 100];
+	}
+	if (!omit?.includes("question")) {
+		activeQuestion.value = "11";
+	}
+	if (!omit?.includes("register")) {
+		activeRegisters.value = ["all"];
+	}
+	activeVariants.value = [];
+};
+
 watch(
 	activeQuestion,
 	async (newVal) => {
@@ -191,67 +203,75 @@ watch(
 
 <template>
 	<MainContent class="container grid content-start py-8">
-		<section class="grow rounded-lg border p-5 mb-4">
-			<div class="grid grid-cols-4 gap-5">
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.variable.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
-							<InfoIcon class="size-4"></InfoIcon>
-						</InfoTooltip>
-					</div>
-					<Combobox
-						v-model="activeQuestion"
-						has-search
-						:options="mappedQuestions"
-						:placeholder="t('MapsPage.selection.variable.placeholder')"
-					/>
-				</div>
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.register.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
-							<InfoIcon class="size-4"></InfoIcon>
-						</InfoTooltip>
-					</div>
-					<MultiSelect
-						v-model="activeRegisters"
-						:options="registerOptions"
-						:placeholder="t('MapsPage.selection.register.placeholder')"
-					/>
-				</div>
-				<div>
-					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.variants.title") }}
-						<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
-							<InfoIcon class="size-4"></InfoIcon>
-						</InfoTooltip>
-					</div>
-					<MultiSelect
-						v-model="activeVariants"
-						:options="uniqueVariantsOptions"
-						:placeholder="t('MapsPage.selection.variants.placeholder')"
-						single-level
-					/>
-				</div>
-				<div>
-					<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
-						{{ t("MapsPage.selection.age.title") }}
-					</div>
-					<div class="max-w-64 pl-1">
-						<DualRangeSlider
-							accessibility-label="Age Group"
-							:label="(value) => value"
-							:max="100"
-							:min="10"
-							step="5"
-							:value="activeAgeGroup"
-							@update:value="setAgeGroup"
+		<section class="flex gap-2">
+			<div class="grow rounded-lg border p-5 mb-4">
+				<div class="grid grid-cols-4 gap-5">
+					<div>
+						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							{{ t("MapsPage.selection.variable.title") }}
+							<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
+								<InfoIcon class="size-4"></InfoIcon>
+							</InfoTooltip>
+						</div>
+						<Combobox
+							v-model="activeQuestion"
+							has-search
+							:options="mappedQuestions"
+							:placeholder="t('MapsPage.selection.variable.placeholder')"
 						/>
+					</div>
+					<div>
+						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							{{ t("MapsPage.selection.register.title") }}
+							<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
+								<InfoIcon class="size-4"></InfoIcon>
+							</InfoTooltip>
+						</div>
+						<MultiSelect
+							v-model="activeRegisters"
+							:options="registerOptions"
+							:placeholder="t('MapsPage.selection.register.placeholder')"
+						/>
+					</div>
+					<div>
+						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							{{ t("MapsPage.selection.variants.title") }}
+							<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
+								<InfoIcon class="size-4"></InfoIcon>
+							</InfoTooltip>
+						</div>
+						<MultiSelect
+							v-model="activeVariants"
+							:options="uniqueVariantsOptions"
+							:placeholder="t('MapsPage.selection.variants.placeholder')"
+							single-level
+						/>
+					</div>
+					<div>
+						<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+							{{ t("MapsPage.selection.age.title") }}
+						</div>
+						<div class="max-w-64 pl-1">
+							<DualRangeSlider
+								accessibility-label="Age Group"
+								:label="(value) => value"
+								:max="100"
+								:min="10"
+								step="5"
+								:value="activeAgeGroup"
+								@update:value="setAgeGroup"
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
+			<div class="flex flex-col gap-2">
+				<Button size="icon" variant="outline" @click="resetSelection()"
+					><RotateCcw class="size-4"
+				/></Button>
+			</div>
 		</section>
+
 		<section class="flex justify-between items-center mb-3">
 			<div class="text-2xl font-semibold">{{ tableDataRaw?.totalResults ?? 0 }} Ergebnisse</div>
 			<div class="flex items-center gap-2">
@@ -265,7 +285,9 @@ watch(
 				/>
 			</div>
 		</section>
+
 		<DataTable :columns="columns" :data="tableData"></DataTable>
+
 		<Pagination
 			:current-page="currentPage"
 			:items-per-page="activePageSizeQuery"

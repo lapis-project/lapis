@@ -22,6 +22,8 @@ const sortCriterion = ref("");
 
 const sortOrder = ref<"asc" | "desc">("asc");
 
+const flash = ref(false);
+
 const sortedData = computed(() => {
 	if (!sortCriterion.value) {
 		return props.data;
@@ -114,6 +116,9 @@ watch(
 	},
 	() => {
 		(sortCriterion.value = ""), (sortOrder.value = "asc");
+		flash.value = true;
+		// Reset the flag after 1 second (1000ms)
+		setTimeout(() => (flash.value = false), 1000);
 	},
 );
 </script>
@@ -155,7 +160,7 @@ watch(
 						</th>
 					</tr>
 				</thead>
-				<tbody class="">
+				<tbody :class="{ 'animate-flash': flash }">
 					<tr
 						v-for="row in sortedData"
 						:key="JSON.stringify(row)"

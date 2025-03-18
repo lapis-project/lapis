@@ -45,7 +45,8 @@
 				"placeholder": "Kategorie",
 				"commentary": "Kartenkommentar",
 				"methodology": "Methodenbeschreibung",
-				"project_description": "Projektbeschreibung"
+				"project_description": "Projektbeschreibung",
+				"short_description": "Kurzbeschreibung"
 			},
 			"citation": {
 				"label": "Zitiervorschlag",
@@ -160,7 +161,8 @@
 	"Categories": {
 		"commentary": "Kartenkommentar",
 		"methodology": "Methodenbeschreibung",
-		"project_description": "Projektbeschreibung"
+		"project_description": "Projektbeschreibung",
+		"short_description": "Kurzbeschreibung"
 	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Farbschema ändern",

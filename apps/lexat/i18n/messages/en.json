@@ -45,7 +45,8 @@
 				"placeholder": "category",
 				"commentary": "Card commentary",
 				"methodology": "Method description",
-				"project_description": "Project description"
+				"project_description": "Project description",
+				"short_description": "Short infos"
 			},
 			"citation": {
 				"label": "Citation",
@@ -160,7 +161,8 @@
 	"Categories": {
 		"commentary": "Card commentary",
 		"methodology": "Method description",
-		"project_description": "Project description"
+		"project_description": "Project description",
+		"short_description": "Short infos"
 	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Change color scheme",
@@ -237,7 +239,7 @@
 		"counts": {
 			"locations": "Localities",
 			"participants": "Finished questionnaires",
-			"phenomenons": "Phenomenons",
+			"phenomenons": "Phenomena",
 			"survey-rounds": "Survey rounds"
 		}
 	},

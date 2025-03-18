@@ -5,6 +5,8 @@
 LAPIS is structured as a **pnpm workspace** and functions as a meta platform for multiple
 applications and packages.
 
+![lapis-architecture drawio](https://github.com/user-attachments/assets/41fe0b92-931f-444d-9730-eedc52bdf11b)
+
 ## Frontend
 
 Each frontend application is written in Nuxt 3 and provides an interface to interact with a specific

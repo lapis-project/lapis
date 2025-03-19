@@ -1,5 +1,5 @@
 import { log } from "@acdh-oeaw/lib";
-import { sql } from "kysely";
+import { type OrderByDirectionExpression, sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { jsonbBuildObject } from "@/lib/dbHelper";
@@ -255,7 +255,12 @@ export async function getResultsByPhaen(
 	annotations: Array<string>,
 	lower_age_limit: number,
 	upper_age_limit: number,
+	order_by: string,
+	order_by_dir: OrderByDirectionExpression,
 ) {
+	// eslint-disable-next-line @typescript-eslint/unbound-method
+	const { ref } = db.dynamic;
+
 	const baseQuery = db.with("post_query", (query) => {
 		let dbQuery = query
 			.selectFrom("response")
@@ -296,6 +301,10 @@ export async function getResultsByPhaen(
 				"age_group.age_group_name",
 				"informant.comment",
 			]);
+
+		if (order_by) {
+			dbQuery = dbQuery.orderBy(ref(order_by), order_by_dir);
+		}
 		if (varIds.length > 0) {
 			dbQuery = dbQuery.where("variety.id", "in", varIds);
 		}

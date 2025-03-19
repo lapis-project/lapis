@@ -217,7 +217,7 @@ const cms = new Hono<Context>()
 								`page=${String(pageNumParsed + 1)}`,
 							)
 						: null,
-				articles: articles ? articles : [],
+				articles: articles ?? [],
 				currentPage: requestUrl,
 				totalResults: totalCount,
 			},

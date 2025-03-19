@@ -1,5 +1,6 @@
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
+import type { OrderByDirectionExpression } from "kysely";
 import { array, number, object, optional, safeParse, string } from "valibot";
 
 // import { restrictedRoute } from "@/lib/authHelper";
@@ -77,8 +78,24 @@ const questions = new Hono<Context>()
 	})
 	.get("/table/:id", async (c) => {
 		const phenomenonId = c.req.param("id");
-		const { project, page, offset, pageSize, lowerAge, upperAge } = c.req.query();
+		const { project, page, offset, pageSize, lowerAge, upperAge, orderBy, dir } = c.req.query();
 
+		/*
+		 * orderBy can receive the parameters which influence the order of the result query for the table view
+		 * this can be by:
+		 * - response_text (res)
+		 * - annotation (anno)
+		 * - phenomenon (phen)
+		 * - variety (var)
+		 * - place (place)
+		 * - age of the participant (age)
+		 * - informant id (infid)
+		 *
+		 * This needs to be provided in a string array where each item can also be prefixed with a + or -
+		 * + means ascending order while - means descending order
+		 *
+		 * example: ["+anno", "-phen"] would sort by annotation in an ascending order and afterwards phen in a descending order
+		 */
 		const { annotations, varIds } = c.req.queries();
 
 		if (!phenomenonId || Number.isNaN(Number(phenomenonId))) {
@@ -86,9 +103,11 @@ const questions = new Hono<Context>()
 		}
 
 		const numberSchema = optional(number());
+		const stringSchema = optional(string());
 
 		const pageSizeParsed = Number(pageSize ?? 100);
 		const pageNumParsed = Number(page ?? 1);
+		let orderByParsed = orderBy ?? "";
 
 		const offsetParsed = Number(offset ?? 0);
 		if (!safeParse(numberSchema, pageNumParsed).success) {
@@ -103,6 +122,10 @@ const questions = new Hono<Context>()
 			return c.json("Provided pagesize number is not a number", 400);
 		}
 
+		if (!safeParse(stringSchema, orderByParsed).success) {
+			return c.json("Provided orderby argument is not a string", 400);
+		}
+
 		let varIdsParsed = [] as Array<number>;
 		let annotationsParsed = [] as Array<string>;
 
@@ -113,9 +136,32 @@ const questions = new Hono<Context>()
 		if (annotations && !annotations.includes("")) {
 			annotationsParsed = annotations;
 		}
+		let orderByDir: OrderByDirectionExpression = "desc";
+		if (orderByParsed.length > 0 && orderBy) {
+			if (orderByParsed.startsWith("res")) {
+				orderByParsed = "response_text";
+			} else if (orderByParsed.startsWith("anno")) {
+				orderByParsed = "annotation";
+			} else if (orderByParsed.startsWith("phen")) {
+				orderByParsed = "phenomenon_name";
+			} else if (orderByParsed.startsWith("var")) {
+				orderByParsed = "variety_name";
+			} else if (orderByParsed.startsWith("place")) {
+				orderByParsed = "place_name";
+			} else if (orderByParsed.startsWith("age")) {
+				orderByParsed = "age_group_name";
+			} else if (orderByParsed.startsWith("infid")) {
+				orderByParsed = "comment";
+			} else {
+				orderByParsed = "";
+			}
+			if (dir === "asc") {
+				orderByDir = "asc";
+			}
+		}
 
-		const lowerAgeParsed = Number.isNaN(lowerAge) ? 0 : Number(lowerAge);
-		const upperAgeParsed = Number.isNaN(upperAge) ? 100 : Number(upperAge);
+		const lowerAgeParsed = !Number.isNaN(lowerAge) ? 0 : Number(lowerAge);
+		const upperAgeParsed = !Number.isNaN(upperAge) ? 100 : Number(upperAge);
 
 		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
 		let projectIdParsed = Number(project);
@@ -132,6 +178,8 @@ const questions = new Hono<Context>()
 			annotationsParsed,
 			lowerAgeParsed,
 			upperAgeParsed,
+			orderByParsed,
+			orderByDir,
 		);
 
 		const totalCount = Number(fetchedResponses[0]?.total);

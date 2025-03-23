@@ -160,8 +160,8 @@ const questions = new Hono<Context>()
 			}
 		}
 
-		const lowerAgeParsed = !Number.isNaN(lowerAge) ? 0 : Number(lowerAge);
-		const upperAgeParsed = !Number.isNaN(upperAge) ? 100 : Number(upperAge);
+		const lowerAgeParsed = Number.isNaN(lowerAge) ? 0 : Number(lowerAge);
+		const upperAgeParsed = Number.isNaN(upperAge) ? 100 : Number(upperAge);
 
 		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
 		let projectIdParsed = Number(project);

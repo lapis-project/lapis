@@ -4,7 +4,7 @@ import type { InferResponseType } from "hono/client";
 
 import { InfoIcon, RotateCcw } from "lucide-vue-next";
 
-import type { TableColumn } from "@/components/data-table.vue";
+import type { SortOder, TableColumn } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 import { registerOptions, specialOrder } from "@/assets/data/static-filter-data";
@@ -67,8 +67,10 @@ const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>([]);
-const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
+// const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250); // using debounce prevents useFetch's native req cancelling
 const activeQuestionId = computed(() => parseInt(activeQuestion.value));
+const activeSortLabel = ref<string | null>(null);
+const activeSortDirection = ref<SortOder | null>(null);
 
 const currentPage = ref(1);
 
@@ -112,11 +114,11 @@ const pageSizeOption: Array<DropdownOption> = [
 ];
 
 const lowerAge = computed(() => {
-	return debouncedActiveAgeGroup.value[0];
+	return activeAgeGroup.value[0];
 });
 
 const upperAge = computed(() => {
-	return debouncedActiveAgeGroup.value[1];
+	return activeAgeGroup.value[1];
 });
 
 const _getTableData = apiClient.questions.table[":id"].$get;
@@ -131,6 +133,8 @@ const { data: tableDataRaw } = await useFetch<APITableData>(
 			annotations: activeVariants,
 			lowerAge,
 			upperAge,
+			orderBy: activeSortLabel,
+			dir: activeSortDirection,
 		},
 		baseURL: env.public.apiBaseUrl,
 		method: "get",
@@ -139,13 +143,13 @@ const { data: tableDataRaw } = await useFetch<APITableData>(
 );
 
 const columns = ref<Array<TableColumn>>([
-	{ label: "Informant", value: "informant", sortable: true },
-	{ label: "Response", value: "response", sortable: false },
+	{ label: "Informant", value: "informant", sortable: false },
+	{ label: "Response", value: "response_text", sortable: true },
 	{ label: "Annotation", value: "annotation", sortable: true },
 	// { label: "Phänomen", value: "phenomenon", sortable: true },
-	{ label: "Register", value: "variety", sortable: true },
-	{ label: "Ort", value: "place", sortable: true },
-	{ label: "Alter", value: "age", sortable: true },
+	{ label: "Register", value: "variety_name", sortable: true },
+	{ label: "Ort", value: "place_name", sortable: true },
+	{ label: "Alter", value: "age_group_name", sortable: true },
 ]);
 
 const tableData = computed(() => {
@@ -166,6 +170,11 @@ const setAgeGroup = (newValues: Array<number>) => {
 	activeAgeGroup.value = newValues;
 };
 
+const setSortOrder = (label: string, order: SortOder) => {
+	activeSortLabel.value = label;
+	activeSortDirection.value = order;
+};
+
 const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
 	if (!omit?.includes("age")) {
 		activeAgeGroup.value = [10, 100];
@@ -177,6 +186,8 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 		activeRegisters.value = ["all"];
 	}
 	activeVariants.value = [];
+	activeSortLabel.value = null;
+	activeSortDirection.value = null;
 };
 
 watch(
@@ -185,6 +196,8 @@ watch(
 		activeRegisters.value = ["all"];
 		activeAgeGroup.value = [10, 100];
 		activeVariants.value = [];
+		activeSortLabel.value = null;
+		activeSortDirection.value = null;
 	},
 	{ immediate: true },
 );
@@ -286,7 +299,12 @@ watch(
 			</div>
 		</section>
 
-		<DataTable :columns="columns" :data="tableData"></DataTable>
+		<DataTable
+			:columns="columns"
+			:data="tableData"
+			server-side-sorting
+			@update:sort-criterion="setSortOrder"
+		></DataTable>
 
 		<Pagination
 			:current-page="currentPage"

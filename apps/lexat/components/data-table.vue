@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Download } from "lucide-vue-next";
 const props = defineProps<{
 	data: Array<TableEntry>;
 	columns: Array<TableColumn>;
+	serverSideSorting?: boolean;
 }>();
 
 export type TableEntry = Record<string, number | string>;
@@ -20,12 +21,14 @@ const t = useTranslations();
 
 const sortCriterion = ref("");
 
-const sortOrder = ref<"asc" | "desc">("asc");
+export type SortOder = "asc" | "desc";
+
+const sortOrder = ref<SortOder>("asc");
 
 const flash = ref(false);
 
 const sortedData = computed(() => {
-	if (!sortCriterion.value) {
+	if (!sortCriterion.value || props.serverSideSorting) {
 		return props.data;
 	}
 	return [...props.data].sort((a, b) => {
@@ -50,13 +53,19 @@ const totalCount = (columnValue: string) => {
 	return sortedData.value.reduce((sum, item) => sum + Number(item[columnValue] ?? 0), 0);
 };
 
-const setSortCriterion = (label: string) => {
-	if (sortCriterion.value === label) {
+const emit = defineEmits<{
+	(event: "update:sortCriterion", label: string, order: SortOder): void;
+}>();
+
+const setSortCriterion = (column: TableColumn) => {
+	if (column.sortable) {
 		sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
-	} else {
-		sortOrder.value = "desc";
+		sortCriterion.value = column.value;
+
+		if (props.serverSideSorting) {
+			emit("update:sortCriterion", column.value, sortOrder.value);
+		}
 	}
-	sortCriterion.value = label;
 };
 
 const escapeCSVValue = (value: number | string): number | string => {
@@ -115,7 +124,10 @@ watch(
 		return props.data;
 	},
 	() => {
-		(sortCriterion.value = ""), (sortOrder.value = "asc");
+		if (!props.serverSideSorting) {
+			sortCriterion.value = "";
+			sortOrder.value = "asc";
+		}
 		flash.value = true;
 		// Reset the flag after 1 second (1000ms)
 		setTimeout(() => (flash.value = false), 1000);
@@ -141,8 +153,9 @@ watch(
 							scope="col"
 						>
 							<button
-								class="inline-flex cursor-pointer items-center gap-1 py-2"
-								@click="setSortCriterion(column.value)"
+								class="inline-flex items-center gap-1 py-2"
+								:class="{ 'cursor-pointer': column.sortable }"
+								@click="setSortCriterion(column)"
 							>
 								{{ column.label }}
 								<template v-if="column.sortable">

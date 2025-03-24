@@ -151,7 +151,7 @@ const questions = new Hono<Context>()
 			} else if (orderByParsed.startsWith("age")) {
 				orderByParsed = "age_group_name";
 			} else if (orderByParsed.startsWith("infid")) {
-				orderByParsed = "comment";
+				orderByParsed = "informant.comment";
 			} else {
 				orderByParsed = "";
 			}

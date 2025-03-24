@@ -5,6 +5,7 @@ const props = defineProps<{
 	data: Array<TableEntry>;
 	columns: Array<TableColumn>;
 	serverSideSorting?: boolean;
+	isLoading?: boolean;
 }>();
 
 export type TableEntry = Record<string, number | string>;
@@ -26,6 +27,8 @@ export type SortOder = "asc" | "desc";
 const sortOrder = ref<SortOder>("asc");
 
 const flash = ref(false);
+const flashStartTime = ref<number>(0);
+const removeTimeout = ref<NodeJS.Timeout | null>(null);
 
 const sortedData = computed(() => {
 	if (!sortCriterion.value || props.serverSideSorting) {
@@ -119,6 +122,14 @@ const columnWidth = computed(() => {
 	}
 });
 
+const flashClasses = computed(() => {
+	// when flash is true, apply lowered opacity immediately,
+	// otherwise use full opacity with a 250ms transition delay.
+	return flash.value
+		? "opacity-20 transition-opacity  delay-0"
+		: "opacity-100 transition-opacity duration-250 delay-250";
+});
+
 watch(
 	() => {
 		return props.data;
@@ -128,11 +139,44 @@ watch(
 			sortCriterion.value = "";
 			sortOrder.value = "asc";
 		}
-		flash.value = true;
-		// Reset the flag after 1 second (1000ms)
-		setTimeout(() => (flash.value = false), 1000);
 	},
 );
+
+watch(
+	() => props.isLoading,
+	(newVal) => {
+		if (newVal) {
+			// Loading starts: record start time and enable flash immediately.
+			flashStartTime.value = Date.now();
+			if (removeTimeout.value) {
+				clearTimeout(removeTimeout.value);
+				removeTimeout.value = null;
+			}
+			flash.value = true;
+		} else {
+			// Loading stops: ensure the flash (opacity at 30%) lasts at least 250ms.
+			const elapsed = Date.now() - flashStartTime.value;
+			const delay = Math.max(50 - elapsed, 0);
+			removeTimeout.value = setTimeout(() => {
+				flash.value = false;
+				removeTimeout.value = null;
+			}, delay);
+		}
+	},
+);
+
+onMounted(() => {
+	if (props.isLoading) {
+		flash.value = true;
+		flashStartTime.value = Date.now();
+	}
+});
+
+onBeforeUnmount(() => {
+	if (removeTimeout.value) {
+		clearTimeout(removeTimeout.value);
+	}
+});
 </script>
 
 <template>
@@ -148,8 +192,8 @@ watch(
 						<th
 							v-for="column in columns"
 							:key="column.value"
-							:class="columnWidth"
 							class="px-6 py-3"
+							:class="columnWidth"
 							scope="col"
 						>
 							<button
@@ -173,7 +217,7 @@ watch(
 						</th>
 					</tr>
 				</thead>
-				<tbody :class="{ 'animate-flash': flash }">
+				<tbody :class="flashClasses">
 					<tr
 						v-for="row in sortedData"
 						:key="JSON.stringify(row)"
@@ -182,8 +226,8 @@ watch(
 						<td
 							v-for="value in Object.values(row)"
 							:key="value"
-							:class="columnWidth"
 							class="px-6 py-4"
+							:class="columnWidth"
 						>
 							{{ value }}
 						</td>
@@ -196,8 +240,8 @@ watch(
 						<td
 							v-for="column in columns"
 							:key="column.footer"
-							:class="columnWidth"
 							class="px-6 py-3"
+							:class="columnWidth"
 							scope="col"
 						>
 							<template v-if="column.footer">{{ column.footer }}</template>

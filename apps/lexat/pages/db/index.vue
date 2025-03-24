@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import { refDebounced } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
-
 import { InfoIcon, RotateCcw } from "lucide-vue-next";
 
+import { registerOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
-
-import { registerOptions, specialOrder } from "@/assets/data/static-filter-data";
 
 const t = useTranslations();
 const env = useRuntimeConfig();
@@ -123,7 +120,7 @@ const upperAge = computed(() => {
 
 const _getTableData = apiClient.questions.table[":id"].$get;
 type APITableData = InferResponseType<typeof _getTableData, 200>;
-const { data: tableDataRaw } = await useFetch<APITableData>(
+const { data: tableDataRaw, status } = await useFetch<APITableData>(
 	() => `/questions/table/${activeQuestionId.value}`,
 	{
 		query: {
@@ -143,7 +140,7 @@ const { data: tableDataRaw } = await useFetch<APITableData>(
 );
 
 const columns = ref<Array<TableColumn>>([
-	{ label: "Informant", value: "informant", sortable: false },
+	{ label: "Informant", value: "infid", sortable: true },
 	{ label: "Response", value: "response_text", sortable: true },
 	{ label: "Annotation", value: "annotation", sortable: true },
 	// { label: "Phänomen", value: "phenomenon", sortable: true },
@@ -192,15 +189,20 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 
 watch(
 	activeQuestion,
-	async (newVal) => {
+	async () => {
 		activeRegisters.value = ["all"];
 		activeAgeGroup.value = [10, 100];
 		activeVariants.value = [];
 		activeSortLabel.value = null;
 		activeSortDirection.value = null;
+		setCurrentPage(1);
 	},
 	{ immediate: true },
 );
+
+watch(activeRegisters, () => setCurrentPage(1));
+watch(activeAgeGroup, () => setCurrentPage(1));
+watch(activeVariants, () => setCurrentPage(1));
 
 watch(
 	activePageSize,
@@ -291,10 +293,10 @@ watch(
 				<Label for="rows-per-page">Einträge pro Seite:</Label>
 				<Combobox
 					id="rows-per-page"
-					width="w-24"
 					v-model="activePageSize"
 					:options="pageSizeOption"
 					:placeholder="t('AdminPage.editor.category.placeholder')"
+					width="w-24"
 				/>
 			</div>
 		</section>
@@ -302,10 +304,10 @@ watch(
 		<DataTable
 			:columns="columns"
 			:data="tableData"
+			:is-loading="status === 'pending'"
 			server-side-sorting
 			@update:sort-criterion="setSortOrder"
 		></DataTable>
-
 		<Pagination
 			:current-page="currentPage"
 			:items-per-page="activePageSizeQuery"

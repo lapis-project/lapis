@@ -77,7 +77,11 @@ const genderData = computed(() => {
 
 const surveyData = computed(() => {
 	return {
-		labels: ["Runde #1", "Runde #2", "Runde #3"],
+		labels: [
+			t("HomePage.charts.survey-distribution.round-one"),
+			t("HomePage.charts.survey-distribution.round-two"),
+			t("HomePage.charts.survey-distribution.round-three"),
+		],
 		datasets: [
 			{
 				label: t("HomePage.charts.survey-distribution.label"),
@@ -319,7 +323,7 @@ const counts = [
 				</template>
 				<template v-else>
 					Want to take part? Join our research project and participate in the current questionnaire
-					on language usage in Austria!
+					on language usage in Austria (open for all speakers of German in Austria)!
 				</template>
 			</p>
 			<Button

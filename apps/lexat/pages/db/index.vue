@@ -140,13 +140,13 @@ const { data: tableDataRaw, status } = await useFetch<APITableData>(
 );
 
 const columns = ref<Array<TableColumn>>([
-	{ label: "Informant", value: "infid", sortable: true },
-	{ label: "Response", value: "response_text", sortable: true },
-	{ label: "Annotation", value: "annotation", sortable: true },
+	{ label: t("DbPage.table.infid"), value: "infid", sortable: true },
+	{ label: t("DbPage.table.response"), value: "response_text", sortable: true },
+	{ label: t("DbPage.table.annotation"), value: "annotation", sortable: true },
 	// { label: "Phänomen", value: "phenomenon", sortable: true },
-	{ label: "Register", value: "variety_name", sortable: true },
-	{ label: "Ort", value: "place_name", sortable: true },
-	{ label: "Alter", value: "age_group_name", sortable: true },
+	{ label: t("DbPage.table.variety"), value: "variety_name", sortable: true },
+	{ label: t("DbPage.table.place"), value: "place_name", sortable: true },
+	{ label: t("DbPage.table.age-group"), value: "age_group_name", sortable: true },
 ]);
 
 const tableData = computed(() => {
@@ -288,9 +288,11 @@ watch(
 		</section>
 
 		<section class="flex justify-between items-center mb-3">
-			<div class="text-2xl font-semibold">{{ tableDataRaw?.totalResults ?? 0 }} Ergebnisse</div>
+			<div class="text-2xl font-semibold">
+				{{ tableDataRaw?.totalResults ?? 0 }} {{ t("DbPage.table.results") }}
+			</div>
 			<div class="flex items-center gap-2">
-				<Label for="rows-per-page">Einträge pro Seite:</Label>
+				<Label for="rows-per-page">{{ t("DbPage.table.items-per-page") }}:</Label>
 				<Combobox
 					id="rows-per-page"
 					v-model="activePageSize"

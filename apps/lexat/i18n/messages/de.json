@@ -127,7 +127,8 @@
 				"label": "Suche",
 				"placeholder": "Suchbegriff eingeben..."
 			}
-		}
+		},
+		"results": "Artikel"
 	},
 	"ArticleDetailPage": {
 		"authors": "Autoren",
@@ -184,7 +185,17 @@
 		"meta": {
 			"title": "Belegdatenbank"
 		},
-		"title": "Belegdatenbank"
+		"title": "Belegdatenbank",
+		"table": {
+			"results": "Ergebnisse",
+			"items-per-page": "Einträge pro Seite",
+			"infid": "Informant",
+			"response": "Antwort",
+			"annotation": "Annotation",
+			"variety": "Register",
+			"place": "Ort",
+			"age-group": "Alter"
+		}
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -230,7 +241,10 @@
 				"label": "Verteilung nach Register"
 			},
 			"survey-distribution": {
-				"label": "Teilnehmer pro Fragebogenrunde"
+				"label": "Teilnehmer pro Fragebogenrunde",
+				"round-one": "Runde #1",
+				"round-two": "Runde #2",
+				"round-three": "Runde #3"
 			}
 		},
 		"cta": {
@@ -299,7 +313,9 @@
 			"advanced": {
 				"show": "Erweiterte Filter zeigen",
 				"hide": "Erweiterte Filter ausblenden"
-			}
+			},
+			"display-options": "Anzeigeoptionen",
+			"filter-locations": "Ortspunkte filtern"
 		},
 		"map": {
 			"datapoints": "Ortspunkte",
@@ -340,6 +356,14 @@
 			"title": "Profileseite"
 		},
 		"title": "Profileseite"
+	},
+	"Regions": {
+		"Alemannisch": "Alemannisch",
+		"Ostmittelbairisch": "Ostmittelbairisch",
+		"Südbairisch": "Südbairisch",
+		"Südmittelbairisch": "Südmittelbairisch",
+		"Bairisch-Alemannisch": "Bairisch-Alemannisch",
+		"Westmittelbairisch": "Westmittelbairisch"
 	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",

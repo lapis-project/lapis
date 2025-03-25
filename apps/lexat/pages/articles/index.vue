@@ -113,7 +113,7 @@ usePageMetadata({
 			/></Button>
 		</aside>
 		<div class="flex w-3/4 flex-col gap-8">
-			<div class="text-3xl">{{ totalResults }} Artikel</div>
+			<div class="text-3xl">{{ totalResults }} {{ t("ArticlesPage.results") }}</div>
 			<div v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
 				<div>
 					<div

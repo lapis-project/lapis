@@ -798,7 +798,9 @@ const highlightRegion = (regionName: string) => {
 								/>
 							</div>
 							<div class="">
-								<div class="mb-1 ml-1 text-sm font-semibold">Anzeigeoptionen</div>
+								<div class="mb-1 ml-1 text-sm font-semibold">
+									{{ t("MapsPage.selection.display-options") }}
+								</div>
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showData" v-model:checked="simplifiedView" />
 									<label
@@ -831,7 +833,9 @@ const highlightRegion = (regionName: string) => {
 								</div>
 							</div>
 							<div class="">
-								<div class="mb-1 ml-1 text-sm font-semibold">Ortspunkte filtern</div>
+								<div class="mb-1 ml-1 text-sm font-semibold">
+									{{ t("MapsPage.selection.filter-locations") }}
+								</div>
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showStateCapitals" v-model:checked="showStateCapitals" />
 									<label
@@ -940,7 +944,7 @@ const highlightRegion = (regionName: string) => {
 				>
 					<ul class="gap-3 flex">
 						<li
-							v-for="region in regions"
+							v-for="region in regions.map((r) => ({ ...r, name: t(`Regions.${r.name}`) }))"
 							:key="region.id"
 							class="flex items-center gap-1 cursor-default hover:underline"
 							role="button"

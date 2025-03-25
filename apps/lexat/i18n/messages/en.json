@@ -43,7 +43,7 @@
 			"category": {
 				"label": "Article category",
 				"placeholder": "category",
-				"commentary": "Card commentary",
+				"commentary": "Map commentary",
 				"methodology": "Method description",
 				"project_description": "Project description",
 				"short_description": "Short infos"
@@ -127,7 +127,8 @@
 				"label": "Search",
 				"placeholder": "Enter search term..."
 			}
-		}
+		},
+		"results": "Articles"
 	},
 	"ArticleDetailPage": {
 		"authors": "Authors",
@@ -159,7 +160,7 @@
 		"username_min_length": "Your username must contain at least 2 characters."
 	},
 	"Categories": {
-		"commentary": "Card commentary",
+		"commentary": "Map commentary",
 		"methodology": "Method description",
 		"project_description": "Project description",
 		"short_description": "Short infos"
@@ -184,7 +185,17 @@
 		"meta": {
 			"title": "Browse data"
 		},
-		"title": "Browse data"
+		"title": "Browse data",
+		"table": {
+			"results": "Results",
+			"items-per-page": "Items per page",
+			"infid": "Informant",
+			"response": "Response",
+			"annotation": "Annotation",
+			"variety": "Register",
+			"place": "Location",
+			"age-group": "Age"
+		}
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -230,7 +241,10 @@
 				"label": "Distribution by register"
 			},
 			"survey-distribution": {
-				"label": "Survey round participants"
+				"label": "Survey round participants",
+				"round-one": "Round #1",
+				"round-two": "Round #2",
+				"round-three": "Round #3"
 			}
 		},
 		"cta": {
@@ -268,7 +282,7 @@
 			"show-region-names": "Show dialect region names",
 			"show-regions": "Show dialect regions",
 			"show-state-capitals": "State capitals",
-			"show-urban-locations": "Locations (exempt state capitals)",
+			"show-urban-locations": "Locations (except state capitals)",
 			"show-variant-percentages": "Values as percentages",
 			"variable": {
 				"title": "Phenomenon",
@@ -305,7 +319,9 @@
 			"advanced": {
 				"show": "Show advanced filters",
 				"hide": "Hide advanced filters"
-			}
+			},
+			"display-options": "Display options",
+			"filter-locations": "Filter locations"
 		},
 		"map": {
 			"datapoints": "Localities",
@@ -346,6 +362,14 @@
 			"title": "Profile"
 		},
 		"title": "Profile"
+	},
+	"Regions": {
+		"Alemannisch": "Alemannic",
+		"Ostmittelbairisch": "East Central Bavarian",
+		"Südbairisch": "South Bavarian",
+		"Südmittelbairisch": "South Central Bavarian",
+		"Bairisch-Alemannisch": "Bavarian-Alemannic",
+		"Westmittelbairisch": "West Central Bavarian"
 	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",

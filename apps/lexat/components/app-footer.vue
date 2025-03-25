@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { NuxtLinkProps } from "#app";
 
+const colorMode = useColorMode();
 const t = useTranslations();
 
 const links = computed(() => {
@@ -42,7 +43,8 @@ const links = computed(() => {
 					title="Austrian Centre for Digital Humanities and Cultural Heritage"
 					to="https://www.oeaw.ac.at/acdh/acdh-ch-home"
 				>
-					<SvgoAcdhCh class="h-10" />
+					<SvgoAcdhChDark v-if="colorMode.value === 'dark'" class="h-10" />
+					<SvgoAcdhCh v-else class="h-10" />
 				</NuxtLinkLocale>
 			</div>
 		</div>

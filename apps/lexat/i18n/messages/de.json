@@ -195,7 +195,8 @@
 			"variety": "Register",
 			"place": "Ort",
 			"age-group": "Alter"
-		}
+		},
+		"go-to-maps": "Kartierung ansehen"
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -273,6 +274,7 @@
 			"title": "Kartierung"
 		},
 		"title": "Kartierung",
+		"go-to-db": "Belege ansehen",
 		"selection": {
 			"legend": "Legende",
 			"simplified-view": {

@@ -4,6 +4,7 @@ import { refDebounced } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
 import {
 	ChevronDownIcon,
+	Database,
 	InfoIcon,
 	MapPinIcon,
 	Maximize2Icon,
@@ -50,6 +51,7 @@ const router = useRouter();
 const route = useRoute();
 const env = useRuntimeConfig();
 const { apiClient } = useApiClient();
+const localePath = useLocalePath();
 
 const _getPhenomenons = apiClient.questions.survey[":project"].$get;
 type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;
@@ -69,13 +71,13 @@ const mappedQuestions = computed(() => {
 	return (
 		questions.value?.map((q) => ({
 			id: q.id,
-			value: q.phenomenon_name,
+			value: q.id.toString(),
 			label: q.phenomenon_name,
 		})) ?? null
 	);
 });
 
-const activeAgeGroup = ref([10, 100]);
+const activeAgeGroup = ref([0, 100]);
 const changedColors = ref<Record<string, string>>({});
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
@@ -93,7 +95,8 @@ const showVariantPercentages = ref<boolean>(true);
 const highlightedRegion = ref<string>("");
 
 const activeQuestionId = computed(() => {
-	return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
+	return activeQuestion.value ? parseInt(activeQuestion.value) : null;
+	// return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
 });
 
 const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
@@ -213,7 +216,7 @@ const filteredPoints = computed(() => {
 			const filteredProperties = item.coalesce.filter((prop) => {
 				const ageBounds = prop.age.split("-");
 				return (
-					ageBounds[0] >= (debouncedActiveAgeGroup.value[0] ?? 10) &&
+					ageBounds[0] >= (debouncedActiveAgeGroup.value[0] ?? 0) &&
 					ageBounds[1] <= (debouncedActiveAgeGroup.value[1] ?? 100)
 				);
 			});
@@ -584,7 +587,7 @@ const updateUrlParams = async () => {
 
 const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
 	if (!omit?.includes("age")) {
-		activeAgeGroup.value = [10, 100];
+		activeAgeGroup.value = [0, 100];
 	}
 	if (!omit?.includes("question")) {
 		activeQuestion.value = "";
@@ -665,7 +668,6 @@ const handleColorUpdate = (index: number, newColor: string) => {
 
 const capitalsOnly = computed(() => Boolean(showStateCapitals.value && !showUrbanLocations.value));
 
-// Call the initialize function on component mount
 initializeFromUrl();
 
 watch(activeQuestion, async () => {
@@ -709,6 +711,13 @@ watch(activeVariants, updateUrlParams, {
 
 const highlightRegion = (regionName: string) => {
 	highlightedRegion.value = regionName;
+};
+
+const goToDbPage = async (): Promise<void> => {
+	await navigateTo({
+		path: localePath("/db"),
+		query: route.query,
+	});
 };
 </script>
 
@@ -775,7 +784,7 @@ const highlightRegion = (regionName: string) => {
 									accessibility-label="Age Group"
 									:label="(value) => value"
 									:max="100"
-									:min="10"
+									:min="0"
 									step="5"
 									:value="activeAgeGroup"
 									@update:value="setAgeGroup"
@@ -1059,9 +1068,14 @@ const highlightRegion = (regionName: string) => {
 				</GeoMapPopup>
 			</GeoMap>
 		</VisualisationContainer>
-		<div class="flex w-full gap-3">
-			<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ fullRoute }}</p>
-			<CopyToClipboard :text="fullRoute" />
+		<div class="flex w-full gap-8 justify-between">
+			<div class="flex w-full gap-3">
+				<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ fullRoute }}</p>
+				<CopyToClipboard :text="fullRoute" />
+			</div>
+			<Button v-if="activeQuestionId" @click="goToDbPage"
+				><Database class="mr-2 size-4" />{{ t("MapsPage.go-to-db") }}</Button
+			>
 		</div>
 		<DataTable v-if="tableData.length" :columns="columnsLocations" :data="tableData"></DataTable>
 		<DataTable

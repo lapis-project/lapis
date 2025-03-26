@@ -251,10 +251,11 @@ onBeforeUnmount(() => {
 				</tfoot>
 			</table>
 		</div>
-		<div class="mt-3 text-right">
+		<div class="mt-3 justify-end flex gap-3">
 			<Button @click="downloadCSV"
 				><Download class="mr-2 size-4" />{{ t("DataTable.download") }}</Button
 			>
+			<slot></slot>
 		</div>
 	</section>
 </template>

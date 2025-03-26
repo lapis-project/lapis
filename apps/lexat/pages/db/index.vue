@@ -1,14 +1,18 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
-import { InfoIcon, RotateCcw } from "lucide-vue-next";
+import { InfoIcon, MapPin, RotateCcw } from "lucide-vue-next";
+import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
 
 import { registerOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();
+const router = useRouter();
+const route = useRoute();
 const env = useRuntimeConfig();
 const { apiClient } = useApiClient();
+const localePath = useLocalePath();
 
 usePageMetadata({
 	title: t("DbPage.meta.title"),
@@ -58,7 +62,7 @@ const activeRegistersQuery = computed(() => {
 // 	);
 // });
 
-const activeAgeGroup = ref([10, 100]);
+const activeAgeGroup = ref([0, 100]);
 const activeQuestion = ref<string>("11");
 const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
@@ -68,6 +72,7 @@ const activeVariants = ref<Array<string>>([]);
 const activeQuestionId = computed(() => parseInt(activeQuestion.value));
 const activeSortLabel = ref<string | null>(null);
 const activeSortDirection = ref<SortOder | null>(null);
+const initializedFromQuery = ref<boolean>(false);
 
 const currentPage = ref(1);
 
@@ -140,7 +145,7 @@ const { data: tableDataRaw, status } = await useFetch<APITableData>(
 );
 
 const columns = ref<Array<TableColumn>>([
-	{ label: t("DbPage.table.infid"), value: "infid", sortable: true },
+	{ label: t("DbPage.table.infid"), value: "infid", sortable: false },
 	{ label: t("DbPage.table.response"), value: "response_text", sortable: true },
 	{ label: t("DbPage.table.annotation"), value: "annotation", sortable: true },
 	// { label: "Phänomen", value: "phenomenon", sortable: true },
@@ -160,7 +165,9 @@ const totalPages = computed(() => {
 });
 
 const setCurrentPage = (newValue: number) => {
-	currentPage.value = newValue;
+	if (currentPage.value !== newValue) {
+		currentPage.value = newValue;
+	}
 };
 
 const setAgeGroup = (newValues: Array<number>) => {
@@ -174,7 +181,7 @@ const setSortOrder = (label: string, order: SortOder) => {
 
 const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
 	if (!omit?.includes("age")) {
-		activeAgeGroup.value = [10, 100];
+		activeAgeGroup.value = [0, 100];
 	}
 	if (!omit?.includes("question")) {
 		activeQuestion.value = "11";
@@ -187,22 +194,91 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	activeSortDirection.value = null;
 };
 
+const updateUrlParams = async () => {
+	const queryObject: Record<string, string | Array<string>> = {};
+	Object.entries(route.query).forEach(([key, value]) => {
+		if (!["a", "q", "r", "v", "c", "sv"].includes(key)) {
+			queryObject[key] = value;
+		}
+	});
+
+	if (activeAgeGroup.value.length > 0) {
+		queryObject.a = activeAgeGroup.value.toString();
+	}
+	if (activeQuestion.value) {
+		queryObject.q = activeQuestion.value;
+	}
+	if (activeRegisters.value.length > 0) {
+		queryObject.r = activeRegisters.value;
+	}
+	if (activeVariants.value.length > 0) {
+		queryObject.v = activeVariants.value;
+	}
+
+	await router.replace({
+		query: queryObject,
+	});
+};
+
+const getQueryArray = (
+	route: RouteLocationNormalizedLoaded,
+	key: string,
+): Array<LocationQueryValue> => {
+	const value = route.query[key];
+	if (Array.isArray(value)) return value;
+	if (typeof value === "string") return [value];
+	return [];
+};
+
+const initializeFromUrl = () => {
+	const ageParams = getQueryArray(route, "a");
+	if (ageParams.length > 0 && ageParams[0]) {
+		activeAgeGroup.value = ageParams[0].split(",").map(Number);
+	}
+	const questionParam = route.query.q;
+	if (typeof questionParam === "string") {
+		activeQuestion.value = questionParam;
+	}
+	const registerParams = getQueryArray(route, "r");
+	if (registerParams.length > 0) {
+		activeRegisters.value = registerParams.map(String);
+	}
+	const variantParams = getQueryArray(route, "v");
+	if (variantParams.length > 0) {
+		activeVariants.value = variantParams.map(String);
+	}
+};
+
+const goToMapsPage = async (): Promise<void> => {
+	await navigateTo({
+		path: localePath("/maps"),
+		query: route.query,
+	});
+};
+
 watch(
 	activeQuestion,
 	async () => {
-		activeRegisters.value = ["all"];
-		activeAgeGroup.value = [10, 100];
-		activeVariants.value = [];
-		activeSortLabel.value = null;
-		activeSortDirection.value = null;
-		setCurrentPage(1);
+		if (route.query && !initializedFromQuery.value) {
+			initializeFromUrl();
+			initializedFromQuery.value = true;
+		} else {
+			activeRegisters.value = ["all"];
+			activeAgeGroup.value = [0, 100];
+			activeVariants.value = [];
+			activeSortLabel.value = null;
+			activeSortDirection.value = null;
+			setCurrentPage(1);
+			await updateUrlParams();
+		}
 	},
 	{ immediate: true },
 );
 
-watch(activeRegisters, () => setCurrentPage(1));
-watch(activeAgeGroup, () => setCurrentPage(1));
-watch(activeVariants, () => setCurrentPage(1));
+watch([activeRegisters, activeAgeGroup, activeVariants], async () => {
+	setCurrentPage(1);
+	await updateUrlParams();
+});
 
 watch(
 	activePageSize,
@@ -271,7 +347,7 @@ watch(
 								accessibility-label="Age Group"
 								:label="(value) => value"
 								:max="100"
-								:min="10"
+								:min="0"
 								step="5"
 								:value="activeAgeGroup"
 								@update:value="setAgeGroup"
@@ -309,7 +385,11 @@ watch(
 			:is-loading="status === 'pending'"
 			server-side-sorting
 			@update:sort-criterion="setSortOrder"
-		></DataTable>
+		>
+			<Button @click="goToMapsPage"
+				><MapPin class="mr-2 size-4" />{{ t("DbPage.go-to-maps") }}</Button
+			>
+		</DataTable>
 		<Pagination
 			:current-page="currentPage"
 			:items-per-page="activePageSizeQuery"

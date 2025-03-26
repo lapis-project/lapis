@@ -195,7 +195,8 @@
 			"variety": "Register",
 			"place": "Location",
 			"age-group": "Age"
-		}
+		},
+		"go-to-maps": "Explore on map"
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -273,6 +274,7 @@
 			"title": "Maps"
 		},
 		"title": "Maps",
+		"go-to-db": "Browse data",
 		"selection": {
 			"legend": "Legend",
 			"simplified-view": {

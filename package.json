@@ -23,7 +23,7 @@
 		"start:backend": "cd apps/backend && pnpm start",
 		"start:devSetup": "cd apps/backend && pnpm run build:types"
 	},
-	"packageManager": "pnpm@10.6.3",
+	"packageManager": "pnpm@10.7.0",
 	"devDependencies": {
 		"@acdh-oeaw/commitlint-config": "^2.0.0",
 		"@acdh-oeaw/prettier-config": "^2.0.1",

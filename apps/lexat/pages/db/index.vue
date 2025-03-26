@@ -72,9 +72,12 @@ const activeVariants = ref<Array<string>>([]);
 const activeQuestionId = computed(() => parseInt(activeQuestion.value));
 const activeSortLabel = ref<string | null>(null);
 const activeSortDirection = ref<SortOder | null>(null);
-const initializedFromQuery = ref<boolean>(false);
 
 const currentPage = ref(1);
+
+if (typeof route.query.q === "string") {
+	activeQuestion.value = route.query.q;
+}
 
 const _getAnnotations = apiClient.questions.annotation[":project"].$get;
 type APIAnnotation = InferResponseType<typeof _getAnnotations, 200>;
@@ -235,10 +238,6 @@ const initializeFromUrl = () => {
 	if (ageParams.length > 0 && ageParams[0]) {
 		activeAgeGroup.value = ageParams[0].split(",").map(Number);
 	}
-	const questionParam = route.query.q;
-	if (typeof questionParam === "string") {
-		activeQuestion.value = questionParam;
-	}
 	const registerParams = getQueryArray(route, "r");
 	if (registerParams.length > 0) {
 		activeRegisters.value = registerParams.map(String);
@@ -259,18 +258,13 @@ const goToMapsPage = async (): Promise<void> => {
 watch(
 	activeQuestion,
 	async () => {
-		if (route.query && !initializedFromQuery.value) {
-			initializeFromUrl();
-			initializedFromQuery.value = true;
-		} else {
-			activeRegisters.value = ["all"];
-			activeAgeGroup.value = [0, 100];
-			activeVariants.value = [];
-			activeSortLabel.value = null;
-			activeSortDirection.value = null;
-			setCurrentPage(1);
-			await updateUrlParams();
-		}
+		activeRegisters.value = ["all"];
+		activeAgeGroup.value = [0, 100];
+		activeVariants.value = [];
+		activeSortLabel.value = null;
+		activeSortDirection.value = null;
+		setCurrentPage(1);
+		await updateUrlParams();
 	},
 	{ immediate: true },
 );
@@ -290,6 +284,8 @@ watch(
 	},
 	{ immediate: true },
 );
+
+initializeFromUrl();
 </script>
 
 <template>

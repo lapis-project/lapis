@@ -20,9 +20,9 @@ import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojso
 import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import {
 	basemapOptions,
+	getRegisterOptions,
 	regions,
 	registerGroups,
-	registerOptions,
 	specialOrder,
 	stateCapitalsList,
 } from "@/assets/data/static-filter-data";
@@ -52,6 +52,8 @@ const route = useRoute();
 const env = useRuntimeConfig();
 const { apiClient } = useApiClient();
 const localePath = useLocalePath();
+
+const registerOptions = getRegisterOptions(t);
 
 const _getPhenomenons = apiClient.questions.survey[":project"].$get;
 type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;

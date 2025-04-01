@@ -1,5 +1,6 @@
 // assets/data/static-data.ts
 
+import type { TranslateFn } from "@/composables/use-translations";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 export const stateCapitalsList = [
@@ -43,62 +44,64 @@ export const basemapOptions: Array<DropdownOption> = [
 	},
 ];
 
-export const registerOptions: Array<DropdownOption> = [
-	{
-		label: "Show All",
-		value: "all",
-		level: 0,
-	},
-	{
-		label: "Standardsprachliche Register",
-		// value: "st",
-		value: "1",
-		level: 1,
-		group: "st",
-	},
-	{
-		label: "Ihr Hochdeutsch",
-		// value: "hd",
-		value: "4",
-		level: 2,
-		group: "st",
-	},
-	{
-		label: "Ihr österreichisches Hochdeutsch",
-		// value: "oehd",
-		value: "5",
-		level: 2,
-		group: "st",
-	},
-	{
-		label: "Ihr bestes Hochdeutsch",
-		// value: "bhd",
-		value: "6",
-		level: 2,
-		group: "st",
-	},
-	{
-		label: "Standardfernere Register",
-		// value: "diaf",
-		value: "2",
-		level: 1,
-		group: "dia",
-	},
-	{
-		label: "Dialekt (Mundart)",
-		// value: "dia",
-		value: "7",
-		level: 2,
-		group: "dia",
-	},
-	{
-		label: "Umgangssprache oder Alltagssprache",
-		// value: "usas",
-		value: "8",
-		level: 2,
-		group: "dia",
-	},
-];
+export function getRegisterOptions(t: TranslateFn): Array<DropdownOption> {
+	return [
+		{
+			label: t("MapsPage.selection.register.show-all") || "Alle anzeigen",
+			value: "all",
+			level: 0,
+		},
+		{
+			label: "Standardsprachliche Register",
+			// value: "st",
+			value: "1",
+			level: 1,
+			group: "st",
+		},
+		{
+			label: "Ihr Hochdeutsch",
+			// value: "hd",
+			value: "4",
+			level: 2,
+			group: "st",
+		},
+		{
+			label: "Ihr österreichisches Hochdeutsch",
+			// value: "oehd",
+			value: "5",
+			level: 2,
+			group: "st",
+		},
+		{
+			label: "Ihr bestes Hochdeutsch",
+			// value: "bhd",
+			value: "6",
+			level: 2,
+			group: "st",
+		},
+		{
+			label: "Standardfernere Register",
+			// value: "diaf",
+			value: "2",
+			level: 1,
+			group: "dia",
+		},
+		{
+			label: "Dialekt (Mundart)",
+			// value: "dia",
+			value: "7",
+			level: 2,
+			group: "dia",
+		},
+		{
+			label: "Umgangssprache oder Alltagssprache",
+			// value: "usas",
+			value: "8",
+			level: 2,
+			group: "dia",
+		},
+	];
+}
 
 export const registerGroups = [
 	{

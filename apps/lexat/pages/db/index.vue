@@ -3,7 +3,7 @@ import type { InferResponseType } from "hono/client";
 import { InfoIcon, MapPin, RotateCcw } from "lucide-vue-next";
 import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
 
-import { registerOptions, specialOrder } from "@/assets/data/static-filter-data";
+import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
 
@@ -17,6 +17,8 @@ const localePath = useLocalePath();
 usePageMetadata({
 	title: t("DbPage.meta.title"),
 });
+
+const registerOptions = getRegisterOptions(t);
 
 const _getPhenomenons = apiClient.questions.survey[":project"].$get;
 type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;

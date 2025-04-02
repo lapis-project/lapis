@@ -89,15 +89,15 @@ const hasColor = computed(() => {
 					<CommandGroup>
 						<CommandItem
 							v-for="question in props.options"
-							:key="question.value"
-							:value="question.value"
+							:key="question.id"
+							:value="question.label ?? ''"
 							@select="
 								(ev) => {
 									if (typeof ev.detail.value === 'string') {
 										if (!selectOnly) {
-											model = ev.detail.value;
+											model = question.value;
 										}
-										emit('selected', ev.detail.value);
+										emit('selected', question.value ?? '');
 									}
 									open = false;
 								}

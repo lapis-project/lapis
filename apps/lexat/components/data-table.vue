@@ -27,6 +27,7 @@ export type SortOder = "asc" | "desc";
 
 const sortOrder = ref<SortOder>("asc");
 
+const dbTable = ref<HTMLDivElement | null>(null);
 const flash = ref(false);
 const flashStartTime = ref<number>(0);
 const removeTimeout = ref<NodeJS.Timeout | null>(null);
@@ -100,15 +101,21 @@ const flashClasses = computed(() => {
 		: "opacity-100 transition-opacity duration-250 delay-250";
 });
 
+const resetScroll = () => {
+	if (dbTable.value) {
+		// reset vertical scroll position
+		dbTable.value.scrollTop = 0;
+	}
+};
+
 watch(
-	() => {
-		return props.data;
-	},
+	() => props.data,
 	() => {
 		if (!props.serverSideSorting) {
 			sortCriterion.value = "";
 			sortOrder.value = "asc";
 		}
+		resetScroll();
 	},
 );
 
@@ -151,7 +158,10 @@ onBeforeUnmount(() => {
 
 <template>
 	<section>
-		<div class="relative max-h-[500px] overflow-x-auto overflow-y-scroll shadow-md sm:rounded-lg">
+		<div
+			ref="dbTable"
+			class="relative max-h-[500px] overflow-x-auto overflow-y-scroll shadow-md sm:rounded-lg"
+		>
 			<table
 				class="min-w-full table-fixed text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right"
 			>

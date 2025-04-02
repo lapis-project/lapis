@@ -219,7 +219,7 @@ const filteredPoints = computed(() => {
 				const ageBounds = prop.age.split("-");
 				return (
 					ageBounds[0] >= (debouncedActiveAgeGroup.value[0] ?? 0) &&
-					ageBounds[1] <= (debouncedActiveAgeGroup.value[1] ?? 100)
+					ageBounds[1] < (debouncedActiveAgeGroup.value[1] ?? 100)
 				);
 			});
 
@@ -519,7 +519,7 @@ const columnsLocations = ref<Array<TableColumn>>([
 		sortable: true,
 		footer: t("MapsPage.table.locations.location.footer"),
 	},
-	{ label: t("MapsPage.table.locations.variant"), value: "variant", sortable: false },
+	{ label: t("MapsPage.table.locations.variant"), value: "variant", sortable: true },
 	{ label: t("MapsPage.table.locations.count"), value: "count", sortable: true, sum: true },
 	{
 		label: t("MapsPage.table.locations.register.header"),

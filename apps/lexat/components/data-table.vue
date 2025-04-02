@@ -16,6 +16,7 @@ export interface TableColumn {
 	sortable: boolean;
 	footer?: string;
 	sum?: boolean;
+	criterion?: string;
 }
 
 const t = useTranslations();
@@ -58,6 +59,7 @@ const totalCount = (columnValue: string) => {
 
 const emit = defineEmits<{
 	(event: "update:sortCriterion", label: string, order: SortOder): void;
+	(event: "download-csv"): void;
 }>();
 
 const setSortCriterion = (column: TableColumn) => {
@@ -65,50 +67,18 @@ const setSortCriterion = (column: TableColumn) => {
 		sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
 		sortCriterion.value = column.value;
 
-		if (props.serverSideSorting) {
-			emit("update:sortCriterion", column.value, sortOrder.value);
+		if (props.serverSideSorting && column.criterion) {
+			emit("update:sortCriterion", column.criterion, sortOrder.value);
 		}
 	}
 };
 
-const escapeCSVValue = (value: number | string): number | string => {
-	if (typeof value === "string") {
-		// Escape double quotes by doubling them
-		const escapedValue = value.replace(/"/g, '""');
-		// Enclose the value in double quotes
-		return `"${escapedValue}"`;
+const handleDownload = () => {
+	if (props.serverSideSorting) {
+		emit("download-csv");
+	} else {
+		downloadCSV(sortedData.value, props.columns);
 	}
-	return value;
-};
-
-const downloadCSV = () => {
-	const csvRows: Array<string> = [];
-
-	// Add the header row
-	const headerRow = props.columns.map((header) => header.label).join(",");
-	csvRows.push(headerRow);
-
-	// Add the data rows
-	sortedData.value.forEach((row) => {
-		const rowValues = props.columns.map((header) => escapeCSVValue(row[header.value]));
-		csvRows.push(rowValues.join(","));
-	});
-
-	// Create a Blob from the CSV string
-	const csvString = csvRows.join("\n");
-	const blob = new Blob([csvString], { type: "text/csv" });
-	const url = URL.createObjectURL(blob);
-
-	// Create an anchor element and trigger the download
-	const link = document.createElement("a");
-	link.href = url;
-	link.download = "table-data.csv";
-	document.body.appendChild(link);
-	link.click();
-
-	// Clean up
-	document.body.removeChild(link);
-	URL.revokeObjectURL(url);
 };
 
 // Yes, we have to do this explicitly so that tailwind picks up the full class names
@@ -252,7 +222,7 @@ onBeforeUnmount(() => {
 			</table>
 		</div>
 		<div class="mt-3 justify-end flex gap-3">
-			<Button @click="downloadCSV"
+			<Button @click="handleDownload"
 				><Download class="mr-2 size-4" />{{ t("DataTable.download") }}</Button
 			>
 			<slot></slot>

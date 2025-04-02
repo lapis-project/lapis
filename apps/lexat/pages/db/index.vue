@@ -150,13 +150,23 @@ const { data: tableDataRaw, status } = await useFetch<APITableData>(
 );
 
 const columns = ref<Array<TableColumn>>([
-	{ label: t("DbPage.table.infid"), value: "infid", sortable: false },
-	{ label: t("DbPage.table.response"), value: "response_text", sortable: true },
-	{ label: t("DbPage.table.annotation"), value: "annotation", sortable: true },
-	// { label: "Phänomen", value: "phenomenon", sortable: true },
-	{ label: t("DbPage.table.variety"), value: "variety_name", sortable: true },
-	{ label: t("DbPage.table.place"), value: "place_name", sortable: true },
-	{ label: t("DbPage.table.age-group"), value: "age_group_name", sortable: true },
+	{ label: t("DbPage.table.infid"), value: "informant", criterion: "infid", sortable: false },
+	{
+		label: t("DbPage.table.response"),
+		value: "response",
+		criterion: "response_text",
+		sortable: true,
+	},
+	{
+		label: t("DbPage.table.annotation"),
+		value: "annotation",
+		criterion: "annotation",
+		sortable: true,
+	},
+	// { label: "Phänomen", value: "",criterion: "phenomenon", sortable: true },
+	{ label: t("DbPage.table.variety"), value: "variety", criterion: "variety_name", sortable: true },
+	{ label: t("DbPage.table.place"), value: "place", criterion: "place_name", sortable: true },
+	{ label: t("DbPage.table.age-group"), value: "age", criterion: "age_group_name", sortable: true },
 ]);
 
 const tableData = computed(() => {
@@ -255,6 +265,35 @@ const goToMapsPage = async (): Promise<void> => {
 		path: localePath("/maps"),
 		query: route.query,
 	});
+};
+
+const totalResults = computed(() => {
+	return tableDataRaw.value?.totalResults;
+});
+
+const handleDownload = async (): Promise<void> => {
+	const result = await $fetch<APITableData>(`/questions/table/${activeQuestionId.value}`, {
+		query: {
+			page: 1,
+			pageSize: totalResults.value,
+			varIds: activeRegistersQuery.value,
+			annotations: activeVariants.value,
+			lowerAge: lowerAge.value,
+			upperAge: upperAge.value,
+			orderBy: activeSortLabel.value,
+			dir: activeSortDirection.value,
+		},
+		baseURL: env.public.apiBaseUrl,
+		method: "GET",
+		credentials: "include",
+	});
+	if (result.responses) {
+		const questionName =
+			questions.value?.find((q) => q.id === activeQuestionId.value)?.phenomenon_name ?? "undefined";
+		const timeStamp = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // produces yyyymmdd (e.g. 20250402)
+		const fileName = `db-${questionName.toLowerCase()}-${timeStamp}`;
+		downloadCSV(result.responses, columns.value, fileName);
+	}
 };
 
 watch(
@@ -378,10 +417,12 @@ initializeFromUrl();
 		</section>
 
 		<DataTable
+			class="mb-3"
 			:columns="columns"
 			:data="tableData"
 			:is-loading="status === 'pending'"
 			server-side-sorting
+			@download-csv="handleDownload"
 			@update:sort-criterion="setSortOrder"
 		>
 			<Button @click="goToMapsPage"

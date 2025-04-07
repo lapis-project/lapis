@@ -5,6 +5,7 @@ import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-rout
 
 import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
+import { useQuestions } from "@/composables/use-questions";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();
@@ -20,13 +21,7 @@ usePageMetadata({
 
 const registerOptions = getRegisterOptions(t);
 
-const _getPhenomenons = apiClient.questions.survey[":project"].$get;
-type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;
-const { data: questions } = await useFetch<APIPhenomenons>("/questions/survey/1", {
-	baseURL: env.public.apiBaseUrl,
-	method: "GET",
-	credentials: "include",
-});
+const { questions } = await useQuestions();
 
 const mappedQuestions = computed(() => {
 	return (

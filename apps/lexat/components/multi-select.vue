@@ -49,7 +49,7 @@ const toggelSelection = (selection: string) => {
 			group = group.filter((i) => !model.value.includes(i)); // remove group elements that are already selected
 			modifiedModel.push(...model.value, ...group);
 		} else if (option?.level === 2) {
-			let groupChilds: Array<string> = [];
+			const groupChilds: Array<string> = [];
 			let groupParent = "";
 			props.options.forEach((o) => {
 				if (o.group === option.group && o.level === 1) {
@@ -99,11 +99,11 @@ const open = ref(false);
 	<Popover v-model:open="open">
 		<PopoverTrigger as-child class="">
 			<Button
-				variant="outline"
-				role="combobox"
-				:aria-expanded="open"
 				aria-controls="popover-content"
+				:aria-expanded="open"
 				class="w-64 justify-between"
+				role="combobox"
+				variant="outline"
 			>
 				<span class="grow truncate text-left">
 					{{
@@ -112,15 +112,15 @@ const open = ref(false);
 							: t("Combobox.button", { placeholder: props.placeholder })
 					}}
 				</span>
-				<svg v-if="model.length > 1" width="20" height="20" class="ml-1 shrink-0">
-					<circle cx="10" cy="10" r="10" fill="currentColor" />
+				<svg v-if="model.length > 1" class="ml-1 shrink-0" height="20" width="20">
+					<circle cx="10" cy="10" fill="currentColor" r="10" />
 					<text
-						text-anchor="middle"
+						class="text-xs text-primary-foreground"
 						dominant-baseline="central"
+						fill="currentColor"
+						text-anchor="middle"
 						x="50%"
 						y="50%"
-						fill="currentColor"
-						class="text-xs text-primary-foreground"
 					>
 						+{{ model.length - 1 }}
 					</text>
@@ -135,6 +135,9 @@ const open = ref(false);
 						<CommandItem
 							v-for="question in props.options"
 							:key="question.value"
+							:class="{
+								'border-b rounded-b-none text-accent-foreground': question.value === 'all',
+							}"
 							:value="question.value"
 							@select="
 								(ev) => {
@@ -148,7 +151,9 @@ const open = ref(false);
 								:class="
 									cn(
 										'mr-2 h-4 w-4',
-										model.includes(question.value) || showAll ? 'opacity-100' : 'opacity-0',
+										(model.includes(question.value) || showAll) && question.value !== 'all'
+											? 'opacity-100'
+											: 'opacity-0',
 									)
 								"
 							/>

@@ -46,6 +46,14 @@ const activeRegistersQuery = computed(() => {
 	}
 });
 
+const activeVariantsQuery = computed(() => {
+	if (activeVariants.value.includes("all")) {
+		return null;
+	} else {
+		return activeVariants.value;
+	}
+});
+
 // TODO MAYBE RETHINK ENDPOINT, THE CURRENT MAPPING IS KINDA EXCESSIVE
 // const _getVarieties = apiClient.questions.variety.$get;
 // type APIVarieties = InferResponseType<typeof _getVarieties, 200>;
@@ -69,7 +77,7 @@ const activeQuestion = ref<string>("11");
 const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
 const activeRegisters = ref<Array<string>>(["all"]);
-const activeVariants = ref<Array<string>>([]);
+const activeVariants = ref<Array<string>>(["all"]);
 // const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250); // using debounce prevents useFetch's native req cancelling
 const activeQuestionId = computed(() => parseInt(activeQuestion.value));
 const activeSortLabel = ref<string | null>(null);
@@ -94,7 +102,7 @@ const { data: annotations } = await useFetch<APIAnnotation>("/questions/annotati
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
-	return (
+	const variantOptions =
 		annotations.value
 			?.map((variant) => ({
 				label: variant.annotation_name,
@@ -109,8 +117,14 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 
 				// sort by priority, with lower values appearing later
 				return priorityB - priorityA;
-			}) ?? []
-	);
+			}) ?? [];
+	variantOptions.unshift({
+		label: t("MapsPage.selection.register.show-all") || "Alle anzeigen",
+		value: "all",
+		level: 0,
+		group: "all",
+	});
+	return variantOptions;
 });
 
 const pageSizeOption: Array<DropdownOption> = [
@@ -137,7 +151,7 @@ const { data: tableDataRaw, status } = await useFetch<APITableData>(
 			page: currentPage,
 			pageSize: activePageSizeQuery,
 			varIds: activeRegistersQuery,
-			annotations: activeVariants,
+			annotations: activeVariantsQuery,
 			lowerAge,
 			upperAge,
 			orderBy: activeSortLabel,
@@ -204,7 +218,7 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	if (!omit?.includes("register")) {
 		activeRegisters.value = ["all"];
 	}
-	activeVariants.value = [];
+	activeVariants.value = ["all"];
 	activeSortLabel.value = null;
 	activeSortDirection.value = null;
 };
@@ -227,7 +241,7 @@ const updateUrlParams = async () => {
 		queryObject.r = activeRegisters.value;
 	}
 	if (activeVariants.value.length > 0) {
-		queryObject.v = activeVariants.value;
+		queryObject.v = activeVariants.value.filter((aV) => aV !== "Keine Angabe");
 	}
 
 	await router.replace({
@@ -277,7 +291,7 @@ const handleDownload = async (): Promise<void> => {
 			page: 1,
 			pageSize: totalResults.value,
 			varIds: activeRegistersQuery.value,
-			annotations: activeVariants.value,
+			annotations: activeVariantsQuery.value,
 			lowerAge: lowerAge.value,
 			upperAge: upperAge.value,
 			orderBy: activeSortLabel.value,
@@ -301,7 +315,7 @@ watch(
 	async () => {
 		activeRegisters.value = ["all"];
 		activeAgeGroup.value = [0, 100];
-		activeVariants.value = [];
+		activeVariants.value = ["all"];
 		activeSortLabel.value = null;
 		activeSortDirection.value = null;
 		setCurrentPage(1);

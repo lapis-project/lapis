@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { keyByToMap } from "@acdh-oeaw/lib";
 import { refDebounced } from "@vueuse/core";
-import type { InferResponseType } from "hono/client";
 import {
 	ChevronDownIcon,
 	Database,
@@ -27,8 +26,8 @@ import {
 	stateCapitalsList,
 } from "@/assets/data/static-filter-data";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
-import { useApiClient } from "@/composables/use-api-client";
 import { useMapColors } from "@/composables/use-map-colors";
+import { useQuestions } from "@/composables/use-questions";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type {
 	RegionFeature,
@@ -50,13 +49,9 @@ const t = useTranslations();
 const router = useRouter();
 const route = useRoute();
 const env = useRuntimeConfig();
-const { apiClient } = useApiClient();
 const localePath = useLocalePath();
 
 const registerOptions = getRegisterOptions(t);
-
-const _getPhenomenons = apiClient.questions.survey[":project"].$get;
-type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;
 
 const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyResponse> } | null>(
 	null,
@@ -64,10 +59,7 @@ const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyRespo
 
 const { colors, specialColors, resetColors } = useMapColors();
 
-const { data: questions } = await useFetch<APIPhenomenons>("/questions/survey/1", {
-	baseURL: env.public.apiBaseUrl,
-	method: "GET",
-});
+const { questions } = await useQuestions();
 
 const mappedQuestions = computed(() => {
 	return (

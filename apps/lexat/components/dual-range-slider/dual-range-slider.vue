@@ -52,7 +52,7 @@ const emitValueChange = (newValue: Array<number> | undefined) => {
 					labelPosition === 'bottom' ? 'top-4' : '',
 				]"
 			>
-				{{ initial }}
+				{{ index === 1 ? "<" : "" }}{{ initial }}
 			</span>
 		</SliderThumb>
 	</SliderRoot>

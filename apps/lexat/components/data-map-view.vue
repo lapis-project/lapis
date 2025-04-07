@@ -85,7 +85,7 @@ const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
 const activeQuestion = ref<string | null>(null);
 const activeRegisters = ref<Array<string>>(["all"]);
-const activeVariants = ref<Array<string>>([]);
+const activeVariants = ref<Array<string>>(["all"]);
 const mapExpanded = ref<boolean>(false);
 const simplifiedView = ref<boolean>(false);
 const showRegionNames = ref<boolean>(false);
@@ -196,7 +196,7 @@ const mappedColors = computed(() => {
 
 const filteredPoints = computed(() => {
 	let filteredPoints = points.value;
-	if (activeVariants.value.length) {
+	if (activeVariants.value.length && !activeVariants.value.includes("all")) {
 		filteredPoints = filteredPoints
 			.map((entry) => {
 				const filteredCoalesce = entry.coalesce // Make sure this is referring to 'coalesce'
@@ -284,7 +284,7 @@ const uniqueVariants = computed(() => {
 });
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
-	return uniqueVariants.value
+	const variantOptions = uniqueVariants.value
 		.map((variant) => ({
 			label: variant.anno,
 			value: variant.anno,
@@ -299,6 +299,13 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 			// sort by priority, with lower values appearing later
 			return priorityB - priorityA;
 		});
+	variantOptions.unshift({
+		label: t("MapsPage.selection.register.show-all") || "Alle anzeigen",
+		value: "all",
+		level: 0,
+		group: "all",
+	});
+	return variantOptions;
 });
 
 function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "properties">>) {
@@ -597,7 +604,7 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	if (!omit?.includes("register")) {
 		activeRegisters.value = ["all"];
 	}
-	activeVariants.value = [];
+	activeVariants.value = ["all"];
 	popover.value = null;
 	changedColors.value = {};
 	await updateUrlParams();

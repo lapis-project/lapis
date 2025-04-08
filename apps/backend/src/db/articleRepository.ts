@@ -3,7 +3,7 @@ import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect";
 import { jsonbBuildObject } from "@/lib/dbHelper";
-import type { Poststatus } from "@/types/db";
+import type { Availablelang, Poststatus } from "@/types/db";
 
 export async function getArticleByAlias(alias: string) {
 	const query = db
@@ -105,7 +105,7 @@ export async function getAllArticlesByProject(
 	searchTerm: string,
 	postType: string,
 	postStatus: Poststatus,
-	lang?: string,
+	lang?: Availablelang,
 ) {
 	const query = db
 		.with("post_query", (query) => {
@@ -119,9 +119,14 @@ export async function getAllArticlesByProject(
 				.where("post.title", "~*", searchTerm)
 				.where("post_type.post_type_name", "~*", postType)
 				.where("post.post_status", "=", postStatus);
-
 			if (lang) {
 				baseQuery = baseQuery.where("post.lang", "=", lang);
+			}
+			if (searchTerm === "" && postType === "") {
+				baseQuery = baseQuery.orderBy(sql`CASE
+					WHEN post_type.post_type_name = 'project_description' THEN 1
+					ELSE 2
+				END`);
 			}
 
 			return baseQuery

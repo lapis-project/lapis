@@ -3,7 +3,6 @@
 import baseConfig from "@acdh-oeaw/eslint-config";
 import nuxtConfig from "@acdh-oeaw/eslint-config-nuxt";
 import playwrightConfig from "@acdh-oeaw/eslint-config-playwright";
-// import tailwindcssConfig from "@acdh-oeaw/eslint-config-tailwindcss";
 import vueConfig from "@acdh-oeaw/eslint-config-vue";
 import gitignore from "eslint-config-flat-gitignore";
 

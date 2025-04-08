@@ -12,7 +12,11 @@ export async function getAllPhenomenon(projectId: string) {
 		return await db
 			.selectFrom("phenomenon")
 			.leftJoin("phenomenon_post", "phenomenon.id", "phenomenon_post.phenomenon_id")
-			.leftJoin("post", "phenomenon_post.post_id", "post.id")
+			.leftJoin("post", (join) =>
+				join
+					.onRef("phenomenon_post.post_id", "=", "post.id")
+					.on("post.post_status", "=", "Published"),
+			)
 			.orderBy("phenomenon.phenomenon_name")
 			.distinct()
 			.select([
@@ -29,7 +33,11 @@ export async function getAllPhenomenon(projectId: string) {
 		.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
 		.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
 		.leftJoin("phenomenon_post", "phenomenon.id", "phenomenon_post.phenomenon_id")
-		.leftJoin("post", "phenomenon_post.post_id", "post.id")
+		.leftJoin("post", (join) =>
+			join
+				.onRef("phenomenon_post.post_id", "=", "post.id")
+				.on("post.post_status", "=", "Published"),
+		)
 		.where("project_tagset.project_id", "=", projectIdParsed)
 		.orderBy("phenomenon.phenomenon_name")
 		.distinct()

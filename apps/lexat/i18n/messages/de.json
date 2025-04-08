@@ -276,6 +276,7 @@
 		"title": "Kartierung",
 		"go-to-article": "Kommentar lesen",
 		"go-to-db": "Belege ansehen",
+		"help": "Hilfe",
 		"selection": {
 			"legend": "Legende",
 			"simplified-view": {
@@ -353,6 +354,31 @@
 			"title": "Seite nicht gefunden"
 		},
 		"title": "Seite nicht gefunden"
+	},
+	"Onboarding": {
+		"welcome": {
+			"title": "Hallo!",
+			"description": "Willkommen im Kartierung-Tool von LexAT21."
+		},
+		"phenomenon": {
+			"title": "Phänomenauswahl",
+			"description": "Wähle das Phänomen, welches du auf der Karte visualisiern möchtest."
+		},
+		"register": {
+			"title": "Weitere Filter",
+			"description": "Mit den übrigen Filtern kannst du die Datenpunkte auf der Karte genauer eingrenzen."
+		},
+		"reset": {
+			"title": "Filter zurücksetzen",
+			"description": "Klicke hier, um die momentane Filterauswahl zurückzusetzen."
+		},
+		"advanced": {
+			"title": "Erweiterte Funktionen",
+			"description": "Klicke hier, um die erweiteren Einstellungen auszuklappen."
+		},
+		"next": "Weiter",
+		"previous": "Zurück",
+		"finish": "Los gehts!"
 	},
 	"ProfilePage": {
 		"meta": {

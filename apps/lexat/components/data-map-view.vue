@@ -1,8 +1,11 @@
 <script lang="ts" setup>
+import "v-onboarding/dist/style.css";
+
 import { keyByToMap } from "@acdh-oeaw/lib";
 import { refDebounced } from "@vueuse/core";
 import {
 	ChevronDownIcon,
+	CircleHelp,
 	Database,
 	FileText,
 	InfoIcon,
@@ -14,6 +17,7 @@ import {
 } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
+import { useVOnboarding, VOnboardingStep, VOnboardingWrapper } from "v-onboarding";
 import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
 
 import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
@@ -676,6 +680,87 @@ const postAlias = computed(() => {
 
 initializeFromUrl();
 
+const highlightRegion = (regionName: string) => {
+	highlightedRegion.value = regionName;
+};
+
+const goToArticlePage = async (): Promise<void> => {
+	if (postAlias.value) {
+		window.open(postAlias.value, "_blank");
+	}
+};
+
+const goToDbPage = async (): Promise<void> => {
+	await navigateTo({
+		path: localePath("/db"),
+		query: route.query,
+	});
+};
+
+// ONBOARDING
+const wrapper = ref(null);
+const { start: startOnboarding } = useVOnboarding(wrapper);
+const steps = [
+	{
+		attachTo: { element: "#welcome" },
+		content: {
+			title: "Onboarding.welcome.title",
+			description: "Onboarding.welcome.description",
+		},
+	},
+	{
+		attachTo: { element: "#phenomenon" },
+		content: {
+			title: "Onboarding.phenomenon.title",
+			description: "Onboarding.phenomenon.description",
+		},
+	},
+	{
+		attachTo: { element: "#register" },
+		content: {
+			title: "Onboarding.register.title",
+			description: "Onboarding.register.description",
+		},
+	},
+	{
+		attachTo: { element: "#reset" },
+		content: {
+			title: "Onboarding.reset.title",
+			description: "Onboarding.reset.description",
+		},
+	},
+	{
+		attachTo: { element: "#advanced" },
+		content: {
+			title: "Onboarding.advanced.title",
+			description: "Onboarding.advanced.description",
+		},
+	},
+];
+const onboardingOptions = { overlay: { padding: 10, borderRadius: 10 } };
+
+const onboardingFinished = () => {
+	const timestamp = new Date().toISOString();
+	localStorage.setItem("map-onboarding", JSON.stringify({ finishedAt: timestamp }));
+};
+
+onMounted(() => {
+	const onboardingData = localStorage.getItem("map-onboarding");
+
+	if (!onboardingData) {
+		startOnboarding();
+	} else {
+		const { finishedAt } = JSON.parse(onboardingData);
+		// eslint-disable-next-line no-console
+		console.info("Onboarding completed at:", finishedAt);
+	}
+});
+
+const resetOnboarding = () => {
+	localStorage.removeItem("map-onboarding");
+	startOnboarding();
+};
+
 watch(activeQuestion, async () => {
 	await resetSelection(["question"]);
 	resetColors();
@@ -714,32 +799,15 @@ watch(
 watch(activeVariants, updateUrlParams, {
 	deep: true,
 });
-
-const highlightRegion = (regionName: string) => {
-	highlightedRegion.value = regionName;
-};
-
-const goToArticlePage = async (): Promise<void> => {
-	if (postAlias.value) {
-		window.open(postAlias.value, "_blank");
-	}
-};
-
-const goToDbPage = async (): Promise<void> => {
-	await navigateTo({
-		path: localePath("/db"),
-		query: route.query,
-	});
-};
 </script>
 
 <template>
 	<div class="relative flex flex-col gap-5">
-		<Collapsible v-model:open="showAdvancedFilters">
+		<Collapsible id="welcome" v-model:open="showAdvancedFilters">
 			<div class="flex gap-2">
 				<div class="grow rounded-lg border p-5">
 					<div class="grid grid-cols-4 gap-5">
-						<div>
+						<div id="phenomenon">
 							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.variable.title") }}
 								<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
@@ -754,7 +822,7 @@ const goToDbPage = async (): Promise<void> => {
 								:placeholder="t('MapsPage.selection.variable.placeholder')"
 							/>
 						</div>
-						<div>
+						<div id="register">
 							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.register.title") }}
 								<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
@@ -767,7 +835,7 @@ const goToDbPage = async (): Promise<void> => {
 								:placeholder="t('MapsPage.selection.register.placeholder')"
 							/>
 						</div>
-						<div>
+						<div id="variant">
 							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.variants.title") }}
 								<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
@@ -781,7 +849,7 @@ const goToDbPage = async (): Promise<void> => {
 								single-level
 							/>
 						</div>
-						<div>
+						<div id="age-group">
 							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.age.title") }}
 							</div>
@@ -906,11 +974,11 @@ const goToDbPage = async (): Promise<void> => {
 					</CollapsibleContent>
 				</div>
 				<div class="flex flex-col gap-2">
-					<Button size="icon" variant="outline" @click="resetSelection()"
+					<Button id="reset" size="icon" variant="outline" @click="resetSelection()"
 						><RotateCcwIcon class="size-4"
 					/></Button>
 					<CollapsibleTrigger
-						><Button size="icon" variant="outline"
+						><Button id="advanced" size="icon" variant="outline"
 							><ChevronDownIcon
 								class="size-4"
 								:class="{ 'rotate-180': showAdvancedFilters }" /></Button
@@ -1092,6 +1160,9 @@ const goToDbPage = async (): Promise<void> => {
 				<Button v-if="activeQuestionId" @click="goToDbPage"
 					><Database class="mr-2 size-4" />{{ t("MapsPage.go-to-db") }}</Button
 				>
+				<Button v-else variant="outline" @click="resetOnboarding">
+					<CircleHelp class="mr-2 size-5" /> {{ t("MapsPage.help") }}</Button
+				>
 			</div>
 		</div>
 		<DataTable v-if="tableData.length" :columns="columnsLocations" :data="tableData"></DataTable>
@@ -1100,5 +1171,90 @@ const goToDbPage = async (): Promise<void> => {
 			:columns="columnsRegisters"
 			:data="tableDataForRegisters"
 		></DataTable>
+		<VOnboardingWrapper
+			ref="wrapper"
+			:options="onboardingOptions"
+			:steps="steps"
+			@finish="onboardingFinished"
+		>
+			<template #default="{ previous, next, step, isFirst, isLast }">
+				<VOnboardingStep>
+					<div class="bg-white shadow sm:rounded-lg mt-5">
+						<div class="px-4 py-5 sm:p-6">
+							<div class="flex items-center justify-between flex-col gap-5">
+								<div v-if="step.content">
+									<h3 v-if="step.content.title" class="text-lg font-medium leading-6 text-gray-900">
+										{{ t(step.content.title) }}
+									</h3>
+									<div v-if="step.content.description" class="mt-2 max-w-xl text-sm text-gray-500">
+										<p>{{ t(step.content.description) }}</p>
+									</div>
+								</div>
+								<div
+									class="mt-5 space-x-4 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center relative"
+								>
+									<!-- <span
+										class="absolute right-0 bottom-full mb-2 mr-2 text-gray-600 font-medium text-xs"
+										>{{ `${index + 1}/${steps.length}` }}</span
+									> -->
+									<template v-if="!isFirst">
+										<button
+											class="inline-flex items-center justify-center rounded-md border border-transparent bg-yellow-100 px-4 py-2 font-medium text-yellow-700 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:text-sm"
+											type="button"
+											@click="previous"
+										>
+											{{ t("Onboarding.previous") }}
+										</button>
+									</template>
+									<button
+										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
+										type="button"
+										@click="next"
+									>
+										{{ isLast ? t("Onboarding.finish") : t("Onboarding.next") }}
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</VOnboardingStep>
+			</template>
+		</VOnboardingWrapper>
 	</div>
 </template>
+
+<style>
+[data-v-onboarding-wrapper] [data-popper-arrow]::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: -1;
+	width: var(--v-onboarding-step-arrow-size, 10px);
+	height: var(--v-onboarding-step-arrow-size, 10px);
+	margin-top: 20px;
+	background: var(--v-onboarding-step-arrow-background, hsl(0deg 0% 100%));
+	visibility: visible;
+	transition:
+		transform 0.2s ease-out,
+		visibility 0.2s ease-out;
+	transform: translateX(0) rotate(45deg);
+	transform-origin: center;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="top"] > [data-popper-arrow] {
+	bottom: 15px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="right"] > [data-popper-arrow] {
+	left: -4px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="bottom"] > [data-popper-arrow] {
+	top: -4px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="left"] > [data-popper-arrow] {
+	right: -4px;
+}
+</style>

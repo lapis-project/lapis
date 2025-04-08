@@ -73,6 +73,7 @@
 		"tailwind-merge": "^3.2.0",
 		"tailwindcss-animate": "^1.0.7",
 		"three": "^0.168.0",
+		"v-onboarding": "^2.9.0",
 		"valibot": "^0.42.1",
 		"vee-validate": "^4.15.0",
 		"vue": "^3.5.13",

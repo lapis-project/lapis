@@ -93,12 +93,8 @@ export async function getAllStatData(project_id: number) {
 		)
 		.with("survey_count", (query) =>
 			query
-				.selectFrom("survey_conducted")
-				.innerJoin("survey", "survey_conducted.survey_id", "survey.id")
-				.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
-				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")])
-				.where("project_survey.project_id", "=", project_id)
-				.groupBy("survey_conducted.survey_id"),
+				.selectFrom("survey")
+				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")]),
 		)
 		.with("survey_conducted_query", (query) =>
 			query

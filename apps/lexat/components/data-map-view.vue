@@ -4,6 +4,7 @@ import { refDebounced } from "@vueuse/core";
 import {
 	ChevronDownIcon,
 	Database,
+	FileText,
 	InfoIcon,
 	MapPinIcon,
 	Maximize2Icon,
@@ -669,6 +670,10 @@ const handleColorUpdate = (index: number, newColor: string) => {
 
 const capitalsOnly = computed(() => Boolean(showStateCapitals.value && !showUrbanLocations.value));
 
+const postAlias = computed(() => {
+	return questions.value?.find((q) => q.id === activeQuestionId.value)?.post_alias;
+});
+
 initializeFromUrl();
 
 watch(activeQuestion, async () => {
@@ -712,6 +717,12 @@ watch(activeVariants, updateUrlParams, {
 
 const highlightRegion = (regionName: string) => {
 	highlightedRegion.value = regionName;
+};
+
+const goToArticlePage = async (): Promise<void> => {
+	if (postAlias.value) {
+		window.open(postAlias.value, "_blank");
+	}
 };
 
 const goToDbPage = async (): Promise<void> => {
@@ -1074,9 +1085,14 @@ const goToDbPage = async (): Promise<void> => {
 				<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ fullRoute }}</p>
 				<CopyToClipboard :text="fullRoute" />
 			</div>
-			<Button v-if="activeQuestionId" @click="goToDbPage"
-				><Database class="mr-2 size-4" />{{ t("MapsPage.go-to-db") }}</Button
-			>
+			<div class="flex gap-3">
+				<Button v-if="postAlias" @click="goToArticlePage"
+					><FileText class="mr-2 size-4" />{{ t("MapsPage.go-to-article") }}</Button
+				>
+				<Button v-if="activeQuestionId" @click="goToDbPage"
+					><Database class="mr-2 size-4" />{{ t("MapsPage.go-to-db") }}</Button
+				>
+			</div>
 		</div>
 		<DataTable v-if="tableData.length" :columns="columnsLocations" :data="tableData"></DataTable>
 		<DataTable

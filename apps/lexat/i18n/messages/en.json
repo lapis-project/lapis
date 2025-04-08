@@ -274,6 +274,7 @@
 			"title": "Maps"
 		},
 		"title": "Maps",
+		"go-to-article": "Read commentary",
 		"go-to-db": "Browse data",
 		"selection": {
 			"legend": "Legend",

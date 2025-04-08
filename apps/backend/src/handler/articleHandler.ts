@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { minLength, number, optional, pipe, safeParse, string } from "valibot";
 
 import { getAllArticlesByProject, getArticleByAlias } from "@/db/articleRepository";
+import type { Availablelang } from "@/types/db";
 
 const articles = new Hono()
 
@@ -57,7 +58,6 @@ const articles = new Hono()
 		}
 
 		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
-
 		const fetchedArticles = await getAllArticlesByProject(
 			Number(projectId),
 			pageSizeParsed,
@@ -65,7 +65,7 @@ const articles = new Hono()
 			searchTerm ?? "",
 			category ?? "",
 			"Published",
-			lang,
+			lang as Availablelang,
 		);
 
 		const articles = fetchedArticles[0]?.articles ? fetchedArticles[0].articles : [];

@@ -276,6 +276,7 @@
 		"title": "Maps",
 		"go-to-article": "Read commentary",
 		"go-to-db": "Browse data",
+		"help": "Help",
 		"selection": {
 			"legend": "Legend",
 			"simplified-view": {
@@ -359,6 +360,31 @@
 			"title": "Page not found"
 		},
 		"title": "Page not found"
+	},
+	"Onboarding": {
+		"welcome": {
+			"title": "Hi!",
+			"description": "Welcome to LexAT21's visualization tool."
+		},
+		"phenomenon": {
+			"title": "Phenomenon",
+			"description": "Choose the phenomenon you want to visualize on the map."
+		},
+		"register": {
+			"title": "Filtering",
+			"description": "With the remaining filters you can refine your results."
+		},
+		"reset": {
+			"title": "Reset filters",
+			"description": "Click here to reset your current selection."
+		},
+		"advanced": {
+			"title": "Advanced settings",
+			"description": "Click here to show all map settings."
+		},
+		"next": "Next",
+		"previous": "Previous",
+		"finish": "Got it!"
 	},
 	"ProfilePage": {
 		"meta": {

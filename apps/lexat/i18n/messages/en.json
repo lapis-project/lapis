@@ -135,6 +135,13 @@
 		"back": "Back to overview",
 		"bibliography": "Bibliography",
 		"citation": "Citation suggestion",
+		"interlinking": {
+			"title": "More infos",
+			"text": "You can explore the data for the mentioned phenomenon in the following ways:",
+			"go-to-map": "Explore on map",
+			"or": "or",
+			"go-to-db": "Browse data"
+		},
 		"published_at": "Published at",
 		"more_articles": "Similar posts",
 		"toc": "Table of contents",

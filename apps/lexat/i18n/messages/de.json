@@ -135,6 +135,13 @@
 		"back": "Zurück zur Übersicht",
 		"bibliography": "Literatur",
 		"citation": "Zitiervorschlag",
+		"interlinking": {
+			"title": "Mehr zum Thema",
+			"text": "Du kannst dir die zugrundeliegenden Daten für das genannte Phänomen auf folgenden Wegen anzeigen lassen:",
+			"go-to-map": "Kartierung ansehen",
+			"or": "oder",
+			"go-to-db": "Belege ansehen"
+		},
 		"published_at": "Veröffentlicht am",
 		"more_articles": "Ähnliche Beiträge",
 		"toc": "Inhaltsverzeichnis",
@@ -358,7 +365,7 @@
 	"Onboarding": {
 		"welcome": {
 			"title": "Hallo!",
-			"description": "Willkommen im Kartierung-Tool von LexAT21."
+			"description": "Willkommen im Kartierungs-Tool von LexAT21."
 		},
 		"phenomenon": {
 			"title": "Phänomenauswahl",

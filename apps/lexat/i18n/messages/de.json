@@ -32,8 +32,8 @@
 				"delete": "Löschen"
 			},
 			"authors": {
-				"label": "Autoren",
-				"placeholder": "Autoren hinzufügen"
+				"label": "Autor/in",
+				"placeholder": "Autor/in hinzufügen"
 			},
 			"bibliography": {
 				"label": "Bibliographie",
@@ -131,7 +131,7 @@
 		"results": "Artikel"
 	},
 	"ArticleDetailPage": {
-		"authors": "Autoren",
+		"authors": "Autor/in",
 		"back": "Zurück zur Übersicht",
 		"bibliography": "Literatur",
 		"citation": "Zitiervorschlag",

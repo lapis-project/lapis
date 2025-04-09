@@ -121,7 +121,7 @@ usePageMetadata({
 					>
 						{{ t(`AdminPage.editor.category.${article.post_type}`) }}
 					</div>
-					<div class="inline-flex gap-4">
+					<div class="flex gap-4">
 						<NuxtLinkLocale class="w-1/4 aspect-16/9" :to="`/articles/${article.alias}`">
 							<NuxtImg class="object-cover aspect-16/9" :src="article.cover"></NuxtImg>
 						</NuxtLinkLocale>

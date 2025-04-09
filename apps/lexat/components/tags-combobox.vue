@@ -65,14 +65,10 @@ const moveItem = (index: number, direction: "left" | "right") => {
 			</TagsInputItem>
 		</div>
 
-		<ComboboxRoot
-			v-model="modelValue"
-			v-model:open="open"
-			v-model:search-term="searchTerm"
-			class="w-full"
-		>
+		<ComboboxRoot v-model="modelValue" v-model:open="open" class="w-full">
 			<ComboboxAnchor as-child>
 				<ComboboxInput
+					v-model="searchTerm"
 					as-child
 					:placeholder="t('TagsCombobox.button', { placeholder: props.placeholder })"
 				>
@@ -87,7 +83,7 @@ const moveItem = (index: number, direction: "left" | "right") => {
 
 			<ComboboxPortal>
 				<CommandList
-					class="mt-2 w-(--radix-popper-anchor-width) rounded-md border bg-popover text-popover-foreground shadow-md outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+					class="mt-2 w-(--reka-popper-anchor-width) rounded-md border bg-popover text-popover-foreground shadow-md outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
 					dismissable
 					position="popper"
 				>

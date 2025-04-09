@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ComboboxSeparator, type ComboboxSeparatorProps } from "radix-vue";
+import { ComboboxSeparator, type ComboboxSeparatorProps } from "reka-ui";
 import { computed, type HTMLAttributes } from "vue";
 
 import { cn } from "@/utils/styles";

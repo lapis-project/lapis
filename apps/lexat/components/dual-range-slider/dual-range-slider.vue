@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from "radix-vue";
+import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from "reka-ui";
 
 export interface Props {
 	accessibilityLabel: string;

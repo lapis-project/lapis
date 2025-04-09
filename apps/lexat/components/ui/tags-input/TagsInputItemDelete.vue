@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { XIcon } from "lucide-vue-next";
-import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from "radix-vue";
+import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from "reka-ui";
 import { computed, type HTMLAttributes } from "vue";
 
 import { cn } from "@/utils/styles";

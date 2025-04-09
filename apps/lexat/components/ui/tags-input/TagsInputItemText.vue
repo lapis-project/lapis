@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TagsInputItemText, type TagsInputItemTextProps, useForwardProps } from "radix-vue";
+import { TagsInputItemText, type TagsInputItemTextProps, useForwardProps } from "reka-ui";
 import { computed, type HTMLAttributes } from "vue";
 
 import { cn } from "@/utils/styles";

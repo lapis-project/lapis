@@ -4,7 +4,7 @@ import {
 	type CollapsibleRootEmits,
 	type CollapsibleRootProps,
 	useForwardPropsEmits,
-} from "radix-vue";
+} from "reka-ui";
 
 const props = defineProps<CollapsibleRootProps>();
 const emits = defineEmits<CollapsibleRootEmits>();

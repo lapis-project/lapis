@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /* eslint-disable vue/no-v-html */
 import type { InferResponseType } from "hono/client";
-import { ArrowLeft } from "lucide-vue-next";
+import { ArrowLeft, Database, MapPin } from "lucide-vue-next";
 
 import { useApiClient } from "@/composables/use-api-client";
 import { useCitationGenerator } from "@/composables/use-citation-generator";
@@ -15,6 +15,7 @@ const t = useTranslations();
 const env = useRuntimeConfig();
 const route = useRoute();
 const { apiClient } = useApiClient();
+const localePath = useLocalePath();
 const alias = route.params.alias;
 
 const _getArticleByAlias = apiClient.articles.detail[":alias"].$get;
@@ -76,6 +77,28 @@ const tableOfContents = computed(() => {
 
 	return toc;
 });
+
+const phenomenonId = computed(() => {
+	return data.value?.article?.phenomenon?.[0]?.phenomenon_id;
+});
+
+const goToDbPage = async (): Promise<void> => {
+	await navigateTo({
+		path: localePath("db"),
+		query: {
+			q: phenomenonId.value,
+		},
+	});
+};
+
+const goToMapsPage = async (): Promise<void> => {
+	await navigateTo({
+		path: localePath("maps"),
+		query: {
+			q: phenomenonId.value,
+		},
+	});
+};
 
 onMounted(async () => {
 	if (!bibliographyItems.value.length) {
@@ -159,21 +182,38 @@ usePageMetadata({
 				</div>
 			</article>
 			<aside class="w-1/4">
-				<section
-					v-if="article?.post_type_name !== 'short_description'"
-					class="sticky top-10 border p-5"
-				>
-					<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>
-					<hr class="my-2" />
-					<ul class="-ml-4 list-inside list-disc">
-						<li
-							v-for="item in tableOfContents"
-							:key="item.id"
-							:style="{ marginLeft: `${(item.level - 1) * 20}px` }"
-						>
-							<a :href="`#${item.id}`">{{ item.text }}</a>
-						</li>
-					</ul>
+				<section class="sticky top-10 border p-5">
+					<template v-if="article?.post_type_name !== 'short_description'">
+						<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>
+						<hr class="my-2" />
+						<ul class="-ml-4 list-inside list-disc">
+							<li
+								v-for="item in tableOfContents"
+								:key="item.id"
+								:style="{ marginLeft: `${(item.level - 1) * 20}px` }"
+							>
+								<a :href="`#${item.id}`">{{ item.text }}</a>
+							</li>
+						</ul>
+					</template>
+					<template v-else-if="phenomenonId">
+						<div class="font-bold">{{ t("ArticleDetailPage.interlinking.title") }}</div>
+						<hr class="my-2" />
+						<p class="mb-5">{{ t("ArticleDetailPage.interlinking.text") }}</p>
+						<div class="flex flex-col items-center gap-3">
+							<Button variant="outline" @click="goToMapsPage"
+								><MapPin class="mr-2 size-4" />{{
+									t("ArticleDetailPage.interlinking.go-to-map")
+								}}</Button
+							>
+							{{ t("ArticleDetailPage.interlinking.or") }}
+							<Button variant="outline" @click="goToDbPage"
+								><Database class="mr-2 size-4" />{{
+									t("ArticleDetailPage.interlinking.go-to-db")
+								}}</Button
+							>
+						</div>
+					</template>
 				</section>
 			</aside>
 		</div>

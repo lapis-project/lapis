@@ -438,11 +438,11 @@ initializeFromUrl();
 				><MapPin class="mr-2 size-4" />{{ t("DbPage.go-to-maps") }}</Button
 			>
 		</DataTable>
-		<Pagination
+		<PagePagination
 			:current-page="currentPage"
 			:items-per-page="activePageSizeQuery"
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
-		></Pagination>
+		></PagePagination>
 	</MainContent>
 </template>

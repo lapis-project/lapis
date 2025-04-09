@@ -121,9 +121,9 @@ usePageMetadata({
 					>
 						{{ t(`AdminPage.editor.category.${article.post_type}`) }}
 					</div>
-					<div class="flex gap-4">
-						<NuxtLinkLocale class="inline-flex w-1/4" :to="`/articles/${article.alias}`">
-							<NuxtImg class="aspect-16/9 object-cover" :src="article.cover"></NuxtImg>
+					<div class="inline-flex gap-4">
+						<NuxtLinkLocale class="w-1/4 aspect-16/9" :to="`/articles/${article.alias}`">
+							<NuxtImg class="object-cover aspect-16/9" :src="article.cover"></NuxtImg>
 						</NuxtLinkLocale>
 
 						<div class="w-3/4">
@@ -140,12 +140,12 @@ usePageMetadata({
 					</div>
 				</div>
 			</div>
-			<Pagination
+			<PagePagination
 				:current-page="currentPage"
 				:items-per-page="20"
 				:total-pages="totalPages"
 				@update:page="setCurrentPage"
-			></Pagination>
+			></PagePagination>
 		</div>
 	</MainContent>
 </template>

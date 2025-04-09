@@ -31,9 +31,9 @@ const onUpdatePage = (newPage: number) => {
 <template>
 	<Pagination
 		v-slot="{ page }"
-		v-model:page="props.currentPage"
 		:default-page="1"
 		:items-per-page="itemsPerPage"
+		:page="props.currentPage"
 		show-edges
 		:sibling-count="1"
 		:total="totalItems"

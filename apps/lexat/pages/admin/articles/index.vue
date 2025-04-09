@@ -48,11 +48,11 @@ usePageMetadata({
 		</div>
 
 		<ArticleTable class="mb-5" :columns="columns" :data="tableData"></ArticleTable>
-		<Pagination
+		<PagePagination
 			:current-page="currentPage"
 			:items-per-page="20"
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
-		></Pagination>
+		></PagePagination>
 	</MainContent>
 </template>

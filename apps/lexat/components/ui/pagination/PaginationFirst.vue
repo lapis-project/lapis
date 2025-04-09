@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronsLeft } from "lucide-vue-next";
-import { PaginationFirst, type PaginationFirstProps } from "radix-vue";
+import { PaginationFirst, type PaginationFirstProps } from "reka-ui";
 import { computed, type HTMLAttributes } from "vue";
 
 import { Button } from "@/components/ui/button";

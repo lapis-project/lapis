@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronLeft, ChevronRight } from "lucide-vue-next";
-import { ComboboxAnchor, ComboboxInput, ComboboxPortal, ComboboxRoot } from "radix-vue";
+import { ComboboxAnchor, ComboboxInput, ComboboxPortal, ComboboxRoot } from "reka-ui";
 import { computed, ref } from "vue";
 
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";

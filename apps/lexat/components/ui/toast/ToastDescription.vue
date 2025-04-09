@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ToastDescription, type ToastDescriptionProps } from "radix-vue";
+import { ToastDescription, type ToastDescriptionProps } from "reka-ui";
 import { computed, type HTMLAttributes } from "vue";
 
 import { cn } from "@/utils/styles";

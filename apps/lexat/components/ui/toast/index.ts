@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ToastRootProps } from "radix-vue";
+import type { ToastRootProps } from "reka-ui";
 import type { HTMLAttributes } from "vue";
 
 export { default as Toast } from "./Toast.vue";

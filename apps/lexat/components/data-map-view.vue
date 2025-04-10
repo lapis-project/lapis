@@ -892,7 +892,7 @@ watch(activeVariants, updateUrlParams, {
 									{{ t("MapsPage.selection.display-options") }}
 								</div>
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showData" v-model:checked="simplifiedView" />
+									<Checkbox id="showData" v-model="simplifiedView" />
 									<label
 										class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showData"
@@ -904,7 +904,7 @@ watch(activeVariants, updateUrlParams, {
 									</label>
 								</div>
 								<!-- <div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showRegionNames" v-model:checked="showRegionNames" />
+									<Checkbox id="showRegionNames" v-model="showRegionNames" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showRegionNames"
@@ -913,7 +913,7 @@ watch(activeVariants, updateUrlParams, {
 									</label>
 								</div> -->
 								<div class="flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showRegions" v-model:checked="showRegions" />
+									<Checkbox id="showRegions" v-model="showRegions" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showRegions"
@@ -927,7 +927,7 @@ watch(activeVariants, updateUrlParams, {
 									{{ t("MapsPage.selection.filter-locations") }}
 								</div>
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showStateCapitals" v-model:checked="showStateCapitals" />
+									<Checkbox id="showStateCapitals" v-model="showStateCapitals" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showStateCapitals"
@@ -936,7 +936,7 @@ watch(activeVariants, updateUrlParams, {
 									</label>
 								</div>
 								<div class="flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showUrbanLocations" v-model:checked="showUrbanLocations" />
+									<Checkbox id="showUrbanLocations" v-model="showUrbanLocations" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showUrbanLocations"
@@ -954,7 +954,7 @@ watch(activeVariants, updateUrlParams, {
 								</div>
 
 								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showVariantPercentages" v-model:checked="showVariantPercentages" />
+									<Checkbox id="showVariantPercentages" v-model="showVariantPercentages" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 										for="showVariantPercentages"

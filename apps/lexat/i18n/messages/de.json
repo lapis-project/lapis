@@ -369,7 +369,7 @@
 		},
 		"phenomenon": {
 			"title": "Phänomenauswahl",
-			"description": "Wähle das Phänomen, welches du auf der Karte visualisiern möchtest."
+			"description": "Wähle das Phänomen, welches du auf der Karte visualisieren möchtest."
 		},
 		"register": {
 			"title": "Weitere Filter",
@@ -381,7 +381,7 @@
 		},
 		"advanced": {
 			"title": "Erweiterte Funktionen",
-			"description": "Klicke hier, um die erweiteren Einstellungen auszuklappen."
+			"description": "Klicke hier, um die erweiterten Einstellungen anzuzeigen."
 		},
 		"next": "Weiter",
 		"previous": "Zurück",

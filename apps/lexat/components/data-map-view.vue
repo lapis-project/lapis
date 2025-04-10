@@ -14,6 +14,7 @@ import {
 	Minimize2Icon,
 	RotateCcwIcon,
 	UserIcon,
+	XIcon,
 } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
@@ -699,7 +700,7 @@ const goToDbPage = async (): Promise<void> => {
 
 // ONBOARDING
 const wrapper = ref(null);
-const { start: startOnboarding } = useVOnboarding(wrapper);
+const { start: startOnboarding, finish: finishOnboarding } = useVOnboarding(wrapper);
 const steps = [
 	{
 		attachTo: { element: "#welcome" },
@@ -1179,7 +1180,7 @@ watch(activeVariants, updateUrlParams, {
 		>
 			<template #default="{ previous, next, step, isFirst, isLast }">
 				<VOnboardingStep>
-					<div class="bg-white shadow sm:rounded-lg mt-5">
+					<div class="bg-white relative shadow sm:rounded-lg mt-5">
 						<div class="px-4 py-5 sm:p-6">
 							<div class="flex items-center justify-between flex-col gap-5">
 								<div v-if="step.content">
@@ -1216,6 +1217,13 @@ watch(activeVariants, updateUrlParams, {
 								</div>
 							</div>
 						</div>
+						<button
+							class="absolute top-3 right-3 cursor-pointer"
+							type="button"
+							@click="finishOnboarding"
+						>
+							<XIcon class="size-5" />
+						</button>
 					</div>
 				</VOnboardingStep>
 			</template>

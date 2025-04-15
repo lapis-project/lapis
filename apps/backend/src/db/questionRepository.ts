@@ -266,6 +266,10 @@ export async function getResultsByPhaen(
 	order_by: string,
 	order_by_dir: string,
 ) {
+	let row_num_query = sql<number>`ROW_NUMBER() OVER (ORDER BY ${sql.ref(order_by)} ${sql.raw(order_by_dir)})`;
+	if (order_by === "") {
+		row_num_query = sql<number>`ROW_NUMBER() OVER ()`;
+	}
 	const baseQuery = db.with("post_query", (query) => {
 		let dbQuery = query
 			.selectFrom("response")
@@ -285,9 +289,7 @@ export async function getResultsByPhaen(
 			)
 			.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
 			.select(({ eb }) => [
-				sql<number>`ROW_NUMBER() OVER (ORDER BY ${sql.ref(order_by)} ${sql.raw(order_by_dir)})`.as(
-					"rn",
-				),
+				row_num_query.as("rn"),
 				eb.ref("response.response_text").as("response"),
 				eb.ref("annotation.annotation_name").as("annotation"),
 				eb.ref("phenomenon.phenomenon_name").as("phenomenon"),

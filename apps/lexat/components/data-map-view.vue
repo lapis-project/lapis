@@ -740,6 +740,25 @@ const steps = [
 ];
 const onboardingOptions = { overlay: { padding: 10, borderRadius: 10 } };
 
+const nextStepButton: Ref<HTMLButtonElement | null> = ref(null);
+
+const focusNextButton = (): void => {
+	nextTick(() => {
+		// 1. Wait for Vue's DOM update cycle
+		// 2. Add a minimal delay to hopefully run *after* the library's internal focus logic
+		setTimeout(() => {
+			if (nextStepButton.value) {
+				nextStepButton.value.focus();
+			}
+		}, 1);
+	});
+};
+
+const handleStepChange = (direction: () => void): void => {
+	direction(); // Execute the library's next/previous action
+	focusNextButton();
+};
+
 const onboardingFinished = () => {
 	const timestamp = new Date().toISOString();
 	localStorage.setItem("map-onboarding", JSON.stringify({ finishedAt: timestamp }));
@@ -1202,15 +1221,16 @@ watch(activeVariants, updateUrlParams, {
 										<button
 											class="inline-flex items-center justify-center rounded-md border border-transparent bg-yellow-100 px-4 py-2 font-medium text-yellow-700 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:text-sm"
 											type="button"
-											@click="previous"
+											@click="handleStepChange(previous)"
 										>
 											{{ t("Onboarding.previous") }}
 										</button>
 									</template>
 									<button
+										ref="nextStepButton"
 										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
 										type="button"
-										@click="next"
+										@click="handleStepChange(next)"
 									>
 										{{ isLast ? t("Onboarding.finish") : t("Onboarding.next") }}
 									</button>
@@ -1219,7 +1239,8 @@ watch(activeVariants, updateUrlParams, {
 						</div>
 						<button
 							class="absolute top-3 right-3 cursor-pointer"
-							type="button"
+							:class="{ 'text-background': colorMode.value === 'dark' }"
+							variant="button"
 							@click="finishOnboarding"
 						>
 							<XIcon class="size-5" />

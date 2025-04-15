@@ -75,27 +75,6 @@ const genderData = computed(() => {
 	};
 });
 
-const surveyData = computed(() => {
-	return {
-		labels: [
-			t("HomePage.charts.survey-distribution.round-one"),
-			t("HomePage.charts.survey-distribution.round-two"),
-			t("HomePage.charts.survey-distribution.round-three"),
-		],
-		datasets: [
-			{
-				label: t("HomePage.charts.survey-distribution.label"),
-				data: [
-					startPageData.value?.survey_conducted?.[0]?.total,
-					startPageData.value?.survey_conducted?.[1]?.total,
-					startPageData.value?.survey_conducted?.[2]?.total,
-				],
-				backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
-			},
-		],
-	};
-});
-
 const barChartOptions = {
 	responsive: true,
 	maintainAspectRatio: false,
@@ -282,15 +261,12 @@ const counts = [
 
 		<section class="mb-16 border-b pb-16 flex flex-col items-center">
 			<h1 class="text-2xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h1>
-			<div class="grid grid-cols-3 gap-8 py-6 lg:px-16 xl:px-20 mb-8">
+			<div class="grid grid-cols-2 gap-24 py-6 mb-8">
 				<div class="flex items-center justify-center">
-					<Bar class="h-64 w-full" :data="ageData" :options="barChartOptions" />
+					<Bar class="w-full" :data="ageData" :options="barChartOptions" />
 				</div>
 				<div class="flex items-center justify-center">
-					<Doughnut class="h-64 w-full" :data="genderData" :options="donutChartOptions" />
-				</div>
-				<div class="flex items-center justify-center">
-					<Bar class="h-64 w-full" :data="surveyData" :options="barChartOptions" />
+					<Doughnut class="w-full" :data="genderData" :options="donutChartOptions" />
 				</div>
 			</div>
 

@@ -141,7 +141,7 @@ const questions = new Hono<Context>()
 			if (orderByParsed.startsWith("res")) {
 				orderByParsed = "response_text";
 			} else if (orderByParsed.startsWith("anno")) {
-				orderByParsed = "annotation";
+				orderByParsed = "annotation_name";
 			} else if (orderByParsed.startsWith("phen")) {
 				orderByParsed = "phenomenon_name";
 			} else if (orderByParsed.startsWith("var")) {

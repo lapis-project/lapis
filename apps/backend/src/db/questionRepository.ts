@@ -1,5 +1,5 @@
 import { log } from "@acdh-oeaw/lib";
-import { type OrderByDirectionExpression, sql } from "kysely";
+import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { jsonbBuildObject } from "@/lib/dbHelper";
@@ -264,11 +264,8 @@ export async function getResultsByPhaen(
 	lower_age_limit: number,
 	upper_age_limit: number,
 	order_by: string,
-	order_by_dir: OrderByDirectionExpression,
+	order_by_dir: string,
 ) {
-	// eslint-disable-next-line @typescript-eslint/unbound-method
-	const { ref } = db.dynamic;
-
 	const baseQuery = db.with("post_query", (query) => {
 		let dbQuery = query
 			.selectFrom("response")
@@ -288,7 +285,9 @@ export async function getResultsByPhaen(
 			)
 			.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
 			.select(({ eb }) => [
-				sql<number>`ROW_NUMBER() OVER (order by response.id)`.as("rn"),
+				sql<number>`ROW_NUMBER() OVER (ORDER BY ${sql.ref(order_by)} ${sql.raw(order_by_dir)})`.as(
+					"rn",
+				),
 				eb.ref("response.response_text").as("response"),
 				eb.ref("annotation.annotation_name").as("annotation"),
 				eb.ref("phenomenon.phenomenon_name").as("phenomenon"),
@@ -310,9 +309,6 @@ export async function getResultsByPhaen(
 				"informant.comment",
 			]);
 
-		if (order_by) {
-			dbQuery = dbQuery.orderBy(ref(order_by), order_by_dir);
-		}
 		if (varIds.length > 0) {
 			dbQuery = dbQuery.where("variety.id", "in", varIds);
 		}

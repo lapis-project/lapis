@@ -31,7 +31,7 @@
  * THE SOFTWARE.
  */
 
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas-pro";
 import type {
 	Map as MaplibreMap,
 	PointLike,

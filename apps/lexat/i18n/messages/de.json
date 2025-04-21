@@ -1,9 +1,27 @@
 {
 	"AboutPage": {
 		"meta": {
-			"title": "Über das Projekt"
+			"title": "Zum Projekt und seinen Zielen"
 		},
-		"title": "Über das Projekt"
+		"title": "Zum Projekt und seinen Zielen",
+		"team": {
+			"title": "Team",
+			"head": "Projektleitung und Herausgabe",
+			"technical": "Konzeption und technische Implementierung",
+			"authors": "Autor:innen",
+			"editors": "Lektor:innen"
+		},
+		"more": {
+			"title": "Näheres zu",
+			"resources": "Quellenbefunden",
+			"participants": "Teilnehmenden",
+			"locations": "dem Ortsnetz",
+			"regions": "Dialekträumen in Österreich",
+			"phenomena": "der Phänomenauswahl",
+			"survey": "der Fragebogenmethode",
+			"registers": "den anvisierten Registern (Varietäten/Sprechlagen)",
+			"implementation": "der technischen Implementierung"
+		}
 	},
 	"AdminNavigation": {
 		"articles": "Artikel",

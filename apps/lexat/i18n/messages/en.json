@@ -44,7 +44,6 @@
 				"label": "Article category",
 				"placeholder": "category",
 				"commentary": "Map commentary",
-				"methodology": "Method description",
 				"project_description": "Project description",
 				"short_description": "Short infos"
 			},
@@ -168,7 +167,6 @@
 	},
 	"Categories": {
 		"commentary": "Map commentary",
-		"methodology": "Method description",
 		"project_description": "Project description",
 		"short_description": "Short infos"
 	},
@@ -235,7 +233,7 @@
 			"action": "Explore data"
 		},
 		"charts": {
-			"title": "Survey data evaluation",
+			"title": "Overview of the LexAT21 database",
 			"age-distribution": {
 				"label": "Age distribution"
 			},
@@ -256,7 +254,8 @@
 			}
 		},
 		"cta": {
-			"action": "To the survey"
+			"action": "To the survey",
+			"project": "About the project"
 		},
 		"counts": {
 			"locations": "Localities",

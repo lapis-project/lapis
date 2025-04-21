@@ -44,7 +44,6 @@
 				"label": "Artikelkategorie",
 				"placeholder": "Kategorie",
 				"commentary": "Kartenkommentar",
-				"methodology": "Methodenbeschreibung",
 				"project_description": "Projektbeschreibung",
 				"short_description": "Kurzbeschreibung"
 			},
@@ -168,7 +167,6 @@
 	},
 	"Categories": {
 		"commentary": "Kartenkommentar",
-		"methodology": "Methodenbeschreibung",
 		"project_description": "Projektbeschreibung",
 		"short_description": "Kurzbeschreibung"
 	},
@@ -235,7 +233,7 @@
 			"action": "Daten erkunden"
 		},
 		"charts": {
-			"title": "Auswertung der Erhebungsdaten",
+			"title": "Übersicht der LexAT21-Datenbasis",
 			"age-distribution": {
 				"label": "Altersverteilung"
 			},
@@ -256,7 +254,8 @@
 			}
 		},
 		"cta": {
-			"action": "Jetzt mitmachen"
+			"action": "Jetzt mitmachen",
+			"project": "Projektdetails erfahren"
 		},
 		"counts": {
 			"locations": "Ortspunkte",

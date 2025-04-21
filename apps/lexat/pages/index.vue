@@ -10,7 +10,15 @@ import {
 	Tooltip,
 } from "chart.js";
 import type { InferResponseType } from "hono/client";
-import { FileText, MapPinned, Microscope, Scroll, Telescope, UserRound } from "lucide-vue-next";
+import {
+	FileText,
+	Glasses,
+	MapPinned,
+	Microscope,
+	Scroll,
+	Telescope,
+	UserRound,
+} from "lucide-vue-next";
 import { Bar, Doughnut } from "vue-chartjs";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, ArcElement, CategoryScale, LinearScale);
@@ -259,39 +267,7 @@ const counts = [
 			</div>
 		</div>
 
-		<section class="mb-16 border-b pb-16 flex flex-col items-center">
-			<h1 class="text-2xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h1>
-			<div class="grid grid-cols-2 gap-24 py-6 mb-8">
-				<div class="flex items-center justify-center">
-					<Bar class="w-full" :data="ageData" :options="barChartOptions" />
-				</div>
-				<div class="flex items-center justify-center">
-					<Doughnut class="w-full" :data="genderData" :options="donutChartOptions" />
-				</div>
-			</div>
-
-			<div class="grid grid-cols-4 gap-6 mt-6 lg:px-16 xl:px-24 self-stretch">
-				<div
-					v-for="(item, index) in counts"
-					:key="index"
-					class="flex flex-col items-center justify-center gap-4"
-				>
-					<div
-						class="flex size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
-					>
-						<!-- Render the icon component -->
-						<component :is="item.icon" class="size-12 stroke-[1.5]" />
-						<!-- Use the CountUp component instead of a simple <p> -->
-						<p class="text-2xl">
-							<CountUp :value="item.value" />
-						</p>
-					</div>
-					<p class="text-xl">{{ t(item.translation) }}</p>
-				</div>
-			</div>
-		</section>
-
-		<section class="article-content flex flex-col mb-16">
+		<section class="article-content flex flex-col mb-16 border-b pb-16">
 			<p class="max-w-2xl mx-auto text-center">
 				<template v-if="currentLocale === 'de'">
 					Interesse geweckt? Dann werde Teil des Forschungsprojekts und nimm an der aktuellen
@@ -313,6 +289,42 @@ const counts = [
 					})
 				"
 				><Scroll class="mr-2 size-5" />{{ t("HomePage.cta.action") }}</Button
+			>
+		</section>
+
+		<section class="mb-16 flex flex-col items-center">
+			<h1 class="text-3xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h1>
+			<div class="grid grid-cols-2 gap-24 py-6 mb-8">
+				<div class="flex items-center justify-center">
+					<Bar class="w-full" :data="ageData" :options="barChartOptions" />
+				</div>
+				<div class="flex items-center justify-center">
+					<Doughnut class="w-full" :data="genderData" :options="donutChartOptions" />
+				</div>
+			</div>
+
+			<div class="grid grid-cols-4 gap-6 mt-6 lg:px-16 xl:px-24 self-stretch mb-8">
+				<div
+					v-for="(item, index) in counts"
+					:key="index"
+					class="flex flex-col items-center justify-center gap-4"
+				>
+					<div
+						class="flex size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
+					>
+						<!-- Render the icon component -->
+						<component :is="item.icon" class="size-12 stroke-[1.5]" />
+						<!-- Use the CountUp component instead of a simple <p> -->
+						<p class="text-2xl">
+							<CountUp :value="item.value" />
+						</p>
+					</div>
+					<p class="text-xl">{{ t(item.translation) }}</p>
+				</div>
+			</div>
+
+			<Button class="mt-6 self-center" @click="navigateTo(localePath('/about'))"
+				><Glasses class="mr-2 size-5" />{{ t("HomePage.cta.project") }}</Button
 			>
 		</section>
 	</MainContent>

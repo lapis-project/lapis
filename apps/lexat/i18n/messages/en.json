@@ -1,9 +1,27 @@
 {
 	"AboutPage": {
 		"meta": {
-			"title": "About"
+			"title": "About the project and its objectives"
 		},
-		"title": "About"
+		"title": "About the project and its objectives",
+		"team": {
+			"title": "Team",
+			"head": "Project leader and editor",
+			"technical": "Concept and technical implementation",
+			"authors": "Authors",
+			"editors": "Proofing"
+		},
+		"more": {
+			"title": "More about",
+			"resources": "Resources",
+			"participants": "Participants",
+			"locations": "The research locations",
+			"regions": "Austria's dialect regions",
+			"phenomena": "The phenomenon selection",
+			"survey": "The survey method",
+			"registers": "The registers",
+			"implementation": "The technical implementation"
+		}
 	},
 	"AdminNavigation": {
 		"articles": "Articles",

@@ -4,12 +4,9 @@
 			"title": "Zum Projekt und seinen Zielen"
 		},
 		"title": "Zum Projekt und seinen Zielen",
-		"team": {
-			"title": "Team",
-			"head": "Projektleitung und Herausgabe",
-			"technical": "Konzeption und technische Implementierung",
-			"authors": "Autor:innen",
-			"editors": "Lektor:innen"
+		"citation": {
+			"title": "Gesamtzitation",
+			"text": "Das Gesamtprojekt LexAT21 wird wie folgt zitiert"
 		},
 		"more": {
 			"title": "Näheres zu",
@@ -21,6 +18,13 @@
 			"survey": "der Fragebogenmethode",
 			"registers": "den anvisierten Registern (Varietäten/Sprechlagen)",
 			"implementation": "der technischen Implementierung"
+		},
+		"team": {
+			"title": "Team",
+			"head": "Projektleitung und Herausgabe",
+			"technical": "Konzeption und technische Implementierung",
+			"authors": "Autor:innen",
+			"editors": "Lektor:innen"
 		}
 	},
 	"AdminNavigation": {

@@ -291,7 +291,7 @@
 	}
 
 	.article-content blockquote {
-		@apply italic text-gray-500 border-l-4 border-blue-300 pl-4 my-6;
+		@apply italic text-muted-foreground border-l-4 border-accent-foreground pl-4 my-6;
 	}
 
 	.article-content img {

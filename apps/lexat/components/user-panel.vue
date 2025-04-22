@@ -44,8 +44,10 @@ const firstLetterUppercase = (value: string) => {
 	<DropdownMenu>
 		<DropdownMenuTrigger as-child>
 			<Button class="size-8 rounded-full" size="icon">
-				<div v-if="user?.username">{{ firstLetterUppercase(user.username) }}</div>
-				<UserRound v-else class="size-5" />
+				<ClientOnly>
+					<div v-if="user?.username">{{ firstLetterUppercase(user.username) }}</div>
+					<UserRound v-else class="size-5" />
+				</ClientOnly>
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent class="mr-2 w-56">

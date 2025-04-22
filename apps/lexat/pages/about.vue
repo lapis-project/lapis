@@ -136,7 +136,7 @@ usePageMetadata({
 					<li>
 						<NuxtLinkLocale
 							target="_blank"
-							to="/articles/lexat21-einfuehrung#8-zur-fragebogenmethode-von-lexat21"
+							to="/articles/lexat21-einfuehrung#6-dialektrume-in-sterreich"
 							>{{ t("AboutPage.more.regions") }}</NuxtLinkLocale
 						>
 					</li>

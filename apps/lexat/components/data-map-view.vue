@@ -997,12 +997,14 @@ watch(activeVariants, updateUrlParams, {
 					<Button id="reset" size="icon" variant="outline" @click="resetSelection()"
 						><RotateCcwIcon class="size-4"
 					/></Button>
-					<CollapsibleTrigger
-						><Button id="advanced" size="icon" variant="outline"
-							><ChevronDownIcon
-								class="size-4"
-								:class="{ 'rotate-180': showAdvancedFilters }" /></Button
-					></CollapsibleTrigger>
+					<ClientOnly>
+						<CollapsibleTrigger as-child
+							><Button id="advanced" size="icon" variant="outline"
+								><ChevronDownIcon
+									class="size-4"
+									:class="{ 'rotate-180': showAdvancedFilters }" /></Button
+						></CollapsibleTrigger>
+					</ClientOnly>
 				</div>
 			</div>
 		</Collapsible>
@@ -1171,7 +1173,9 @@ watch(activeVariants, updateUrlParams, {
 		<div class="flex w-full gap-8 justify-between">
 			<div class="flex w-full gap-3">
 				<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ fullRoute }}</p>
-				<CopyToClipboard :text="fullRoute" />
+				<ClientOnly>
+					<CopyToClipboard :text="fullRoute" />
+				</ClientOnly>
 			</div>
 			<div class="flex gap-3">
 				<Button v-if="postAlias" @click="goToArticlePage"

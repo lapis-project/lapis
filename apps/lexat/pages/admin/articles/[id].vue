@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
 import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "lucide-vue-next";
+import { toast } from "vue-sonner";
 
-import { useToast } from "@/components/ui/toast/use-toast";
+import { Toaster } from "@/components/ui/sonner";
 import { useApiClient } from "@/composables/use-api-client";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
@@ -28,8 +29,6 @@ if (!bibliographyItems.value.length) {
 }
 
 const currentLocale = useLocale();
-
-const { toast } = useToast();
 
 const t = useTranslations();
 const localePath = useLocalePath();
@@ -189,19 +188,13 @@ const saveArticle = async () => {
 			body: article,
 			credentials: "include",
 		});
-		toast({
-			title: t("AdminPage.editor.saving_succeeded.title"),
-			description: t("AdminPage.editor.saving_succeeded.description"),
-		});
+		toast.success(t("AdminPage.editor.saving_succeeded.title"));
 		if (response) {
 			await navigateTo(localePath("/admin/articles"));
 		}
 	} catch (error) {
-		toast({
-			title: t("AdminPage.editor.saving_failed.title"),
-			description: error instanceof Error ? error.message : String(error),
-			variant: "destructive",
-		});
+		console.error(error);
+		toast.error(t("AdminPage.editor.saving_failed.title"));
 	}
 };
 
@@ -262,15 +255,10 @@ const handleFileChange = async (event: Event) => {
 			// 	url: "https://images.pexels.com/photos/934055/pexels-photo-934055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
 			// };
 			cover.value = result.url;
-			toast({
-				title: t("AdminPage.editor.cover.upload_succeeded"),
-			});
+			toast.success(t("AdminPage.editor.cover.upload_succeeded"));
 		} catch (error) {
-			toast({
-				title: t("AdminPage.editor.cover.upload_failed"),
-				description: error instanceof Error ? error.message : String(error),
-				variant: "destructive",
-			});
+			console.error(error);
+			toast.error(t("AdminPage.editor.cover.upload_failed"));
 		}
 	}
 };
@@ -499,6 +487,8 @@ usePageMetadata({
 				</div>
 			</div>
 		</div>
-		<Toaster />
+		<ClientOnly>
+			<Toaster />
+		</ClientOnly>
 	</MainContent>
 </template>

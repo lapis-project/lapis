@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { LogOut, PanelLeft, User, UserRound } from "lucide-vue-next";
-
-import { useToast } from "@/components/ui/toast/use-toast";
+import { toast } from "vue-sonner";
 
 const localePath = useLocalePath();
 const env = useRuntimeConfig();
@@ -9,8 +8,6 @@ const env = useRuntimeConfig();
 const t = useTranslations();
 
 const user = useUser();
-
-const { toast } = useToast();
 
 const login = async () => {
 	await navigateTo(localePath("/login"));
@@ -29,9 +26,7 @@ const logout = async () => {
 		if (env.NODE_ENV !== "production") {
 			console.error(e);
 		}
-		toast({
-			title: "Unable to log out.",
-		});
+		toast.error("Unable to log out");
 	}
 };
 

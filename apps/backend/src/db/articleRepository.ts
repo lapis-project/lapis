@@ -125,8 +125,12 @@ export async function getAllArticlesByProject(
 			if (searchTerm === "" && postType === "") {
 				baseQuery = baseQuery.orderBy(sql`CASE
 					WHEN post_type.post_type_name = 'project_description' THEN 1
+					WHEN post_type.post_type_name = 'short_description' THEN 3
 					ELSE 2
-				END`);
+				END,
+				post.created_at,
+				post.published_at
+				`);
 			}
 
 			return baseQuery

@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import { toTypedSchema } from "@vee-validate/zod";
 import { useForm } from "vee-validate";
+import { toast } from "vue-sonner";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/toast/use-toast";
+import { Toaster } from "@/components/ui/sonner";
 
 const localePath = useLocalePath();
 
 const env = useRuntimeConfig();
-
-const { toast } = useToast();
 
 const t = useTranslations();
 
@@ -62,11 +61,8 @@ const onSubmit = handleSubmit(async (formValues) => {
 			await navigateTo(localePath("/admin/articles"));
 		}
 	} catch (error) {
-		toast({
-			title: t("Auth.signup_failed"),
-			description: error || t("Auth.signup_failed"),
-			variant: "destructive",
-		});
+		console.error(error);
+		toast.error(t("Auth.signup_failed"));
 	}
 });
 </script>
@@ -149,6 +145,8 @@ const onSubmit = handleSubmit(async (formValues) => {
 			</FormItem>
 		</FormField>
 		<Button type="submit"> {{ t("Auth.signup") }} </Button>
-		<Toaster />
+		<ClientOnly>
+			<Toaster />
+		</ClientOnly>
 	</form>
 </template>

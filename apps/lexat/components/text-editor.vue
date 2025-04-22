@@ -25,13 +25,11 @@ import {
 	UndoIcon,
 } from "lucide-vue-next";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
-
-import { useToast } from "@/components/ui/toast/use-toast";
+import { toast } from "vue-sonner";
 
 import { Figure } from "./figure.ts";
 
 const env = useRuntimeConfig();
-const { toast } = useToast();
 
 const props = withDefaults(defineProps<{ modelValue: string }>(), {
 	modelValue: "",
@@ -205,10 +203,7 @@ const insertImage = (url: string) => {
 
 const handleImageUpload = async () => {
 	if (!selectedImage.value) {
-		toast({
-			title: "No image selected.",
-			variant: "destructive",
-		});
+		toast.error("No image selected");
 		return;
 	}
 	const formData = new FormData();
@@ -230,10 +225,7 @@ const handleImageUpload = async () => {
 		if (env.NODE_ENV !== "production") {
 			console.error(e);
 		}
-		toast({
-			title: "Could not upload image.",
-			variant: "destructive",
-		});
+		toast.error("Could not upload image");
 	}
 };
 

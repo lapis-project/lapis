@@ -4,12 +4,9 @@
 			"title": "About the project and its objectives"
 		},
 		"title": "About the project and its objectives",
-		"team": {
-			"title": "Team",
-			"head": "Project leader and editor",
-			"technical": "Concept and technical implementation",
-			"authors": "Authors",
-			"editors": "Proofing"
+		"citation": {
+			"title": "Project citation",
+			"text": "LexAT21 in its entirety is to be cited as follows"
 		},
 		"more": {
 			"title": "More about",
@@ -21,6 +18,13 @@
 			"survey": "The survey method",
 			"registers": "The registers",
 			"implementation": "The technical implementation"
+		},
+		"team": {
+			"title": "Team",
+			"head": "Project leader and editor",
+			"technical": "Concept and technical implementation",
+			"authors": "Authors",
+			"editors": "Proofing"
 		}
 	},
 	"AdminNavigation": {

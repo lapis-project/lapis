@@ -72,10 +72,12 @@ usePageMetadata({
 				</template>
 			</div>
 		</section>
+
 		<section class="mb-16 flex flex-col items-center pb-16 border-b">
 			<h2 class="text-3xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h2>
 			<StatsSection />
 		</section>
+
 		<section class="mb-16 pb-16 border-b">
 			<div class="article-content mx-auto max-w-4xl">
 				<h2 class="text-3xl font-semibold">{{ t("AboutPage.team.title") }}</h2>
@@ -85,7 +87,7 @@ usePageMetadata({
 					<li>Alexandra N. Lenz</li>
 				</ul> -->
 				<h3>{{ t("AboutPage.team.technical") }}</h3>
-				<p>Markus Pluschkovits, Jakob Bal, Kilian Kukelka, Anja Wittibschlager, Daniel Schopper</p>
+				<p>Jakob Bal, Kilian Kukelka, Markus Pluschkovits, Daniel Schopper, Anja Wittibschlager</p>
 				<!-- <ul>
 					<li>Markus Pluschkovits</li>
 					<li>Jakob Bal</li>
@@ -105,6 +107,21 @@ usePageMetadata({
 				</ul> -->
 				<h3>{{ t("AboutPage.team.editors") }}</h3>
 				<p>Kerstin Lorenz, Eric Schirl</p>
+			</div>
+		</section>
+
+		<section class="mb-16 pb-12 border-b">
+			<div class="article-content mx-auto max-w-4xl">
+				<h2 class="text-3xl font-semibold">{{ t("AboutPage.citation.title") }}</h2>
+				<p>{{ t("AboutPage.citation.text") }}:</p>
+				<blockquote>
+					LexAT21 - Plattform zur lexikalischen Variation in Österreich im 21. Jahrhundert.
+					Herausgegeben von Alexandra N. Lenz. Konzipiert und entwickelt von Markus Pluschkovits,
+					Jakob Bal, Kilian Kukelka, Anja Wittibschlager und Daniel Schopper. Unter Mitarbeit von
+					Amelie Dorn, Jan Höll, Katharina Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes,
+					Markus Pluschkovits, Rita Stiglbauer, Florian David Tavernier, Anja Wittibschlager,
+					Theresa Ziegler, Kerstin Lorenz und Eric Schirl.
+				</blockquote>
 			</div>
 		</section>
 

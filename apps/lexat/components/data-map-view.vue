@@ -1128,7 +1128,7 @@ watch(activeVariants, updateUrlParams, {
 					:coordinates="popover.coordinates"
 					@close="popover = null"
 				>
-					<article class="grid w-56 gap-1">
+					<article class="grid w-58 gap-1">
 						<div v-for="entity in popover.entities" :key="entity.id">
 							<p>
 								<strong>{{ entity.place_name }}</strong

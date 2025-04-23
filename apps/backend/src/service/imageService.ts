@@ -10,16 +10,17 @@ class ImgProxyError extends Error {
 	}
 }
 
-export const generateSignedImageUrl = (url: string) => {
+export const generateSignedImageUrl = (url: string, width = 1280) => {
 	try {
 		const imageUrl = generateImageUrl({
 			endpoint: "https://imgproxy.acdh.oeaw.ac.at",
 			url,
 			options: {
 				resizing_type: "fit",
-				width: 1280,
+				width,
 				gravity: { type: "no" },
 				enlarge: 1,
+				ext: "webp",
 			},
 			salt,
 			key,

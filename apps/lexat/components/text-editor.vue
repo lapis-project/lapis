@@ -210,13 +210,13 @@ const handleImageUpload = async () => {
 	formData.append("image", selectedImage.value);
 	try {
 		// TODO rewrite mediaHandler to new syntax and then refactor reponse type here
-		const result = await $fetch<{ url: string; message: string }>("/media/upload", {
+		const result = await $fetch<{ imageUrl: string; message: string }>("/media/upload", {
 			baseURL: env.public.apiBaseUrl,
 			credentials: "include",
 			body: formData,
 			method: "POST",
 		});
-		insertImage(result.url);
+		insertImage(result.imageUrl);
 		isImageDialogOpen.value = false;
 		imageAnnotation.value = "";
 		imageMapLink.value = "";

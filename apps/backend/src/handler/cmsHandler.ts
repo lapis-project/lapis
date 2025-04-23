@@ -29,6 +29,7 @@ import {
 	instanceOfAvailablelang,
 	instanceOfPoststatus,
 } from "@/lib/RepoHelper";
+import { generateSignedImageUrl } from "@/service/imageService";
 import type { Article } from "@/types/apiTypes";
 
 const createNewArticleSchema = object({
@@ -129,7 +130,6 @@ const cms = new Hono<Context>()
 		const updatedArticle: Article = {
 			title: body.title,
 			alias: body.alias,
-			cover: body.cover ?? null,
 			cover_alt: body.cover_alt ?? null,
 			creator_id: Number(creator.id),
 			abstract: body.abstract ?? null,
@@ -240,7 +240,11 @@ const cms = new Hono<Context>()
 			return c.json("Provided id is not a number", 400);
 		}
 
-		const fetchedArticle = await getArticleById(Number(providedId));
+		let fetchedArticle = await getArticleById(Number(providedId));
+		// TODO kkukelka: remove s3:// check once all images are migrated
+		if (fetchedArticle?.cover?.startsWith("s3://")) {
+			fetchedArticle = { ...fetchedArticle, cover: generateSignedImageUrl(fetchedArticle.cover) };
+		}
 		return c.json({ article: fetchedArticle }, 200);
 	})
 	/**

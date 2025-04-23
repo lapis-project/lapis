@@ -346,6 +346,8 @@ const cms = new Hono<Context>()
 
 		const articleId = await createNewPost(Number(creator.id));
 
+		await linkProjectToPost(articleId.id, [1]);
+
 		return c.json(
 			{
 				articleId: articleId,

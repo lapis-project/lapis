@@ -118,6 +118,9 @@ importers:
       eslint:
         specifier: ^9.25.1
         version: 9.25.1(jiti@2.4.2)
+      eslint-config-flat-gitignore:
+        specifier: ^0.3.0
+        version: 0.3.0(eslint@9.25.1(jiti@2.4.2))
       kysely-codegen:
         specifier: ^0.17.0
         version: 0.17.0(kysely@0.27.6)(pg@8.14.1)

@@ -382,22 +382,7 @@ const cms = new Hono<Context>()
 	});
 
 // Enable in order to restrict the route only to signed in users
-//cms.use("*", restrictedRoute);
+cms.use("*", restrictedRoute);
 
 export default cms;
 export type CmsRoute = typeof cms;
-
-/*
-
-const apiClient = hc<CmsRoute>("");
-const $delete = apiClient.articles.create.info.$get;
-type DeleteResponseType = InferResponseType<typeof $delete, 200>;
-
-type DeleteRequestType = InferRequestType<typeof $delete>;
-
-export namespace DeleteEntity {
-	export type ResponseType = InferResponseType<typeof $delete, 200>;
-}
-
-type X = DeleteEntity.ResponseType;
-*/

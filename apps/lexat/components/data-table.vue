@@ -232,10 +232,11 @@ onBeforeUnmount(() => {
 			</table>
 		</div>
 		<div class="mt-3 justify-end flex gap-3">
+			<slot name="left"></slot>
 			<Button @click="handleDownload"
 				><Download class="mr-2 size-4" />{{ t("DataTable.download") }}</Button
 			>
-			<slot></slot>
+			<slot name="right"></slot>
 		</div>
 	</section>
 </template>

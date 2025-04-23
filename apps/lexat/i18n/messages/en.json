@@ -192,6 +192,12 @@
 		"project_description": "Project description",
 		"short_description": "Short infos"
 	},
+	"Clipboard": {
+		"copy": "Copy",
+		"copied": "Copied",
+		"copy-success": "Copied to clipboard",
+		"copy-fail": "Cant save to clipboard"
+	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Change color scheme",
 		"color-schemes": {
@@ -223,7 +229,8 @@
 			"place": "Location",
 			"age-group": "Age"
 		},
-		"go-to-maps": "Explore on map"
+		"go-to-maps": "Explore on map",
+		"citation": "Citation"
 	},
 	"DefaultLayout": {
 		"meta": {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useClipboard } from "@vueuse/core";
-import { ClipboardIcon } from "lucide-vue-next";
+import { CheckIcon, ClipboardIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
 import { Toaster } from "@/components/ui/sonner";
@@ -9,27 +9,31 @@ const props = defineProps<{
 	text: string;
 }>();
 
+const t = useTranslations();
+
 const { copy, copied, isSupported } = useClipboard({ source: props.text });
 
 const copyToClipboard = async (text: string) => {
 	try {
 		await copy(text);
-		toast("Copied to clipboard");
+		toast(t("Clipboard.copy-success"));
 	} catch (e) {
-		console.error(e, "Cant save to clipboard");
+		console.error(e, t("Clipboard.copy-fail"));
 	}
 };
 </script>
 
 <template>
 	<div>
-		<Button v-if="isSupported" variant="outline" @click="copyToClipboard(props.text)">
-			<ClipboardIcon class="mr-2 size-4" />
-			<span v-if="!copied">Copy</span>
-			<span v-else>Copied!</span>
-		</Button>
 		<ClientOnly>
-			<Toaster />
+			<Button v-if="isSupported" variant="outline" @click="copyToClipboard(props.text)">
+				<component :is="copied ? CheckIcon : ClipboardIcon" class="mr-2 size-4" />
+				<span v-if="!copied">{{ t("Clipboard.copy") }}</span>
+				<span v-else>{{ t("Clipboard.copied") }}</span>
+			</Button>
+			<Teleport to="body">
+				<Toaster />
+			</Teleport>
 		</ClientOnly>
 	</div>
 </template>

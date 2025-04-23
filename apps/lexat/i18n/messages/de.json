@@ -192,6 +192,12 @@
 		"project_description": "Projektbeschreibung",
 		"short_description": "Kurzbeschreibung"
 	},
+	"Clipboard": {
+		"copy": "Kopieren",
+		"copied": "Kopiert",
+		"copy-success": "In Zwischenablage gespeichert",
+		"copy-fail": "Konnte nicht in Zwischenablage gespeichert werden"
+	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Farbschema ändern",
 		"color-schemes": {
@@ -223,7 +229,8 @@
 			"place": "Ort",
 			"age-group": "Alter"
 		},
-		"go-to-maps": "Kartierung ansehen"
+		"go-to-maps": "Kartierung ansehen",
+		"citation": "Zitiervorschlag"
 	},
 	"DefaultLayout": {
 		"meta": {

@@ -243,6 +243,10 @@ export async function getAllArticlesByProjectId(
 		])*/
 }
 
+export async function createNewPost() {
+	return await db.insertInto("post").defaultValues().returning(["id"]).executeTakeFirstOrThrow();
+}
+
 export async function getProjectByIds(ids: Array<number>) {
 	return await db
 		.selectFrom("project")

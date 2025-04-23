@@ -6,6 +6,7 @@ import { array, minLength, number, object, optional, pipe, string } from "valibo
 
 import { getUsersByList } from "@/db/authRepository";
 import {
+	createNewPost,
 	deleteArticleById,
 	deleteAuthorsFromArticleByArticleId,
 	deleteBibliographyFromArticleByArticleId,
@@ -247,7 +248,10 @@ const cms = new Hono<Context>()
 	 * Will also create the necessary relations to authors, bibliography and projects
 	 * If a new bibliography entry is provided, which is not available in the bibliography table, it will be created and linked to the article
 	 */
-	.post("/articles/create", vValidator("json", createNewArticleSchema), async (c) => {
+	.post("/articles/create", async (c) => {
+		/*
+		removed this code since this handler now only creates a new article entry in the database and
+		returns the new id to the client
 		// get the body
 		const body = c.req.valid("json");
 
@@ -333,7 +337,10 @@ const cms = new Hono<Context>()
 			} catch (e) {
 				return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
 			}
-		}
+		}*/
+
+		const articleId = await createNewPost();
+
 		return c.json(
 			{
 				articleId: articleId,
@@ -375,7 +382,7 @@ const cms = new Hono<Context>()
 	});
 
 // Enable in order to restrict the route only to signed in users
-cms.use("*", restrictedRoute);
+//cms.use("*", restrictedRoute);
 
 export default cms;
 export type CmsRoute = typeof cms;

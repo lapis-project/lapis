@@ -339,7 +339,12 @@ const cms = new Hono<Context>()
 			}
 		}*/
 
-		const articleId = await createNewPost();
+		const creator = c.get("user");
+		if (!creator) {
+			return c.json("Error while fetching data", 500);
+		}
+
+		const articleId = await createNewPost(Number(creator.id));
 
 		return c.json(
 			{

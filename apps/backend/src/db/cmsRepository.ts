@@ -98,8 +98,8 @@ export async function getArticleById(id: number) {
 				.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon_post.post_id"]),
 		)
 		.selectFrom("post")
-		.innerJoin("post_type", "post.post_type_id", "post_type.id")
 		.innerJoin("user_account", "user_account.id", "post.creator_id")
+		.leftJoin("post_type", "post.post_type_id", "post_type.id")
 		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.leftJoin("authors", "authors.post_id", "post.id")
 		.leftJoin("phenomenon_query", "phenomenon_query.post_id", "post.id")
@@ -243,8 +243,13 @@ export async function getAllArticlesByProjectId(
 		])*/
 }
 
-export async function createNewPost() {
-	return await db.insertInto("post").defaultValues().returning(["id"]).executeTakeFirstOrThrow();
+export async function createNewPost(creator_id: number) {
+	return await db
+		.insertInto("post")
+		.columns(["creator_id"])
+		.values({ creator_id })
+		.returning(["id"])
+		.executeTakeFirstOrThrow();
 }
 
 export async function getProjectByIds(ids: Array<number>) {

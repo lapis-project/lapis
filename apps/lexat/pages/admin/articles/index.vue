@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { Plus } from "lucide-vue-next";
+import { toast } from "vue-sonner";
 
 import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
+import { Toaster } from "@/components/ui/sonner";
 
+const env = useRuntimeConfig();
 const { articles, currentPage, totalPages, setCurrentPage } = useAdminArticles();
 const { statusOptions } = useArticleStatus();
 
@@ -30,7 +33,17 @@ const tableData = computed<Array<ArticleListEntry> | []>(() => {
 });
 
 const createNewArticle = async () => {
-	await navigateTo(localePath("/admin/articles/new"));
+	try {
+		const result = await $fetch("/cms/articles/create", {
+			baseURL: env.public.apiBaseUrl,
+			method: "POST",
+			credentials: "include",
+		});
+		await await navigateTo(localePath(`/admin/articles/${result.articleId.id}`));
+	} catch (error) {
+		console.error(error);
+		toast.error("Could not create new article");
+	}
 };
 
 usePageMetadata({
@@ -54,5 +67,8 @@ usePageMetadata({
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
 		></PagePagination>
+		<ClientOnly>
+			<Toaster />
+		</ClientOnly>
 	</MainContent>
 </template>

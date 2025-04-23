@@ -98,8 +98,8 @@ export async function getArticleById(id: number) {
 				.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon_post.post_id"]),
 		)
 		.selectFrom("post")
-		.innerJoin("post_type", "post.post_type_id", "post_type.id")
 		.innerJoin("user_account", "user_account.id", "post.creator_id")
+		.leftJoin("post_type", "post.post_type_id", "post_type.id")
 		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
 		.leftJoin("authors", "authors.post_id", "post.id")
 		.leftJoin("phenomenon_query", "phenomenon_query.post_id", "post.id")
@@ -178,8 +178,8 @@ export async function getAllArticlesByProjectId(
 	postType: string,
 ) {
 	const query = db
-		.with("post_query", (query) =>
-			query
+		.with("post_query", (query) => {
+			let baseQuery = query
 				.selectFrom("post")
 				.innerJoin("project_post", "post.id", "project_post.post_id")
 				.leftJoin("user_post", "post.id", "user_post.post_id")
@@ -188,10 +188,8 @@ export async function getAllArticlesByProjectId(
 						.onRef("user_post.user_id", "=", "user_account.id")
 						.onRef("post.creator_id", "=", "user_account.id"),
 				)
-				.innerJoin("post_type", "post.post_type_id", "post_type.id")
+				.leftJoin("post_type", "post.post_type_id", "post_type.id")
 				.where("project_post.project_id", "=", projectId)
-				.where("post.title", "~*", searchTerm)
-				.where("post_type.post_type_name", "~*", postType)
 				.select(({ eb }) => [
 					sql<number>`ROW_NUMBER() OVER (order by post.id) as rn`,
 					eb.ref("post.id").as("post_id"),
@@ -214,8 +212,15 @@ export async function getAllArticlesByProjectId(
 						)
 						.as("authors"),
 				])
-				.groupBy(["post.id", "post_type.post_type_name"]),
-		)
+				.groupBy(["post.id", "post_type.post_type_name"]);
+			if (searchTerm !== "" || searchTerm.length > 0) {
+				baseQuery = baseQuery.where("post.title", "~*", searchTerm);
+			}
+			if (postType !== "" || postType.length > 0) {
+				baseQuery = baseQuery.where("post_type.post_type_name", "~*", postType);
+			}
+			return baseQuery;
+		})
 		.selectFrom("post_query")
 		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
 		.select(({ eb, fn }) => [
@@ -241,6 +246,15 @@ export async function getAllArticlesByProjectId(
 	/* .select(({ eb, fn }) => [
 			fn.jsonAgg(jsonbBuildObject({ abstract: eb.ref("post_query.abstract") })).as("articles"),
 		])*/
+}
+
+export async function createNewPost(creator_id: number) {
+	return await db
+		.insertInto("post")
+		.columns(["creator_id"])
+		.values({ creator_id })
+		.returning(["id"])
+		.executeTakeFirstOrThrow();
 }
 
 export async function getProjectByIds(ids: Array<number>) {
@@ -387,6 +401,10 @@ export async function deleteAuthorsFromArticleByArticleId(articleId: number) {
 
 export async function deleteBibliographyFromArticleByArticleId(articleId: number) {
 	return await db.deleteFrom("bibliography_post").where("post_id", "=", articleId).execute();
+}
+
+export async function updateArticleCover(url: string, articleId: number) {
+	return await db.updateTable("post").set({ cover: url }).where("id", "=", articleId).execute();
 }
 
 export async function updateArticleById(articleId: number, articleBody: Article) {

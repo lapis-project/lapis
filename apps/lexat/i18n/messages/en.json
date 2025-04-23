@@ -67,7 +67,8 @@
 				"placeholder": "category",
 				"commentary": "Map commentary",
 				"project_description": "Project description",
-				"short_description": "Short infos"
+				"short_description": "Short infos",
+				"null": "n/a"
 			},
 			"citation": {
 				"label": "Citation",

@@ -33,7 +33,7 @@ const currentLocale = useLocale();
 const t = useTranslations();
 const localePath = useLocalePath();
 
-const routeId = route.params.id;
+const routeId = Array.isArray(route.params.id) ? route.params.id[0] : route.params.id;
 
 const abstract = ref<string>("");
 const activeStatus = ref<Status>("Draft");
@@ -109,6 +109,8 @@ if (routeId && routeId !== "new") {
 		selectedQuestion.value = article.phenomenon?.[0]?.name ?? null;
 		postId.value = article.post_id;
 		activeStatus.value = article.post_status ?? "Draft";
+	} else {
+		postId.value = parseInt(routeId);
 	}
 }
 
@@ -146,7 +148,7 @@ const saveArticle = async () => {
 	const article: {
 		title: string;
 		alias: string;
-		cover: string;
+		// cover: string; // done via mediaHandler.ts
 		cover_alt: string;
 		abstract: string;
 		content: string;
@@ -161,7 +163,6 @@ const saveArticle = async () => {
 	} = {
 		title: title.value,
 		alias: alias.value,
-		cover: cover.value,
 		cover_alt: coverAlt.value,
 		abstract: abstract.value,
 		content: content.value,
@@ -181,10 +182,10 @@ const saveArticle = async () => {
 	}
 
 	try {
-		const apiRoute = `/cms/articles/${postId.value ? `${postId.value}` : "create"}`;
+		const apiRoute = `/cms/articles/${postId.value}`;
 		const response = await $fetch(apiRoute, {
 			baseURL: env.public.apiBaseUrl,
-			method: postId.value ? "PUT" : "POST",
+			method: "PUT",
 			body: article,
 			credentials: "include",
 		});
@@ -244,7 +245,7 @@ const handleFileChange = async (event: Event) => {
 		formData.append("image", file);
 		try {
 			// TODO rewrite mediaHandler to new syntax and then refactor reponse type here
-			const result = await $fetch<{ url: string; message: string }>("/media/upload", {
+			const result = await $fetch<{ url: string; message: string }>(`/media/upload/${routeId}`, {
 				baseURL: env.public.apiBaseUrl,
 				credentials: "include",
 				body: formData,
@@ -254,7 +255,7 @@ const handleFileChange = async (event: Event) => {
 			// const result = {
 			// 	url: "https://images.pexels.com/photos/934055/pexels-photo-934055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
 			// };
-			cover.value = result.url;
+			cover.value = result.imageUrl;
 			toast.success(t("AdminPage.editor.cover.upload_succeeded"));
 		} catch (error) {
 			console.error(error);

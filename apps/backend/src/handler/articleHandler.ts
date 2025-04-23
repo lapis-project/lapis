@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { minLength, number, optional, pipe, safeParse, string } from "valibot";
 
 import { getAllArticlesByProject, getArticleByAlias } from "@/db/articleRepository";
+import { generateSignedImageUrl } from "@/service/imageService";
 import type { Availablelang } from "@/types/db";
 
 const articles = new Hono()
@@ -68,7 +69,12 @@ const articles = new Hono()
 			lang as Availablelang,
 		);
 
-		const articles = fetchedArticles[0]?.articles ? fetchedArticles[0].articles : [];
+		let articles = fetchedArticles[0]?.articles ?? [];
+		// TODO kkukelka: remove s3:// check once all images are migrated
+		articles = articles.map((a) => ({
+			...a,
+			cover: a.cover.startsWith("s3://") ? generateSignedImageUrl(a.cover, 640) : a.cover,
+		}));
 		const totalCount = Number(fetchedArticles[0]?.total);
 		const requestUrl = c.req.url;
 		return c.json(
@@ -87,7 +93,7 @@ const articles = new Hono()
 								`page=${String(pageNumParsed + 1)}`,
 							)
 						: null,
-				articles: articles,
+				articles,
 				currentPage: requestUrl,
 				totalResults: totalCount,
 			},
@@ -113,7 +119,11 @@ const articles = new Hono()
 			return c.json("Provided alias is not a string", 400);
 		}
 
-		const fetchedArticle = await getArticleByAlias(articleAlias);
+		let fetchedArticle = await getArticleByAlias(articleAlias);
+		// TODO kkukelka: remove s3:// check once all images are migrated
+		if (fetchedArticle?.cover?.startsWith("s3://")) {
+			fetchedArticle = { ...fetchedArticle, cover: generateSignedImageUrl(fetchedArticle.cover) };
+		}
 		return c.json({ article: fetchedArticle }, 200);
 	});
 

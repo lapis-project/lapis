@@ -67,7 +67,8 @@
 				"placeholder": "Kategorie",
 				"commentary": "Kartenkommentar",
 				"project_description": "Projektbeschreibung",
-				"short_description": "Kurzbeschreibung"
+				"short_description": "Kurzbeschreibung",
+				"null": "n/a"
 			},
 			"citation": {
 				"label": "Zitiervorschlag",

@@ -1896,17 +1896,26 @@ declare const app: hono_hono_base.HonoBase<
 										id: string;
 									};
 								};
+								output: "Provided orderby argument is not a string";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
 								output: {
 									prev: string | null;
 									next: string | null;
 									responses: Array<{
+										informant: string | null;
 										response: string | null;
 										annotation: string | null;
-										phenomenon: string | null;
 										variety: string;
 										place: string | null;
 										age: string | null;
-										informant: string | null;
 									}>;
 									currentPage: string;
 									totalResults: number;
@@ -2400,241 +2409,13 @@ declare const app: hono_hono_base.HonoBase<
 				"/articles/create": {
 					$post:
 						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: "No post type found";
-								outputFormat: "json";
-								status: 400;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: "Invalid status provided";
-								outputFormat: "json";
-								status: 400;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: "Invalid language provided";
-								outputFormat: "json";
-								status: 400;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
+								input: {};
 								output: "Error while fetching data";
 								outputFormat: "json";
 								status: 500;
 						  }
 						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: "Article not found";
-								outputFormat: "json";
-								status: 404;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: `Error while linking phenomenon, ${string}`;
-								outputFormat: "json";
-								status: 500;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: "Not all authors found";
-								outputFormat: "json";
-								status: 400;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: "No category provided";
-								outputFormat: "json";
-								status: 400;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
-								output: "Error while creating article";
-								outputFormat: "json";
-								status: 500;
-						  }
-						| {
-								input: {
-									json: {
-										alias: string;
-										lang: string;
-										title: string;
-										status: string;
-										bibliography?: Array<string> | undefined;
-										survey_conducted?: Array<string> | undefined;
-										abstract?: string | undefined;
-										content?: string | undefined;
-										cover?: string | undefined;
-										cover_alt?: string | undefined;
-										citation?: string | undefined;
-										authors?: Array<number> | undefined;
-										category?: string | undefined;
-										phenomenonId?: number | undefined;
-										projectId?: Array<number> | undefined;
-									};
-								};
+								input: {};
 								output: {
 									articleId: {
 										id: number;
@@ -3102,7 +2883,80 @@ declare const app: hono_hono_base.HonoBase<
 			},
 			"/user"
 	  >
-	| hono_types.MergeSchemaPath<hono_types.BlankSchema, "/media">
+	| hono_types.MergeSchemaPath<
+			{
+				"/upload/:id": {
+					$post:
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: "Provided id is not a number";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: "No id provided";
+								outputFormat: "json";
+								status: 400;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: {
+									imageUrl: string;
+									message: string;
+								};
+								outputFormat: "json";
+								status: 200;
+						  }
+						| {
+								input: {
+									param: {
+										id: string;
+									};
+								};
+								output: {
+									message: string;
+								};
+								outputFormat: "json";
+								status: 500;
+						  };
+				};
+			} & {
+				"/upload": {
+					$post:
+						| {
+								input: {};
+								output: {
+									imageUrl: string;
+									message: string;
+								};
+								outputFormat: "json";
+								status: 200;
+						  }
+						| {
+								input: {};
+								output: {
+									message: string;
+								};
+								outputFormat: "json";
+								status: 500;
+						  };
+				};
+			},
+			"/media"
+	  >
 	| hono_types.MergeSchemaPath<
 			{
 				"/": {

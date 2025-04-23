@@ -6,6 +6,7 @@ import { array, minLength, number, object, optional, pipe, string } from "valibo
 
 import { getUsersByList } from "@/db/authRepository";
 import {
+	createNewPost,
 	deleteArticleById,
 	deleteAuthorsFromArticleByArticleId,
 	deleteBibliographyFromArticleByArticleId,
@@ -28,6 +29,7 @@ import {
 	instanceOfAvailablelang,
 	instanceOfPoststatus,
 } from "@/lib/RepoHelper";
+import { generateSignedImageUrl } from "@/service/imageService";
 import type { Article } from "@/types/apiTypes";
 
 const createNewArticleSchema = object({
@@ -128,7 +130,6 @@ const cms = new Hono<Context>()
 		const updatedArticle: Article = {
 			title: body.title,
 			alias: body.alias,
-			cover: body.cover ?? null,
 			cover_alt: body.cover_alt ?? null,
 			creator_id: Number(creator.id),
 			abstract: body.abstract ?? null,
@@ -239,7 +240,11 @@ const cms = new Hono<Context>()
 			return c.json("Provided id is not a number", 400);
 		}
 
-		const fetchedArticle = await getArticleById(Number(providedId));
+		let fetchedArticle = await getArticleById(Number(providedId));
+		// TODO kkukelka: remove s3:// check once all images are migrated
+		if (fetchedArticle?.cover?.startsWith("s3://")) {
+			fetchedArticle = { ...fetchedArticle, cover: generateSignedImageUrl(fetchedArticle.cover) };
+		}
 		return c.json({ article: fetchedArticle }, 200);
 	})
 	/**
@@ -247,11 +252,12 @@ const cms = new Hono<Context>()
 	 * Will also create the necessary relations to authors, bibliography and projects
 	 * If a new bibliography entry is provided, which is not available in the bibliography table, it will be created and linked to the article
 	 */
-	.post("/articles/create", vValidator("json", createNewArticleSchema), async (c) => {
+	.post("/articles/create", async (c) => {
+		/*
+		removed this code since this handler now only creates a new article entry in the database and
+		returns the new id to the client
 		// get the body
 		const body = c.req.valid("json");
-
-		// TODO Check if the phaen is also included and also in the database
 
 		// Check UserIds
 		const userIds = body.authors;
@@ -335,7 +341,17 @@ const cms = new Hono<Context>()
 			} catch (e) {
 				return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
 			}
+		}*/
+
+		const creator = c.get("user");
+		if (!creator) {
+			return c.json("Error while fetching data", 500);
 		}
+
+		const articleId = await createNewPost(Number(creator.id));
+
+		await linkProjectToPost(articleId.id, [1]);
+
 		return c.json(
 			{
 				articleId: articleId,
@@ -381,18 +397,3 @@ cms.use("*", restrictedRoute);
 
 export default cms;
 export type CmsRoute = typeof cms;
-
-/*
-
-const apiClient = hc<CmsRoute>("");
-const $delete = apiClient.articles.create.info.$get;
-type DeleteResponseType = InferResponseType<typeof $delete, 200>;
-
-type DeleteRequestType = InferRequestType<typeof $delete>;
-
-export namespace DeleteEntity {
-	export type ResponseType = InferResponseType<typeof $delete, 200>;
-}
-
-type X = DeleteEntity.ResponseType;
-*/

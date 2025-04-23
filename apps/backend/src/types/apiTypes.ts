@@ -40,7 +40,7 @@ export interface Article {
 	publishedAt: Date | null;
 	updatedAt: Date;
 	bibliography: Array<string>;
-	cover: string | null;
+	cover?: string | null;
 	cover_alt: string | null;
 	creator_id: number;
 	citation: string | null;

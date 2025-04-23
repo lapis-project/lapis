@@ -251,8 +251,6 @@ const cms = new Hono<Context>()
 		// get the body
 		const body = c.req.valid("json");
 
-		// TODO Check if the phaen is also included and also in the database
-
 		// Check UserIds
 		const userIds = body.authors;
 		if (userIds && userIds.length >= 0) {

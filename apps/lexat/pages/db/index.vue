@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
-import { InfoIcon, MapPin, RotateCcw } from "lucide-vue-next";
+import { InfoIcon, MapPin, Quote, RotateCcw } from "lucide-vue-next";
 import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
 
 import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
@@ -305,6 +305,23 @@ const handleDownload = async (): Promise<void> => {
 	}
 };
 
+const citation = computed(() => {
+	// format date as DD.MM.YYYY in German (Austria) locale
+	const formattedDate = new Date().toLocaleDateString("de-AT", {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+	});
+
+	// build full URL including query parameters
+	const url = window.location.origin + route.fullPath;
+	const phenomenonName = questions.value?.find(
+		(q) => q.id === activeQuestionId.value,
+	)?.phenomenon_name;
+
+	return `${phenomenonName} - Belegdaten. In: LexAT21: Atlas zur Lexik in Österreich im 21. Jahrhundert. Herausgegeben von Alexandra N. Lenz, ${url}, abgerufen am ${formattedDate}.`;
+});
+
 watch(
 	activeQuestion,
 	async () => {
@@ -434,9 +451,26 @@ initializeFromUrl();
 			@download-csv="handleDownload"
 			@update:sort-criterion="setSortOrder"
 		>
-			<Button @click="goToMapsPage"
-				><MapPin class="mr-2 size-4" />{{ t("DbPage.go-to-maps") }}</Button
-			>
+			<template #left>
+				<div class="mr-auto">
+					<Popover>
+						<PopoverTrigger>
+							<Button variant="outline"
+								><Quote class="mr-2 size-4" />{{ t("DbPage.citation") }}</Button
+							></PopoverTrigger
+						>
+						<PopoverContent class="w-lg" side="right">
+							<p class="italic mb-4 border p-5 rounded-sm">{{ citation }}</p>
+							<CopyToClipboard :text="citation" />
+						</PopoverContent>
+					</Popover>
+				</div>
+			</template>
+			<template #right>
+				<Button @click="goToMapsPage"
+					><MapPin class="mr-2 size-4" />{{ t("DbPage.go-to-maps") }}</Button
+				>
+			</template>
 		</DataTable>
 		<PagePagination
 			:current-page="currentPage"

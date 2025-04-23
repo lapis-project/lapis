@@ -389,6 +389,10 @@ export async function deleteBibliographyFromArticleByArticleId(articleId: number
 	return await db.deleteFrom("bibliography_post").where("post_id", "=", articleId).execute();
 }
 
+export async function updateArticleCover(url: string, articleId: number) {
+	return await db.updateTable("post").set({ cover: url }).where("id", "=", articleId).execute();
+}
+
 export async function updateArticleById(articleId: number, articleBody: Article) {
 	return await db
 		.updateTable("post")

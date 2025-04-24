@@ -1,9 +1,9 @@
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(async (to) => {
 	const localePath = useLocalePath();
-	const route = useRoute();
-
 	const user = useUser();
-	const redirectPath = route.path;
+
+	const redirectPath = to.fullPath;
+
 	if (!user.value) {
 		return navigateTo(localePath(`/login?redirect=${redirectPath}`));
 	}

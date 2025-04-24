@@ -8,14 +8,20 @@ export default defineNuxtRouteMiddleware(async () => {
 	const user = useUser();
 	const { apiClient } = useApiClient();
 
+	// Grab the incoming Cookie header (works in SSR and client)
+	const headers = useRequestHeaders(["cookie"]);
+
 	const _getSession = apiClient.auth.session.$get;
 	type APISession = InferResponseType<typeof _getSession, 200>;
+
 	try {
 		const data = await $fetch<APISession>("/auth/session", {
 			baseURL: env.public.apiBaseUrl,
 			method: "GET",
-			credentials: "include",
+			headers,
+			credentials: "include", // optional, but makes intent clear
 		});
+
 		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (data) {
 			user.value = data;

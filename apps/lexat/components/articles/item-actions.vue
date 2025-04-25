@@ -2,8 +2,6 @@
 import { Edit, Trash } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
-import { Toaster } from "@/components/ui/sonner";
-
 const { deleteArticle } = useAdminArticles();
 const t = useTranslations();
 
@@ -32,8 +30,5 @@ const deleteItem = async () => {
 	<div class="flex items-center gap-3">
 		<Edit class="size-5 cursor-pointer hover:text-accent-foreground" @click="editItem"></Edit>
 		<Trash class="size-5 cursor-pointer hover:text-accent-foreground" @click="deleteItem"></Trash>
-		<ClientOnly>
-			<Toaster />
-		</ClientOnly>
 	</div>
 </template>

@@ -7,7 +7,6 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Toaster } from "@/components/ui/sonner";
 
 const localePath = useLocalePath();
 
@@ -145,8 +144,5 @@ const onSubmit = handleSubmit(async (formValues) => {
 			</FormItem>
 		</FormField>
 		<Button type="submit"> {{ t("Auth.signup") }} </Button>
-		<ClientOnly>
-			<Toaster />
-		</ClientOnly>
 	</form>
 </template>

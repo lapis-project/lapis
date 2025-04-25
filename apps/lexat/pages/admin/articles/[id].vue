@@ -3,7 +3,6 @@ import type { InferResponseType } from "hono/client";
 import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
-import { Toaster } from "@/components/ui/sonner";
 import { useApiClient } from "@/composables/use-api-client";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
@@ -488,8 +487,5 @@ usePageMetadata({
 				</div>
 			</div>
 		</div>
-		<ClientOnly>
-			<Toaster />
-		</ClientOnly>
 	</MainContent>
 </template>

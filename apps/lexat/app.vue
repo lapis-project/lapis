@@ -2,6 +2,8 @@
 import { createUrl, isNonEmptyString } from "@acdh-oeaw/lib";
 import type { WebSite, WithContext } from "schema-dts";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const env = useRuntimeConfig();
 
 const locale = useLocale();
@@ -96,5 +98,8 @@ router.afterEach((to, from) => {
 	<NuxtLayout>
 		<NuxtPage />
 		<NuxtLoadingIndicator />
+		<LazyClientOnly>
+			<Toaster />
+		</LazyClientOnly>
 	</NuxtLayout>
 </template>

@@ -4,7 +4,6 @@ import { toast } from "vue-sonner";
 
 import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
-import { Toaster } from "@/components/ui/sonner";
 
 const env = useRuntimeConfig();
 const { articles, currentPage, totalPages, setCurrentPage } = useAdminArticles();
@@ -67,8 +66,5 @@ usePageMetadata({
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
 		></PagePagination>
-		<ClientOnly>
-			<Toaster />
-		</ClientOnly>
 	</MainContent>
 </template>

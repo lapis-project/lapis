@@ -3,8 +3,6 @@ import { useClipboard } from "@vueuse/core";
 import { CheckIcon, ClipboardIcon } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
-import { Toaster } from "@/components/ui/sonner";
-
 const props = defineProps<{
 	text: string;
 }>();
@@ -24,16 +22,11 @@ const copyToClipboard = async (text: string) => {
 </script>
 
 <template>
-	<div>
-		<ClientOnly>
-			<Button v-if="isSupported" variant="outline" @click="copyToClipboard(props.text)">
-				<component :is="copied ? CheckIcon : ClipboardIcon" class="mr-2 size-4" />
-				<span v-if="!copied">{{ t("Clipboard.copy") }}</span>
-				<span v-else>{{ t("Clipboard.copied") }}</span>
-			</Button>
-			<Teleport to="body">
-				<Toaster />
-			</Teleport>
-		</ClientOnly>
-	</div>
+	<ClientOnly>
+		<Button v-if="isSupported" variant="outline" @click="copyToClipboard(props.text)">
+			<component :is="copied ? CheckIcon : ClipboardIcon" class="mr-2 size-4" />
+			<span v-if="!copied">{{ t("Clipboard.copy") }}</span>
+			<span v-else>{{ t("Clipboard.copied") }}</span>
+		</Button>
+	</ClientOnly>
 </template>

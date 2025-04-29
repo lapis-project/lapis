@@ -42,7 +42,7 @@ usePageMetadata({
 						lexikalische Variation in gegenwärtiger gesprochener Sprache in Österreich anhand von
 						ausgewählten Variablen. Visualisiert werden diese Ergebnisse über ein eigens
 						entwickeltes Kartierungstool. Ausgewählte Analysen zu diesen Ergebnissen finden Sie im
-						Reiter „Artikel“.
+						Reiter „Kartenkommentare“.
 					</p>
 				</template>
 				<template v-else>
@@ -59,7 +59,7 @@ usePageMetadata({
 						(FWF F060) under the lead of Alexandra N. Lenz. The LexAT21 project investigates lexical
 						variation in contemporary spoken German in Austria on the basis of select variables. The
 						results are visualized in a custom made mapping tool. You can find analyses of select
-						variables by navigating to “Articles”.
+						variables by navigating to “Map commentary”.
 					</p>
 				</template>
 				<Button class="mt-6 self-center" @click="navigateTo(localePath('/maps'))"

@@ -139,24 +139,25 @@ const upperAge = computed(() => {
 
 const _getTableData = apiClient.questions.table[":id"].$get;
 type APITableData = InferResponseType<typeof _getTableData, 200>;
-const { data: tableDataRaw, status } = await useFetch<APITableData>(
-	() => `/questions/table/${activeQuestionId.value}`,
-	{
-		query: {
-			page: currentPage,
-			pageSize: activePageSizeQuery,
-			varIds: activeRegistersQuery,
-			annotations: activeVariantsQuery,
-			lowerAge,
-			upperAge,
-			orderBy: activeSortLabel,
-			dir: activeSortDirection,
-		},
-		baseURL: env.public.apiBaseUrl,
-		method: "get",
-		credentials: "include",
+const {
+	data: tableDataRaw,
+	status,
+	refresh,
+} = await useFetch<APITableData>(() => `/questions/table/${activeQuestionId.value}`, {
+	query: {
+		page: currentPage,
+		pageSize: activePageSizeQuery,
+		varIds: activeRegistersQuery,
+		annotations: activeVariantsQuery,
+		lowerAge,
+		upperAge,
+		orderBy: activeSortLabel,
+		dir: activeSortDirection,
 	},
-);
+	baseURL: env.public.apiBaseUrl,
+	method: "get",
+	credentials: "include",
+});
 
 const columns = ref<Array<TableColumn>>([
 	{ label: t("DbPage.table.infid"), value: "informant", criterion: "infid", sortable: false },
@@ -352,7 +353,8 @@ watch(
 	{ immediate: true },
 );
 
-initializeFromUrl();
+await initializeFromUrl();
+await refresh(); // manually refetch using updated state
 </script>
 
 <template>

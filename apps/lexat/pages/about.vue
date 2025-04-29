@@ -110,7 +110,7 @@ usePageMetadata({
 			</div>
 		</section>
 
-		<section class="mb-16 pb-12 border-b">
+		<section class="mb-16">
 			<div class="article-content mx-auto max-w-4xl">
 				<h2 class="text-3xl font-semibold">{{ t("AboutPage.citation.title") }}</h2>
 				<p>{{ t("AboutPage.citation.text") }}:</p>
@@ -125,7 +125,7 @@ usePageMetadata({
 			</div>
 		</section>
 
-		<section class="mb-16">
+		<!-- <section class="mb-16">
 			<div class="article-content mx-auto max-w-4xl">
 				<h2 class="text-3xl font-semibold">{{ t("AboutPage.more.title") }}</h2>
 				<ul class="columns-2">
@@ -188,6 +188,6 @@ usePageMetadata({
 					</li>
 				</ul>
 			</div>
-		</section>
+		</section> -->
 	</MainContent>
 </template>

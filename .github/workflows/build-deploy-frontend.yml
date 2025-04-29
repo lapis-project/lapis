@@ -132,7 +132,7 @@ jobs:
       APP_NAME: "${{ needs.setup_workflow_env.outputs.app_name }}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID_FRONTEND }}"
-      PUBLIC_URL: "${{ vars.PUBLIC_URL_FRONTEND }}"
+      PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.PUBLIC_URL }}"
       default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
   clean_up_cache:
     needs:

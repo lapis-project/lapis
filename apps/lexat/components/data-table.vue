@@ -165,9 +165,7 @@ onBeforeUnmount(() => {
 			<table
 				class="min-w-full table-fixed text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right"
 			>
-				<thead
-					class="sticky top-0 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
-				>
+				<thead class="sticky top-0 bg-gray-50 text-xs uppercase text-foreground dark:bg-gray-700">
 					<tr>
 						<th
 							v-for="column in columns"
@@ -201,7 +199,7 @@ onBeforeUnmount(() => {
 					<tr
 						v-for="row in sortedData"
 						:key="JSON.stringify(row)"
-						class="border-b bg-white dark:border-gray-700 dark:bg-gray-800"
+						class="border-b bg-white dark:border-gray-700 dark:bg-gray-800 text-foreground/80"
 					>
 						<td
 							v-for="value in Object.values(row)"
@@ -214,7 +212,7 @@ onBeforeUnmount(() => {
 					</tr>
 				</tbody>
 				<tfoot
-					class="sticky bottom-0 bg-gray-50 text-xs font-bold uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400"
+					class="sticky bottom-0 bg-gray-50 text-xs font-bold uppercase text-foreground dark:bg-gray-700"
 				>
 					<tr>
 						<td

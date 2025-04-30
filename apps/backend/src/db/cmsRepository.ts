@@ -407,6 +407,10 @@ export async function updateArticleCover(url: string, articleId: number) {
 	return await db.updateTable("post").set({ cover: url }).where("id", "=", articleId).execute();
 }
 
+export async function getCoverById(articleId: number) {
+	return await db.selectFrom("post").select("cover").where("id", "=", articleId).executeTakeFirst();
+}
+
 export async function updateArticleById(articleId: number, articleBody: Article) {
 	return await db
 		.updateTable("post")

@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { log } from "@acdh-oeaw/lib";
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { hc, type InferRequestType, type InferResponseType } from "hono/client";
@@ -14,6 +15,7 @@ import {
 	getAllArticlesByProjectId,
 	getAllUserPhenKat,
 	getArticleById,
+	getCoverById,
 	getPostTypeIdsByName,
 	getProjectByIds,
 	insertNewArticle,
@@ -30,6 +32,7 @@ import {
 	instanceOfPoststatus,
 } from "@/lib/RepoHelper";
 import { generateSignedImageUrl } from "@/service/imageService";
+import { deleteFromS3 } from "@/service/storageService";
 import type { Article } from "@/types/apiTypes";
 
 const createNewArticleSchema = object({
@@ -68,6 +71,16 @@ const cms = new Hono<Context>()
 		// Check if the id is a number
 		if (!articleId || Number.isNaN(Number(articleId))) {
 			return c.json("Provided id is not a number", 400);
+		}
+
+		const articleCover = await getCoverById(Number(articleId));
+		if (articleCover?.cover) {
+			try {
+				await deleteFromS3(articleCover.cover);
+			} catch (error) {
+				console.error("Error while deleting asset from S3:", error);
+				log.warn(`Could not delete S3 asset with URI: ${articleCover.cover}`);
+			}
 		}
 
 		// Delete the article
@@ -154,6 +167,7 @@ const cms = new Hono<Context>()
 				return c.json(`Error while updating author, ${e}`, 500);
 			}
 		}
+
 		// Remove the previous linked entries from the table
 		await deleteBibliographyFromArticleByArticleId(articleIdParsed);
 		// Check if the bibliography has been updated and if data needs to be inserted
@@ -172,6 +186,7 @@ const cms = new Hono<Context>()
 				return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
 			}
 		}
+
 		return c.json({ updatedRows: Number(result.numUpdatedRows) }, 201);
 	})
 

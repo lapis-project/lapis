@@ -6,7 +6,7 @@ import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
 
 const env = useRuntimeConfig();
-const { articles, currentPage, totalPages, setCurrentPage } = useAdminArticles();
+const { articles, currentPage, deleteArticle, totalPages, setCurrentPage } = useAdminArticles();
 const { statusOptions } = useArticleStatus();
 
 const localePath = useLocalePath();
@@ -59,7 +59,12 @@ usePageMetadata({
 			>
 		</div>
 
-		<ArticleTable class="mb-5" :columns="columns" :data="tableData"></ArticleTable>
+		<ArticleTable
+			class="mb-5"
+			:columns="columns"
+			:data="tableData"
+			:delete-article="deleteArticle"
+		></ArticleTable>
 		<PagePagination
 			:current-page="currentPage"
 			:items-per-page="20"

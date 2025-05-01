@@ -13,6 +13,7 @@ import {
 const props = defineProps<{
 	columns: Array<ColumnDef<TData>>;
 	data: Array<TData>;
+	deleteArticle: (id: number) => Promise<void>;
 }>();
 
 const table = useVueTable({
@@ -23,6 +24,7 @@ const table = useVueTable({
 		return props.columns;
 	},
 	getCoreRowModel: getCoreRowModel(),
+	meta: { deleteArticle: props.deleteArticle },
 });
 </script>
 

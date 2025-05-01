@@ -44,7 +44,9 @@ export function useArticles() {
 	});
 
 	const setCurrentPage = (newValue: number) => {
-		currentPage.value = newValue;
+		if (currentPage.value !== newValue) {
+			currentPage.value = newValue;
+		}
 	};
 
 	const setSearchParams = (newValues: {

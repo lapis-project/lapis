@@ -2,13 +2,13 @@
 import { Edit, Trash } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
-const { deleteArticle } = useAdminArticles();
 const t = useTranslations();
 
 const props = defineProps<{
 	item: {
 		post_id: number;
 	};
+	onDelete: (id: number) => Promise<void>;
 }>();
 
 const localePath = useLocalePath();
@@ -17,10 +17,9 @@ const editItem = async () => {
 };
 const deleteItem = async () => {
 	try {
-		await deleteArticle(props.item.post_id);
+		await props.onDelete(props.item.post_id);
 		toast.success(t("AdminPage.articles.deletion_succeeded"));
-	} catch (error) {
-		console.error(error);
+	} catch {
 		toast.error(t("AdminPage.articles.deletion_failed"));
 	}
 };

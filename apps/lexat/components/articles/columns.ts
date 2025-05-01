@@ -36,14 +36,15 @@ export const columns: Array<ColumnDef<ArticleListEntry>> = [
 	{
 		id: "actions",
 		enableHiding: false,
-		cell: ({ row }) => {
+		cell: ({ row, table }) => {
 			const article = row.original;
-
+			const fn = table.options.meta?.deleteArticle as (id: number) => Promise<void>;
 			return h(
 				"div",
 				{ class: "relative" },
 				h(ItemActions, {
 					item: article,
+					onDelete: fn,
 				}),
 			);
 		},

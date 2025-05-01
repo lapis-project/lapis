@@ -41,7 +41,9 @@ export function useAdminArticles() {
 	};
 
 	const setCurrentPage = (newValue: number) => {
-		currentPage.value = newValue;
+		if (currentPage.value !== newValue) {
+			currentPage.value = newValue;
+		}
 	};
 
 	return {

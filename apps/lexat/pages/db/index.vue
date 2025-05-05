@@ -320,7 +320,7 @@ const citation = computed(() => {
 		(q) => q.id === activeQuestionId.value,
 	)?.phenomenon_name;
 
-	return `${phenomenonName} - Belegdaten. In: LexAT21: Atlas zur Lexik in Österreich im 21. Jahrhundert. Herausgegeben von Alexandra N. Lenz, ${url}, abgerufen am ${formattedDate}.`;
+	return `${phenomenonName} - Belegdaten. In: LexAT21: Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert. Herausgegeben von Alexandra N. Lenz. ${url}, abgerufen am ${formattedDate}.`;
 });
 
 watch(

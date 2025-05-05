@@ -219,7 +219,7 @@ const generateCitation = () => {
 	const year = new Date().getFullYear(); // Get the current year dynamically
 	const url = `${baseURL}${selectedLanguage.value}/article/${alias.value}`;
 
-	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21. Herausgegeben von Alexandra N. Lenz [URL: ${url}].`;
+	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21: Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert. Herausgegeben von Alexandra N. Lenz. [URL: ${url}].`;
 };
 
 const addBibliographyItem = (value: string) => {

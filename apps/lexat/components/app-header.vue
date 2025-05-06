@@ -1,22 +1,56 @@
 <script lang="ts" setup>
+import { Menu, XIcon } from "lucide-vue-next";
+
 import type { NuxtLinkProps } from "#app";
 
 const t = useTranslations();
 
+const drawerOpen = ref<boolean>(false);
+
 const links = computed(() => {
 	return {
+		home: { to: { path: "/" }, label: t("AppHeader.links.home"), mobile: true },
 		about: { to: { path: "/about" }, label: t("AppHeader.links.about") },
 		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
 		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
 		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
-	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
+	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string; mobile?: boolean }>;
 });
 </script>
 
 <template>
 	<header class="container border-b">
 		<div class="flex h-16 items-center justify-between gap-4 py-4">
-			<NuxtLinkLocale to="/">
+			<Drawer v-model:open="drawerOpen">
+				<DrawerTrigger class="lg:hidden">
+					<Button id="reset" size="icon" variant="outline"
+						><component :is="drawerOpen ? XIcon : Menu" class="size-4" /></Button
+				></DrawerTrigger>
+				<DrawerContent>
+					<DrawerHeader>
+						<DrawerTitle>Navigation</DrawerTitle>
+					</DrawerHeader>
+					<DrawerFooter>
+						<DrawerClose>
+							<nav :aria-label="t('AppHeader.navigation-main')" class="pb-12">
+								<ul class="flex flex-col" role="list">
+									<li v-for="(link, key) of links" :key="key" class="border-b p-3 last:border-none">
+										<NuxtLinkLocale
+											class="uppercase"
+											exact-active-class="underline underline-offset-2"
+											:to="link.to"
+										>
+											{{ link.label }}
+										</NuxtLinkLocale>
+									</li>
+								</ul>
+							</nav>
+						</DrawerClose>
+					</DrawerFooter>
+				</DrawerContent>
+			</Drawer>
+
+			<NuxtLinkLocale class="hidden lg:block" to="/">
 				<svg
 					class="w-40"
 					fill="none"
@@ -32,7 +66,7 @@ const links = computed(() => {
 				</svg>
 			</NuxtLinkLocale>
 			<!-- <img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" /> -->
-			<nav :aria-label="t('AppHeader.navigation-main')">
+			<nav :aria-label="t('AppHeader.navigation-main')" class="hidden lg:block">
 				<ul class="flex items-center gap-4" role="list">
 					<li v-for="(link, key) of links" :key="key">
 						<NuxtLinkLocale

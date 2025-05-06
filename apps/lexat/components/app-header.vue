@@ -9,12 +9,18 @@ const drawerOpen = ref<boolean>(false);
 
 const links = computed(() => {
 	return {
-		home: { to: { path: "/" }, label: t("AppHeader.links.home"), mobile: true },
 		about: { to: { path: "/about" }, label: t("AppHeader.links.about") },
 		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
 		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
 		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
-	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string; mobile?: boolean }>;
+	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
+});
+
+const mobileLinks = computed(() => {
+	return {
+		home: { to: { path: "/" }, label: t("AppHeader.links.home") },
+		...links.value,
+	};
 });
 </script>
 
@@ -34,7 +40,11 @@ const links = computed(() => {
 						<DrawerClose>
 							<nav :aria-label="t('AppHeader.navigation-main')" class="pb-12">
 								<ul class="flex flex-col" role="list">
-									<li v-for="(link, key) of links" :key="key" class="border-b p-3 last:border-none">
+									<li
+										v-for="(link, key) of mobileLinks"
+										:key="key"
+										class="border-b p-3 last:border-none"
+									>
 										<NuxtLinkLocale
 											class="uppercase"
 											exact-active-class="underline underline-offset-2"

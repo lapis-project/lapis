@@ -83,28 +83,14 @@ usePageMetadata({
 				<h2 class="text-3xl font-semibold">{{ t("AboutPage.team.title") }}</h2>
 				<h3>{{ t("AboutPage.team.head") }}</h3>
 				<p>Alexandra N. Lenz</p>
-				<!-- <ul>
-					<li>Alexandra N. Lenz</li>
-				</ul> -->
 				<h3>{{ t("AboutPage.team.technical") }}</h3>
 				<p>Jakob Bal, Kilian Kukelka, Markus Pluschkovits, Daniel Schopper, Anja Wittibschlager</p>
-				<!-- <ul>
-					<li>Markus Pluschkovits</li>
-					<li>Jakob Bal</li>
-					<li>Kilian Kukelka</li>
-					<li>Anja Wittibschlager</li>
-					<li>Daniel Schopper</li>
-				</ul> -->
-
 				<h3>{{ t("AboutPage.team.authors") }}</h3>
 				<p>
 					Amelie Dorn, Jan Höll, Wolfgang Koppensteiner, Katharina Korecky-Kröll, Claudia Mattes,
 					Markus Pluschkovits, Rita Stiglbauer, Florian Tavernier, Anja Wittibschlager, Theresa
 					Ziegler
 				</p>
-				<!-- <ul>
-					<li v-for="author in authors" :key="author">{{ author }}</li>
-				</ul> -->
 				<h3>{{ t("AboutPage.team.editors") }}</h3>
 				<p>Kerstin Lorenz, Eric Schirl</p>
 			</div>

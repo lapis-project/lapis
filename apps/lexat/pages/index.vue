@@ -76,7 +76,7 @@ usePageMetadata({
 				/>
 			</div>
 		</div>
-		<div class="mb-16 border-b border-t py-16 flex gap-14">
+		<div class="mb-16 border-b border-t py-16 flex flex-col-reverse gap-14 lg:flex-row">
 			<div class="lg:w-4/6">
 				<img
 					alt="Beispielkarte des Projekts LexAT21"

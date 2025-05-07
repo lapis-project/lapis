@@ -29,9 +29,12 @@ const mobileLinks = computed(() => {
 		<div class="flex h-16 items-center justify-between gap-4 py-4">
 			<Drawer v-model:open="drawerOpen">
 				<DrawerTrigger class="lg:hidden">
-					<Button id="reset" size="icon" variant="outline"
-						><component :is="drawerOpen ? XIcon : Menu" class="size-4" /></Button
-				></DrawerTrigger>
+					<ClientOnly>
+						<Button id="reset" class="lg:hidden" size="icon" variant="outline"
+							><component :is="drawerOpen ? XIcon : Menu" class="size-4"
+						/></Button>
+					</ClientOnly>
+				</DrawerTrigger>
 				<DrawerContent>
 					<DrawerHeader>
 						<DrawerTitle>Navigation</DrawerTitle>

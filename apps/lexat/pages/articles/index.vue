@@ -65,9 +65,9 @@ usePageMetadata({
 </script>
 
 <template>
-	<MainContent class="container flex gap-8 py-8">
+	<MainContent class="container grid grid-cols-1 sm:grid-cols-4 gap-8 py-8">
 		<PageTitle class="sr-only">{{ t("ArticlesPage.title") }}</PageTitle>
-		<aside class="w-1/4 rounded border p-5">
+		<aside class="hidden sm:block rounded border p-5 col-span-1">
 			<div class="mb-6 uppercase">
 				{{ t("ArticlesPage.filters.label") }}
 			</div>
@@ -111,7 +111,7 @@ usePageMetadata({
 				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon class="size-4"
 			/></Button>
 		</aside>
-		<div class="flex w-3/4 flex-col gap-8">
+		<div class="flex flex-col gap-8 col-span-3">
 			<div class="text-3xl">{{ totalResults }} {{ t("ArticlesPage.results") }}</div>
 			<div v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
 				<div>
@@ -121,13 +121,18 @@ usePageMetadata({
 						{{ t(`AdminPage.editor.category.${article.post_type}`) }}
 					</div>
 					<div class="flex gap-4">
-						<NuxtLinkLocale class="w-1/4 aspect-16/9" :to="`/articles/${article.alias}`">
+						<NuxtLinkLocale
+							class="hidden sm:block w-1/4 aspect-16/9"
+							:to="`/articles/${article.alias}`"
+						>
 							<NuxtImg class="object-cover aspect-16/9" :src="article.cover"></NuxtImg>
 						</NuxtLinkLocale>
 
-						<div class="w-3/4">
+						<div class="sm:w-3/4">
 							<NuxtLinkLocale :to="`/articles/${article.alias}`">
-								<h2 class="text-2xl tracking-wide hover:underline">{{ article.title }}</h2>
+								<h2 class="text-xl tracking-wide hover:underline break-all">
+									{{ article.title }}
+								</h2>
 							</NuxtLinkLocale>
 							<p class="mb-1 tracking-wide">{{ formatAuthors(article.authors) }}</p>
 							<!-- <div v-if="article.published_at" class="mb-2">

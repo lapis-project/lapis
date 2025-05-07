@@ -140,8 +140,8 @@ usePageMetadata({
 		<NuxtLinkLocale class="mb-6 inline-flex items-center gap-1" to="/articles"
 			><ArrowLeft class="size-4" /> {{ t("ArticleDetailPage.back") }}</NuxtLinkLocale
 		>
-		<div class="flex gap-8">
-			<article v-if="article" class="w-3/4">
+		<div class="flex flex-col sm:flex-row gap-8">
+			<article v-if="article" class="sm:w-3/4">
 				<div
 					class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 tracking-wider dark:text-primary-foreground"
 				>
@@ -163,6 +163,22 @@ usePageMetadata({
 					class="aspect-16/9 w-full rounded-t-lg object-cover"
 					:src="article.cover"
 				/>
+				<div v-if="article?.post_type_name !== 'short_description'" class="block sm:hidden">
+					<hr class="my-8" />
+					<div class="font-bold block sm:hidden text-2xl mb-5">
+						{{ t("ArticleDetailPage.toc") }}
+					</div>
+					<ul class="-ml-4 list-inside list-disc text-xl">
+						<li
+							v-for="item in tableOfContents"
+							:key="item.id"
+							class="py-1"
+							:style="{ marginLeft: `${(item.level - 1) * 20}px` }"
+						>
+							<a :href="`#${item.id}`">{{ item.text }}</a>
+						</li>
+					</ul>
+				</div>
 				<hr class="mt-5" />
 				<div class="article-content" v-html="article.content"></div>
 				<div v-if="article.bibliography && article.bibliography.length" class="article-content">
@@ -181,7 +197,7 @@ usePageMetadata({
 					</p>
 				</div>
 			</article>
-			<aside class="w-1/4">
+			<aside class="hidden sm:block w-1/4">
 				<section class="sticky top-10 border p-5">
 					<template v-if="article?.post_type_name !== 'short_description'">
 						<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>

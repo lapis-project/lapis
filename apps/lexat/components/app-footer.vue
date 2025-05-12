@@ -29,7 +29,7 @@ const links = computed(() => {
 					</li>
 				</ul>
 			</nav>
-			<div class="flex items-center gap-3">
+			<div class="flex flex-wrap-reverse justify-around sm:justify-start items-center gap-3">
 				<NuxtLinkLocale target="_blank" title="Deutsch in Österreich" to="https://www.dioe.at/">
 					<SvgoDioe class="h-16" />
 				</NuxtLinkLocale>

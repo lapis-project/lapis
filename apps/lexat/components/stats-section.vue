@@ -160,10 +160,10 @@ const counts = [
 			class="flex flex-col items-center justify-center gap-4"
 		>
 			<div
-				class="flex size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
+				class="flex size-28 sm:size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
 			>
-				<component :is="item.icon" class="size-12 stroke-[1.5]" />
-				<p class="text-2xl">
+				<component :is="item.icon" class="size-10 sm:size-12 stroke-[1.5]" />
+				<p class="text-xl sm:text-2xl">
 					<CountUp :value="item.value" />
 				</p>
 			</div>

@@ -113,8 +113,6 @@ if (routeId && routeId !== "new") {
 	}
 }
 
-const baseURL = "https://lexat.acdh-ch-dev.oeaw.ac.at/";
-
 const generateAlias = (title: string) => {
 	return title
 		.toLowerCase()
@@ -217,7 +215,8 @@ const generateCitation = () => {
 
 	// Construct the citation string
 	const year = new Date().getFullYear(); // Get the current year dynamically
-	const url = `${baseURL}${selectedLanguage.value}/article/${alias.value}`;
+	const appBaseUrl = env.public.appBaseUrl ?? "https://lexat21.lapis-online.at";
+	const url = `${appBaseUrl}/${selectedLanguage.value}/article/${alias.value}`;
 
 	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21: Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert. Herausgegeben von Alexandra N. Lenz. [URL: ${url}].`;
 };

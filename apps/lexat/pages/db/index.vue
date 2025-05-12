@@ -358,7 +358,8 @@ await refresh(); // manually refetch using updated state
 </script>
 
 <template>
-	<MainContent class="container grid content-start py-8">
+	<MainContent class="container grid content-start py-8 overflow-x-scroll sm:overflow-x-auto">
+		<MobileAlert />
 		<section class="flex gap-2">
 			<div class="grow rounded-lg border p-5 mb-4">
 				<div class="grid grid-cols-4 gap-5">

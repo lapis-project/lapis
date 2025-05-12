@@ -392,6 +392,10 @@
 			}
 		}
 	},
+	"MobileAlert": {
+		"title": "Please note",
+		"text": "This area of the website is not designed for use on smartphones."
+	},
 	"NotFoundPage": {
 		"meta": {
 			"title": "Page not found"

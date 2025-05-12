@@ -24,7 +24,7 @@ usePageMetadata({
 	<MainContent class="container py-16">
 		<section class="mb-16 pb-16 border-b">
 			<div class="article-content mx-auto max-w-4xl">
-				<h1 class="text-3xl text-center font-semibold">{{ t("AboutPage.title") }}</h1>
+				<h1 class="text-3xl text-left sm:text-center font-semibold">{{ t("AboutPage.title") }}</h1>
 				<template v-if="currentLocale === 'de'">
 					<p>
 						Das Projekt LexAT21 setzt es sich zum Ziel, lexikalische Vielfalt und ihre Dynamik im
@@ -47,6 +47,12 @@ usePageMetadata({
 						(<em>Standardsprache</em>) als auch - falls vorhanden - zu ihrer „Mundart“
 						(<em>Dialekt</em>) oder ihrer „Umgangssprache“ (<em>Regiolekt</em>) befragt wurden.
 					</p>
+					<p>
+						Mehr Informationen über das Projekt
+						<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
+							>finden Sie hier</NuxtLinkLocale
+						>.
+					</p>
 				</template>
 				<template v-else>
 					<p>
@@ -68,6 +74,12 @@ usePageMetadata({
 						language and the participants' answers concerning their standard language
 						(<em>Hochdeutsch</em>) and - where applicable - their dialect (<em>Mundart</em>) or
 						colloquial variety (<em>Regiolekt</em>).
+					</p>
+					<p>
+						Further information about the project can be
+						<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
+							>found here</NuxtLinkLocale
+						>.
 					</p>
 				</template>
 			</div>
@@ -96,7 +108,7 @@ usePageMetadata({
 			</div>
 		</section>
 
-		<section class="mb-16">
+		<section>
 			<div class="article-content mx-auto max-w-4xl">
 				<h2 class="text-3xl font-semibold">{{ t("AboutPage.citation.title") }}</h2>
 				<p>{{ t("AboutPage.citation.text") }}:</p>

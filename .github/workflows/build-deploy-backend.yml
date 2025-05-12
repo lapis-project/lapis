@@ -3,11 +3,13 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true
 "on":
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/backend/**"
+  #  push:
+  #    branches:
+  #      - main
+  #    paths:
+  #      - "apps/backend/**"
+  #    tags:
+  #      - 'release-prod-v\d\.'
   workflow_call: null
   workflow_dispatch: null
 jobs:

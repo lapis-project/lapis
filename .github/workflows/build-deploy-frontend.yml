@@ -3,11 +3,11 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true
 "on":
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/lexat/**"
+  #  push:
+  #    branches:
+  #      - main
+  #    paths:
+  #      - "apps/lexat/**"
   workflow_call: null
   workflow_dispatch: null
 jobs:

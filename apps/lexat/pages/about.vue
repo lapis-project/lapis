@@ -38,7 +38,7 @@ usePageMetadata({
 						Grundlage der auf dieser Plattform zur Verfügung gestellten Materialien (nämlich
 						<NuxtLinkLocale target="_blank" to="/db">Fragebogendaten</NuxtLinkLocale>,
 						<NuxtLinkLocale target="_blank" to="/maps">Sprachkarten</NuxtLinkLocale> und
-						<NuxtLinkLocale target="_blank" to="/articles">„Artikel“</NuxtLinkLocale>) sind
+						<NuxtLinkLocale target="_blank" to="/articles">Kartenkommentare</NuxtLinkLocale>) sind
 						umfangreiche Online-Befragungen, die seit 2022 österreichweit durchgeführt werden. In
 						den dabei eingesetzten Fragebögen werden die Teilnehmenden auch im Hinblick auf ihre
 						eigene Variation in ihrem Wortschatz befragt, um Aussagen zur „intraindividuellen“
@@ -67,11 +67,11 @@ usePageMetadata({
 						The resources made available on this platform (<NuxtLinkLocale target="_blank" to="/db"
 							>questionnaire data</NuxtLinkLocale
 						>, <NuxtLinkLocale target="_blank" to="/maps">linguistic maps</NuxtLinkLocale> and
-						<NuxtLinkLocale target="_blank" to="/articles">“articles“</NuxtLinkLocale>) are based on
-						extensive online surveys conducted across Austria since 2022. In order to capture
-						intra-individual lexical variation, these questionnaires target participants' variation
-						in their own vocabulary. The focus of the survey lies on phenomena within the German
-						language and the participants' answers concerning their standard language
+						<NuxtLinkLocale target="_blank" to="/articles">map commentaries</NuxtLinkLocale>) are
+						based on extensive online surveys conducted across Austria since 2022. In order to
+						capture intra-individual lexical variation, these questionnaires target participants'
+						variation in their own vocabulary. The focus of the survey lies on phenomena within the
+						German language and the participants' answers concerning their standard language
 						(<em>Hochdeutsch</em>) and - where applicable - their dialect (<em>Mundart</em>) or
 						colloquial variety (<em>Regiolekt</em>).
 					</p>

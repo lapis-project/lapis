@@ -216,7 +216,7 @@ const generateCitation = () => {
 	// Construct the citation string
 	const year = new Date().getFullYear(); // Get the current year dynamically
 	const appBaseUrl = env.public.appBaseUrl ?? "https://lexat21.lapis-online.at";
-	const url = `${appBaseUrl}/${selectedLanguage.value}/article/${alias.value}`;
+	const url = `${appBaseUrl}/${selectedLanguage.value}/articles/${alias.value}`;
 
 	citation.value = `${authorsString} (${year.toString()}): ${title.value}, In: LexAT21: Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert. Herausgegeben von Alexandra N. Lenz. [URL: ${url}].`;
 };

@@ -22,8 +22,10 @@ export function useAdminArticles() {
 
 	const articles = computed(() => data.value?.articles ?? []);
 
+	const totalResults = computed(() => data.value?.totalResults ?? 0);
+
 	const totalPages = computed(() => {
-		return data.value?.totalResults ? Math.ceil(data.value.totalResults / 20) : 0;
+		return totalResults.value ? Math.ceil(totalResults.value / 20) : 0;
 	});
 
 	const deleteArticle = async (articleId: number) => {
@@ -50,6 +52,7 @@ export function useAdminArticles() {
 		currentPage,
 		articles,
 		totalPages,
+		totalResults,
 		setCurrentPage,
 		deleteArticle,
 		refreshArticles: refresh,

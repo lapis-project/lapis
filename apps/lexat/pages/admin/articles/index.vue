@@ -6,7 +6,8 @@ import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
 
 const env = useRuntimeConfig();
-const { articles, currentPage, deleteArticle, totalPages, setCurrentPage } = useAdminArticles();
+const { articles, currentPage, deleteArticle, setCurrentPage, totalPages, totalResults } =
+	useAdminArticles();
 const { statusOptions } = useArticleStatus();
 
 const localePath = useLocalePath();
@@ -53,7 +54,7 @@ usePageMetadata({
 <template>
 	<MainContent class="w-full content-start">
 		<div class="mb-8 flex justify-between">
-			<PageTitle>{{ t("AdminPage.articles.title") }}</PageTitle>
+			<PageTitle>{{ totalResults }} {{ t("AdminPage.articles.title") }}</PageTitle>
 			<Button @click="createNewArticle"
 				><Plus class="mr-2 size-4" />{{ t("AdminPage.articles.new") }}</Button
 			>

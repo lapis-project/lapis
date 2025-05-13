@@ -28,7 +28,7 @@
 		}
 	},
 	"AdminNavigation": {
-		"articles": "Artikel",
+		"articles": "Einträge",
 		"users": "Benutzer",
 		"categories": "Kategorien"
 	},
@@ -37,16 +37,16 @@
 			"title": "Admin"
 		},
 		"articles": {
-			"deletion_succeeded": "Artikel erfolgreich gelöscht",
-			"deletion_failed": "Löschung des Artikels fehlgeschlagen",
-			"title": "Artikel",
-			"new": "Neuer Artikel"
+			"deletion_succeeded": "Eintrag erfolgreich gelöscht",
+			"deletion_failed": "Löschung des Eintrags fehlgeschlagen",
+			"title": "Einträge",
+			"new": "Neuer Eintrag"
 		},
 		"editor": {
 			"abstract": "Abstrakt",
 			"alias": {
-				"label": "Artikel-URL",
-				"placeholder": "Artikel-URL (automatisch generiert)",
+				"label": "Eintrags-URL",
+				"placeholder": "Eintrags-URL (automatisch generiert)",
 				"tooltip": "Wird automatisch aus dem Titel generiert (Sonderzeichen werden entfernt)"
 			},
 			"actions": {
@@ -63,7 +63,7 @@
 				"placeholder": "Eintrag"
 			},
 			"category": {
-				"label": "Artikelkategorie",
+				"label": "Kategorie",
 				"placeholder": "Kategorie",
 				"commentary": "Kartenkommentar",
 				"project_description": "Projektbeschreibung",
@@ -138,20 +138,20 @@
 	},
 	"ArticlesPage": {
 		"meta": {
-			"title": "Artikel"
+			"title": "Eintrag"
 		},
-		"title": "Artikel",
+		"title": "Eintrag",
 		"filters": {
 			"apply": "Anwenden",
 			"label": "Suche verfeinern",
-			"category": "Artikelkategorie",
+			"category": "Kategorie",
 			"reset": "Zurücksetzen",
 			"search": {
 				"label": "Suche",
 				"placeholder": "Suchbegriff eingeben..."
 			}
 		},
-		"results": "Artikel"
+		"results": "Einträge"
 	},
 	"ArticleDetailPage": {
 		"authors": "Autor/in",

@@ -63,7 +63,7 @@
 				"placeholder": "entry"
 			},
 			"category": {
-				"label": "Article category",
+				"label": "Category",
 				"placeholder": "category",
 				"commentary": "Map commentary",
 				"project_description": "Project description",
@@ -144,7 +144,7 @@
 		"filters": {
 			"apply": "Apply",
 			"label": "Refine results",
-			"category": "Article category",
+			"category": "Category",
 			"reset": "Reset",
 			"search": {
 				"label": "Search",

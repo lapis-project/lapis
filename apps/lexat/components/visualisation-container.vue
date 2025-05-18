@@ -18,6 +18,6 @@ const { width, height } = useElementSize(elementRef);
 		:class="props.fullscreen ? 'fixed z-50 top-0 left-0' : 'relative'"
 		data-visualisation-container
 	>
-		<slot v-if="width && height" :width="width" :height="height" />
+		<slot v-if="width && height" :height="height" :width="width" />
 	</div>
 </template>

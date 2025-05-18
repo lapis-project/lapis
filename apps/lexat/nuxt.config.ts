@@ -40,10 +40,9 @@ export default defineNuxtConfig({
 		},
 	},
 
+	extends: ["../ui"],
+
 	experimental: {
-		componentIslands: {
-			selectiveClient: true,
-		},
 		defaults: {
 			useAsyncData: {
 				deep: false,
@@ -52,7 +51,6 @@ export default defineNuxtConfig({
 				timeout: 250,
 			},
 		},
-		inlineRouteRules: true,
 	},
 
 	features: {
@@ -74,7 +72,7 @@ export default defineNuxtConfig({
 		lazy: true,
 		locales: Object.values(localesMap),
 		strategy: "prefix",
-		vueI18n: "./i18n/i18n.config.ts",
+		vueI18n: "./i18n.config.ts",
 	},
 
 	imports: {

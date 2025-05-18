@@ -14,8 +14,6 @@ usePageMetadata({
 		<div>
 			<PageTitle class="sr-only">{{ t("MapsPage.title") }}</PageTitle>
 		</div>
-		<ErrorBoundary>
-			<DataMapView />
-		</ErrorBoundary>
+		<DataMapView />
 	</MainContent>
 </template>

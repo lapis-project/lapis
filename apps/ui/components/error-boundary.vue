@@ -1,6 +1,4 @@
-<script lang="ts" setup>
-const t = useTranslations();
-</script>
+<script lang="ts" setup></script>
 
 <template>
 	<NuxtErrorBoundary>
@@ -9,7 +7,7 @@ const t = useTranslations();
 		<template #error="{ error }">
 			<div class="relative">
 				<Centered>
-					<p>{{ t("ErrorBoundary.error") }}: {{ error }}</p>
+					<p>Error: {{ error }}</p>
 				</Centered>
 			</div>
 		</template>

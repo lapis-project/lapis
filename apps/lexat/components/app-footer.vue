@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { NuxtLinkProps } from "#app";
 
-const colorMode = useColorMode();
 const t = useTranslations();
 
 const links = computed(() => {
@@ -31,22 +30,22 @@ const links = computed(() => {
 			</nav>
 			<div class="flex flex-wrap-reverse justify-around sm:justify-start items-center gap-3">
 				<NuxtLinkLocale target="_blank" title="Deutsch in Österreich" to="https://www.dioe.at/">
-					<SvgoDioe class="h-16" />
+					<LazySvgoDioe class="h-16" />
 				</NuxtLinkLocale>
 				<NuxtLinkLocale
 					target="_blank"
 					title="FWF - Österreichischer Wissenschaftsfonds"
 					to="https://www.fwf.ac.at/"
 				>
-					<SvgoFwf class="h-16" />
+					<LazySvgoFwf class="h-16" />
 				</NuxtLinkLocale>
 				<NuxtLinkLocale
 					target="_blank"
 					title="Austrian Centre for Digital Humanities and Cultural Heritage"
 					to="https://www.oeaw.ac.at/acdh/acdh-ch-home"
 				>
-					<SvgoAcdhChDark v-if="colorMode.value === 'dark'" class="h-10" />
-					<SvgoAcdhCh v-else class="h-10" />
+					<LazySvgoAcdhChDark class="h-10 hidden dark:block" />
+					<LazySvgoAcdhCh class="h-10 block dark:hidden" />
 				</NuxtLinkLocale>
 			</div>
 		</div>

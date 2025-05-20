@@ -167,28 +167,28 @@
 	#text-editor .toolbar > button {
 		@apply flex justify-center items-center text-xl  size-8 border-none my-2 mx-1 rounded-md cursor-pointer appearance-none;
 
-		background: #fff;
-		color: #333;
+		background: var(--background);
+		color: var(--foreground);
 	}
 
 	#text-editor .toolbar > button.active {
-		background: #333;
-		color: #fff;
+		background: var(--foreground);
+		color: var(--background);
 	}
 
 	#text-editor .align-dropdown > button {
 		@apply h-8 border-none cursor-pointer rounded-md appearance-none;
 
-		background: #fff;
-		color: #333;
+		background: var(--background);
+		color: var(--foreground);
 	}
 
 	#text-editor .align-dropdown > .dropdown-content {
 		@apply absolute right-0 left-0 z-10 rounded-md;
 
-		border: 1px solid #333;
-		background-color: #fff;
-		outline: 1px solid #fff;
+		border: 1px solid var(--foreground);
+		background-color: var(--background);
+		outline: 1px solid var(--background);
 	}
 
 	#text-editor .align-dropdown > .dropdown-content a {
@@ -197,8 +197,8 @@
 
 	#text-editor .align-dropdown > .dropdown-content a:hover,
 	#text-editor .align-dropdown > .dropdown-content a.active {
-		background: #333;
-		color: #fff;
+		background: var(--foreground);
+		color: var(--background);
 	}
 
 	#text-editor .ProseMirror {

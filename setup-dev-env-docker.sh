@@ -18,7 +18,7 @@ pnpm install
 set -a && . ./.env.localsetup && set +a
 # Build the docker images and run the containers
 docker build -t lapis-dev-backend:latest -f ./Dockerfile_Backend .
-docker build -t lapis-dev-frontend:latest -f ./Dockerfile_Frontend .
+docker build -t lapis-dev-frontend:latest -f ./Dockerfile_Lexat .
 docker compose --env-file .env.localsetup up -d --wait
 
 # Copy the data data into the database from the dump

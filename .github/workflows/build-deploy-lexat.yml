@@ -1,4 +1,4 @@
-name: Build and deploy the Frontend
+name: Build and deploy the LexAT21 App
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true
@@ -103,7 +103,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile_Frontend
+          file: ./Dockerfile_Lexat
           push: ${{ github.event_name != 'pull_request' }}
           tags: "${{ steps.meta.outputs.tags }}"
           labels: "${{ steps.meta.outputs.labels }}"

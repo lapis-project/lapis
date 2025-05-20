@@ -27,9 +27,17 @@
 			"isBackground": true
 		},
 		{
-			"label": "Start Frontend",
+			"label": "Start LexAT21",
 			"type": "shell",
 			"command": "source ~/.nvm/nvm.sh && nvm use && pnpm dev-local:lexat",
+			"problemMatcher": [],
+			"group": "build",
+			"isBackground": true
+		},
+		{
+			"label": "Start Corpus",
+			"type": "shell",
+			"command": "source ~/.nvm/nvm.sh && nvm use && pnpm dev-local:corpus",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true

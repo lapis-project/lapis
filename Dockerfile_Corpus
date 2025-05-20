@@ -1,0 +1,52 @@
+# syntax=docker/dockerfile:1
+
+# using alpine base image to avoid `sharp` memory leaks.
+# @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
+
+# build
+FROM node:22-alpine AS build
+
+ENV COREPACK_INTEGRITY_KEYS='{"npm":[{"expires":"2025-01-29T00:00:00.000Z","keyid":"SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1Olb3zMAFFxXKHiIkQO5cJ3Yhl5i6UPp+IhuteBJbuHcA5UogKo0EWtlWwW6KSaKoTNEYL7JlCQiVnkhBktUgg=="},{"expires":null,"keyid":"SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY6Ya7W++7aUPzvMTrezH6Ycx3c+HOKYCcNGybJZSCJq/fd7Qa8uuAKtdIkUQtQiEKERhAmE5lMMJhP8OkDOa2g=="}]}'
+
+RUN corepack enable
+
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+
+USER node
+
+COPY --chown=node:node .npmrc package.json pnpm-lock.yaml ./
+
+RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
+
+RUN pnpm fetch
+
+COPY --chown=node:node ./ ./
+RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
+
+ARG NUXT_PUBLIC_APP_BASE_URL
+ARG NUXT_PUBLIC_BOTS
+ARG NUXT_PUBLIC_MAP_BASELAYER_URL_DARK
+ARG NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT
+ARG NUXT_PUBLIC_MATOMO_BASE_URL
+ARG NUXT_PUBLIC_MATOMO_ID
+ARG NUXT_PUBLIC_REDMINE_ID
+ARG NUXT_PUBLIC_ZOTERO_BASE_URL
+
+RUN pnpm install --frozen-lockfile --offline --filter "corpus"
+
+RUN pnpm run build:corpus
+
+# serve
+FROM node:22-alpine AS serve
+
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+
+USER node
+
+COPY --from=build --chown=node:node /app/apps/corpus/.output ./
+
+ENV NODE_ENV=production
+
+CMD ["node", "./server/index.mjs"]

@@ -6,7 +6,7 @@ const t = useTranslations();
 	<div class="grid min-h-full grid-rows-[auto_1fr_auto]">
 		<SkipLink target-id="main-content">{{ t("DefaultLayout.skip-to-main-content") }}</SkipLink>
 
-		<AppHeader />
+		<AppHeader class="fixed top-0 left-0 right-0" />
 		<ErrorBoundary>
 			<slot />
 		</ErrorBoundary>

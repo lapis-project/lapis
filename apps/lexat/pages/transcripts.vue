@@ -278,7 +278,7 @@ const treeItems = [
 </script>
 
 <template>
-	<MainContent class="max-w-full container py-10 flex flex-col overflow-hidden">
+	<main class="max-w-full container py-10 flex flex-col overflow-hidden" :tabindex="-1">
 		<div class="grid gap-4 items-stretch flex-grow min-h-0" :style="gridColumnsStyle">
 			<div class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
 				<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="filter">
@@ -385,7 +385,7 @@ const treeItems = [
 					<Button type="submit"> Suchen </Button>
 				</form>
 				<p class="text-lg mb-3 flex-shrink-0">
-					<b>122</b> Ergebnisse in <b>45</b> Äußerungen? (utterances)
+					<b>122</b> Ergebnisse in <b>45</b> Events (utterances)
 				</p>
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="voice">
 					<div class="flex gap-4 items-center mb-1 flex-shrink-0">
@@ -502,5 +502,5 @@ const treeItems = [
 				</Tabs>
 			</div>
 		</div>
-	</MainContent>
+	</main>
 </template>

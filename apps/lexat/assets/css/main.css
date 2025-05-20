@@ -148,6 +148,11 @@
 		isolation: isolate;
 	}
 
+	:root {
+		--v-onboarding-overlay-z: 40;
+		--v-onboarding-step-z: 50;
+	}
+
 	/* https://hanki.dev/tailwind-html2canvas-text-shift-down/ */
 	img {
 		@apply inline-block;

@@ -25,7 +25,7 @@ const mobileLinks = computed(() => {
 </script>
 
 <template>
-	<header class="container border-b bg-background z-50">
+	<header class="container border-b bg-background z-40">
 		<div class="flex h-14 sm:h-16 items-center justify-between gap-4 py-4">
 			<Drawer v-model:open="drawerOpen">
 				<DrawerTrigger class="lg:hidden">
@@ -81,7 +81,7 @@ const mobileLinks = computed(() => {
 			<!-- <img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" /> -->
 			<nav :aria-label="t('AppHeader.navigation-main')" class="hidden lg:block">
 				<ul class="flex items-center gap-4" role="list">
-					<li v-for="(link, key) of links" :key="key">
+					<li v-for="(link, key) of links" :id="key" :key="key">
 						<NuxtLinkLocale
 							class="uppercase"
 							exact-active-class="underline underline-offset-2"

@@ -417,6 +417,10 @@
 			"title": "Erweiterte Funktionen",
 			"description": "Klicke hier, um die erweiterten Einstellungen anzuzeigen."
 		},
+		"about": {
+			"title": "Mehr erfahren",
+			"description": "Hier finden Sie nähere Informationen zum Projekt."
+		},
 		"next": "Weiter",
 		"previous": "Zurück",
 		"finish": "Los gehts!"

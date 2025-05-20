@@ -198,7 +198,7 @@ usePageMetadata({
 				</div>
 			</article>
 			<aside class="hidden sm:block w-1/4">
-				<section class="sticky top-10 border p-5">
+				<section class="sticky top-20 border p-5">
 					<template v-if="article?.post_type_name !== 'short_description'">
 						<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>
 						<hr class="my-2" />

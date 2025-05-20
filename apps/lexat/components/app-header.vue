@@ -10,9 +10,9 @@ const drawerOpen = ref<boolean>(false);
 const links = computed(() => {
 	return {
 		about: { to: { path: "/about" }, label: t("AppHeader.links.about") },
-		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
-		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
 		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
+		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
+		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
 	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
 });
 
@@ -25,8 +25,8 @@ const mobileLinks = computed(() => {
 </script>
 
 <template>
-	<header class="container border-b">
-		<div class="flex h-16 items-center justify-between gap-4 py-4">
+	<header class="container border-b bg-background z-50">
+		<div class="flex h-14 sm:h-16 items-center justify-between gap-4 py-4">
 			<Drawer v-model:open="drawerOpen">
 				<DrawerTrigger class="lg:hidden">
 					<ClientOnly>

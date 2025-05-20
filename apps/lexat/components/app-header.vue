@@ -30,7 +30,7 @@ const mobileLinks = computed(() => {
 			<Drawer v-model:open="drawerOpen">
 				<DrawerTrigger class="lg:hidden">
 					<ClientOnly>
-						<Button id="reset" class="lg:hidden" size="icon" variant="outline"
+						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline"
 							><component :is="drawerOpen ? XIcon : Menu" class="size-4"
 						/></Button>
 					</ClientOnly>

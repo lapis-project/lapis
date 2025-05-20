@@ -423,6 +423,10 @@
 			"title": "Advanced settings",
 			"description": "Click here to show all map settings."
 		},
+		"about": {
+			"title": "More info",
+			"description": "Further information about the project can be found here."
+		},
 		"next": "Next",
 		"previous": "Previous",
 		"finish": "Got it!"

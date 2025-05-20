@@ -737,6 +737,13 @@ const steps = [
 			description: "Onboarding.advanced.description",
 		},
 	},
+	{
+		attachTo: { element: "#about" },
+		content: {
+			title: "Onboarding.about.title",
+			description: "Onboarding.about.description",
+		},
+	},
 ];
 const onboardingOptions = { overlay: { padding: 10, borderRadius: 10 } };
 

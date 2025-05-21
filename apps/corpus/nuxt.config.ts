@@ -58,14 +58,7 @@ export default defineNuxtConfig({
 		dirs: ["./config/"],
 	},
 
-	modules: [
-		"nuxt-svgo",
-		"@nuxt/eslint",
-		"@nuxt/image",
-		"@nuxtjs/color-mode",
-		"@nuxtjs/i18n",
-		"@vueuse/nuxt",
-	],
+	modules: ["nuxt-svgo", "@nuxt/eslint", "@nuxt/image", "@nuxtjs/color-mode", "@vueuse/nuxt"],
 
 	nitro: {
 		compressPublicAssets: true,

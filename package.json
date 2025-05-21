@@ -12,6 +12,7 @@
 		"build:backend": "cd apps/backend && pnpm build",
 		"dev:lexat": "cd apps/lexat && pnpm dev",
 		"dev-local:lexat": "cd apps/lexat && pnpm dev-local",
+		"dev-local:corpus": "cd apps/corpus && pnpm dev-local",
 		"dev:backend": "cd apps/backend && pnpm dev",
 		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
 		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",

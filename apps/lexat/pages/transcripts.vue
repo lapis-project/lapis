@@ -1,51 +1,60 @@
 <script lang="ts" setup>
-import { Download, FileText, Folder, FolderOpen, SearchIcon, Undo2, XIcon } from "lucide-vue-next";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Download,
+	FileText,
+	Folder,
+	FolderOpen,
+	SearchIcon,
+	Undo2,
+	XIcon,
+} from "lucide-vue-next";
 import { TreeItem, TreeRoot } from "reka-ui";
+
+import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
 
 definePageMeta({
 	layout: "corpus",
 });
 
+const showFirstColumn = ref(true);
 const showThirdColumn = ref(true);
 
-const gridColumnsStyle = computed(() => {
-	return showThirdColumn.value
-		? { gridTemplateColumns: "1fr 2fr 2fr" }
-		: { gridTemplateColumns: "1fr 2fr" };
-});
+const toggleFirstColumn = () => {
+	showFirstColumn.value = !showFirstColumn.value;
+};
 
-const enableKWIC = ref(false);
+const toggleThirdColumn = () => {
+	showThirdColumn.value = !showThirdColumn.value;
+};
+
+const gridColumns = computed(() => {
+	return [
+		showFirstColumn.value ? "300px" : "0px",
+		"1fr",
+		showThirdColumn.value ? "500px" : "0px",
+	].join(" ");
+});
 
 const searchInput = ref("");
 
-const activeOne = ref<string | null>(null);
+const activeContext = ref<string | null>(null);
 
-const activeTwo = ref<string | null>(null);
+const activeSetting = ref<string | null>(null);
 
-const activeThree = ref<string | null>(null);
+const activeAge = ref<string | null>(null);
 
-const optionsOne = ref<Array<{ label: string; value: string }>>([
-	{ label: "More fitting", value: "fitting" },
-	{ label: "More idiomatic", value: "idiomatic" },
-	{ label: "Reimagine", value: "new" },
-	{ label: "Rephrase", value: "rephrase" },
-	{ label: "Variations", value: "variations" },
-]);
+const activeLocation = ref<string | null>(null);
 
-const optionsTwo = ref<Array<{ label: string; value: string }>>([
-	{ label: "More fitting", value: "fitting" },
-	{ label: "More idiomatic", value: "idiomatic" },
-	{ label: "Reimagine", value: "new" },
-	{ label: "Rephrase", value: "rephrase" },
-	{ label: "Variations", value: "variations" },
-]);
+const activeFirstLanguage = ref<string | null>(null);
 
-const optionsThree = ref<Array<{ label: string; value: string }>>([
-	{ label: "More fitting", value: "fitting" },
-	{ label: "More idiomatic", value: "idiomatic" },
-	{ label: "Reimagine", value: "new" },
-	{ label: "Rephrase", value: "rephrase" },
-	{ label: "Variations", value: "variations" },
+const activeGender = ref<string | null>(null);
+
+const sampleOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "Option 1", value: "one" },
+	{ label: "Option 2", value: "two" },
+	{ label: "Option 3", value: "three" },
 ]);
 
 const searchResults = [
@@ -254,9 +263,25 @@ const transcriptResults = [
 	},
 ];
 
+const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
+
+const getTreeTitle = (index: string) => {
+	switch (treeMode.value) {
+		case "Setting":
+			return treeItems[Number(index)]?.setting;
+		case "Ort":
+			return treeItems[Number(index)]?.location;
+		case "Informant":
+			return treeItems[Number(index)]?.speaker;
+	}
+};
+
 const treeItems = [
 	{
-		title: "ED (4)",
+		title: "0",
+		speaker: "0001",
+		location: "Wien",
+		setting: "Interview",
 		icon: "lucide:folder",
 		children: [
 			{ title: "Transkript01", icon: "vscode-icons:file-type-typescript" },
@@ -266,7 +291,10 @@ const treeItems = [
 		],
 	},
 	{
-		title: "LE (3)",
+		title: "1",
+		speaker: "0002",
+		location: "Graz",
+		setting: "Freundesgespräch",
 		icon: "lucide:folder",
 		children: [
 			{ title: "Transkript05", icon: "vscode-icons:file-type-typescript" },
@@ -274,13 +302,41 @@ const treeItems = [
 			{ title: "Transkript07", icon: "vscode-icons:file-type-typescript" },
 		],
 	},
+	{
+		title: "2",
+		speaker: "0003",
+		location: "Innsbruck",
+		setting: "Nordwind & Sonne",
+		icon: "lucide:folder",
+		children: [
+			{ title: "Transkript08", icon: "vscode-icons:file-type-typescript" },
+			{ title: "Transkript09", icon: "vscode-icons:file-type-typescript" },
+			{ title: "Transkript10", icon: "vscode-icons:file-type-typescript" },
+			{ title: "Transkript11", icon: "vscode-icons:file-type-typescript" },
+			{ title: "Transkript12", icon: "vscode-icons:file-type-typescript" },
+		],
+	},
 ];
 </script>
 
 <template>
-	<main class="max-w-full container py-10 flex flex-col overflow-hidden" :tabindex="-1">
-		<div class="grid gap-4 items-stretch flex-grow min-h-0" :style="gridColumnsStyle">
-			<div class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
+	<main class="max-w-full container py-8 pt-4 flex flex-col overflow-hidden" :tabindex="-1">
+		<div class="flex justify-between mb-2">
+			<Button size="icon" variant="outline" @click="toggleFirstColumn">
+				<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
+			</Button>
+			<Button size="icon" variant="outline" @click="toggleThirdColumn">
+				<ChevronLeft class="size-4" :class="{ '-rotate-180': showThirdColumn }" />
+			</Button>
+		</div>
+		<div
+			class="grid gap-4 items-stretch flex-grow min-h-0 transition-[grid-template-columns] duration-250 ease-in-out"
+			:style="{ gridTemplateColumns: gridColumns }"
+		>
+			<div
+				class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden"
+				:class="{ 'opacity-0 pointer-events-none': !showFirstColumn }"
+			>
 				<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="filter">
 					<TabsList class="w-full flex-shrink-0">
 						<TabsTrigger value="tree"> Tree </TabsTrigger>
@@ -290,12 +346,15 @@ const treeItems = [
 					<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="tree">
 						<TreeRoot
 							v-slot="{ flattenItems }"
-							class="list-none select-none w-56 bg-white text-stone-700 rounded-lg border shadow-sm p-2 text-sm font-medium"
-							:default-expanded="['ED (4)']"
+							class="list-none select-none w-full rounded-lg border shadow-sm p-2 text-sm"
+							:default-expanded="['0']"
 							:get-key="(item) => item.title"
 							:items="treeItems"
 						>
-							<h2 class="font-semibold text-sm text-stone-400 px-2 pt-1 pb-3">Transkriptionen</h2>
+							<div class="flex items-center justify-between">
+								<h2 class="font-semibold text-sm text-stone-400 px-2 pt-1 pb-3">Transkriptionen</h2>
+								<TreeModeSwitcher v-model="treeMode"></TreeModeSwitcher>
+							</div>
 							<TreeItem
 								v-for="item in flattenItems"
 								:key="item._id"
@@ -310,7 +369,7 @@ const treeItems = [
 								</template>
 								<FileText v-else class="size-4" />
 								<div class="pl-2">
-									{{ item.value.title }}
+									{{ item.level > 1 ? item.value.title : getTreeTitle(item.value.title) }}
 								</div>
 							</TreeItem>
 						</TreeRoot>
@@ -318,43 +377,86 @@ const treeItems = [
 					<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="filter">
 						<div class="flex flex-col gap-4">
 							<div class="grid w-full gap-1.5">
-								<Label class="tracking-wide pl-1" for="One">One</Label>
+								<Label class="tracking-wide pl-1" for="context">Projektkontext</Label>
 								<div class="flex gap-2">
 									<Combobox
-										id="One"
-										v-model="activeOne"
-										:options="optionsOne"
-										placeholder="x"
+										id="context"
+										v-model="activeContext"
+										:options="sampleOptions"
+										placeholder="Projektkontext"
 									></Combobox>
-									<Button size="icon" variant="outline" @click="activeOne = null"
+									<Button size="icon" variant="outline" @click="activeContext = null"
+										><Undo2 class="size-4"
+									/></Button>
+								</div>
+							</div>
+							<div class="grid w-full gap-1.5 pb-4 border-b">
+								<Label class="tracking-wide pl-1" for="setting">Setting</Label>
+								<div class="flex gap-2">
+									<Combobox
+										id="setting"
+										v-model="activeSetting"
+										:options="sampleOptions"
+										placeholder="Setting"
+									></Combobox>
+									<Button size="icon" variant="outline" @click="activeSetting = null"
+										><Undo2 class="size-4"
+									/></Button>
+								</div>
+							</div>
+							<div class="text-lg mb-1">Sprecher</div>
+							<div class="grid w-full gap-1.5">
+								<Label class="tracking-wide pl-1" for="age">Altersklasse</Label>
+								<div class="flex gap-2">
+									<Combobox
+										id="age"
+										v-model="activeAge"
+										:options="sampleOptions"
+										placeholder="Altersklasse"
+									></Combobox>
+									<Button size="icon" variant="outline" @click="activeAge = null"
 										><Undo2 class="size-4"
 									/></Button>
 								</div>
 							</div>
 							<div class="grid w-full gap-1.5">
-								<Label class="tracking-wide pl-1" for="Two">Two</Label>
+								<Label class="tracking-wide pl-1" for="location">Ort</Label>
 								<div class="flex gap-2">
 									<Combobox
-										id="Two"
-										v-model="activeTwo"
-										:options="optionsTwo"
-										placeholder="y"
+										id="location"
+										v-model="activeLocation"
+										:options="sampleOptions"
+										placeholder="Ort"
 									></Combobox>
-									<Button size="icon" variant="outline" @click="activeTwo = null"
+									<Button size="icon" variant="outline" @click="activeLocation = null"
 										><Undo2 class="size-4"
 									/></Button>
 								</div>
 							</div>
 							<div class="grid w-full gap-1.5">
-								<Label class="tracking-wide pl-1" for="Three">Three</Label>
+								<Label class="tracking-wide pl-1" for="first-languaage">Erstprache</Label>
 								<div class="flex gap-2">
 									<Combobox
-										id="Three"
-										v-model="activeThree"
-										:options="optionsThree"
-										placeholder="z"
+										id="first-languaage"
+										v-model="activeFirstLanguage"
+										:options="sampleOptions"
+										placeholder="Erstprache"
 									></Combobox>
-									<Button size="icon" variant="outline" @click="activeThree = null"
+									<Button size="icon" variant="outline" @click="activeFirstLanguage = null"
+										><Undo2 class="size-4"
+									/></Button>
+								</div>
+							</div>
+							<div class="grid w-full gap-1.5">
+								<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>
+								<div class="flex gap-2">
+									<Combobox
+										id="gender"
+										v-model="activeGender"
+										:options="sampleOptions"
+										placeholder="Geschlecht"
+									></Combobox>
+									<Button size="icon" variant="outline" @click="activeGender = null"
 										><Undo2 class="size-4"
 									/></Button>
 								</div>
@@ -368,7 +470,7 @@ const treeItems = [
 			</div>
 
 			<div class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
-				<form class="mb-5 pb-4 border-b flex gap-4 items-end flex-shrink-0">
+				<form class="mb-4 pb-4 border-b flex gap-4 items-end flex-shrink-0">
 					<Label class="sr-only" for="search">Suche</Label>
 					<div class="relative w-64">
 						<Input
@@ -384,31 +486,20 @@ const treeItems = [
 					</div>
 					<Button type="submit"> Suchen </Button>
 				</form>
-				<p class="text-lg mb-3 flex-shrink-0">
-					<b>122</b> Ergebnisse in <b>45</b> Events (utterances)
-				</p>
-				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="voice">
-					<div class="flex gap-4 items-center mb-1 flex-shrink-0">
+				<p class="text-lg mb-3 flex-shrink-0"><b>122</b> Ergebnisse in <b>45</b> Events</p>
+				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
+					<div class="flex gap-4 items-center flex-shrink-0">
 						<TabsList class="w-full">
-							<TabsTrigger value="voice"> Voice </TabsTrigger>
 							<TabsTrigger value="plain"> Plain </TabsTrigger>
-							<TabsTrigger value="post"> Pos </TabsTrigger>
+							<TabsTrigger value="kwic"> KWIC </TabsTrigger>
 							<TabsTrigger value="xml"> XML </TabsTrigger>
 						</TabsList>
-						<div class="flex gap-2 rounded border px-3 py-2 items-center">
-							<Checkbox id="enableKWIC" v-model="enableKWIC" />
-							<label
-								class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-								for="enableKWIC"
-							>
-								KWIC
-							</label>
-						</div>
 						<Button class="shrink-0" size="icon" variant="ghost"
 							><Download class="size-4"
 						/></Button>
 					</div>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="voice">
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
+						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
 						<div v-for="result in searchResults" :key="result.name">
 							<div class="px-4 py-2 bg-gray-100 font-semibold text-gray-700">
 								{{ result.name }}
@@ -433,19 +524,20 @@ const treeItems = [
 							</div>
 						</div>
 					</TabsContent>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
-						Sample content
-					</TabsContent>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="post">
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="kwic">
 						Sample content
 					</TabsContent>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="xml">
+						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
 						Sample content
 					</TabsContent>
 				</Tabs>
 			</div>
 
-			<div class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
+			<div
+				class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden"
+				:class="{ 'opacity-0 pointer-events-none': !showThirdColumn }"
+			>
 				<div class="mb-5 pb-3 border-b flex gap-2 items-end flex-shrink-0">
 					<div
 						class="py-1.5 px-3 flex items-center rounded bg-secondary border gap-2 cursor-pointer text-sm"
@@ -464,12 +556,11 @@ const treeItems = [
 						</div>
 					</div>
 				</div>
-				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="voice">
-					<div class="flex gap-4 items-center mb-1">
+				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
+					<div class="flex gap-4 items-center">
 						<TabsList class="w-full">
-							<TabsTrigger value="voice"> Voice </TabsTrigger>
 							<TabsTrigger value="plain"> Plain </TabsTrigger>
-							<TabsTrigger value="post"> Pos </TabsTrigger>
+							<TabsTrigger value="kwic"> KWIC </TabsTrigger>
 							<TabsTrigger value="xml"> XML </TabsTrigger>
 						</TabsList>
 
@@ -477,7 +568,8 @@ const treeItems = [
 							><Download class="size-4"
 						/></Button>
 					</div>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="voice">
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
+						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
 						<div class="divide-y divide-gray-200">
 							<div
 								v-for="hit in transcriptResults"
@@ -496,8 +588,7 @@ const treeItems = [
 							</div>
 						</div>
 					</TabsContent>
-					<TabsContent value="plain"> Sample content </TabsContent>
-					<TabsContent value="post"> Sample content </TabsContent>
+					<TabsContent value="kwic"> Sample content </TabsContent>
 					<TabsContent value="xml"> Sample content </TabsContent>
 				</Tabs>
 			</div>

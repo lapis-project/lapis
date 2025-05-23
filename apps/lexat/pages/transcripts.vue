@@ -263,6 +263,16 @@ const transcriptResults = [
 	},
 ];
 
+const activeCompetence = ref("3");
+
+const competenceOptions = ref<Array<RadioOption>>([
+	{ id: "competence-option-one", label: "1", value: "1" },
+	{ id: "competence-option-two", label: "2", value: "2" },
+	{ id: "competence-option-three", label: "3", value: "3" },
+	{ id: "competence-option-four", label: "4", value: "4" },
+	{ id: "competence-option-five", label: "5", value: "5" },
+]);
+
 const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
 
 const getTreeTitle = (index: string) => {
@@ -446,6 +456,15 @@ const treeItems = [
 										><Undo2 class="size-4"
 									/></Button>
 								</div>
+							</div>
+							<div class="grid w-full gap-3 my-2">
+								<Label class="tracking-wide pl-1" for="nos">Sprachkompetenz</Label>
+								<BaseRadioGroup
+									v-model="activeCompetence"
+									name="nos"
+									:options="competenceOptions"
+									orientation="horizontal"
+								></BaseRadioGroup>
 							</div>
 							<div class="grid w-full gap-1.5">
 								<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>

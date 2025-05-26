@@ -24,8 +24,8 @@ const searchInput = ref("");
 
 const categoryOptions = ref<Array<DropdownOption>>([
 	{ id: 1, value: "commentary", label: t("Categories.commentary") },
-	{ id: 3, value: "project_description", label: t("Categories.project_description") },
-	{ id: 3, value: "short_description", label: t("Categories.short_description") },
+	// { id: 3, value: "project_description", label: t("Categories.project_description") },
+	{ id: 2, value: "short_description", label: t("Categories.short_description") },
 ]);
 
 const languageOptions = [
@@ -65,9 +65,9 @@ usePageMetadata({
 </script>
 
 <template>
-	<MainContent class="container grid grid-cols-1 sm:grid-cols-4 gap-8 py-8">
+	<MainContent class="container grid sm:grid-cols-[auto_1fr] gap-8 py-8">
 		<PageTitle class="sr-only">{{ t("ArticlesPage.title") }}</PageTitle>
-		<aside class="hidden sm:block rounded border p-5 col-span-1">
+		<aside class="hidden sm:block rounded border p-5">
 			<div class="mb-6 uppercase">
 				{{ t("ArticlesPage.filters.label") }}
 			</div>
@@ -111,7 +111,7 @@ usePageMetadata({
 				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon class="size-4"
 			/></Button>
 		</aside>
-		<div class="flex flex-col gap-8 col-span-3">
+		<div class="flex flex-col gap-8">
 			<div class="text-3xl">{{ totalResults }} {{ t("ArticlesPage.results") }}</div>
 			<div v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
 				<div>

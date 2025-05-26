@@ -5,19 +5,6 @@ const currentLocale = useLocale();
 usePageMetadata({
 	title: t("AboutPage.meta.title"),
 });
-
-// const authors = ref([
-// 	"Amelie Dorn",
-// 	"Jan Höll",
-// 	"Wolfgang Koppensteiner",
-// 	"Katharina Korecky-Kröll",
-// 	"Claudia Mattes",
-// 	"Markus Pluschkovits",
-// 	"Rita Stiglbauer",
-// 	"Florian Tavernier",
-// 	"Anja Wittibschlager",
-// 	"Theresa Ziegler",
-// ]);
 </script>
 
 <template>
@@ -122,70 +109,5 @@ usePageMetadata({
 				</blockquote>
 			</div>
 		</section>
-
-		<!-- <section class="mb-16">
-			<div class="article-content mx-auto max-w-4xl">
-				<h2 class="text-3xl font-semibold">{{ t("AboutPage.more.title") }}</h2>
-				<ul class="columns-2">
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#3-quellenbefunde-lexika-sprachkarten-u-a"
-							>{{ t("AboutPage.more.resources") }}</NuxtLinkLocale
-						>
-					</li>
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#4-wer-hat-mitgemacht--die-teilnehmenden-der-fragebogenerhebung"
-							>{{ t("AboutPage.more.participants") }}</NuxtLinkLocale
-						>
-					</li>
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#5-ortsnetz-datenverteilungen-im-raum"
-							>{{ t("AboutPage.more.locations") }}</NuxtLinkLocale
-						>
-					</li>
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#6-dialektrume-in-sterreich"
-							>{{ t("AboutPage.more.regions") }}</NuxtLinkLocale
-						>
-					</li>
-
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#7-die-ausgewhlten-und-kartierten-phnomene-in-lexat21"
-							>{{ t("AboutPage.more.phenomena") }}</NuxtLinkLocale
-						>
-					</li>
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#8-zur-fragebogenmethode-von-lexat21"
-							>{{ t("AboutPage.more.survey") }}</NuxtLinkLocale
-						>
-					</li>
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#9-die-anvisierten-register-variettensprechlagen-und-ihre-bezeichnungen"
-							>{{ t("AboutPage.more.registers") }}</NuxtLinkLocale
-						>
-					</li>
-					<li>
-						<NuxtLinkLocale
-							target="_blank"
-							to="/articles/lexat21-einfuehrung#10-zur-technischen-implementierung-von-lexat21"
-							>{{ t("AboutPage.more.implementation") }}</NuxtLinkLocale
-						>
-					</li>
-				</ul>
-			</div>
-		</section> -->
 	</MainContent>
 </template>

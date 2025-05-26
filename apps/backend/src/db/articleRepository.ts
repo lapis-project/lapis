@@ -115,6 +115,7 @@ export async function getAllArticlesByProject(
 				.leftJoin("user_post", "post.id", "user_post.post_id")
 				.leftJoin("user_account", (join) => join.onRef("user_post.user_id", "=", "user_account.id"))
 				.innerJoin("post_type", "post.post_type_id", "post_type.id")
+				.where("post_type.post_type_name", "<>", "project_description")
 				.where("project_post.project_id", "=", projectId)
 				.where("post.title", "~*", searchTerm)
 				.where("post_type.post_type_name", "~*", postType)
@@ -124,9 +125,8 @@ export async function getAllArticlesByProject(
 			}
 			if (searchTerm === "" && postType === "") {
 				baseQuery = baseQuery.orderBy(sql`CASE
-					WHEN post_type.post_type_name = 'project_description' THEN 1
-					WHEN post_type.post_type_name = 'short_description' THEN 3
-					ELSE 2
+					WHEN post_type.post_type_name = 'short_description' THEN 2
+					ELSE 1
 				END,
 				post.created_at,
 				post.published_at

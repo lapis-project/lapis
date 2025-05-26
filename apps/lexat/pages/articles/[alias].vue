@@ -31,6 +31,10 @@ const article = computed(() => {
 	return data.value?.article;
 });
 
+const isProjectDescription = computed(() => {
+	return article.value?.post_type_name === "project_description";
+});
+
 const publishedAt = computed(() => {
 	const publishDate = article.value?.published_at
 		? new Date(article.value.published_at)
@@ -137,12 +141,16 @@ usePageMetadata({
 
 <template>
 	<MainContent class="container py-8">
-		<NuxtLinkLocale class="mb-6 inline-flex items-center gap-1" to="/articles"
+		<NuxtLinkLocale
+			v-if="!isProjectDescription"
+			class="mb-6 inline-flex items-center gap-1"
+			to="/articles"
 			><ArrowLeft class="size-4" /> {{ t("ArticleDetailPage.back") }}</NuxtLinkLocale
 		>
 		<div class="flex flex-col sm:flex-row gap-8">
 			<article v-if="article" class="sm:w-3/4">
 				<div
+					v-if="!isProjectDescription"
 					class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 tracking-wider dark:text-primary-foreground"
 				>
 					{{ t(`AdminPage.editor.category.${article.post_type_name}`) }}

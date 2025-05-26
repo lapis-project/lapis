@@ -9,7 +9,7 @@ const drawerOpen = ref<boolean>(false);
 
 const links = computed(() => {
 	return {
-		about: { to: { path: "/about" }, label: t("AppHeader.links.about") },
+		about: { to: { path: "/articles/lexat21-einfuehrung" }, label: t("AppHeader.links.about") },
 		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
 		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
 		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },

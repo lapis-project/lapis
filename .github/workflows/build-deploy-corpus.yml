@@ -28,20 +28,43 @@ jobs:
       - name: Get environment from git ref
         id: get_environment_from_git_ref
         run: |
+          echo "Workflow triggered by: ${{ github.event_name }}"
+          echo "Git Ref Name (Tag or Branch): ${{ github.ref_name }}"
           echo "Running on branch ${{ github.ref_name }}"
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "environment=production"
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "environment_short=prod" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "environment=development"
-            echo "environment=dev" >> $GITHUB_OUTPUT
-            echo "environment_short=dev" >> $GITHUB_OUTPUT
+
+          ENV_NAME=""
+          ENV_SHORT=""
+
+          # Priority for Git Tags
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TAG_NAME="${{ github.ref_name }}"
+            TAG_LOWER=$(echo "$TAG_NAME" | tr '[:upper:]' '[:lower:]')
+            echo "Processing tag: $TAG_NAME"
+
+            # Pattern 1: Explicit environment in tag name (e.g., corpus-production, corpus-dev-v1.2)
+            if [[ "$TAG_LOWER" == corpus-production || "$TAG_LOWER" == corpus-prod || "$TAG_LOWER" == corpus-prod-* ]]; then
+              ENV_NAME="production-corpus"; ENV_SHORT="prod-corpus"
+            elif [[ "$TAG_LOWER" == corpus-dev || "$TAG_LOWER" == corpus-development || "$TAG_LOWER" == corpus-dev-* ]]; then
+              ENV_NAME="development-corpus"; ENV_SHORT="dev-corpus"
+            fi
+
+          # Fallback for branch logic
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=production-corpus"
+            ENV_NAME="production-corpus"
+            ENV_SHORT="prod-corpus" # Or "prod-corpus" if that was intended
+            echo "environment=production-corpus" >> $GITHUB_OUTPUT
+            echo "environment_short=prod-corpus" >> $GITHUB_OUTPUT
           else
-            echo "environment=review/${{ github.ref_name }}"
-            echo "environment=review/${{ github.ref_name }}" >> $GITHUB_OUTPUT
-            echo "environment_short=$(echo -n ${{ github.ref_name }} | sed 's/feat\(ure\)\{0,1\}[_/]//' | tr '_' '-' | tr '[:upper:]' '[:lower:]' )" >> $GITHUB_OUTPUT
+            echo "environment=dev-corpus"
+            echo "environment=dev-corpus" >> $GITHUB_OUTPUT
+            echo "environment_short=dev-corpus" >> $GITHUB_OUTPUT
           fi
+
+          echo "environment=$ENV_NAME" >> $GITHUB_OUTPUT
+          echo "environment_short=$ENV_SHORT" >> $GITHUB_OUTPUT
+          echo "Final environment set to: $ENV_NAME"
+          echo "Final environment_short set to: $ENV_SHORT"
   generate_workflow_vars:
     needs:
       - setup_workflow_env
@@ -92,8 +115,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: >
-            ghcr.io/${{ github.repository }}-frontend # The container is located at the repository
-            registry root at the moment.
+            ghcr.io/${{ github.repository }}-corpus-frontend # The container is located at the
+            repository registry root at the moment.
           flavor: |
             latest=auto
           tags: |
@@ -128,7 +151,7 @@ jobs:
     secrets: inherit
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
-      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-frontend
+      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-corpus-frontend
       APP_NAME: "${{ needs.setup_workflow_env.outputs.app_name }}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID_FRONTEND }}"

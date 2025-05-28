@@ -30,20 +30,43 @@ jobs:
       - name: Get environment from git ref
         id: get_environment_from_git_ref
         run: |
+          echo "Workflow triggered by: ${{ github.event_name }}"
+          echo "Git Ref Name (Tag or Branch): ${{ github.ref_name }}"
           echo "Running on branch ${{ github.ref_name }}"
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "environment=production"
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "environment_short=prod" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "environment=development"
-            echo "environment=dev" >> $GITHUB_OUTPUT
-            echo "environment_short=dev" >> $GITHUB_OUTPUT
+
+          ENV_NAME=""
+          ENV_SHORT=""
+
+          # Priority for Git Tags
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TAG_NAME="${{ github.ref_name }}"
+            TAG_LOWER=$(echo "$TAG_NAME" | tr '[:upper:]' '[:lower:]')
+            echo "Processing tag: $TAG_NAME"
+
+            # Pattern 1: Explicit environment in tag name (e.g., backend-production, backend-dev-v1.2)
+            if [[ "$TAG_LOWER" == backend-production || "$TAG_LOWER" == backend-prod || "$TAG_LOWER" == backend-prod-* ]]; then
+              ENV_NAME="production-backend"; ENV_SHORT="prod-backend"
+            elif [[ "$TAG_LOWER" == backend-dev || "$TAG_LOWER" == backend-development || "$TAG_LOWER" == backend-dev-* ]]; then
+              ENV_NAME="development-backend"; ENV_SHORT="dev-backend"
+            fi
+
+          # Fallback for branch logic
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=production-backend"
+            ENV_NAME="production-corpus"
+            ENV_SHORT="prod-corpus"
+            echo "environment=production-backend" >> $GITHUB_OUTPUT
+            echo "environment_short=prod-backend" >> $GITHUB_OUTPUT
           else
-            echo "environment=review/${{ github.ref_name }}"
-            echo "environment=review/${{ github.ref_name }}" >> $GITHUB_OUTPUT
-            echo "environment_short=$(echo -n ${{ github.ref_name }} | sed 's/feat\(ure\)\{0,1\}[_/]//' | tr '_' '-' | tr '[:upper:]' '[:lower:]' )" >> $GITHUB_OUTPUT
+            echo "environment=dev-backend"
+            echo "environment=dev-backend" >> $GITHUB_OUTPUT
+            echo "environment_short=dev-backend" >> $GITHUB_OUTPUT
           fi
+
+          echo "environment=$ENV_NAME" >> $GITHUB_OUTPUT
+          echo "environment_short=$ENV_SHORT" >> $GITHUB_OUTPUT
+          echo "Final environment set to: $ENV_NAME"
+          echo "Final environment_short set to: $ENV_SHORT"
   generate_workflow_vars:
     needs:
       - setup_workflow_env

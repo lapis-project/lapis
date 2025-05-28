@@ -52,7 +52,7 @@ jobs:
           elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "environment=production-corpus"
             ENV_NAME="production-corpus"
-            ENV_SHORT="prod-corpus" # Or "prod-corpus" if that was intended
+            ENV_SHORT="prod-corpus"
             echo "environment=production-corpus" >> $GITHUB_OUTPUT
             echo "environment_short=prod-corpus" >> $GITHUB_OUTPUT
           else

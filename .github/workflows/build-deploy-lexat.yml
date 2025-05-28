@@ -28,20 +28,41 @@ jobs:
       - name: Get environment from git ref
         id: get_environment_from_git_ref
         run: |
+          echo "Workflow triggered by: ${{ github.event_name }}"
+          echo "Git Ref Name (Tag or Branch): ${{ github.ref_name }}"
           echo "Running on branch ${{ github.ref_name }}"
-          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "environment=production"
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "environment_short=prod" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" = "dev" ]; then
-            echo "environment=development"
-            echo "environment=dev" >> $GITHUB_OUTPUT
-            echo "environment_short=dev" >> $GITHUB_OUTPUT
+
+          ENV_NAME=""
+          ENV_SHORT=""
+
+          # Priority for Git Tags
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            TAG_NAME="${{ github.ref_name }}"
+            TAG_LOWER=$(echo "$TAG_NAME" | tr '[:upper:]' '[:lower:]')
+            echo "Processing tag: $TAG_NAME"
+
+            # Pattern 1: Explicit environment in tag name (e.g., lexat-production, lexat-dev-v1.2)
+            if [[ "$TAG_LOWER" == lexat-production || "$TAG_LOWER" == lexat-prod || "$TAG_LOWER" == lexat-prod-* ]]; then
+              ENV_NAME="production-lexat"; ENV_SHORT="prod-lexat"
+            elif [[ "$TAG_LOWER" == lexat-dev || "$TAG_LOWER" == lexat-development || "$TAG_LOWER" == lexat-dev-* ]]; then
+              ENV_NAME="development-lexat"; ENV_SHORT="dev-lexat"
+            fi
+
+          # Fallback for branch logic
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=production-lexat"
+            echo "environment=production-lexat" >> $GITHUB_OUTPUT
+            echo "environment_short=prod-lexat" >> $GITHUB_OUTPUT
           else
-            echo "environment=review/${{ github.ref_name }}"
-            echo "environment=review/${{ github.ref_name }}" >> $GITHUB_OUTPUT
-            echo "environment_short=$(echo -n ${{ github.ref_name }} | sed 's/feat\(ure\)\{0,1\}[_/]//' | tr '_' '-' | tr '[:upper:]' '[:lower:]' )" >> $GITHUB_OUTPUT
+            echo "environment=dev-lexat"
+            echo "environment=dev-lexat" >> $GITHUB_OUTPUT
+            echo "environment_short=dev-lexat" >> $GITHUB_OUTPUT
           fi
+
+          echo "environment=$ENV_NAME" >> $GITHUB_OUTPUT
+          echo "environment_short=$ENV_SHORT" >> $GITHUB_OUTPUT
+          echo "Final environment set to: $ENV_NAME"
+          echo "Final environment_short set to: $ENV_SHORT"
   generate_workflow_vars:
     needs:
       - setup_workflow_env
@@ -92,8 +113,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: >
-            ghcr.io/${{ github.repository }}-frontend # The container is located at the repository
-            registry root at the moment.
+            ghcr.io/${{ github.repository }}-lexat-frontend # The container is located at the
+            repository registry root at the moment.
           flavor: |
             latest=auto
           tags: |
@@ -128,7 +149,7 @@ jobs:
     secrets: inherit
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
-      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-frontend
+      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-lexat-frontend
       APP_NAME: "${{ needs.setup_workflow_env.outputs.app_name }}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID_FRONTEND }}"

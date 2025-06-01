@@ -43,8 +43,14 @@
 			"isBackground": true
 		},
 		{
-			"label": "Full Local Setup",
-			"dependsOn": ["Start DB Container", "Seed DB", "Start Backend", "Start Frontend"],
+			"label": "Full Local Setup - LexAT21",
+			"dependsOn": ["Start DB Container", "Seed DB", "Start Backend", "Start LexAT21"],
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Full Local Setup - Corpus",
+			"dependsOn": ["Start DB Container", "Seed DB", "Start Backend", "Start Corpus"],
 			"problemMatcher": [],
 			"group": "build"
 		},

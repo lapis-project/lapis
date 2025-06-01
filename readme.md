@@ -12,33 +12,38 @@ For details on the project's architecture, see [Architecture](architecture.md).
 - [docker](https://docs.docker.com/engine/install/ubuntu/) installed on your system (for local
   development)
 
-## Quick start for LexAT
+## Quick start for LexAT21
 
 1. Clone the repository
-2. Install dependencies from root via `pnpm i`
+2. Install dependencies from the project root via `pnpm i`
 3. Run `pnpm dev:lexat` to start the LexAT application on port `3000` (Note: authentication between
-   localhost and production is currently not supported -> follow the `Local Setup for LexAT` guide
-   below to enable all functionality)
+   localhost and production is currently not supported -> follow the `Setup for local development`
+   guide to setup a full-stack environment)
 
 ## Setup for local development
 
 ### Setup backend .env files
 
 1. Navigate to `/apps/backend` and create a `.env.local` file
-2. Copy the contents from `.env.local.example` into `.env.local` and ask a LexAT team member for
+2. Copy the contents from `.env.local.example` into `.env.local` and ask a Lapis team member for
    viable keys
 
-### Setup frontend .env files
+### Setup LexAT21 .env files
 
 1. Navigate to `/apps/lexat` and create a `.env.dev.local` file
-2. Copy the contents from `.env.local.example` into `.env.dev.local` and ask a LexAT team member for
+2. Copy the contents from `.env.local.example` into `.env.dev.local` and ask a Lapis team member for
    viable keys
+
+### Setup Corpus .env files
+
+1. Navigate to `/apps/corpus` and create a `.env.dev.local` file
+2. TODO
 
 ### Option 1: Run setup via VSCode task
 
 1. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
 2. Search for `Tasks: Run Task`
-3. Select `Full Local Setup`
+3. Select `Full Local Setup - LexAT21` or `Full Local Setup - Corpus`
 
 ### Option 2: Run setup manually
 
@@ -60,8 +65,8 @@ For details on the project's architecture, see [Architecture](architecture.md).
 
 #### Run frontend
 
-1. Run the frontend either via `pnpm dev-local:lexat` (in root) or `pnpm dev-local` (in
-   `/apps/lexat`)
+1. Run the frontend either via `pnpm dev-local:<lexat | corpus>` (in project root) or
+   `pnpm dev-local` (in `/apps/<lexat | corpus>`)
 2. The app should now be running on port `3000` (default)
 
 ### (Optional) Run GUI for Ceph S3

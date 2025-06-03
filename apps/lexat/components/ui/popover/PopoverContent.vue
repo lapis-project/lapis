@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactiveOmit } from "@vueuse/core";
 import {
 	PopoverContent,
 	type PopoverContentEmits,
@@ -6,7 +7,7 @@ import {
 	PopoverPortal,
 	useForwardPropsEmits,
 } from "reka-ui";
-import { computed, type HTMLAttributes } from "vue";
+import type { HTMLAttributes } from "vue";
 
 import { cn } from "@/utils/styles";
 
@@ -23,11 +24,7 @@ const props = withDefaults(
 );
 const emits = defineEmits<PopoverContentEmits>();
 
-const delegatedProps = computed(() => {
-	const { class: _, ...delegated } = props;
-
-	return delegated;
-});
+const delegatedProps = reactiveOmit(props, "class");
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
@@ -38,10 +35,11 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
 			v-bind="{ ...forwarded, ...$attrs }"
 			:class="
 				cn(
-					'z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+					'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 rounded-md border p-4 shadow-md origin-(--reka-popover-content-transform-origin) outline-hidden',
 					props.class,
 				)
 			"
+			data-slot="popover-content"
 		>
 			<slot />
 		</PopoverContent>

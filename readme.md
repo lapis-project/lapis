@@ -11,6 +11,8 @@ For details on the project's architecture, see [Architecture](architecture.md).
   [corepack](https://pnpm.io/installation#using-corepack) via `corepack enable pnpm`)
 - [docker](https://docs.docker.com/engine/install/ubuntu/) installed on your system (for local
   development)
+- Optional: [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) for node
+  version management
 
 ## Quick start for LexAT21
 

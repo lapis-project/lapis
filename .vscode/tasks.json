@@ -21,7 +21,7 @@
 		{
 			"label": "Start Backend",
 			"type": "shell",
-			"command": "source ~/.nvm/nvm.sh && nvm use && pnpm dev:backend",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev:backend'",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true
@@ -29,7 +29,7 @@
 		{
 			"label": "Start LexAT21",
 			"type": "shell",
-			"command": "source ~/.nvm/nvm.sh && nvm use && pnpm dev-local:lexat",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:lexat'",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true
@@ -37,7 +37,7 @@
 		{
 			"label": "Start Corpus",
 			"type": "shell",
-			"command": "source ~/.nvm/nvm.sh && nvm use && pnpm dev-local:corpus",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:corpus'",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true

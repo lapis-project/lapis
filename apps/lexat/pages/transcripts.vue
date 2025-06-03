@@ -31,7 +31,7 @@ const toggleThirdColumn = () => {
 
 const gridColumns = computed(() => {
 	return [
-		showFirstColumn.value ? "300px" : "0px",
+		showFirstColumn.value ? "340px" : "0px",
 		"1fr",
 		showThirdColumn.value ? "500px" : "0px",
 	].join(" ");
@@ -266,11 +266,11 @@ const transcriptResults = [
 const activeCompetence = ref("3");
 
 const competenceOptions = ref<Array<RadioOption>>([
-	{ id: "competence-option-one", label: "1", value: "1" },
-	{ id: "competence-option-two", label: "2", value: "2" },
-	{ id: "competence-option-three", label: "3", value: "3" },
-	{ id: "competence-option-four", label: "4", value: "4" },
-	{ id: "competence-option-five", label: "5", value: "5" },
+	{ id: "competence-option-one", label: "A1", value: "1" },
+	{ id: "competence-option-two", label: "A2", value: "2" },
+	{ id: "competence-option-three", label: "B1", value: "3" },
+	{ id: "competence-option-four", label: "B2", value: "4" },
+	{ id: "competence-option-five", label: "C1", value: "5" },
 ]);
 
 const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
@@ -458,13 +458,17 @@ const treeItems = [
 								</div>
 							</div>
 							<div class="grid w-full gap-3 my-2">
-								<Label class="tracking-wide pl-1" for="nos">Sprachkompetenz</Label>
+								<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz (Deutsch)</Label>
 								<BaseRadioGroup
 									v-model="activeCompetence"
 									name="nos"
 									:options="competenceOptions"
 									orientation="horizontal"
 								></BaseRadioGroup>
+								<!-- <div class="text-sm justify-between flex">
+									<span> (Schlecht) </span>
+									<span> (Gut) </span>
+								</div> -->
 							</div>
 							<div class="grid w-full gap-1.5">
 								<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>

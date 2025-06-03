@@ -13,12 +13,12 @@ const updateColor = useDebounceFn((event) => {
 
 <template>
 	<div>
-		<label for="color-picker" class="sr-only">Color Picker</label>
+		<label class="sr-only" for="color-picker">Color Picker</label>
 		<input
 			id="color-picker"
+			class="color-picker cursor-pointer appearance-none border-none bg-transparent"
 			type="color"
 			:value="modelValue"
-			class="color-picker cursor-pointer appearance-none border-none bg-transparent"
 			@input="updateColor"
 		/>
 	</div>

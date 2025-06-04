@@ -19,6 +19,7 @@ const currentLocale = useLocale();
 
 usePageMetadata({
 	title: t("HomePage.meta.title"),
+	description: t("HomePage.meta.description"),
 });
 </script>
 
@@ -165,7 +166,9 @@ usePageMetadata({
 		<section class="mb-16 flex flex-col items-center">
 			<h1 class="text-3xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h1>
 			<StatsSection />
-			<Button class="mt-6 self-center" @click="navigateTo(localePath('/about'))"
+			<Button
+				class="mt-6 self-center"
+				@click="navigateTo(localePath('/articles/lexat21-einfuehrung'))"
 				><Glasses class="mr-2 size-5" />{{ t("HomePage.cta.project") }}</Button
 			>
 		</section>

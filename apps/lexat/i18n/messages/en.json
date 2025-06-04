@@ -138,7 +138,7 @@
 	},
 	"ArticlesPage": {
 		"meta": {
-			"title": "Articles"
+			"title": "Map commentary"
 		},
 		"title": "Articles",
 		"filters": {
@@ -236,8 +236,8 @@
 	},
 	"DefaultLayout": {
 		"meta": {
-			"description": "ACDH-CH App",
-			"title": "ACDH-CH App"
+			"description": "Atlas on Lexis in Austria in the 21st century",
+			"title": "LexAT21"
 		},
 		"skip-to-main-content": "Skip to main content"
 	},
@@ -253,7 +253,8 @@
 	},
 	"HomePage": {
 		"meta": {
-			"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century"
+			"title": "Homepage",
+			"description": "The LexAT21 project aims to document lexical diversity and ist dynamics in the 21st century. It is a collaboration between researchers from the University of Vienna and the Austrian Academy of Sciences."
 		},
 		"maps": {
 			"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century",
@@ -302,9 +303,9 @@
 		"english": "English"
 	},
 	"Manifest": {
-		"name": "ACDH-CH App",
-		"short-name": "ACDH-CH App",
-		"description": "ACDH-CH App"
+		"name": "LexAT21",
+		"short-name": "LexAT21",
+		"description": "Atlas on Lexis in Austria in the 21st century"
 	},
 	"MapsPage": {
 		"meta": {

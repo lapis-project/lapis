@@ -1,32 +1,4 @@
 {
-	"AboutPage": {
-		"meta": {
-			"title": "About the project and its objectives"
-		},
-		"title": "About the project and its objectives",
-		"citation": {
-			"title": "Project citation",
-			"text": "LexAT21 in its entirety is to be cited as follows"
-		},
-		"more": {
-			"title": "More about",
-			"resources": "Resources",
-			"participants": "Participants",
-			"locations": "The research locations",
-			"regions": "Austria's dialect regions",
-			"phenomena": "The phenomenon selection",
-			"survey": "The survey method",
-			"registers": "The registers",
-			"implementation": "The technical implementation"
-		},
-		"team": {
-			"title": "Team",
-			"head": "Project leader and editor",
-			"technical": "Concept and technical implementation",
-			"authors": "Authors",
-			"editors": "Proofing"
-		}
-	},
 	"AdminNavigation": {
 		"articles": "Articles",
 		"users": "Users",
@@ -256,14 +228,6 @@
 			"title": "Homepage",
 			"description": "The LexAT21 project aims to document lexical diversity and ist dynamics in the 21st century. It is a collaboration between researchers from the University of Vienna and the Austrian Academy of Sciences."
 		},
-		"maps": {
-			"title": "LexAT21 - Atlas on Lexis in Austria in the 21st century",
-			"action": "Visualize data"
-		},
-		"data": {
-			"title": "Project and research data",
-			"action": "Explore data"
-		},
 		"charts": {
 			"title": "Overview of the LexAT21 database",
 			"age-distribution": {
@@ -285,15 +249,28 @@
 				"round-three": "Round #3"
 			}
 		},
-		"cta": {
-			"action": "To the survey",
-			"project": "About the project"
+		"citation": {
+			"title": "Project citation",
+			"text": "LexAT21 in its entirety is to be cited as follows"
 		},
 		"counts": {
 			"locations": "Localities",
 			"participants": "Finished questionnaires",
 			"phenomenons": "Phenomena",
 			"survey-rounds": "Survey rounds"
+		},
+		"features": {
+			"title": "LexAT21 provides"
+		},
+		"introduction": {
+			"title": "Atlas on Lexis in Austria in the 21st century"
+		},
+		"team": {
+			"title": "Team",
+			"head": "Project leader and editor",
+			"technical": "Concept and technical implementation",
+			"authors": "Authors",
+			"editors": "Proofing"
 		}
 	},
 	"LocaleSwitcher": {

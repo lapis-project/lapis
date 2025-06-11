@@ -1,32 +1,4 @@
 {
-	"AboutPage": {
-		"meta": {
-			"title": "Zum Projekt und seinen Zielen"
-		},
-		"title": "Zum Projekt und seinen Zielen",
-		"citation": {
-			"title": "Gesamtzitation",
-			"text": "Das Gesamtprojekt LexAT21 wird wie folgt zitiert"
-		},
-		"more": {
-			"title": "Näheres zu",
-			"resources": "Quellenbefunden",
-			"participants": "Teilnehmenden",
-			"locations": "dem Ortsnetz",
-			"regions": "Dialekträumen in Österreich",
-			"phenomena": "der Phänomenauswahl",
-			"survey": "der Fragebogenmethode",
-			"registers": "den anvisierten Registern (Varietäten/Sprechlagen)",
-			"implementation": "der technischen Implementierung"
-		},
-		"team": {
-			"title": "Team",
-			"head": "Projektleitung und Herausgabe",
-			"technical": "Konzeption und technische Implementierung",
-			"authors": "Autor:innen",
-			"editors": "Lektor:innen"
-		}
-	},
 	"AdminNavigation": {
 		"articles": "Einträge",
 		"users": "Benutzer",
@@ -256,14 +228,6 @@
 			"title": "Startseite",
 			"description": "Das Projekt LexAT21 setzt es sich zum Ziel, lexikalische Vielfalt und ihre Dynamik im 21. Jahrhundert zu dokumentieren. Das Projekt wird in Kooperation von Forschenden der Universität Wien und der Österreichischen Akademie der Wissenschaften durchgeführt."
 		},
-		"maps": {
-			"title": "LexAT21 - Atlas zur Lexik in Österreich im 21. Jahrhundert",
-			"action": "Daten visualisieren"
-		},
-		"data": {
-			"title": "Projekt und Datenerhebung",
-			"action": "Daten erkunden"
-		},
 		"charts": {
 			"title": "Übersicht der LexAT21-Datenbasis",
 			"age-distribution": {
@@ -285,15 +249,28 @@
 				"round-three": "Runde #3"
 			}
 		},
-		"cta": {
-			"action": "Jetzt mitmachen",
-			"project": "Projektdetails erfahren"
+		"citation": {
+			"title": "Gesamtzitation",
+			"text": "Das Gesamtprojekt LexAT21 wird wie folgt zitiert"
 		},
 		"counts": {
 			"locations": "Ortspunkte",
 			"participants": "Ausgefüllte Fragebögen",
 			"phenomenons": "Phänomene",
 			"survey-rounds": "Fragebogenrunden"
+		},
+		"features": {
+			"title": "LexAT21 bietet"
+		},
+		"introduction": {
+			"title": "Atlas zur Lexik in Österreich im 21. Jahrhundert"
+		},
+		"team": {
+			"title": "Team",
+			"head": "Projektleitung und Herausgabe",
+			"technical": "Konzeption und technische Implementierung",
+			"authors": "Autor:innen",
+			"editors": "Lektor:innen"
 		}
 	},
 	"LocaleSwitcher": {

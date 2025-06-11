@@ -167,6 +167,14 @@
 		padding-right: 2rem;
 		padding-left: 2rem;
 	}
+
+	.shadow-sharp {
+		box-shadow:
+			0 1px 1px rgb(0 0 0 / 15%),
+			0 2px 2px rgb(0 0 0 / 15%),
+			0 4px 4px rgb(0 0 0 / 15%),
+			0 8px 8px rgb(0 0 0 / 15%);
+	}
 }
 
 /* TIPTAP CMS SPECIFIC */

@@ -9,11 +9,9 @@ import {
 	Title,
 	Tooltip,
 } from "chart.js";
-import { Glasses, MapPinned, Scroll, Telescope } from "lucide-vue-next";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, ArcElement, CategoryScale, LinearScale);
 
-const localePath = useLocalePath();
 const t = useTranslations();
 const currentLocale = useLocale();
 
@@ -25,47 +23,103 @@ usePageMetadata({
 
 <template>
 	<MainContent class="container py-16">
-		<div class="mb-16 flex flex-col-reverse gap-14 lg:flex-row">
+		<section class="mb-16 pb-16 border-b">
+			<div class="article-content mx-auto max-w-4xl">
+				<h1 class="text-left sm:text-center font-semibold mb-6 sm:mb-10">
+					<span class="text-4xl sm:text-4xl tracking-wide leading-12">LexAT21</span><br />
+					<span class="text-2xl sm:text-3xl">{{ t("HomePage.introduction.title") }}</span>
+				</h1>
+				<p>
+					<template v-if="currentLocale === 'de'">
+						LexAT21 dokumentiert und erforscht lexikalische Variation des Gegenwartsdeutschen in
+						Österreich. Die Daten stammen aus Fragebogenerhebungen, die seit 2021 österreichweit
+						online durchgeführt werden. Die Fragebögen sind registerübergreifend (von
+						Dialekt/Mundart bis Hochdeutsch (<em>Standardsprache</em>)) angelegt und berücksichtigen
+						lexikalische Variation in ihrer gesprochensprachlichen Vielfalt.
+					</template>
+					<template v-else>
+						LexAT21 dokumentiert und erforscht lexikalische Variation des Gegenwartsdeutschen in
+						Österreich. Die Daten stammen aus Fragebogenerhebungen, die seit 2021 österreichweit
+						online durchgeführt werden. Die Fragebögen sind registerübergreifend (von
+						Dialekt/Mundart bis Hochdeutsch (<em>Standardsprache</em>)) angelegt und berücksichtigen
+						lexikalische Variation in ihrer gesprochensprachlichen Vielfalt.
+					</template>
+				</p>
+			</div>
+		</section>
+
+		<section class="mb-16 pb-16 border-b">
+			<div class="article-content mx-auto max-w-4xl">
+				<h2 class="text-3xl font-semibold">{{ t("HomePage.features.title") }}</h2>
+				<ul>
+					<li>
+						einen direkten Zugang zu den
+						<NuxtLinkLocale target="_blank" to="/db">Originaldaten</NuxtLinkLocale> der
+						Fragebogenerhebungen
+					</li>
+					<li>
+						vielfältige Möglichkeiten der
+						<NuxtLinkLocale target="_blank" to="/maps">Datenkartierungen</NuxtLinkLocale>
+					</li>
+					<li>
+						Auswertungen der Daten in Form von
+						<NuxtLinkLocale target="_blank" to="/articles">Kartenkommentaren</NuxtLinkLocale>
+					</li>
+					<li>
+						<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
+							>Hintergrundinformationen</NuxtLinkLocale
+						>
+						zum Projekt
+					</li>
+					<li>
+						die Möglichkeit
+						<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank">mitzumachen</a>
+						und damit den eigenen Wortschatz zu dokumentieren
+					</li>
+				</ul>
+			</div>
+		</section>
+
+		<section class="mb-16 flex flex-col items-center pb-12 border-b">
+			<h2 class="text-3xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h2>
+			<StatsSection />
+		</section>
+
+		<section class="mb-16 pb-16 border-b">
+			<div class="article-content mx-auto max-w-4xl">
+				<h2 class="text-3xl font-semibold">{{ t("HomePage.team.title") }}</h2>
+				<h3>{{ t("HomePage.team.head") }}</h3>
+				<p>Alexandra N. Lenz</p>
+				<h3>{{ t("HomePage.team.technical") }}</h3>
+				<p>Jakob Bal, Kilian Kukelka, Markus Pluschkovits, Daniel Schopper, Anja Wittibschlager</p>
+				<h3>{{ t("HomePage.team.authors") }}</h3>
+				<p>
+					Amelie Dorn, Jan Höll, Wolfgang Koppensteiner, Katharina Korecky-Kröll, Claudia Mattes,
+					Markus Pluschkovits, Rita Stiglbauer, Florian Tavernier, Anja Wittibschlager, Theresa
+					Ziegler
+				</p>
+				<h3>{{ t("HomePage.team.editors") }}</h3>
+				<p>Kerstin Lorenz, Eric Schirl</p>
+			</div>
+		</section>
+
+		<section>
+			<div class="article-content mx-auto max-w-4xl">
+				<h2 class="text-3xl font-semibold">{{ t("HomePage.citation.title") }}</h2>
+				<p>{{ t("HomePage.citation.text") }}:</p>
+				<blockquote>
+					LexAT21: Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert. Herausgegeben
+					von Alexandra N. Lenz. Konzipiert und entwickelt von Markus Pluschkovits, Jakob Bal,
+					Kilian Kukelka, Anja Wittibschlager und Daniel Schopper. Unter Mitarbeit von Amelie Dorn,
+					Jan Höll, Katharina Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes, Markus
+					Pluschkovits, Rita Stiglbauer, Florian David Tavernier, Anja Wittibschlager, Theresa
+					Ziegler, Kerstin Lorenz und Eric Schirl.
+				</blockquote>
+			</div>
+		</section>
+
+		<!-- <div class="mb-16 flex flex-col-reverse gap-14 lg:flex-row">
 			<div class="article-content flex flex-col lg:w-2/6">
-				<h1 class="text-3xl font-semibold">{{ t("HomePage.maps.title") }}</h1>
-				<template v-if="currentLocale === 'de'">
-					<p>
-						LexAT21 (Atlas zur Lexik in Österreich im 21. Jahrhundert) ist eine Kollaboration
-						zwischen dem
-						<a href="https://www.oeaw.ac.at/acdh/acdh-ch-home" target="_blank"
-							>Austrian Centre for Digital Humanities and Cultural Heritage</a
-						>
-						(ACDH-CH) und dem
-						<a href="https://www.dioe.at/" target="_blank"
-							>Spezialforschungsbereich Deutsch in Österreich: Variation - Kontakt - Perzeption</a
-						>
-						(SFB DiÖ, FWF F060) unter der Leitung von Alexandra N. Lenz. LexAT21 untersucht
-						lexikalische Variation in gegenwärtiger gesprochener Sprache in Österreich anhand von
-						ausgewählten Variablen. Visualisiert werden diese Ergebnisse über ein eigens
-						entwickeltes Kartierungstool. Ausgewählte Analysen zu diesen Ergebnissen finden Sie im
-						Reiter „Kartenkommentare“.
-					</p>
-				</template>
-				<template v-else>
-					<p>
-						LexAT21 (Atlas on Lexis in Austria in the 21st century) is a collaborative project
-						between the
-						<a href="https://www.oeaw.ac.at/acdh/acdh-ch-home" target="_blank"
-							>Austrian Centre for Digital Humanities and Cultural Heritage</a
-						>
-						and the
-						<a href="https://www.dioe.at/en/" target="_blank"
-							>Special Research Programme German in Austria: Variation - Contact - Perception</a
-						>
-						(FWF F060) under the lead of Alexandra N. Lenz. The LexAT21 project investigates lexical
-						variation in contemporary spoken German in Austria on the basis of select variables. The
-						results are visualized in a custom made mapping tool. You can find analyses of select
-						variables by navigating to “Map commentary”.
-					</p>
-				</template>
-				<Button class="mt-6 self-center" @click="navigateTo(localePath('/maps'))"
-					><MapPinned class="mr-2 size-5" />{{ t("HomePage.maps.action") }}</Button
-				>
 			</div>
 			<div class="lg:w-4/6">
 				<img
@@ -76,69 +130,9 @@ usePageMetadata({
 					width="1728"
 				/>
 			</div>
-		</div>
-		<div class="mb-16 border-b border-t py-16 flex flex-col-reverse gap-14 lg:flex-row">
-			<div class="lg:w-4/6">
-				<img
-					alt="Beispielkarte des Projekts LexAT21"
-					class="object-cover shadow-sharp"
-					height="1148"
-					src="/images/home-survey.webp"
-					width="1728"
-				/>
-			</div>
-			<div class="article-content flex flex-col lg:w-1/2">
-				<h1 class="text-3xl font-semibold">{{ t("HomePage.data.title") }}</h1>
-				<template v-if="currentLocale === 'de'">
-					<p>
-						LexAT21 ist Teil der
-						<a
-							href="https://www.oeaw.ac.at/de/acdh/forschung/sprachwissenschaft/forschung/korpuslinguistik/lapis-linguae-austriacae"
-							target="_blank"
-							>LAPIS</a
-						>
-						(Linguae Austriacae: Plattform und Informationssystem zu Sprache(n) in Österreich)
-						Infrastruktur, einer momentan in Entstehung begriffenen Plattform zur Vernetzung von
-						Forschungsdaten und -ergebnissen zu Sprache(n) in Österreich. Datengrundlage für diese
-						Untersuchungen sind in der ersten Phase Online-Erhebungen in der Form von Fragebögen.
-						Den momentan laufenden Fragebogen zur Erhebungsrunde 3 finden Sie
-						<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank"
-							>mit einem Klick hier</a
-						>
-						- wir freuen uns über Ihre Teilnahme!
-						<br />
-						<br />
-						Der aktuelle Bestand aller erhobenen Forschungsdaten kann im Reiter „Belegdatenbank“
-						aufgerufen und durchsucht werden.
-					</p>
-				</template>
-				<template v-else>
-					<p>
-						LexAT is part of the
-						<a
-							href="https://www.oeaw.ac.at/acdh/research/linguistics/research/corpus-linguistics/lapis-linguae-austriacae"
-							target="_blank"
-							>LAPIS</a
-						>
-						(Linguae Austriacae: Platform and Information System on Language(s) in Austria)
-						infrastructure currently being developed at the ACDH-CH. This platform aims to connect
-						research data and results on language(s) in Austria. The data basis for the first phase
-						of LexAT21 are online surveys. The current survey for survey round three can be found
-						<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank">here</a> (German
-						only).
-						<br />
-						<br />
-						The current inventory of all collected research data can be accessed and searched in the
-						'Browse data' tab.
-					</p>
-				</template>
-				<Button class="mt-6 self-center" @click="navigateTo(localePath('/db'))"
-					><Telescope class="mr-2 size-5" />{{ t("HomePage.data.action") }}</Button
-				>
-			</div>
-		</div>
+		</div> -->
 
-		<section class="article-content flex flex-col mb-16 border-b pb-16">
+		<!-- <section class="article-content flex flex-col mb-16 border-b pb-16">
 			<p class="max-w-2xl mx-auto text-center">
 				<template v-if="currentLocale === 'de'">
 					Interesse geweckt? Dann werde Teil des Forschungsprojekts und nimm an der aktuellen
@@ -161,26 +155,6 @@ usePageMetadata({
 				"
 				><Scroll class="mr-2 size-5" />{{ t("HomePage.cta.action") }}</Button
 			>
-		</section>
-
-		<section class="mb-16 flex flex-col items-center">
-			<h1 class="text-3xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h1>
-			<StatsSection />
-			<Button
-				class="mt-6 self-center"
-				@click="navigateTo(localePath('/articles/lexat21-einfuehrung'))"
-				><Glasses class="mr-2 size-5" />{{ t("HomePage.cta.project") }}</Button
-			>
-		</section>
+		</section> -->
 	</MainContent>
 </template>
-
-<style lang="css" scoped>
-.shadow-sharp {
-	box-shadow:
-		0 1px 1px rgb(0 0 0 / 15%),
-		0 2px 2px rgb(0 0 0 / 15%),
-		0 4px 4px rgb(0 0 0 / 15%),
-		0 8px 8px rgb(0 0 0 / 15%);
-}
-</style>

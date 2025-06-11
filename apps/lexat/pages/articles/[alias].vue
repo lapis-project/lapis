@@ -131,9 +131,7 @@ const jsonld = ref({
 usePageMetadata({
 	title: article.value?.title ?? "Beitrag",
 	description: article.value?.abstract ?? undefined,
-	// cover: article.value?.cover ?? "/default-cover.jpg", TODO: add default cover
 	cover: article.value?.cover ?? undefined,
-	url: `${env.public.apiBaseUrl}${route.fullPath}`,
 	contentType: "article",
 	jsonld: jsonld.value,
 });

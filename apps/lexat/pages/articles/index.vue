@@ -61,6 +61,7 @@ applySearchParams();
 
 usePageMetadata({
 	title: t("ArticlesPage.meta.title"),
+	description: t("ArticlesPage.meta.description"),
 });
 </script>
 

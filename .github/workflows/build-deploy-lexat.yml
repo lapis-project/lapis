@@ -53,10 +53,12 @@ jobs:
             echo "environment=production-lexat"
             echo "environment=production-lexat" >> $GITHUB_OUTPUT
             echo "environment_short=prod-lexat" >> $GITHUB_OUTPUT
+            ENV_NAME="production-lexat"; ENV_SHORT="prod-lexat"
           else
             echo "environment=dev-lexat"
             echo "environment=dev-lexat" >> $GITHUB_OUTPUT
             echo "environment_short=dev-lexat" >> $GITHUB_OUTPUT
+            ENV_NAME="development-lexat"; ENV_SHORT="dev-lexat"
           fi
 
           echo "environment=$ENV_NAME" >> $GITHUB_OUTPUT

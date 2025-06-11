@@ -38,11 +38,11 @@ usePageMetadata({
 						lexikalische Variation in ihrer gesprochensprachlichen Vielfalt.
 					</template>
 					<template v-else>
-						LexAT21 dokumentiert und erforscht lexikalische Variation des Gegenwartsdeutschen in
-						Österreich. Die Daten stammen aus Fragebogenerhebungen, die seit 2021 österreichweit
-						online durchgeführt werden. Die Fragebögen sind registerübergreifend (von
-						Dialekt/Mundart bis Hochdeutsch (<em>Standardsprache</em>)) angelegt und berücksichtigen
-						lexikalische Variation in ihrer gesprochensprachlichen Vielfalt.
+						LexAT21 documents and researches lexical Variation in contemporary German in Austria.
+						The data was collected by means from surveys, which were distributed online since 2021
+						all over Austria. The surveys target different registers of the respondents (both their
+						dialect/colloquial language use and their High German (standard German)) and focus
+						lexical variation in spoken language.
 					</template>
 				</p>
 			</div>
@@ -52,30 +52,59 @@ usePageMetadata({
 			<div class="article-content mx-auto max-w-4xl">
 				<h2 class="text-3xl font-semibold">{{ t("HomePage.features.title") }}</h2>
 				<ul>
-					<li>
-						einen direkten Zugang zu den
-						<NuxtLinkLocale target="_blank" to="/db">Originaldaten</NuxtLinkLocale> der
-						Fragebogenerhebungen
-					</li>
-					<li>
-						vielfältige Möglichkeiten der
-						<NuxtLinkLocale target="_blank" to="/maps">Datenkartierungen</NuxtLinkLocale>
-					</li>
-					<li>
-						Auswertungen der Daten in Form von
-						<NuxtLinkLocale target="_blank" to="/articles">Kartenkommentaren</NuxtLinkLocale>
-					</li>
-					<li>
-						<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
-							>Hintergrundinformationen</NuxtLinkLocale
-						>
-						zum Projekt
-					</li>
-					<li>
-						die Möglichkeit
-						<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank">mitzumachen</a>
-						und damit den eigenen Wortschatz zu dokumentieren
-					</li>
+					<template v-if="currentLocale === 'de'">
+						<li>
+							einen direkten Zugang zu den
+							<NuxtLinkLocale target="_blank" to="/db">Originaldaten</NuxtLinkLocale> der
+							Fragebogenerhebungen
+						</li>
+						<li>
+							vielfältige Möglichkeiten der
+							<NuxtLinkLocale target="_blank" to="/maps">Datenkartierungen</NuxtLinkLocale>
+						</li>
+						<li>
+							Auswertungen der Daten in Form von
+							<NuxtLinkLocale target="_blank" to="/articles">Kartenkommentaren</NuxtLinkLocale>
+						</li>
+						<li>
+							<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
+								>Hintergrundinformationen</NuxtLinkLocale
+							>
+							zum Projekt
+						</li>
+						<li>
+							die Möglichkeit
+							<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank">mitzumachen</a>
+							und damit den eigenen Wortschatz zu dokumentieren
+						</li>
+					</template>
+					<template v-else>
+						<li>
+							access to the
+							<NuxtLinkLocale target="_blank" to="/db">data of the surveys</NuxtLinkLocale>
+						</li>
+						<li>
+							various ways of
+							<NuxtLinkLocale target="_blank" to="/maps">mapping the data</NuxtLinkLocale>
+						</li>
+						<li>
+							analyses of the data by means of
+							<NuxtLinkLocale target="_blank" to="/articles">map commentaries</NuxtLinkLocale>
+						</li>
+						<li>
+							<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
+								>background information</NuxtLinkLocale
+							>
+							about the project
+						</li>
+						<li>
+							the possibility to document your own language use by
+							<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank"
+								>participating</a
+							>
+							in the current survey
+						</li>
+					</template>
 				</ul>
 			</div>
 		</section>
@@ -107,13 +136,21 @@ usePageMetadata({
 			<div class="article-content mx-auto max-w-4xl">
 				<h2 class="text-3xl font-semibold">{{ t("HomePage.citation.title") }}</h2>
 				<p>{{ t("HomePage.citation.text") }}:</p>
-				<blockquote>
+				<blockquote v-if="currentLocale === 'de'">
 					LexAT21 - Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert.
 					Herausgegeben von Alexandra N. Lenz. Konzipiert und entwickelt von Jakob Bal, Kilian
 					Kukelka, Markus Pluschkovits, Daniel Schopper und Anja Wittibschlager. Unter Mitarbeit von
 					Amelie Dorn, Jan Höll, Katharina Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes,
 					Markus Pluschkovits, Rita Stiglbauer, Florian David Tavernier, Anja Wittibschlager,
 					Theresa Ziegler, Kerstin Lorenz und Eric Schirl.
+				</blockquote>
+				<blockquote v-else>
+					LexAT21 - Atlas on lexical variation in Austria in the 21st century. Edited by Alexandra
+					N. Lenz. Concept and development by Jakob Bal, Kilian Kukelka, Markus Pluschkovits, Daniel
+					Schopper und Anja Wittibschlager. With participation from Amelie Dorn, Jan Höll, Katharina
+					Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes, Markus Pluschkovits, Rita
+					Stiglbauer, Florian David Tavernier, Anja Wittibschlager, Theresa Ziegler, Kerstin Lorenz
+					and Eric Schirl.
 				</blockquote>
 			</div>
 		</section>

@@ -110,7 +110,8 @@
 	},
 	"ArticlesPage": {
 		"meta": {
-			"title": "Map commentary"
+			"title": "Map commentary",
+			"description": "Discover map commentaries on LexAT21 phenomena - dialect research, linguistic maps and dictionaries presented concisely, rigorously and free to access."
 		},
 		"title": "Articles",
 		"filters": {
@@ -190,7 +191,8 @@
 	},
 	"DbPage": {
 		"meta": {
-			"title": "Browse data"
+			"title": "Browse data",
+			"description": "Get direct access to original survey data: explore phonetic & grammatical variation via written variants in our evidence database."
 		},
 		"title": "Browse data",
 		"table": {
@@ -250,7 +252,7 @@
 			}
 		},
 		"citation": {
-			"title": "Project citation",
+			"title": "Citation",
 			"text": "LexAT21 in its entirety is to be cited as follows"
 		},
 		"counts": {
@@ -260,7 +262,7 @@
 			"survey-rounds": "Survey rounds"
 		},
 		"features": {
-			"title": "LexAT21 provides"
+			"title": "LexAT21 offers"
 		},
 		"introduction": {
 			"title": "Atlas on Lexis in Austria in the 21st century"
@@ -286,7 +288,8 @@
 	},
 	"MapsPage": {
 		"meta": {
-			"title": "Maps"
+			"title": "Maps",
+			"description": "Interactive mapping environment providing direct access to survey data and visualising phonetic, grammatical, and lexical variation in Austrian German."
 		},
 		"title": "Maps",
 		"go-to-article": "Read commentary",

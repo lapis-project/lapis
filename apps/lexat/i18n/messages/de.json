@@ -110,7 +110,8 @@
 	},
 	"ArticlesPage": {
 		"meta": {
-			"title": "Kartenkommentare"
+			"title": "Kartenkommentare",
+			"description": "Entdecken Sie Kartenkommentare zu LexAT21-Phänomenen: Dialektforschung, Sprachkarten & Wörterbücher - kompakt, fundiert, frei zugänglich."
 		},
 		"title": "Eintrag",
 		"filters": {
@@ -190,7 +191,8 @@
 	},
 	"DbPage": {
 		"meta": {
-			"title": "Belegdatenbank"
+			"title": "Belegdatenbank",
+			"description": "Erhalten Sie Zugriff auf Original-Fragebogendaten: Entdecken Sie lautliche & grammatische Varianten via Schreibvarianten in der Belegdatenbank."
 		},
 		"title": "Belegdatenbank",
 		"table": {
@@ -250,7 +252,7 @@
 			}
 		},
 		"citation": {
-			"title": "Gesamtzitation",
+			"title": "Zitation",
 			"text": "Das Gesamtprojekt LexAT21 wird wie folgt zitiert"
 		},
 		"counts": {
@@ -286,7 +288,8 @@
 	},
 	"MapsPage": {
 		"meta": {
-			"title": "Kartierung"
+			"title": "Kartierung",
+			"description": "Interaktives Mapping-Tool: Zugang zu Fragebogendaten, visualisiert lautliche, grammatische und lexikalische Variation der deutschen Sprache in Österreich."
 		},
 		"title": "Kartierung",
 		"go-to-article": "Kommentar lesen",

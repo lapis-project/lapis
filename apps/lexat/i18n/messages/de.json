@@ -210,7 +210,7 @@
 	},
 	"DefaultLayout": {
 		"meta": {
-			"description": "Atlas zur Lexik in Österreich im 21. Jahrhundert",
+			"description": "Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert",
 			"title": "LexAT21"
 		},
 		"skip-to-main-content": "Zum Hauptinhalt springen"
@@ -265,7 +265,7 @@
 			"title": "LexAT21 bietet"
 		},
 		"introduction": {
-			"title": "Atlas zur Lexik in Österreich im 21. Jahrhundert"
+			"title": "Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert"
 		},
 		"team": {
 			"title": "Team",
@@ -284,7 +284,7 @@
 	"Manifest": {
 		"name": "LexAT21",
 		"short-name": "LexAT21",
-		"description": "Atlas zur Lexik in Österreich im 21. Jahrhundert"
+		"description": "Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert"
 	},
 	"MapsPage": {
 		"meta": {

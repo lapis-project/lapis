@@ -19,6 +19,8 @@ const _getInformationList = apiClient.cms.articles.create.info.$get;
 type APIInformationList = InferResponseType<typeof _getInformationList, 200>;
 const _getAdminArticle = apiClient.cms.articles[":id"].$get;
 type APIAdminArticle = InferResponseType<typeof _getAdminArticle, 200>;
+const _uploadMedia = apiClient.media.upload.$post;
+type APIMediaUploadResponse = InferResponseType<typeof _uploadMedia, 200>;
 
 const { bibliographyItems, bibliographyOptions, fetchBibliographyItems } = useCitationGenerator();
 const { statusOptions } = useArticleStatus();
@@ -242,8 +244,7 @@ const handleFileChange = async (event: Event) => {
 		const formData = new FormData();
 		formData.append("image", file);
 		try {
-			// TODO rewrite mediaHandler to new syntax and then refactor reponse type here
-			const result = await $fetch<{ url: string; message: string }>(`/media/upload/${routeId}`, {
+			const result = await $fetch<APIMediaUploadResponse>(`/media/upload/${routeId}`, {
 				baseURL: env.public.apiBaseUrl,
 				credentials: "include",
 				body: formData,

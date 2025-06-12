@@ -8,6 +8,7 @@ import Underline from "@tiptap/extension-underline";
 import type { Level } from "@tiptap/pm";
 import StarterKit from "@tiptap/starter-kit";
 import { Editor, EditorContent } from "@tiptap/vue-3";
+import type { InferResponseType } from "hono/client";
 import {
 	AlignCenterIcon,
 	AlignJustifyIcon,
@@ -30,6 +31,10 @@ import { toast } from "vue-sonner";
 import { Figure } from "./figure.ts";
 
 const env = useRuntimeConfig();
+const { apiClient } = useApiClient();
+
+const _uploadMedia = apiClient.media.upload.$post;
+type APIMediaUploadResponse = InferResponseType<typeof _uploadMedia, 200>;
 
 const props = withDefaults(defineProps<{ modelValue: string }>(), {
 	modelValue: "",
@@ -206,11 +211,12 @@ const handleImageUpload = async () => {
 		toast.error("No image selected");
 		return;
 	}
+
 	const formData = new FormData();
 	formData.append("image", selectedImage.value);
+
 	try {
-		// TODO rewrite mediaHandler to new syntax and then refactor reponse type here
-		const result = await $fetch<{ imageUrl: string; message: string }>("/media/upload", {
+		const result = await $fetch<APIMediaUploadResponse>("/media/upload", {
 			baseURL: env.public.apiBaseUrl,
 			credentials: "include",
 			body: formData,

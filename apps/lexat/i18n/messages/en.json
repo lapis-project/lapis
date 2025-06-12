@@ -210,7 +210,7 @@
 	},
 	"DefaultLayout": {
 		"meta": {
-			"description": "Atlas on Lexis in Austria in the 21st century",
+			"description": "Atlas on lexical variation in Austria in the 21st century",
 			"title": "LexAT21"
 		},
 		"skip-to-main-content": "Skip to main content"
@@ -265,7 +265,7 @@
 			"title": "LexAT21 offers"
 		},
 		"introduction": {
-			"title": "Atlas on Lexis in Austria in the 21st century"
+			"title": "Atlas on lexical variation in Austria in the 21st century"
 		},
 		"team": {
 			"title": "Team",
@@ -284,7 +284,7 @@
 	"Manifest": {
 		"name": "LexAT21",
 		"short-name": "LexAT21",
-		"description": "Atlas on Lexis in Austria in the 21st century"
+		"description": "Atlas on lexical variation in Austria in the 21st century"
 	},
 	"MapsPage": {
 		"meta": {

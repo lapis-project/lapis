@@ -3,7 +3,13 @@ import { FetchError } from "ofetch";
 
 import { useApiClient } from "@/composables/use-api-client";
 
-export default defineNuxtRouteMiddleware(async () => {
+export default defineNuxtRouteMiddleware(async (to, from) => {
+	// 1. Skip if we’re navigating on the same page and only the query/hash changed
+	//    (don’t do this on the very first load when `from` is still undefined).
+	if (import.meta.client && from.path === to.path) {
+		return;
+	}
+
 	const env = useRuntimeConfig();
 	const user = useUser();
 	const { apiClient } = useApiClient();

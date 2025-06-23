@@ -67,6 +67,7 @@ usePageMetadata({
 							<NuxtLinkLocale target="_blank" to="/articles">Kartenkommentaren</NuxtLinkLocale>
 						</li>
 						<li>
+							umfangreiche
 							<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
 								>Hintergrundinformationen</NuxtLinkLocale
 							>
@@ -75,7 +76,7 @@ usePageMetadata({
 						<li>
 							die Möglichkeit
 							<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank">mitzumachen</a>
-							und damit den eigenen Wortschatz zu dokumentieren
+							(Runde II) und damit den eigenen Wortschatz zu dokumentieren
 						</li>
 					</template>
 					<template v-else>
@@ -92,6 +93,7 @@ usePageMetadata({
 							<NuxtLinkLocale target="_blank" to="/articles">map commentaries</NuxtLinkLocale>
 						</li>
 						<li>
+							extensive
 							<NuxtLinkLocale target="_blank" to="/articles/lexat21-einfuehrung"
 								>background information</NuxtLinkLocale
 							>
@@ -102,7 +104,7 @@ usePageMetadata({
 							<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank"
 								>participating</a
 							>
-							in the current survey
+							(round II) in the current survey
 						</li>
 					</template>
 				</ul>

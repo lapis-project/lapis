@@ -1,10 +1,4 @@
-/* stylelint-disable selector-class-pattern */
-@import "tailwindcss";
-@import "tw-animate-css";
-
-@source "../../../ui/components/";
-
-@custom-variant dark (&:is(.dark *));
+@import "tailwindcss" source("../../../ui/assets/css");
 
 @theme {
 	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -43,46 +37,6 @@
 	--animate-accordion-up: accordion-up 0.2s ease-out;
 	--animate-collapsible-down: collapsible-down 0.2s ease-out;
 	--animate-collapsible-up: collapsible-up 0.2s ease-out;
-
-	@keyframes accordion-down {
-		from {
-			height: 0;
-		}
-
-		to {
-			height: var(--reka-accordion-content-height);
-		}
-	}
-
-	@keyframes accordion-up {
-		from {
-			height: var(--reka-accordion-content-height);
-		}
-
-		to {
-			height: 0;
-		}
-	}
-
-	@keyframes collapsible-down {
-		from {
-			height: 0;
-		}
-
-		to {
-			height: var(--reka-collapsible-content-height);
-		}
-	}
-
-	@keyframes collapsible-up {
-		from {
-			height: var(--reka-collapsible-content-height);
-		}
-
-		to {
-			height: 0;
-		}
-	}
 }
 
 :root {
@@ -139,17 +93,6 @@
 		@apply bg-background text-foreground text-lg sm:text-base;
 	}
 
-	html {
-		@apply scroll-smooth;
-	}
-
-	:root,
-	body,
-	#__nuxt {
-		block-size: 100%;
-		isolation: isolate;
-	}
-
 	:root {
 		--v-onboarding-overlay-z: 40;
 		--v-onboarding-step-z: 50;
@@ -158,22 +101,6 @@
 	/* https://hanki.dev/tailwind-html2canvas-text-shift-down/ */
 	img {
 		@apply inline-block;
-	}
-
-	.container {
-		width: 100%;
-		margin-right: auto;
-		margin-left: auto;
-		padding-right: 2rem;
-		padding-left: 2rem;
-	}
-
-	.shadow-sharp {
-		box-shadow:
-			0 1px 1px rgb(0 0 0 / 15%),
-			0 2px 2px rgb(0 0 0 / 15%),
-			0 4px 4px rgb(0 0 0 / 15%),
-			0 8px 8px rgb(0 0 0 / 15%);
 	}
 }
 
@@ -216,6 +143,7 @@
 		color: var(--background);
 	}
 
+	/* stylelint-disable-next-line selector-class-pattern */
 	#text-editor .ProseMirror {
 		@apply px-2 outline-hidden;
 	}
@@ -236,6 +164,7 @@
 		@apply inline;
 	}
 
+	/* stylelint-disable-next-line selector-class-pattern */
 	.article-content .ProseMirror > p:first-child,
 	.article-content > p:first-child {
 		@apply mt-2;

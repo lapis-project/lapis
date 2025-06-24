@@ -1,14 +1,4 @@
 <script setup lang="ts">
-import { Button } from "@/components/ui/button";
-import {
-	Pagination,
-	PaginationEllipsis,
-	PaginationList,
-	PaginationListItem,
-	PaginationNext,
-	PaginationPrev,
-} from "@/components/ui/pagination";
-
 const props = defineProps<{
 	currentPage: number;
 	totalPages: number;

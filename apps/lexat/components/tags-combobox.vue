@@ -3,14 +3,6 @@ import { ChevronLeft, ChevronRight } from "lucide-vue-next";
 import { ComboboxAnchor, ComboboxInput, ComboboxPortal, ComboboxRoot } from "reka-ui";
 import { computed, ref } from "vue";
 
-import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import {
-	TagsInput,
-	TagsInputInput,
-	TagsInputItem,
-	TagsInputItemDelete,
-	TagsInputItemText,
-} from "@/components/ui/tags-input";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();

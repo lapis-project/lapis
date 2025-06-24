@@ -1,7 +1,4 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
+@import "ui" source("../../../ui/assets/css");
 
 @theme {
 	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -40,46 +37,6 @@
 	--animate-accordion-up: accordion-up 0.2s ease-out;
 	--animate-collapsible-down: collapsible-down 0.2s ease-out;
 	--animate-collapsible-up: collapsible-up 0.2s ease-out;
-
-	@keyframes accordion-down {
-		from {
-			height: 0;
-		}
-
-		to {
-			height: var(--reka-accordion-content-height);
-		}
-	}
-
-	@keyframes accordion-up {
-		from {
-			height: var(--reka-accordion-content-height);
-		}
-
-		to {
-			height: 0;
-		}
-	}
-
-	@keyframes collapsible-down {
-		from {
-			height: 0;
-		}
-
-		to {
-			height: var(--reka-collapsible-content-height);
-		}
-	}
-
-	@keyframes collapsible-up {
-		from {
-			height: var(--reka-collapsible-content-height);
-		}
-
-		to {
-			height: 0;
-		}
-	}
 }
 
 :root {
@@ -125,33 +82,4 @@
 	--destructive: oklch(39.6% 0.141 25.723deg);
 	--destructive-foreground: oklch(63.7% 0.237 25.331deg);
 	--ring: oklch(43.9% 0 0deg);
-}
-
-@layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-
-	body {
-		@apply bg-background text-foreground text-lg sm:text-base;
-	}
-
-	html {
-		@apply scroll-smooth;
-	}
-
-	:root,
-	body,
-	#__nuxt {
-		block-size: 100%;
-		isolation: isolate;
-	}
-
-	.container {
-		width: 100%;
-		margin-right: auto;
-		margin-left: auto;
-		padding-right: 2rem;
-		padding-left: 2rem;
-	}
 }

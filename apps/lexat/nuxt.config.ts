@@ -26,7 +26,7 @@ export default defineNuxtConfig({
 	css: [
 		"@fontsource-variable/inter/standard.css",
 		"@fontsource-variable/inter/standard-italic.css",
-		"@/assets/css/main.css",
+		"@/assets/css/lexat.css",
 	],
 
 	devtools: {
@@ -108,18 +108,6 @@ export default defineNuxtConfig({
 			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,
 			zoteroBaseUrl: process.env.NUXT_PUBLIC_ZOTERO_BASE_URL,
 		},
-	},
-
-	shadcn: {
-		/**
-		 * Prefix for all the imported component
-		 */
-		prefix: "",
-		/**
-		 * Directory that the component lives in.
-		 * @default "./components/ui"
-		 */
-		componentDir: "./components/ui",
 	},
 
 	svgo: {

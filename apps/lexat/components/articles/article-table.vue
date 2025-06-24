@@ -1,15 +1,6 @@
 <script setup lang="ts" generic="TData, TValue">
 import { type ColumnDef, FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-
 const props = defineProps<{
 	columns: Array<ColumnDef<TData>>;
 	data: Array<TData>;

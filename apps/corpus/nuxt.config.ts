@@ -22,7 +22,7 @@ export default defineNuxtConfig({
 	css: [
 		"@fontsource-variable/inter/standard.css",
 		"@fontsource-variable/inter/standard-italic.css",
-		"@/assets/css/main.css",
+		"@/assets/css/corpus.css",
 	],
 
 	devtools: {

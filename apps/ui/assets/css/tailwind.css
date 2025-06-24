@@ -1,11 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@source "../../components/";
 
-@theme {
-	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
 	--color-background: var(--background);
@@ -85,46 +83,72 @@
 :root {
 	--background: oklch(100% 0 0deg);
 	--foreground: oklch(14.5% 0 0deg);
-	--muted: oklch(97% 0 0deg);
-	--muted-foreground: oklch(55.6% 0 0deg);
-	--popover: oklch(100% 0 0deg);
-	--popover-foreground: oklch(14.5% 0 0deg);
 	--card: oklch(100% 0 0deg);
 	--card-foreground: oklch(14.5% 0 0deg);
-	--border: oklch(92.2% 0 0deg);
-	--input: oklch(92.2% 0 0deg);
+	--popover: oklch(100% 0 0deg);
+	--popover-foreground: oklch(14.5% 0 0deg);
 	--primary: oklch(20.5% 0 0deg);
 	--primary-foreground: oklch(98.5% 0 0deg);
 	--secondary: oklch(97% 0 0deg);
 	--secondary-foreground: oklch(20.5% 0 0deg);
-	--accent: oklch(96.35% 0.011 257.6deg); /* From hsl(210 40% 96.1%) */
-	--accent-foreground: oklch(52.14% 0.168 358.8deg); /* From hsl(332, 54%, 43%) */
+	--muted: oklch(97% 0 0deg);
+	--muted-foreground: oklch(55.6% 0 0deg);
+	--accent: oklch(97% 0 0deg);
+	--accent-foreground: oklch(20.5% 0 0deg);
 	--destructive: oklch(57.7% 0.245 27.325deg);
 	--destructive-foreground: oklch(57.7% 0.245 27.325deg);
+	--border: oklch(92.2% 0 0deg);
+	--input: oklch(92.2% 0 0deg);
 	--ring: oklch(70.8% 0 0deg);
-	--radius: 0.5rem;
+	--chart-1: oklch(64.6% 0.222 41.116deg);
+	--chart-2: oklch(60% 0.118 184.704deg);
+	--chart-3: oklch(39.8% 0.07 227.392deg);
+	--chart-4: oklch(82.8% 0.189 84.429deg);
+	--chart-5: oklch(76.9% 0.188 70.08deg);
+	--radius: 0.625rem;
+	--sidebar: oklch(98.5% 0 0deg);
+	--sidebar-foreground: oklch(14.5% 0 0deg);
+	--sidebar-primary: oklch(20.5% 0 0deg);
+	--sidebar-primary-foreground: oklch(98.5% 0 0deg);
+	--sidebar-accent: oklch(97% 0 0deg);
+	--sidebar-accent-foreground: oklch(20.5% 0 0deg);
+	--sidebar-border: oklch(92.2% 0 0deg);
+	--sidebar-ring: oklch(70.8% 0 0deg);
 }
 
 .dark {
-	--background: oklch(14% 0.036 258.53deg);
+	--background: oklch(14.5% 0 0deg);
 	--foreground: oklch(98.5% 0 0deg);
-	--muted: oklch(26.9% 0 0deg);
-	--muted-foreground: oklch(70.8% 0 0deg);
-	--popover: oklch(14.5% 0 0deg);
-	--popover-foreground: oklch(98.5% 0 0deg);
 	--card: oklch(14.5% 0 0deg);
 	--card-foreground: oklch(98.5% 0 0deg);
-	--border: oklch(28% 0.0369 259.97deg);
-	--input: oklch(26.9% 0 0deg);
+	--popover: oklch(14.5% 0 0deg);
+	--popover-foreground: oklch(98.5% 0 0deg);
 	--primary: oklch(98.5% 0 0deg);
 	--primary-foreground: oklch(20.5% 0 0deg);
 	--secondary: oklch(26.9% 0 0deg);
 	--secondary-foreground: oklch(98.5% 0 0deg);
-	--accent: oklch(31.07% 0.03 258.4deg); /* From hsl(217.2 32.6% 17.5%) */
-	--accent-foreground: oklch(98.11% 0.006 257.8deg); /* From hsl(210 40% 98%) */
+	--muted: oklch(26.9% 0 0deg);
+	--muted-foreground: oklch(70.8% 0 0deg);
+	--accent: oklch(26.9% 0 0deg);
+	--accent-foreground: oklch(98.5% 0 0deg);
 	--destructive: oklch(39.6% 0.141 25.723deg);
 	--destructive-foreground: oklch(63.7% 0.237 25.331deg);
+	--border: oklch(26.9% 0 0deg);
+	--input: oklch(26.9% 0 0deg);
 	--ring: oklch(43.9% 0 0deg);
+	--chart-1: oklch(48.8% 0.243 264.376deg);
+	--chart-2: oklch(69.6% 0.17 162.48deg);
+	--chart-3: oklch(76.9% 0.188 70.08deg);
+	--chart-4: oklch(62.7% 0.265 303.9deg);
+	--chart-5: oklch(64.5% 0.246 16.439deg);
+	--sidebar: oklch(20.5% 0 0deg);
+	--sidebar-foreground: oklch(98.5% 0 0deg);
+	--sidebar-primary: oklch(48.8% 0.243 264.376deg);
+	--sidebar-primary-foreground: oklch(98.5% 0 0deg);
+	--sidebar-accent: oklch(26.9% 0 0deg);
+	--sidebar-accent-foreground: oklch(98.5% 0 0deg);
+	--sidebar-border: oklch(26.9% 0 0deg);
+	--sidebar-ring: oklch(43.9% 0 0deg);
 }
 
 @layer base {
@@ -134,10 +158,12 @@
 
 	body {
 		@apply bg-background text-foreground text-lg sm:text-base;
+
+		scroll-padding-top: 100px;
 	}
 
 	html {
-		@apply scroll-smooth;
+		scroll-behavior: smooth;
 	}
 
 	:root,
@@ -153,5 +179,13 @@
 		margin-left: auto;
 		padding-right: 2rem;
 		padding-left: 2rem;
+	}
+
+	.shadow-sharp {
+		box-shadow:
+			0 1px 1px rgb(0 0 0 / 15%),
+			0 2px 2px rgb(0 0 0 / 15%),
+			0 4px 4px rgb(0 0 0 / 15%),
+			0 8px 8px rgb(0 0 0 / 15%);
 	}
 }

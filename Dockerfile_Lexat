@@ -1,29 +1,42 @@
 # syntax=docker/dockerfile:1
 
-# using alpine base image to avoid `sharp` memory leaks.
+# Using alpine base image as requested to avoid `sharp` memory leaks.
 # @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
 
-# build
+# ---- Build Stage ----
 FROM node:22-alpine AS build
 
-ENV COREPACK_INTEGRITY_KEYS='{"npm":[{"expires":"2025-01-29T00:00:00.000Z","keyid":"SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1Olb3zMAFFxXKHiIkQO5cJ3Yhl5i6UPp+IhuteBJbuHcA5UogKo0EWtlWwW6KSaKoTNEYL7JlCQiVnkhBktUgg=="},{"expires":null,"keyid":"SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY6Ya7W++7aUPzvMTrezH6Ycx3c+HOKYCcNGybJZSCJq/fd7Qa8uuAKtdIkUQtQiEKERhAmE5lMMJhP8OkDOa2g=="}]}'
-
+# Enable pnpm via Corepack, Node's built-in package manager handler
 RUN corepack enable
 
+# Create and set up a non-root user and working directory for security
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
-
 USER node
 
-COPY --chown=node:node .npmrc package.json pnpm-lock.yaml ./
+# Copy dependency definition files as the non-root 'node' user.
+# This separation allows Docker to cache the installed dependencies effectively.
+COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
+# The Dockerfile you provided copies a .npmrc file.
+# If you use one, please uncomment the following line. If not, you can ignore it.
+# COPY --chown=node:node .npmrc ./
 
-RUN pnpm fetch
+# Copy the package.json for all workspaces in the monorepo. This is essential.
+COPY --chown=node:node apps/backend/package.json ./apps/backend/
+COPY --chown=node:node apps/corpus/package.json ./apps/corpus/
+COPY --chown=node:node apps/lexat/package.json ./apps/lexat/
+COPY --chown=node:node apps/ui/package.json ./apps/ui/
 
-COPY --chown=node:node ./ ./
-RUN sed -i "s/use-node-version/# use-node-version/" .npmrc
+# Install all dependencies for the entire workspace.
+# This is critical to ensure that layers (`ui`) and other dependencies are available when building the `lexat` app.
+# The --mount flag uses Docker's build cache to speed up subsequent builds, targeting the pnpm store location for the 'node' user.
+RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm install --frozen-lockfile
 
+# Now, copy the rest of the source code
+COPY --chown=node:node . .
+
+# Pass build-time arguments for Nuxt's runtime config
 ARG NUXT_PUBLIC_APP_BASE_URL
 ARG NUXT_PUBLIC_BOTS
 ARG NUXT_PUBLIC_MATOMO_BASE_URL
@@ -31,20 +44,22 @@ ARG NUXT_PUBLIC_MATOMO_ID
 ARG NUXT_PUBLIC_REDMINE_ID
 ARG NUXT_PUBLIC_ZOTERO_BASE_URL
 
-RUN pnpm install --frozen-lockfile --offline --filter "lexat"
-
+# Build the target application. This script is defined in your root package.json.
 RUN pnpm run build:lexat
 
-# serve
+# ---- Serve Stage ----
+# This is the final, minimal image that will run in production.
 FROM node:22-alpine AS serve
 
+# Create and set up the same non-root user and working directory
 RUN mkdir /app && chown -R node:node /app
 WORKDIR /app
-
 USER node
 
+# Copy the self-contained Nuxt build output from the 'build' stage
 COPY --from=build --chown=node:node /app/apps/lexat/.output ./
 
 ENV NODE_ENV=production
 
+# The command to start the production server
 CMD ["node", "./server/index.mjs"]

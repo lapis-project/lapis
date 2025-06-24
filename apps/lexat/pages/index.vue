@@ -25,9 +25,8 @@ usePageMetadata({
 	<MainContent class="container py-16">
 		<section class="mb-16 pb-16 border-b">
 			<div class="article-content mx-auto max-w-4xl">
-				<h1 class="text-left sm:text-center font-semibold mb-6 sm:mb-10">
-					<span class="text-4xl sm:text-4xl tracking-wide leading-12">LexAT21</span><br />
-					<span class="text-2xl sm:text-3xl">{{ t("HomePage.introduction.title") }}</span>
+				<h1 class="text-left font-semibold mb-6 sm:mb-10 text-3xl">
+					{{ t("HomePage.introduction.title") }}
 				</h1>
 				<p>
 					<template v-if="currentLocale === 'de'">
@@ -45,12 +44,7 @@ usePageMetadata({
 						lexical variation in spoken language.
 					</template>
 				</p>
-			</div>
-		</section>
-
-		<section class="mb-16 pb-16 border-b">
-			<div class="article-content mx-auto max-w-4xl">
-				<h2 class="text-3xl font-semibold">{{ t("HomePage.features.title") }}</h2>
+				<h2 class="text-xl font-semibold">{{ t("HomePage.features.title") }}</h2>
 				<ul>
 					<template v-if="currentLocale === 'de'">
 						<li>

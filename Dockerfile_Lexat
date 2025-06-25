@@ -18,11 +18,9 @@ USER node
 # This separation allows Docker to cache the installed dependencies effectively.
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# The Dockerfile you provided copies a .npmrc file.
-# If you use one, please uncomment the following line. If not, you can ignore it.
-# COPY --chown=node:node .npmrc ./
+COPY --chown=node:node .npmrc ./
 
-# Copy the package.json for all workspaces in the monorepo. This is essential.
+# Copy the package.json for all workspaces in the monorepo.
 COPY --chown=node:node apps/backend/package.json ./apps/backend/
 COPY --chown=node:node apps/corpus/package.json ./apps/corpus/
 COPY --chown=node:node apps/lexat/package.json ./apps/lexat/

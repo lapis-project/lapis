@@ -158,8 +158,6 @@
 
 	body {
 		@apply bg-background text-foreground text-lg sm:text-base;
-
-		scroll-padding-top: 100px;
 	}
 
 	html {

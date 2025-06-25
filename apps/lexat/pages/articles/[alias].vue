@@ -135,6 +135,17 @@ usePageMetadata({
 	contentType: "article",
 	jsonld: jsonld.value,
 });
+
+// solution using scroll-margin-top doesn't seem to work just yet https://github.com/nuxt/nuxt/pull/9187
+const scrollTo = (id) => {
+	const el = document.getElementById(id);
+	if (!el) {
+		return;
+	}
+	const headerOffset = 80; // your header height
+	const top = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+	window.scrollTo({ top, behavior: "smooth" });
+};
 </script>
 
 <template>
@@ -214,7 +225,7 @@ usePageMetadata({
 								:key="item.id"
 								:style="{ marginLeft: `${(item.level - 1) * 20}px` }"
 							>
-								<a :href="`#${item.id}`">{{ item.text }}</a>
+								<a :href="`#${item.id}`" @click.prevent="scrollTo(item.id)">{{ item.text }}</a>
 							</li>
 						</ul>
 					</template>

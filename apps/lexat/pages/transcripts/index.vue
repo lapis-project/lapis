@@ -3,6 +3,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	Download,
+	EyeIcon,
 	FileText,
 	Folder,
 	FolderOpen,
@@ -13,10 +14,14 @@ import {
 import { TreeItem, TreeRoot } from "reka-ui";
 
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
+import searchResults from "@/transcripts-demo.json";
 
 definePageMeta({
 	layout: "corpus",
 });
+
+const route = useRoute();
+const router = useRouter();
 
 const showFirstColumn = ref(true);
 const showThirdColumn = ref(true);
@@ -30,11 +35,16 @@ const toggleThirdColumn = () => {
 };
 
 const gridColumns = computed(() => {
-	return [
-		showFirstColumn.value ? "340px" : "0px",
-		"1fr",
-		showThirdColumn.value ? "500px" : "0px",
-	].join(" ");
+	console.log(showFirstColumn.value);
+	if (currentId.value == null) {
+		return [showFirstColumn.value ? "340px" : "0px", "1fr"].join(" ");
+	} else {
+		return [
+			showFirstColumn.value ? "340px" : "0px",
+			"1fr",
+			showThirdColumn.value ? "500px" : "0px",
+		].join(" ");
+	}
 });
 
 const searchInput = ref("");
@@ -56,213 +66,6 @@ const sampleOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Option 2", value: "two" },
 	{ label: "Option 3", value: "three" },
 ]);
-
-const searchResults = [
-	{
-		name: "Transkript01",
-		hits: [
-			{
-				event: "Transkript01:102",
-				speaker: "S2",
-				text: "ich war gestern bei meiner Mutter zu Besuch",
-			},
-			{
-				event: "Transkript01:115",
-				speaker: "S1",
-				text: "das Wetter war heute besser als erwartet",
-			},
-			{
-				event: "Transkript01:130",
-				speaker: "S3",
-				text: "er war überzeugt, dass es funktionieren würde",
-			},
-			{
-				event: "Transkript01:142",
-				speaker: "S4",
-				text: "sie war früher Lehrerin an dieser Schule",
-			},
-			{
-				event: "Transkript01:158",
-				speaker: "S2",
-				text: "ich war so müde nach dem langen Tag",
-			},
-			{
-				event: "Transkript01:176",
-				speaker: "S1",
-				text: "das Ergebnis war überraschend positiv",
-			},
-		],
-	},
-	{
-		name: "Transkript02",
-		hits: [
-			{
-				event: "Transkript02:015",
-				speaker: "S3",
-				text: "ich war heute Morgen im Fitnessstudio",
-			},
-			{
-				event: "Transkript02:023",
-				speaker: "S1",
-				text: "es war schwierig, den richtigen Zeitpunkt zu finden",
-			},
-			{
-				event: "Transkript02:045",
-				speaker: "S4",
-				text: "das Meeting war sehr produktiv",
-			},
-			{
-				event: "Transkript02:067",
-				speaker: "S2",
-				text: "sie war überrascht über die Nachricht",
-			},
-			{
-				event: "Transkript02:089",
-				speaker: "S3",
-				text: "er war gestern nicht erreichbar",
-			},
-			{
-				event: "Transkript02:104",
-				speaker: "S4",
-				text: "das Experiment war ein voller Erfolg",
-			},
-		],
-	},
-	{
-		name: "Transkript03",
-		hits: [
-			{
-				event: "Transkript03:011",
-				speaker: "S1",
-				text: "ich war letzte Woche nicht zu Hause",
-			},
-			{
-				event: "Transkript03:025",
-				speaker: "S2",
-				text: "es war einmal ein König in einem fernen Land",
-			},
-			{
-				event: "Transkript03:038",
-				speaker: "S4",
-				text: "sie war damals noch klein und unschuldig",
-			},
-			{
-				event: "Transkript03:052",
-				speaker: "S3",
-				text: "das Konzert war ausverkauft innerhalb weniger Stunden",
-			},
-			{
-				event: "Transkript03:076",
-				speaker: "S1",
-				text: "er war erstaunt über die schnelle Entwicklung",
-			},
-			{
-				event: "Transkript03:095",
-				speaker: "S2",
-				text: "das Protokoll war unvollständig und musste ergänzt werden",
-			},
-		],
-	},
-];
-
-const transcriptResults = [
-	{
-		event: "1",
-		speaker: "S2",
-		text: "ich war gestern bei meiner Mutter zu Besuch",
-	},
-	{
-		event: "2",
-		speaker: "S1",
-		text: "das Wetter war heute besser als erwartet",
-	},
-	{
-		event: "3",
-		speaker: "S3",
-		text: "er war überzeugt, dass es funktionieren würde",
-	},
-	{
-		event: "4",
-		speaker: "S4",
-		text: "sie war früher Lehrerin an dieser Schule",
-	},
-	{
-		event: "5",
-		speaker: "S2",
-		text: "ich war so müde nach dem langen Tag",
-	},
-	{
-		event: "6",
-		speaker: "S1",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "7",
-		speaker: "S2",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "8",
-		speaker: "S3",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "1",
-		speaker: "S2",
-		text: "ich war gestern bei meiner Mutter zu Besuch",
-	},
-	{
-		event: "2",
-		speaker: "S1",
-		text: "das Wetter war heute besser als erwartet",
-	},
-	{
-		event: "3",
-		speaker: "S3",
-		text: "er war überzeugt, dass es funktionieren würde",
-	},
-	{
-		event: "4",
-		speaker: "S4",
-		text: "sie war früher Lehrerin an dieser Schule",
-	},
-	{
-		event: "5",
-		speaker: "S2",
-		text: "ich war so müde nach dem langen Tag",
-	},
-	{
-		event: "6",
-		speaker: "S1",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "7",
-		speaker: "S2",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "8",
-		speaker: "S3",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "6",
-		speaker: "S1",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "7",
-		speaker: "S2",
-		text: "das Ergebnis war überraschend positiv",
-	},
-	{
-		event: "8",
-		speaker: "S3",
-		text: "das Ergebnis war überraschend positiv",
-	},
-];
-
 const activeCompetence = ref("3");
 
 const competenceOptions = ref<Array<RadioOption>>([
@@ -275,58 +78,69 @@ const competenceOptions = ref<Array<RadioOption>>([
 
 const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
 
-const getTreeTitle = (index: string) => {
-	switch (treeMode.value) {
-		case "Setting":
-			return treeItems[Number(index)]?.setting;
-		case "Ort":
-			return treeItems[Number(index)]?.location;
-		case "Informant":
-			return treeItems[Number(index)]?.speaker;
-	}
-};
+const filteredTranscripts = computed(() => {
+	return searchResults.transcripts.filter((transcript) => {
+		if (activeSetting.value && transcript.setting !== activeSetting.value) return false;
+		if (activeLocation.value && transcript.location !== activeLocation.value) return false;
+		// add other filters here
+		return true;
+	});
+});
 
-const treeItems = [
-	{
-		title: "0",
-		speaker: "0001",
-		location: "Wien",
-		setting: "Interview",
+const treeItems = computed(() => {
+	const groups = filteredTranscripts.value.reduce(
+		(acc, transcript) => {
+			if (!acc[transcript.setting]) acc[transcript.setting] = [];
+
+			acc[transcript.setting]?.push({
+				id: transcript.id as unknown as string,
+				title: transcript.name,
+				icon: transcript.icon,
+			});
+			return acc;
+		},
+		{} as Record<string, Array<{ id: string; title: string; icon: string }>>,
+	);
+
+	return Object.entries(groups).map(([setting, transcripts]) => ({
+		id: setting,
+		title: setting,
 		icon: "lucide:folder",
-		children: [
-			{ title: "Transkript01", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript02", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript03", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript04", icon: "vscode-icons:file-type-typescript" },
-		],
+		children: transcripts,
+	}));
+});
+
+const currentId = computed(() => {
+	console.log(route.query.selection);
+	return route.query.selection;
+});
+const currentSelectionArray = computed(() => {
+	return Array.isArray(route.query.selection)
+		? (route.query.selection as Array<string>)
+		: route.query.selection
+			? [route.query.selection as string]
+			: [];
+});
+
+function handleSelection(id: string) {
+	const current = currentSelectionArray.value;
+	console.log(current, id);
+	if (current.includes(id)) return;
+
+	router.push({ query: { ...route.query, selection: [...current, id] } });
+}
+
+watch(
+	() => {
+		return route.query.selection;
 	},
-	{
-		title: "1",
-		speaker: "0002",
-		location: "Graz",
-		setting: "Freundesgespräch",
-		icon: "lucide:folder",
-		children: [
-			{ title: "Transkript05", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript06", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript07", icon: "vscode-icons:file-type-typescript" },
-		],
+	() => {
+		if (route.query.selection != null) {
+			showThirdColumn.value = true;
+		}
 	},
-	{
-		title: "2",
-		speaker: "0003",
-		location: "Innsbruck",
-		setting: "Nordwind & Sonne",
-		icon: "lucide:folder",
-		children: [
-			{ title: "Transkript08", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript09", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript10", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript11", icon: "vscode-icons:file-type-typescript" },
-			{ title: "Transkript12", icon: "vscode-icons:file-type-typescript" },
-		],
-	},
-];
+	{ immediate: true },
+);
 </script>
 
 <template>
@@ -335,12 +149,13 @@ const treeItems = [
 			<Button size="icon" variant="outline" @click="toggleFirstColumn">
 				<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
 			</Button>
-			<Button size="icon" variant="outline" @click="toggleThirdColumn">
+			<Button v-if="currentId != null" size="icon" variant="outline" @click="toggleThirdColumn">
 				<ChevronLeft class="size-4" :class="{ '-rotate-180': showThirdColumn }" />
 			</Button>
 		</div>
 		<div
-			class="grid gap-4 items-stretch flex-grow min-h-0 transition-[grid-template-columns] duration-250 ease-in-out"
+			class="relative gap-4 flex-grow grid h-full min-h-0 duration-250 items-stretch delay-150 transition-[grid-template-columns] ease-in-out"
+			:data-selection="currentId != null ? 'true' : undefined"
 			:style="{ gridTemplateColumns: gridColumns }"
 		>
 			<div
@@ -358,7 +173,7 @@ const treeItems = [
 							v-slot="{ flattenItems }"
 							class="list-none select-none w-full rounded-lg border shadow-sm p-2 text-sm"
 							:default-expanded="['0']"
-							:get-key="(item) => item.title"
+							:get-key="(item) => item.id || item.id"
 							:items="treeItems"
 						>
 							<div class="flex items-center justify-between">
@@ -370,17 +185,25 @@ const treeItems = [
 								:key="item._id"
 								v-slot="{ isExpanded }"
 								v-bind="item.bind"
-								class="flex items-center py-1 px-2 my-0.5 rounded outline-none focus:ring-grass8 focus:ring-2 data-[selected]:bg-grass4"
+								class="flex items-center py-1 px-2 rounded outline-none focus:ring-grass8 focus:ring-2 data-[selected]:bg-grass4"
 								:style="{ 'padding-left': `${item.level - 0.5}rem` }"
 							>
 								<template v-if="item.hasChildren">
 									<Folder v-if="!isExpanded" class="size-4" />
 									<FolderOpen v-else class="size-4" />
+									<span class="pl-2">{{ item.value.title }}</span>
 								</template>
-								<FileText v-else class="size-4" />
-								<div class="pl-2">
-									{{ item.level > 1 ? item.value.title : getTreeTitle(item.value.title) }}
-								</div>
+								<template v-else>
+									<FileText class="size-4" />
+									<Button
+										class="p-0 pl-2 h-fit font-normal underline decoration-dotted transition hover:no-underline focus-visible:no-underline"
+										variant="transparent"
+										@click="handleSelection(String(item.value.id))"
+									>
+										<span class="sr-only">Open Detail Sidebar</span>
+										{{ item.value.title }}
+									</Button>
+								</template>
 							</TreeItem>
 						</TreeRoot>
 					</TabsContent>
@@ -492,7 +315,7 @@ const treeItems = [
 				</Tabs>
 			</div>
 
-			<div class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
+			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
 				<form class="mb-4 pb-4 border-b flex gap-4 items-end flex-shrink-0">
 					<Label class="sr-only" for="search">Suche</Label>
 					<div class="relative w-64">
@@ -523,27 +346,17 @@ const treeItems = [
 					</div>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						<div v-for="result in searchResults" :key="result.name">
-							<div class="px-4 py-2 bg-gray-100 font-semibold text-gray-700">
-								{{ result.name }}
-							</div>
-
-							<div class="divide-y divide-gray-200">
-								<div
-									v-for="hit in result.hits"
-									:key="hit.event"
-									class="grid grid-cols-[110px_40px_1fr] gap-4 px-4 py-3 items-start"
+						<div v-for="result in searchResults.transcripts" :key="result.id">
+							<div class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700">
+								<Button
+									class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
+									hover:no-underline
+									variant="transparent"
+									@click="handleSelection(String(result.id))"
 								>
-									<div class="text-sm text-gray-500">
-										{{ hit.event }}
-									</div>
-									<div class="text-sm font-semibold">
-										{{ hit.speaker }}
-									</div>
-									<div class="text-sm text-gray-800">
-										{{ hit.text }}
-									</div>
-								</div>
+									<span class="sr-only"> Open Sidebar Demo </span>
+									{{ result.name }}
+								</Button>
 							</div>
 						</div>
 					</TabsContent>
@@ -556,64 +369,12 @@ const treeItems = [
 					</TabsContent>
 				</Tabs>
 			</div>
-
 			<div
-				class="p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden"
+				v-if="currentId != null"
+				class="transition p-4 border border-foreground/20 rounded-lg flex flex-col overflow-hidden"
 				:class="{ 'opacity-0 pointer-events-none': !showThirdColumn }"
 			>
-				<div class="mb-5 pb-3 border-b flex gap-2 items-end flex-shrink-0">
-					<div
-						class="py-1.5 px-3 flex items-center rounded bg-secondary border gap-2 cursor-pointer text-sm"
-					>
-						Transkript01
-						<div class="bg-foreground rounded-full p-0.5">
-							<XIcon class="size-3 text-background" />
-						</div>
-					</div>
-					<div
-						class="py-1.5 px-3 flex items-center rounded hover:bg-secondary border gap-2 cursor-pointer text-sm"
-					>
-						Transkript03
-						<div class="bg-foreground rounded-full p-0.5">
-							<XIcon class="size-3 text-background" />
-						</div>
-					</div>
-				</div>
-				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
-					<div class="flex gap-4 items-center">
-						<TabsList class="w-full">
-							<TabsTrigger value="plain"> Plain </TabsTrigger>
-							<TabsTrigger value="kwic"> KWIC </TabsTrigger>
-							<TabsTrigger value="xml"> XML </TabsTrigger>
-						</TabsList>
-
-						<Button class="shrink-0" size="icon" variant="ghost"
-							><Download class="size-4"
-						/></Button>
-					</div>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
-						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						<div class="divide-y divide-gray-200">
-							<div
-								v-for="hit in transcriptResults"
-								:key="hit.event"
-								class="grid grid-cols-[20px_40px_1fr] gap-4 px-4 py-3 items-start"
-							>
-								<div class="text-sm text-gray-500">
-									{{ hit.event }}
-								</div>
-								<div class="text-sm font-semibold">
-									{{ hit.speaker }}
-								</div>
-								<div class="text-sm text-gray-800">
-									{{ hit.text }}
-								</div>
-							</div>
-						</div>
-					</TabsContent>
-					<TabsContent value="kwic"> Sample content </TabsContent>
-					<TabsContent value="xml"> Sample content </TabsContent>
-				</Tabs>
+				<TranscriptDemoSidebar />
 			</div>
 		</div>
 	</main>

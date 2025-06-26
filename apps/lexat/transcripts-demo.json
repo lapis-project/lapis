@@ -1,0 +1,588 @@
+{
+	"transcripts": [
+		{
+			"id": 1,
+			"name": "Transkript01",
+			"speakers": ["S1", "S2", "S3"],
+			"location": "Wien",
+			"setting": "Interview",
+			"icon": "vscode-icons:file-type-typescript",
+			"audioUrl": "/audio/transcriptAudio1.mp3",
+			"annotations": [
+				{
+					"id": 0,
+					"eventIds": [1],
+					"annoType": "POSS"
+				},
+				{
+					"id": 1,
+					"eventIds": [4, 5],
+					"annoType": "POSS"
+				}
+			],
+			"events": [
+				{
+					"id": 0,
+					"event": "Transkript01:001",
+					"timestamp": { "start": "00:00:00", "end": "00:00:05" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "heute", "tags": ["aaa", "asjk"] },
+									"lu": { "text": "heut", "tags": [] },
+									"phon": { "text": "ˈhɔʏ̯tə", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "ist", "tags": [] },
+									"lu": { "text": "is", "tags": [] },
+									"phon": { "text": "ɪst", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "das", "tags": [] },
+									"lu": { "text": "des", "tags": [] },
+									"phon": { "text": "das", "tags": [] }
+								},
+								{
+									"id": 3,
+									"ortho": { "text": "Wetter", "tags": [] },
+									"lu": { "text": "Weda", "tags": [] },
+									"phon": { "text": "ˈvɛtɐ", "tags": [] }
+								},
+								{
+									"id": 4,
+									"ortho": { "text": "sehr", "tags": [] },
+									"lu": { "text": "sehr", "tags": [] },
+									"phon": { "text": "zeːɐ̯", "tags": [] }
+								},
+								{
+									"id": 5,
+									"ortho": { "text": "schön", "tags": [] },
+									"lu": { "text": "schee", "tags": [] },
+									"phon": { "text": "ʃøːn", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 1,
+					"event": "Transkript01:002",
+					"timestamp": { "start": "00:00:05", "end": "00:00:10" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": []
+						},
+						{
+							"name": "S2",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "ja", "tags": [] },
+									"lu": { "text": "jo", "tags": [] },
+									"phon": { "text": "jaː", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "total", "tags": [] },
+									"lu": { "text": "total", "tags": [] },
+									"phon": { "text": "toˈtaːl", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "angenehm", "tags": [] },
+									"lu": { "text": "angenehm", "tags": [] },
+									"phon": { "text": "ˈʔanɡəneːm", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 2,
+					"event": "Transkript01:003",
+					"timestamp": { "start": "00:00:10", "end": "00:00:15" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "gehen", "tags": [] },
+									"lu": { "text": "gemma", "tags": [] },
+									"phon": { "text": "ˈɡeːən", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "wir", "tags": ["asl"] },
+									"lu": { "text": "wir", "tags": [] },
+									"phon": { "text": "viːɐ̯", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "spazieren?", "tags": [] },
+									"lu": { "text": "spaziahn?", "tags": [] },
+									"phon": { "text": "ʃpaˈtsiːʁən", "tags": [] }
+								}
+							]
+						},
+						{
+							"name": "S2",
+							"tokens": []
+						}
+					]
+				},
+				{
+					"id": 3,
+					"event": "Transkript01:004",
+					"timestamp": { "start": "00:00:15", "end": "00:00:20" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": []
+						},
+						{
+							"name": "S2",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "ja", "tags": [] },
+									"lu": { "text": "jo", "tags": [] },
+									"phon": { "text": "jaː", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "gute", "tags": [] },
+									"lu": { "text": "guade", "tags": [] },
+									"phon": { "text": "ˈɡuːtə", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "Idee", "tags": [] },
+									"lu": { "text": "Idee", "tags": [] },
+									"phon": { "text": "ʔiˈdeː", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 4,
+					"event": "Transkript01:005",
+					"timestamp": { "start": "00:00:20", "end": "00:00:25" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "ich", "tags": ["lalal", "lorem"] },
+									"lu": { "text": "i", "tags": [] },
+									"phon": { "text": "ɪç", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "hole", "tags": [] },
+									"lu": { "text": "hoal", "tags": [] },
+									"phon": { "text": "hoːlə", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "nur", "tags": [] },
+									"lu": { "text": "ma", "tags": [] },
+									"phon": { "text": "nuːɐ̯", "tags": [] }
+								},
+								{
+									"id": 3,
+									"ortho": { "text": "schnell", "tags": [] },
+									"lu": { "text": "schnell", "tags": [] },
+									"phon": { "text": "ʃnɛl", "tags": [] }
+								},
+								{
+									"id": 4,
+									"ortho": { "text": "meine", "tags": [] },
+									"lu": { "text": "mei", "tags": [] },
+									"phon": { "text": "ˈmaɪ̯nə", "tags": [] }
+								},
+								{
+									"id": 5,
+									"ortho": { "text": "Jacke", "tags": [] },
+									"lu": { "text": "Jackn", "tags": [] },
+									"phon": { "text": "ˈjakə", "tags": [] }
+								}
+							]
+						},
+						{
+							"name": "S2",
+							"tokens": []
+						}
+					]
+				},
+				{
+					"id": 5,
+					"event": "Transkript01:006",
+					"timestamp": { "start": "00:00:25", "end": "00:00:30" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "wir", "tags": [] },
+									"lu": { "text": "wia", "tags": [] },
+									"phon": { "text": "viːɐ̯", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "treffen", "tags": [] },
+									"lu": { "text": "treffn", "tags": [] },
+									"phon": { "text": "ˈtʁɛfn̩", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "uns", "tags": [] },
+									"lu": { "text": "uns", "tags": [] },
+									"phon": { "text": "ʊns", "tags": [] }
+								},
+								{
+									"id": 3,
+									"ortho": { "text": "draußen", "tags": [] },
+									"lu": { "text": "draußen", "tags": [] },
+									"phon": { "text": "ˈdʁaʊ̯sn̩", "tags": [] }
+								}
+							]
+						},
+						{
+							"name": "S2",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "ok", "tags": [] },
+									"lu": { "text": "o.k.", "tags": [] },
+									"phon": { "text": "oːˈkeː", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "bis", "tags": [] },
+									"lu": { "text": "bis", "tags": [] },
+									"phon": { "text": "bɪs", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "gleich", "tags": [] },
+									"lu": { "text": "glei", "tags": [] },
+									"phon": { "text": "ɡlaɪ̯ç", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 6,
+					"event": "Transkript01:007",
+					"timestamp": { "start": "00:00:30", "end": "00:00:35" },
+					"speakers": [
+						{
+							"name": "S2",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "hast", "tags": [] },
+									"lu": { "text": "håst", "tags": [] },
+									"phon": { "text": "hast", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "du", "tags": [] },
+									"lu": { "text": "du", "tags": [] },
+									"phon": { "text": "duː", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "den", "tags": [] },
+									"lu": { "text": "den", "tags": [] },
+									"phon": { "text": "deːn", "tags": [] }
+								},
+								{
+									"id": 3,
+									"ortho": { "text": "Hund", "tags": [] },
+									"lu": { "text": "Hund", "tags": [] },
+									"phon": { "text": "hʊnt", "tags": [] }
+								},
+								{
+									"id": 4,
+									"ortho": { "text": "gesehen?", "tags": [] },
+									"lu": { "text": "gsehn?", "tags": [] },
+									"phon": { "text": "ɡəˈzeːn", "tags": [] }
+								}
+							]
+						},
+						{
+							"name": "S1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "nein", "tags": [] },
+									"lu": { "text": "na", "tags": [] },
+									"phon": { "text": "naɪ̯n", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 7,
+					"event": "Transkript01:008",
+					"timestamp": { "start": "00:00:35", "end": "00:00:40" },
+					"speakers": [
+						{
+							"name": "S2",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "da", "tags": [] },
+									"lu": { "text": "do", "tags": [] },
+									"phon": { "text": "daː", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "drüben", "tags": [] },
+									"lu": { "text": "drübm", "tags": [] },
+									"phon": { "text": "ˈdʁyːbn̩", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "im", "tags": [] },
+									"lu": { "text": "im", "tags": [] },
+									"phon": { "text": "ɪm", "tags": [] }
+								},
+								{
+									"id": 3,
+									"ortho": { "text": "Park", "tags": [] },
+									"lu": { "text": "Park", "tags": [] },
+									"phon": { "text": "paʁk", "tags": [] }
+								}
+							]
+						},
+						{
+							"name": "S1",
+							"tokens": []
+						}
+					]
+				}
+			]
+		},
+
+		{
+			"id": 2,
+			"name": "Transkript02",
+			"speakers": ["S1", "S2"],
+			"location": "Berlin",
+			"setting": "Interview",
+			"icon": "vscode-icons:file-type-audio",
+			"audioUrl": "/audio/transcriptAudio1.mp3",
+			"annotations": [
+				{
+					"id": 0,
+					"eventIds": [0, 2],
+					"annoType": "POSS"
+				}
+			],
+			"events": [
+				{
+					"id": 0,
+					"event": "Transkript02:001",
+					"timestamp": { "start": "00:00:00", "end": "00:00:04" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "hallo", "tags": [] },
+									"lu": { "text": "servus", "tags": [] },
+									"phon": { "text": "ˈhaloː", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 1,
+					"event": "Transkript02:002",
+					"timestamp": { "start": "00:00:04", "end": "00:00:08" },
+					"speakers": [
+						{
+							"name": "S2",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "na", "tags": [] },
+									"lu": { "text": "na", "tags": [] },
+									"phon": { "text": "naː", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "wie", "tags": [] },
+									"lu": { "text": "wia", "tags": [] },
+									"phon": { "text": "viː", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "geht's?", "tags": [] },
+									"lu": { "text": "gehts?", "tags": [] },
+									"phon": { "text": "ɡeːts", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 2,
+					"event": "Transkript02:003",
+					"timestamp": { "start": "00:00:08", "end": "00:00:12" },
+					"speakers": [
+						{
+							"name": "S1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "alles", "tags": [] },
+									"lu": { "text": "ollas", "tags": [] },
+									"phon": { "text": "ˈʔaləs", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "gut", "tags": [] },
+									"lu": { "text": "guat", "tags": [] },
+									"phon": { "text": "ɡuːt", "tags": [] }
+								}
+							]
+						},
+						{
+							"name": "S2",
+							"tokens": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": 3,
+			"name": "Transkript03",
+			"speakers": ["P1", "P2", "P3"],
+			"location": "Graz",
+			"setting": "Interview",
+			"icon": "vscode-icons:file-type-json",
+			"audioUrl": "/audio/transcriptAudio1.mp3",
+			"annotations": [
+				{
+					"id": 0,
+					"eventIds": [1],
+					"annoType": "POSS"
+				},
+				{
+					"id": 1,
+					"eventIds": [2, 3],
+					"annoType": "OTHER"
+				}
+			],
+			"events": [
+				{
+					"id": 0,
+					"event": "Transkript03:001",
+					"timestamp": { "start": "00:00:00", "end": "00:00:05" },
+					"speakers": [
+						{
+							"name": "P1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "habt", "tags": [] },
+									"lu": { "text": "habts", "tags": [] },
+									"phon": { "text": "habt", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "ihr", "tags": [] },
+									"lu": { "text": "eah", "tags": [] },
+									"phon": { "text": "iːɐ̯", "tags": [] }
+								},
+								{
+									"id": 2,
+									"ortho": { "text": "Zeit?", "tags": [] },
+									"lu": { "text": "Zeit", "tags": [] },
+									"phon": { "text": "tsaɪ̯t", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 1,
+					"event": "Transkript03:002",
+					"timestamp": { "start": "00:00:05", "end": "00:00:08" },
+					"speakers": [
+						{
+							"name": "P2",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "nur", "tags": [] },
+									"lu": { "text": "nuar", "tags": [] },
+									"phon": { "text": "nuːɐ̯", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "kurz", "tags": [] },
+									"lu": { "text": "kurz", "tags": [] },
+									"phon": { "text": "kʊʁts", "tags": [] }
+								}
+							]
+						},
+						{
+							"name": "P3",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "später", "tags": [] },
+									"lu": { "text": "später", "tags": [] },
+									"phon": { "text": "ˈʃpɛːtɐ", "tags": [] }
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 2,
+					"event": "Transkript03:004",
+					"timestamp": { "start": "00:00:08", "end": "00:00:16" },
+					"speakers": [
+						{
+							"name": "P1",
+							"tokens": [
+								{
+									"id": 0,
+									"ortho": { "text": "alles", "tags": [] },
+									"lu": { "text": "alles", "tags": [] },
+									"phon": { "text": "ˈʔaləs", "tags": [] }
+								},
+								{
+									"id": 1,
+									"ortho": { "text": "klar.", "tags": [] },
+									"lu": { "text": "klor", "tags": [] },
+									"phon": { "text": "klaːʁ", "tags": [] }
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}

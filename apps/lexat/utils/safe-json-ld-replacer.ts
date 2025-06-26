@@ -37,6 +37,9 @@ export function safeJsonLdReplacer(_key: string, value: JsonValue): JsonValue | 
 			return value.replace(regex, replacer);
 		}
 
+		case "symbol":
+		case "undefined":
+		case "function":
 		default: {
 			return undefined;
 		}

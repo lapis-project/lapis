@@ -23,4 +23,5 @@ const config = [
 	},
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 export default withNuxt(/** @type {any} */ (config));

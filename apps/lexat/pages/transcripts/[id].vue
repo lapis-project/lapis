@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ChevronRight, DownloadIcon, FileText, PauseCircle, PlayCircle } from "lucide-vue-next";
 import { Separator } from "reka-ui";
-import { tokenToString } from "typescript";
 
 import data from "@/transcripts-demo.json";
 

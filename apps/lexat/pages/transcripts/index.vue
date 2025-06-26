@@ -3,13 +3,11 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	Download,
-	EyeIcon,
 	FileText,
 	Folder,
 	FolderOpen,
 	SearchIcon,
 	Undo2,
-	XIcon,
 } from "lucide-vue-next";
 import { TreeItem, TreeRoot } from "reka-ui";
 

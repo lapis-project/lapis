@@ -10,7 +10,7 @@ export function useCountUp(targetValue: number, duration = 1000) {
 	const easeOutQuad = (t: number) => t * (2 - t);
 
 	const updateCount = (timestamp: number) => {
-		if (startTime === null) startTime = timestamp;
+		startTime ??= timestamp;
 		const elapsed = timestamp - startTime;
 		let progress = Math.min(elapsed / duration, 1);
 		// Apply easing function

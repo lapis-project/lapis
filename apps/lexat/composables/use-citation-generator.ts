@@ -68,7 +68,7 @@ export function useCitationGenerator() {
 				return `${authors}. ${item.date}. <em>${item.title}</em>. ${item.place}:${item.publisher}.`;
 
 			case "thesis":
-				return `${authors}. ${item.date}. <em>${item.title}</em>. ${item.university ? item.university : ""}.`;
+				return `${authors}. ${item.date}. <em>${item.title}</em>. ${item.university ?? ""}.`;
 			case "note":
 			default:
 				return "";

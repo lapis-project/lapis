@@ -8,14 +8,13 @@ import { locales } from "@/config/i18n.config";
 
 const baseUrl = v.parse(v.string([v.url()]), process.env.NUXT_PUBLIC_APP_BASE_URL);
 
-// eslint-disable-next-line import/no-named-as-default-member
 const paths = fg.globSync("./**/*.vue", { cwd: join(process.cwd(), "pages") });
 
 const routes: Array<string> = [];
 
 paths.forEach((path) => {
-	const _route = path.slice(0, -".vue".length).replace(/(\/)?index$/, "");
-	const route = _route.length === 0 ? _route : "/" + _route;
+	const _route = path.slice(0, -".vue".length).replace(/\/?index$/, "");
+	const route = _route.length === 0 ? _route : `/${_route}`;
 
 	const segments = [];
 

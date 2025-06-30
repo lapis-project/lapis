@@ -8,12 +8,10 @@ const t = useTranslations();
 const drawerOpen = ref<boolean>(false);
 
 const links = computed(() => {
+	// TODO add i18n messages when navigation is fixated
 	return {
 		about: { to: { path: "/about" }, label: "Über das Projekt" },
 		transcripts: { to: { path: "/transcripts" }, label: "Transkripte" },
-		// articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
-		// db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
-		// research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
 	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
 });
 
@@ -117,7 +115,6 @@ const mobileLinks = computed(() => {
 			<div class="relative flex items-center gap-4">
 				<ColorSchemeSwitcher />
 				<LocaleSwitcher />
-				<UserPanel />
 			</div>
 		</div>
 	</header>

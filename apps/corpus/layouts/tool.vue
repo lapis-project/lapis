@@ -2,8 +2,7 @@
 
 <template>
 	<div class="grid h-dvh grid-rows-[auto_1fr]">
-		<CorpusHeader />
+		<AppHeader />
 		<slot />
-		<!-- <AppFooter /> -->
 	</div>
 </template>

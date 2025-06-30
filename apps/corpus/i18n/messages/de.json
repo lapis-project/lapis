@@ -1,0 +1,81 @@
+{
+	"AppHeader": {
+		"links": {
+			"home": "Startseite"
+		},
+		"navigation-main": "Hauptnavigation"
+	},
+	"Clipboard": {
+		"copy": "Kopieren",
+		"copied": "Kopiert",
+		"copy-success": "In Zwischenablage gespeichert",
+		"copy-fail": "Konnte nicht in Zwischenablage gespeichert werden"
+	},
+	"ColorSchemeSwitcher": {
+		"change-color-scheme": "Farbschema ändern",
+		"color-schemes": {
+			"dark": "Dunkel",
+			"light": "Hell",
+			"system": "System"
+		}
+	},
+	"Combobox": {
+		"button": "{placeholder} wählen...",
+		"empty": "Keine {placeholder} gefunden",
+		"search": "{placeholder} suchen..."
+	},
+	"DefaultLayout": {
+		"meta": {
+			"description": "Sample description",
+			"title": "Corpus"
+		},
+		"skip-to-main-content": "Zum Hauptinhalt springen"
+	},
+	"ErrorBoundary": {
+		"error": "Fehler"
+	},
+	"ErrorPage": {
+		"meta": {
+			"title": "Fehler"
+		},
+		"title": "Etwas ist schief gelaufen!",
+		"try-again": "Erneut versuchen"
+	},
+	"HomePage": {
+		"meta": {
+			"title": "Startseite"
+		}
+	},
+	"LocaleSwitcher": {
+		"current-locale": "Aktuelle Sprache: {locale}",
+		"switch-locale": "Zu {locale} wechseln",
+		"german": "Deutsch",
+		"english": "Englisch"
+	},
+	"Manifest": {
+		"name": "Corpus",
+		"short-name": "Corpus",
+		"description": "Sample description"
+	},
+	"MobileAlert": {
+		"title": "Hinweis",
+		"text": "Dieser Bereich der Website ist nicht für die Nutzung auf Smartphones ausgelegt."
+	},
+	"NotFoundPage": {
+		"meta": {
+			"title": "Seite nicht gefunden"
+		},
+		"title": "Seite nicht gefunden"
+	},
+	"TagsCombobox": {
+		"button": "{placeholder}...",
+		"empty": "Keine Ergebnisse gefunden"
+	},
+	"UserPanel": {
+		"admin": "Admin",
+		"login": "Einloggen",
+		"logout": "Ausloggen",
+		"profile": "Profil",
+		"settings": "Einstellungen"
+	}
+}

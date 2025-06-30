@@ -1,4 +1,4 @@
-@import "ui" source("../../../ui/assets/css");
+@import "tailwindcss" source("../../../ui/assets/css");
 
 @theme {
 	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -82,4 +82,14 @@
 	--destructive: oklch(39.6% 0.141 25.723deg);
 	--destructive-foreground: oklch(63.7% 0.237 25.331deg);
 	--ring: oklch(43.9% 0 0deg);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+
+	body {
+		@apply bg-background text-foreground text-lg sm:text-base;
+	}
 }

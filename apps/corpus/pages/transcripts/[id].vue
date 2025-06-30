@@ -2,10 +2,10 @@
 import { ChevronRight, DownloadIcon, FileText, PauseCircle, PlayCircle } from "lucide-vue-next";
 import { Separator } from "reka-ui";
 
-import data from "@/transcripts-demo.json";
+import data from "@/assets/data/transcripts-demo.json";
 
 definePageMeta({
-	layout: "corpus",
+	layout: "tool",
 });
 
 interface Token {

@@ -2,6 +2,10 @@ import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
 
+import { defaultLocale, localesMap } from "./config/i18n.config";
+
+const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
+
 export default defineNuxtConfig({
 	alias: {
 		"@": fileURLToPath(new URL("./", import.meta.url)),
@@ -54,11 +58,35 @@ export default defineNuxtConfig({
 		inlineStyles: false,
 	},
 
+	i18n: {
+		baseUrl,
+		/** @see https://github.com/nuxt-modules/i18n/issues/3238#issuecomment-2672492536 */
+		bundle: {
+			optimizeTranslationDirective: false,
+		},
+		defaultLocale,
+		detectBrowserLanguage: {
+			redirectOn: "root",
+		},
+		langDir: "./messages",
+		lazy: true,
+		locales: Object.values(localesMap),
+		strategy: "prefix",
+		vueI18n: "./i18n.config.ts",
+	},
+
 	imports: {
 		dirs: ["./config/"],
 	},
 
-	modules: ["nuxt-svgo", "@nuxt/eslint", "@nuxt/image", "@nuxtjs/color-mode", "@vueuse/nuxt"],
+	modules: [
+		"nuxt-svgo",
+		"@nuxt/eslint",
+		"@nuxt/image",
+		"@nuxtjs/color-mode",
+		"@nuxtjs/i18n",
+		"@vueuse/nuxt",
+	],
 
 	nitro: {
 		compressPublicAssets: true,
@@ -73,7 +101,6 @@ export default defineNuxtConfig({
 			matomoBaseUrl: process.env.NUXT_PUBLIC_MATOMO_BASE_URL,
 			matomoId: process.env.NUXT_PUBLIC_MATOMO_ID,
 			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,
-			zoteroBaseUrl: process.env.NUXT_PUBLIC_ZOTERO_BASE_URL,
 		},
 	},
 

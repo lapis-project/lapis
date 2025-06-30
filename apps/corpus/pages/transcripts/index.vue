@@ -11,11 +11,12 @@ import {
 } from "lucide-vue-next";
 import { TreeItem, TreeRoot } from "reka-ui";
 
+import searchResults from "@/assets/data/transcripts-demo.json";
+import type { RadioOption } from "@/components/base-radio-group.vue";
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
-import searchResults from "@/transcripts-demo.json";
 
 definePageMeta({
-	layout: "corpus",
+	layout: "tool",
 });
 
 const route = useRoute();

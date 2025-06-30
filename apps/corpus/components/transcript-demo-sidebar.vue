@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { DownloadIcon, EyeIcon, XIcon } from "lucide-vue-next";
 
+import transcripts from "@/assets/data/transcripts-demo.json";
 import type { Transcript } from "@/pages/transcripts/[id].vue";
-import transcripts from "@/transcripts-demo.json";
 
 const route = useRoute();
 const router = useRouter();

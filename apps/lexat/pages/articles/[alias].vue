@@ -209,7 +209,7 @@ const scrollTo = (id) => {
 				<hr class="mt-5" />
 				<div v-if="article.citation">
 					<h2 class="mb-4 mt-8 text-xl font-bold">{{ t("ArticleDetailPage.citation") }}</h2>
-					<p class="max-w-xl italic">
+					<p class="max-w-2xl italic">
 						{{ article.citation }}
 					</p>
 				</div>

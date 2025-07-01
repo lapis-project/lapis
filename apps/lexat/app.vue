@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createUrl, isNonEmptyString } from "@acdh-oeaw/lib";
+import { createUrl } from "@acdh-oeaw/lib";
 import type { WebSite, WithContext } from "schema-dts";
 
 const env = useRuntimeConfig();
@@ -12,6 +12,24 @@ const i18nHead = useLocaleHead({
 	identifierAttribute: "id",
 	addSeoAttributes: true,
 });
+
+const jsonLd: WithContext<WebSite> = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	name: t("DefaultLayout.meta.title"),
+	description: t("DefaultLayout.meta.description"),
+};
+
+const scripts = [
+	{ type: "application/ld+json", innerHTML: JSON.stringify(jsonLd, safeJsonLdReplacer) },
+];
+
+if (env.public.matomoBaseUrl && env.public.matomoId) {
+	scripts.push({
+		textContent: createAnalyticsScript(env.public.matomoBaseUrl, env.public.matomoId),
+		tagPosition: "bodyClose",
+	});
+}
 
 useHead({
 	htmlAttrs: {
@@ -56,32 +74,7 @@ useHead({
 			...(i18nHead.value.meta ?? []),
 		];
 	}),
-	script: computed(() => {
-		const jsonLd: WithContext<WebSite> = {
-			"@context": "https://schema.org",
-			"@type": "WebSite",
-			name: t("DefaultLayout.meta.title"),
-			description: t("DefaultLayout.meta.description"),
-		};
-
-		const scripts = [
-			{ type: "application/ld+json", innerHTML: JSON.stringify(jsonLd, safeJsonLdReplacer) },
-		];
-
-		if (isNonEmptyString(env.public.matomoBaseUrl) && isNonEmptyString(env.public.matomoId)) {
-			const baseUrl = env.public.matomoBaseUrl;
-
-			scripts.push({
-				type: "",
-				innerHTML: createAnalyticsScript(
-					baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`,
-					env.public.matomoId,
-				),
-			});
-		}
-
-		return scripts;
-	}),
+	script: scripts,
 });
 </script>
 

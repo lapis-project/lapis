@@ -1,14 +1,45 @@
-export default defineNuxtPlugin((nuxtApp) => {
-	if (import.meta.client) {
-		const router = useRouter();
-		const route = useRoute();
+import type { RouteLocationNormalized } from "vue-router";
 
-		// fire for the initial load
+export default defineNuxtPlugin((nuxtApp) => {
+	const router = useRouter();
+	const route = useRoute();
+
+	// TODO find solution using SSR request headers
+	// if (import.meta.server) {
+	// 	const event = nuxtApp.ssrContext?.event;
+	// 	const referer = event?.node.req.headers.referer ?? "/";
+	// 	const host = event?.node.req.headers.host ?? "lexat21.lapis-online.at";
+	// 	const rawProtocol = event?.node.req.headers["x-forwarded-proto"];
+	// 	const protocol = (Array.isArray(rawProtocol) ? rawProtocol[0] : rawProtocol) ?? "https";
+
+	// 	let refPath = "/";
+	// 	try {
+	// 		refPath = new URL(referer, `${protocol}://${host}`).pathname;
+	// 	} catch (e) {
+	// 		console.error(e);
+	// 		refPath = "/";
+	// 	}
+
+	// 	const fakeFromRoute = {
+	// 		...route,
+	// 		fullPath: refPath,
+	// 	} as RouteLocationNormalized;
+
+	// 	trackPageView(route, fakeFromRoute);
+	// }
+
+	if (import.meta.client) {
+		// track on initial load
 		nuxtApp.hook("app:mounted", () => {
-			trackPageView(route, route);
+			const fakeFromRoute = {
+				...route,
+				fullPath: new URL(document.referrer || "/", window.location.origin).pathname,
+			} as RouteLocationNormalized;
+
+			trackPageView(route, fakeFromRoute);
 		});
 
-		// all in-app navigations
+		// track on client-side route changes
 		router.afterEach((to, from) => {
 			// don't trigger on query param changes
 			if (to.path !== from.path) {

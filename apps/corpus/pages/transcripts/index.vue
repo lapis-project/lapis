@@ -34,7 +34,6 @@ const toggleThirdColumn = () => {
 };
 
 const gridColumns = computed(() => {
-	console.log(showFirstColumn.value);
 	if (currentId.value == null) {
 		return [showFirstColumn.value ? "340px" : "0px", "1fr"].join(" ");
 	} else {

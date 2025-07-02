@@ -25,6 +25,7 @@ const scripts = [
 ];
 
 if (env.public.matomoBaseUrl && env.public.matomoId) {
+	// https://unhead.unjs.io/docs/head/guides/core-concepts/inner-content#security
 	scripts.push({
 		textContent: createAnalyticsScript(env.public.matomoBaseUrl, env.public.matomoId),
 		tagPosition: "bodyClose",

@@ -69,6 +69,7 @@ useHead({
 		];
 
 		if (
+			process.env.NODE_ENV === "production" &&
 			isNonEmptyString(env.public.matomoBaseUrl) &&
 			(isNonEmptyString(env.public.matomoId) ||
 				/** Nuxt tries to cast env vars o_O. @see https://github.com/nuxt/nuxt/issues/24812 */

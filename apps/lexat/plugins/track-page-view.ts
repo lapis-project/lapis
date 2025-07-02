@@ -28,7 +28,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 	// 	trackPageView(route, fakeFromRoute);
 	// }
 
-	if (import.meta.client) {
+	if (import.meta.client && process.env.NODE_ENV === "production") {
 		// track on initial load
 		nuxtApp.hook("app:mounted", () => {
 			const fakeFromRoute = {

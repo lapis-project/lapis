@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createUrl } from "@acdh-oeaw/lib";
+import { createUrl, isNonEmptyString } from "@acdh-oeaw/lib";
 import type { WebSite, WithContext } from "schema-dts";
 
 const env = useRuntimeConfig();
@@ -12,25 +12,6 @@ const i18nHead = useLocaleHead({
 	identifierAttribute: "id",
 	addSeoAttributes: true,
 });
-
-const jsonLd: WithContext<WebSite> = {
-	"@context": "https://schema.org",
-	"@type": "WebSite",
-	name: t("DefaultLayout.meta.title"),
-	description: t("DefaultLayout.meta.description"),
-};
-
-const scripts = [
-	{ type: "application/ld+json", innerHTML: JSON.stringify(jsonLd, safeJsonLdReplacer) },
-];
-
-if (env.public.matomoBaseUrl && env.public.matomoId) {
-	// https://unhead.unjs.io/docs/head/guides/core-concepts/inner-content#security
-	scripts.push({
-		textContent: createAnalyticsScript(env.public.matomoBaseUrl, env.public.matomoId),
-		tagPosition: "bodyClose",
-	});
-}
 
 useHead({
 	htmlAttrs: {
@@ -75,7 +56,36 @@ useHead({
 			...(i18nHead.value.meta ?? []),
 		];
 	}),
-	script: scripts,
+	script: computed(() => {
+		const jsonLd: WithContext<WebSite> = {
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			name: t("DefaultLayout.meta.title"),
+			description: t("DefaultLayout.meta.description"),
+		};
+
+		const scripts = [
+			{ type: "application/ld+json", innerHTML: JSON.stringify(jsonLd, safeJsonLdReplacer) },
+		];
+
+		if (
+			isNonEmptyString(env.public.matomoBaseUrl) &&
+			(isNonEmptyString(env.public.matomoId) ||
+				/** Nuxt tries to cast env vars o_O. @see https://github.com/nuxt/nuxt/issues/24812 */
+				typeof env.public.matomoId === "number")
+		) {
+			const baseUrl = env.public.matomoBaseUrl;
+
+			scripts.push({
+				innerHTML: createAnalyticsScript(
+					baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`,
+					env.public.matomoId,
+				),
+			});
+		}
+
+		return scripts;
+	}),
 });
 </script>
 

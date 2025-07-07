@@ -95,7 +95,7 @@
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@nuxt/devtools": "^1.7.0",
 		"@nuxt/eslint": "^1.4.1",
-		"@playwright/test": "^1.52.0",
+		"@playwright/test": "^1.53.2",
 		"@types/geojson": "^7946.0.16",
 		"@types/node": "^22.15.29",
 		"axe-core": "^4.10.3",

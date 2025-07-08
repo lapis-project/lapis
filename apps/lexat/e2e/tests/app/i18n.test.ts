@@ -33,20 +33,20 @@ test.describe("i18n", () => {
 
 		test("with unsupported locale", async ({ page }) => {
 			await page.goto("/");
-			await expect(page).toHaveURL("/en");
+			await expect(page).toHaveURL("/de");
 		});
 	});
 
 	test("should display not-found page for unknown locale", async ({ page }) => {
 		const response = await page.goto("/unknown");
 		expect(response?.status()).toBe(404);
-		await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Seite nicht gefunden" })).toBeVisible();
 	});
 
 	test("should display localised not-found page for unknown pathname", async ({ page }) => {
-		const response = await page.goto("/de/unknown");
+		const response = await page.goto("/en/unknown");
 		expect(response?.status()).toBe(404);
-		await expect(page.getByRole("heading", { name: "Seite nicht gefunden" })).toBeVisible();
+		await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
 	});
 
 	// test("should support switching locale", async ({ page }) => {
@@ -74,21 +74,23 @@ test.describe("i18n", () => {
 			return String(createUrl({ baseUrl, pathname }));
 		}
 
-		const pathnames = ["", "/imprint"];
+		const pathnames = ["", "/db"];
 
 		for (const pathname of pathnames) {
 			for (const locale of locales) {
 				await page.goto(`/${locale}${pathname}`);
 
 				const links = await page.locator('link[rel="alternate"]').evaluateAll((elements) => {
-					return elements.map((element) => element.outerHTML);
+					return elements.map((element) => {
+						return [element.getAttribute("hreflang"), element.getAttribute("href")];
+					});
 				});
 
 				expect(links).toEqual(
 					expect.arrayContaining([
-						`<link id="i18n-alt-de" rel="alternate" href="${createAbsoluteUrl(`/de${pathname}`)}" hreflang="de">`,
-						`<link id="i18n-alt-en" rel="alternate" href="${createAbsoluteUrl(`/en${pathname}`)}" hreflang="en">`,
-						`<link id="i18n-xd" rel="alternate" href="${createAbsoluteUrl(`/en${pathname}`)}" hreflang="x-default">`,
+						["x-default", createAbsoluteUrl(`/de${pathname}`)],
+						["de", createAbsoluteUrl(`/de${pathname}`)],
+						["en", createAbsoluteUrl(`/en${pathname}`)],
 					]),
 				);
 			}

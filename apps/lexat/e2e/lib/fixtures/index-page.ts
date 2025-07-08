@@ -21,6 +21,9 @@ export class IndexPage {
 	}
 
 	async goto() {
-		await this.page.goto(`/${this.locale}`);
+		await this.page.goto(`/${this.locale}`, {
+			waitUntil: "domcontentloaded",
+		});
+		await this.mainContent.waitFor({ state: "visible" });
 	}
 }

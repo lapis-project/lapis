@@ -4,6 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 import { isCI } from "ci-info";
 import { config as dotenv } from "dotenv";
 import { expand } from "dotenv-expand";
+import os from "os";
 
 for (const envFilePath of [
 	".env.dev.local",
@@ -16,7 +17,8 @@ for (const envFilePath of [
 }
 
 const frontendPort = 3000;
-const backendPort = 5001;
+const isMac = os.platform() === "darwin";
+const backendPort = isMac ? 5001 : 5000;
 const frontendBaseUrl = `http://localhost:${String(frontendPort)}`;
 const backendBaseUrl = `http://localhost:${String(backendPort)}`;
 

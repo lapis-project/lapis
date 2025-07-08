@@ -1,3 +1,5 @@
+import { createUrl } from "@acdh-oeaw/lib";
+
 interface UsePageMetadataParams {
 	title: MaybeRef<string>;
 	cover?: MaybeRef<string>;
@@ -8,6 +10,8 @@ interface UsePageMetadataParams {
 }
 
 export function usePageMetadata(params: UsePageMetadataParams): void {
+	const env = useRuntimeConfig();
+
 	useHead({
 		title: params.title,
 		meta: [
@@ -21,9 +25,29 @@ export function usePageMetadata(params: UsePageMetadataParams): void {
 					]
 				: []),
 			{ property: "og:type", content: params.contentType ?? "website" },
-			{ name: "twitter:card", content: "summary" },
-			{ property: "og:image", content: params.cover },
-			{ name: "twitter:image", content: params.cover },
+			{ name: "twitter:card", content: "summary_large_image" },
+			{
+				property: "og:image",
+				content:
+					params.cover ??
+					String(
+						createUrl({
+							baseUrl: env.public.appBaseUrl,
+							pathname: "/opengraph-image.png",
+						}),
+					),
+			},
+			{
+				name: "twitter:image",
+				content:
+					params.cover ??
+					String(
+						createUrl({
+							baseUrl: env.public.appBaseUrl,
+							pathname: "/opengraph-image.png",
+						}),
+					),
+			},
 			// NOTE: og:locale is already done by i18n
 		],
 		script:

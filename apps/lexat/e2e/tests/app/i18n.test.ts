@@ -69,30 +69,31 @@ test.describe("i18n", () => {
 		}
 	});
 
-	test("should set alternate links in link tags", async ({ page }) => {
-		function createAbsoluteUrl(pathname: string) {
-			return String(createUrl({ baseUrl, pathname }));
-		}
+	const pathnames = ["", "/db"];
 
-		const pathnames = ["", "/db"];
+	/** Build the canonical absolute URL for a given pathname. */
+	const abs = (pathname: string) => String(createUrl({ baseUrl, pathname }));
 
+	test.describe.parallel("i18n alternate links", () => {
 		for (const pathname of pathnames) {
 			for (const locale of locales) {
-				await page.goto(`/${locale}${pathname}`);
+				test(`locale=${locale} pathname=${pathname}`, async ({ page }) => {
+					await page.goto(`/${locale}${pathname}`);
 
-				const links = await page.locator('link[rel="alternate"]').evaluateAll((elements) => {
-					return elements.map((element) => {
-						return [element.getAttribute("hreflang"), element.getAttribute("href")];
-					});
+					const links = await page
+						.locator('link[rel="alternate"]')
+						.evaluateAll((el) =>
+							el.map((e) => [e.getAttribute("hreflang"), e.getAttribute("href")]),
+						);
+
+					expect(links).toEqual(
+						expect.arrayContaining([
+							["x-default", abs(`/de${pathname}`)],
+							["de", abs(`/de${pathname}`)],
+							["en", abs(`/en${pathname}`)],
+						]),
+					);
 				});
-
-				expect(links).toEqual(
-					expect.arrayContaining([
-						["x-default", createAbsoluteUrl(`/de${pathname}`)],
-						["de", createAbsoluteUrl(`/de${pathname}`)],
-						["en", createAbsoluteUrl(`/en${pathname}`)],
-					]),
-				);
 			}
 		}
 	});

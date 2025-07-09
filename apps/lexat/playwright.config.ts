@@ -92,7 +92,7 @@ export default defineConfig({
 		},
 		{
 			name: "LexAT21",
-			command: "pnpm dev",
+			command: "pnpm start",
 			url: frontendBaseUrl,
 			reuseExistingServer: !isCI,
 			timeout: 120_000,

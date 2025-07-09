@@ -32,27 +32,20 @@ test.describe("app", () => {
 	}
 
 	test("should serve a sitemap.xml", async ({ request }) => {
-		const response = await request.get("/sitemap.xml");
-		const body = await response.body();
+		// 1 ️. fetch the index
+		const index = await request.get("/sitemap.xml");
+		const indexXml = await index.text();
+		expect(indexXml).toContain("<sitemapindex");
 
-		// TODO: use toMatchSnapshot
-		expect(body.toString()).toContain(
-			[
-				'<?xml version="1.0" encoding="UTF-8"?>',
-				'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-			].join("\n"),
-		);
-
+		// 2 ️. follow each locale sitemap and assert its URLs
 		for (const locale of locales) {
-			for (const url of ["", "/articles"]) {
-				const loc = String(
-					createUrl({
-						baseUrl,
-						pathname: ["/", locale, url].join(""),
-					}),
-				);
+			const subUrl = `/__sitemap__/${locale}.xml`;
+			const sub = await request.get(subUrl);
+			const subXml = await sub.text();
 
-				expect(body.toString()).toContain(`<loc>${loc}</loc>`);
+			for (const path of ["", "/articles"]) {
+				const loc = createUrl({ baseUrl, pathname: `/${locale}${path}` }).toString();
+				expect(subXml).toContain(`<loc>${loc}</loc>`);
 			}
 		}
 	});

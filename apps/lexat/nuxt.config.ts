@@ -87,6 +87,7 @@ export default defineNuxtConfig({
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
 		"shadcn-nuxt",
+		"@nuxtjs/sitemap",
 	],
 
 	nitro: {

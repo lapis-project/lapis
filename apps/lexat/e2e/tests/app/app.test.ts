@@ -59,26 +59,25 @@ test.describe("app", () => {
 
 	test("should serve a webmanifest", async ({ request }) => {
 		const response = await request.get("/manifest.webmanifest");
-		const body = await response.body();
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const json = await response.json();
 
 		// TODO: use toMatchSnapshot
-		expect(body.toString()).toEqual(
-			JSON.stringify({
-				name: "ACDH-CH App",
-				short_name: "ACDH-CH App",
-				description: "ACDH-CH App",
-				start_url: "/",
-				display: "standalone",
-				background_color: "#fff",
-				theme_color: "#fff",
-				icons: [
-					{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
-					{ src: "/icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
-					{ src: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
-					{ src: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
-				],
-			}),
-		);
+		expect(json).toEqual({
+			name: "LexAT21",
+			short_name: "LexAT21",
+			description: "Atlas on lexical variation in Austria in the 21st century",
+			start_url: "/",
+			display: "standalone",
+			background_color: "#fff",
+			theme_color: "#fff",
+			icons: [
+				{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
+				{ src: "/icon-maskable.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+				{ src: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+				{ src: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+			],
+		});
 	});
 
 	test("should serve a favicon.ico", async ({ request }) => {
@@ -138,7 +137,7 @@ test.describe("app", () => {
 		await indexPage.page.keyboard.press("Tab");
 		await expect(indexPage.skipLink).toBeFocused();
 
-		await indexPage.skipLink.click();
+		await indexPage.page.keyboard.press("Enter");
 		await expect(indexPage.mainContent).toBeFocused();
 	});
 });

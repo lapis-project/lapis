@@ -107,7 +107,7 @@ usePageMetadata({
 
 		<section class="mb-16 flex flex-col items-center pb-12 border-b">
 			<h2 class="text-3xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h2>
-			<StatsSection />
+			<StatsSection data-testid^="stats-count" />
 		</section>
 
 		<section class="mb-16 pb-16 border-b">

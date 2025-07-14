@@ -19,8 +19,8 @@ export function useMapColors() {
 	];
 
 	const ogSpecialColors = {
-		Irrelevant: "#faf9f6",
-		Sonstige: "#707070",
+		irrelevant: "#faf9f6",
+		sonstige: "#707070",
 	};
 
 	const colors = ref([...ogColors]);

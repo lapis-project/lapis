@@ -116,8 +116,8 @@ export const registerGroups = [
 
 export const specialOrder = {
 	// "keine Angabe": -3, // -3 indicates key to be sorted last
-	Irrelevant: -2,
-	Sonstige: -1,
+	irrelevant: -2,
+	sonstige: -1,
 };
 
 export const regions = [

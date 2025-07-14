@@ -179,7 +179,7 @@ const mappedColors = computed(() => {
 	const tempColors = [...colors.value];
 
 	uniqueVariants.value.forEach((u, i) => {
-		// apply distinct colors for "Irrelevant" and "Sonstige"
+		// apply distinct colors for "irrelevant" and "sonstige"
 		if (Object.keys(specialOrder).includes(u.anno)) {
 			tempColors[i] = specialColors.value[u.anno];
 		}
@@ -639,9 +639,9 @@ const initializeFromUrl = () => {
 				const [index, hexCode, key] = entry.split("-");
 				if (index && hexCode) {
 					if (key === "i") {
-						specialColors.value.Irrelevant = hexCode;
+						specialColors.value.irrelevant = hexCode;
 					} else if (key === "s") {
-						specialColors.value.Sonstige = hexCode;
+						specialColors.value.sonstige = hexCode;
 					} else {
 						colors.value[index] = hexCode;
 					}
@@ -658,11 +658,11 @@ const setAgeGroup = (newValues: Array<number>) => {
 
 const handleColorUpdate = (index: number, newColor: string) => {
 	let key = Object.keys(mappedColors.value)[index];
-	if (key === "Irrelevant") {
-		specialColors.value.Irrelevant = newColor;
+	if (key === "irrelevant") {
+		specialColors.value.irrelevant = newColor;
 		key = "i";
-	} else if (key === "Sonstige") {
-		specialColors.value.Sonstige = newColor;
+	} else if (key === "sonstige") {
+		specialColors.value.sonstige = newColor;
 		key = "s";
 	} else {
 		colors.value[index] = newColor;

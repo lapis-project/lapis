@@ -91,26 +91,27 @@ const gridColumns = computed(() => {
 // 	return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 // }
 
-const windowWidth = ref(window.innerWidth ?? 0);
+const windowWidth = ref(0);
 const hiddenSpeakers = ref<Set<string>>(new Set());
-const eventWidth = 240;
+const eventMinWidth = 400;
+
+const containerElementWidth = ref(0);
 
 function handleResize() {
+	const element = document.getElementById("eventViewContainer");
+	if (element != null) {
+		console.log(element.getBoundingClientRect().width);
+		containerElementWidth.value = element.getBoundingClientRect().width;
+	}
 	windowWidth.value = window.innerWidth;
 }
 
-onMounted(() => {
-	window.addEventListener("resize", handleResize);
-});
-
-onUnmounted(() => {
-	window.removeEventListener("resize", handleResize);
-});
-
 const chunkedSpeakerEvents = computed(() => {
-	if (!transcript.value) return [];
+	if (!transcript.value || containerElementWidth.value <= 0) return [];
 
-	const maxEventsPerRow = Math.floor(windowWidth.value / eventWidth);
+	const maxEventsPerRow = Math.floor(containerElementWidth.value / eventMinWidth);
+	if (maxEventsPerRow <= 0) return [];
+
 	const speakers = transcript.value!.speakers;
 
 	const events = transcript.value.events;
@@ -195,12 +196,19 @@ function resetAudio() {
 }
 
 onMounted(() => {
+	windowWidth.value = window.innerWidth;
+	window.addEventListener("resize", handleResize, { passive: true });
 	if (audioRef.value) {
 		audioRef.value.addEventListener("ended", resetAudio);
+	}
+	const element = document.getElementById("eventViewContainer");
+	if (element != null) {
+		containerElementWidth.value = element.getBoundingClientRect().width;
 	}
 });
 
 onUnmounted(() => {
+	window.removeEventListener("resize", handleResize);
 	if (audioRef.value) {
 		audioRef.value.removeEventListener("ended", resetAudio);
 	}
@@ -209,13 +217,13 @@ onUnmounted(() => {
 
 <template>
 	<main class="max-w-full container py-8 pt-4 flex flex-col">
-		<div class="h-fit">
+		<div class="w-fit">
 			<Button size="icon" variant="outline" @click="toggleFirstColumn">
 				<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
 			</Button>
 		</div>
 		<div
-			class="relative gap-4 pt-2 overflow-y-scroll flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
+			class="relative gap-4 pt-2 overflow-x-hidden overflow-y-scroll flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
 			:style="{ gridTemplateColumns: gridColumns }"
 		>
 			<div
@@ -340,7 +348,11 @@ onUnmounted(() => {
 					</Tabs>
 				</div>
 			</div>
-			<div v-if="transcript?.events && transcript.speakers" class="flex flex-col gap-4">
+			<div
+				v-if="transcript?.events && transcript.speakers"
+				id="eventViewContainer"
+				class="flex flex-col gap-4"
+			>
 				<!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
 				<audio
 					ref="audioRef"
@@ -388,7 +400,9 @@ onUnmounted(() => {
 						v-for="speaker in transcript.speakers.filter((s) => !hiddenSpeakers.has(s))"
 						:key="speaker"
 						class="grid"
-						:style="{ gridTemplateColumns: '160px repeat(' + block[speaker].length + ', 1fr)' }"
+						:style="{
+							gridTemplateColumns: '160px repeat(' + block[speaker].length + ', 1fr)',
+						}"
 					>
 						<div
 							class="text-sm font-semibold p-2 bg-gray-100 border-foreground/20 border min-h-[64px]"
@@ -403,49 +417,56 @@ onUnmounted(() => {
 						<div
 							v-for="(e, idx) in block[speaker]"
 							:key="idx"
-							class="p-2 border rounded bg-white border-foreground/20 text-sm truncate hover:bg-gray-50"
+							class="p-2 border rounded min-w-fit bg-white border-foreground/20 text-sm transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80 h-full max-w-full flex flex-col flex-shrink-0"
 						>
 							<Dialog>
-								<DialogTrigger as-child>
-									<div class="text-sm size-full hover:bg-gray-50 cursor-pointer">
-										<div v-if="e.ortho">
-											<span
-												v-for="(token, index) in e.ortho"
-												:key="index"
-												:class="
-													token.hasTags
-														? 'text-accent-foreground font-semibold pl-1'
-														: 'text-gray-700 pl-1'
-												"
+								<DialogTrigger as-child class="p-0 m-0">
+									<div
+										class="grid gap-1 items-start"
+										:style="{
+											gridTemplateColumns: 'repeat(' + e.ortho.length + ', minmax(0, auto))',
+										}"
+									>
+										<div
+											v-for="(token, index) in e.ortho"
+											:key="'token-group-' + index"
+											class="flex flex-col items-start group hover:cursor-pointer h-full hover:bg-gray-100"
+										>
+											<div
+												class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
+												:class="token.hasTags ? 'text-accent-foreground font-semibold' : ''"
 											>
 												{{ token.text }}
-											</span>
-										</div>
-										<div v-else class="italic text-gray-300">-</div>
-										<div v-if="showLu && e.lu" class="text-sm mt-1">
-											<span
-												v-for="(token, index) in e.lu"
-												:key="index"
+											</div>
+											<div
+												v-if="showLu"
+												class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
+												:class="e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''"
+											>
+												{{ e.lu[index]?.text }}
+											</div>
+
+											<div v-else class="italic text-gray-300 px-0 m-0 whitespace-nowrap py-0.5">
+												–
+											</div>
+											<div
+												v-if="showPhon"
+												class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
 												:class="
-													token.hasTags ? 'text-accent-foreground pl-1' : 'text-gray-400 pl-1'
+													e.phon[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
 												"
 											>
-												{{ token.text }}
-											</span>
+												{{ e.phon[index]?.text }}
+											</div>
+
+											<div v-else class="py-0.5 italic px-0 m-0 whitespace-nowrap text-gray-300">
+												–
+											</div>
+
+											<div
+												class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
+											></div>
 										</div>
-										<div v-else class="italic text-gray-300">–</div>
-										<div v-if="showPhon && e.phon" class="text-sm mt-0.5">
-											<span
-												v-for="(token, index) in e.phon"
-												:key="index"
-												:class="
-													token.hasTags ? 'text-accent-foreground pl-1' : 'text-gray-400 pl-1'
-												"
-											>
-												{{ token.text }}
-											</span>
-										</div>
-										<div v-else class="italic text-gray-300">–</div>
 									</div>
 								</DialogTrigger>
 								<DialogContent class="sm:max-w-[425px]">

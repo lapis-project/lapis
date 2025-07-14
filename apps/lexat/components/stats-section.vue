@@ -143,31 +143,33 @@ const counts = [
 </script>
 
 <template>
-	<div class="grid grid-cols-1 md:grid-cols-2 gap-24 py-6 mb-8">
-		<div class="flex items-center justify-center">
-			<Bar class="w-full" :data="ageData" :options="barChartOptions" />
+	<section class="flex flex-col gap-12 items-center">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-24">
+			<div class="flex items-center justify-center h-80">
+				<Bar class="w-full" :data="ageData" :options="barChartOptions" />
+			</div>
+			<div class="flex items-center justify-center h-80">
+				<Doughnut class="w-full" :data="genderData" :options="donutChartOptions" />
+			</div>
 		</div>
-		<div class="flex items-center justify-center">
-			<Doughnut class="w-full" :data="genderData" :options="donutChartOptions" />
-		</div>
-	</div>
-	<div
-		class="grid grid-cols-2 gap-8 md:flex md:mx-auto md:gap-12 lg:gap-20 xl:gap-24 mt-6 self-stretch mb-8"
-	>
 		<div
-			v-for="(item, index) in counts"
-			:key="index"
-			class="flex flex-col items-center justify-center gap-4"
+			class="grid grid-cols-2 gap-6 md:flex md:mx-auto md:gap-12 lg:gap-20 xl:gap-24 self-stretch mb-8"
 		>
 			<div
-				class="flex size-28 sm:size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
+				v-for="(item, index) in counts"
+				:key="index"
+				class="flex flex-col items-center justify-center gap-4"
 			>
-				<component :is="item.icon" class="size-10 sm:size-12 stroke-[1.5]" />
-				<p class="text-xl sm:text-2xl">
-					<CountUp :value="item.value" />
-				</p>
+				<div
+					class="flex size-28 sm:size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
+				>
+					<component :is="item.icon" class="size-10 sm:size-12 stroke-[1.5]" />
+					<p class="text-xl sm:text-2xl">
+						<CountUp :value="item.value" />
+					</p>
+				</div>
+				<p class="md:text-xl">{{ t(item.translation) }}</p>
 			</div>
-			<p class="text-xl">{{ t(item.translation) }}</p>
 		</div>
-	</div>
+	</section>
 </template>

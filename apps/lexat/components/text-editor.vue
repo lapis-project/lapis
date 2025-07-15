@@ -36,7 +36,7 @@ const { apiClient } = useApiClient();
 const _uploadMedia = apiClient.media.upload.$post;
 type APIMediaUploadResponse = InferResponseType<typeof _uploadMedia, 200>;
 
-const props = withDefaults(defineProps<{ modelValue: string }>(), {
+const props = withDefaults(defineProps<{ modelValue?: string }>(), {
 	modelValue: "",
 });
 

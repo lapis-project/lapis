@@ -25,7 +25,7 @@ const target = computed(() => {
 </script>
 
 <template>
-	<NuxtLink :href="href" :target="target" class="cursor-pointer underline-offset-2 hover:underline">
+	<NuxtLink class="cursor-pointer underline-offset-2 hover:underline" :href="href" :target="target">
 		<slot />
 	</NuxtLink>
 </template>

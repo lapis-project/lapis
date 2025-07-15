@@ -93,7 +93,7 @@ const gridColumns = computed(() => {
 
 const windowWidth = ref(0);
 const hiddenSpeakers = ref<Set<string>>(new Set());
-const eventMinWidth = 400;
+const eventMinWidth = 200;
 
 const containerElementWidth = ref(0);
 

@@ -106,26 +106,21 @@ function handleResize() {
 	windowWidth.value = window.innerWidth;
 }
 
-// Keep these three numbers in one place so they stay in-sync with the template.
-const SPEAKER_COL_WIDTH = 160; // ← matches `gridTemplateColumns: '160px …'`
-const GRID_COL_GAP = 8; // ← .grid without an explicit `gap-x-*`
-//    defaults to 0, but you probably have
-//    at least `gap-x-2` (0.5 rem = 8 px)
-const SAFETY_PADDING = 2; // ← for sub-pixel rounding / scroll-bars
+const SPEAKER_COL_WIDTH = 160;
+const GRID_COL_GAP = 8; // .grid without an explicit gap`
+
+const SAFETY_PADDING = 2; // for sub-pixel rounding / scroll-bars
 
 const chunkedSpeakerEvents = computed(() => {
 	if (!transcript.value || containerElementWidth.value <= 0) return [];
 
-	/* ----------------------------------------------------
-     1.  Width that is actually available for event cells
-     ---------------------------------------------------- */
-	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
+	// Width that is actually available for event cells
 
-	/* ----------------------------------------------------
-     2.  One “slot” = card-min-width + 1 gap to its left
-         (the *first* event cell does not need a leading
-         gap, so we add GRID_COL_GAP back once below)
-     ---------------------------------------------------- */
+	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
+	/* One “slot” = card-min-width + 1 gap to its left
+		(the *first* event cell does not need a leading
+		gap, so we add GRID_COL_GAP back once below)
+	*/
 	const slotWidth = eventMinWidth + GRID_COL_GAP;
 	const maxEventsPerRow = Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
 
@@ -240,7 +235,7 @@ onUnmounted(() => {
 			</Button>
 		</div>
 		<div
-			class="relative gap-4 pt-2 overflow-x-hidden overflow-y-scroll flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
+			class="relative gap-4 pt-2 overflow-x-hidden overflow-y-auto flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
 			:style="{ gridTemplateColumns: gridColumns }"
 		>
 			<div

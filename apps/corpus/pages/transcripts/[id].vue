@@ -106,18 +106,36 @@ function handleResize() {
 	windowWidth.value = window.innerWidth;
 }
 
+// Keep these three numbers in one place so they stay in-sync with the template.
+const SPEAKER_COL_WIDTH = 160; // ← matches `gridTemplateColumns: '160px …'`
+const GRID_COL_GAP = 8; // ← .grid without an explicit `gap-x-*`
+//    defaults to 0, but you probably have
+//    at least `gap-x-2` (0.5 rem = 8 px)
+const SAFETY_PADDING = 2; // ← for sub-pixel rounding / scroll-bars
+
 const chunkedSpeakerEvents = computed(() => {
 	if (!transcript.value || containerElementWidth.value <= 0) return [];
 
-	const maxEventsPerRow = Math.floor(containerElementWidth.value / eventMinWidth);
+	/* ----------------------------------------------------
+     1.  Width that is actually available for event cells
+     ---------------------------------------------------- */
+	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
+
+	/* ----------------------------------------------------
+     2.  One “slot” = card-min-width + 1 gap to its left
+         (the *first* event cell does not need a leading
+         gap, so we add GRID_COL_GAP back once below)
+     ---------------------------------------------------- */
+	const slotWidth = eventMinWidth + GRID_COL_GAP;
+	const maxEventsPerRow = Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
+
 	if (maxEventsPerRow <= 0) return [];
 
 	const speakers = transcript.value!.speakers;
-
 	const events = transcript.value.events;
 	const totalChunks = Math.ceil(events.length / maxEventsPerRow);
 
-	const chunks = [];
+	const chunks: Array<Record<string, Array<Event>>> = [];
 	for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
 		const chunkStart = chunkIndex * maxEventsPerRow;
 		const chunkEnd = chunkStart + maxEventsPerRow;
@@ -127,11 +145,10 @@ const chunkedSpeakerEvents = computed(() => {
 		speakers?.forEach((s) => (speakerMap[s] = []));
 
 		chunkEvents.forEach((event) => {
-			speakers?.forEach((speakerName: string) => {
+			speakers?.forEach((speakerName) => {
 				const speakerEntry = event.speakers.find((s) => s.name === speakerName);
 				const tokens = speakerEntry?.tokens ?? [];
 
-				// Join token texts for each mode
 				const getTokens = (mode: "ortho" | "lu" | "phon") =>
 					tokens
 						.map((t) => ({
@@ -140,7 +157,7 @@ const chunkedSpeakerEvents = computed(() => {
 						}))
 						.filter((tok) => tok.text.trim() !== "");
 
-				speakerMap[speakerName]?.push({
+				speakerMap[speakerName]!.push({
 					start: event.timestamp.start,
 					end: event.timestamp.end,
 					ortho: getTokens("ortho"),
@@ -351,7 +368,7 @@ onUnmounted(() => {
 			<div
 				v-if="transcript?.events && transcript.speakers"
 				id="eventViewContainer"
-				class="flex flex-col gap-4"
+				class="overflow-hidden flex flex-col gap-4"
 			>
 				<!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
 				<audio

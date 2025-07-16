@@ -133,18 +133,18 @@ usePageMetadata({
 				<h2 class="text-3xl font-semibold">{{ t("HomePage.citation.title") }}</h2>
 				<p>{{ t("HomePage.citation.text") }}:</p>
 				<blockquote v-if="currentLocale === 'de'">
-					LexAT21 - Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert.
-					Herausgegeben von Alexandra N. Lenz. Konzipiert und entwickelt von Jakob Bal, Kilian
-					Kukelka, Markus Pluschkovits, Daniel Schopper und Anja Wittibschlager. Unter Mitarbeit von
-					Amelie Dorn, Jan Höll, Katharina Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes,
-					Markus Pluschkovits, Rita Stiglbauer, Florian David Tavernier, Anja Wittibschlager,
-					Theresa Ziegler, Kerstin Lorenz und Eric Schirl.
+					Lenz, Alexandra N. (ed.). 2025ff. LexAT21 - Atlas zur lexikalischen Variation in
+					Österreich im 21. Jahrhundert. Konzipiert und entwickelt von Jakob Bal, Kilian Kukelka,
+					Markus Pluschkovits, Daniel Schopper und Anja Wittibschlager. Unter Mitarbeit von Amelie
+					Dorn, Jan Höll, Katharina Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes, Markus
+					Pluschkovits, Rita Stiglbauer, Florian David Tavernier, Anja Wittibschlager, Theresa
+					Ziegler, Kerstin Lorenz und Eric Schirl.
 				</blockquote>
 				<blockquote v-else>
-					LexAT21 - Atlas on lexical variation in Austria in the 21st century. Edited by Alexandra
-					N. Lenz. Concept and development by Jakob Bal, Kilian Kukelka, Markus Pluschkovits, Daniel
-					Schopper und Anja Wittibschlager. With participation from Amelie Dorn, Jan Höll, Katharina
-					Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes, Markus Pluschkovits, Rita
+					Lenz, Alexandra N. (ed.). 2025ff. LexAT21 - Atlas on lexical variation in Austria in the
+					21st century. Concept and development by Jakob Bal, Kilian Kukelka, Markus Pluschkovits,
+					Daniel Schopper und Anja Wittibschlager. With participation from Amelie Dorn, Jan Höll,
+					Katharina Korecky-Kröll, Wolfgang Koppensteiner, Claudia Mattes, Markus Pluschkovits, Rita
 					Stiglbauer, Florian David Tavernier, Anja Wittibschlager, Theresa Ziegler, Kerstin Lorenz
 					and Eric Schirl.
 				</blockquote>

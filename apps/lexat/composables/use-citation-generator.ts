@@ -32,23 +32,47 @@ export function useCitationGenerator() {
 			serializer: StorageSerializers.object,
 		});
 
+		// only refetch if cache is empty, or if we're asking for specific keys
 		if (!cached.value || keyList) {
-			const result = await $fetch<Array<{ data: BibliographyItem }>>(
-				`/groups/${collectionId}/items`,
-				{
-					query: { limit: 100, itemKey: keyList },
-					baseURL: env.public.zoteroBaseUrl,
-					method: "GET",
-				},
-			);
-			if (result.length) {
-				const items = result.map((i) => i.data).filter((i) => i.itemType !== "note");
-				if (!keyList) {
-					cached.value = items;
-				}
-				bibliographyItems.value = items;
+			let items: Array<BibliographyItem> = [];
+
+			if (keyList) {
+				// single fetch by keyList
+				const result = await $fetch<Array<{ data: BibliographyItem }>>(
+					`/groups/${collectionId}/items`,
+					{
+						query: { limit: 100, itemKey: keyList },
+						baseURL: env.public.zoteroBaseUrl,
+						method: "GET",
+					},
+				);
+				items = result.map((i) => i.data).filter((i) => i.itemType !== "note");
+			} else {
+				// full‐collection fetch, two pages of 100 each
+				const [page1, page2] = await Promise.all([
+					$fetch<Array<{ data: BibliographyItem }>>(`/groups/${collectionId}/items`, {
+						query: { limit: 100, start: 0 },
+						baseURL: env.public.zoteroBaseUrl,
+						method: "GET",
+					}),
+					$fetch<Array<{ data: BibliographyItem }>>(`/groups/${collectionId}/items`, {
+						query: { limit: 100, start: 100 },
+						baseURL: env.public.zoteroBaseUrl,
+						method: "GET",
+					}),
+				]);
+
+				const parse = (arr: Array<{ data: BibliographyItem }>) =>
+					arr.map((i) => i.data).filter((i) => i.itemType !== "note");
+
+				items = [...parse(page1), ...parse(page2)];
+				// cache the full list
+				cached.value = items;
 			}
+
+			bibliographyItems.value = items;
 		} else {
+			// serve from cache
 			bibliographyItems.value = cached.value;
 		}
 	};

@@ -12,6 +12,7 @@ export interface Props {
 	options: Array<DropdownOption>;
 	placeholder?: string;
 	singleLevel?: boolean;
+	dataTestid?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -98,6 +99,7 @@ const open = ref(false);
 				aria-controls="popover-content"
 				:aria-expanded="open"
 				class="w-64 justify-between"
+				:data-testid="props.dataTestid"
 				role="combobox"
 				variant="outline"
 			>

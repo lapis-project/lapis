@@ -372,6 +372,7 @@ await refresh(); // manually refetch using updated state
 						</div>
 						<Combobox
 							v-model="activeQuestion"
+							data-testid="questions"
 							has-search
 							:options="mappedQuestions"
 							:placeholder="t('MapsPage.selection.variable.placeholder')"
@@ -386,6 +387,7 @@ await refresh(); // manually refetch using updated state
 						</div>
 						<MultiSelect
 							v-model="activeRegisters"
+							data-testid="registers"
 							:options="registerOptions"
 							:placeholder="t('MapsPage.selection.register.placeholder')"
 						/>
@@ -399,6 +401,7 @@ await refresh(); // manually refetch using updated state
 						</div>
 						<MultiSelect
 							v-model="activeVariants"
+							data-testid="variants"
 							:options="uniqueVariantsOptions"
 							:placeholder="t('MapsPage.selection.variants.placeholder')"
 							single-level
@@ -423,7 +426,7 @@ await refresh(); // manually refetch using updated state
 				</div>
 			</div>
 			<div class="flex flex-col gap-2">
-				<Button size="icon" variant="outline" @click="resetSelection()"
+				<Button data-testid="reset" size="icon" variant="outline" @click="resetSelection()"
 					><RotateCcw class="size-4"
 				/></Button>
 			</div>
@@ -438,6 +441,7 @@ await refresh(); // manually refetch using updated state
 				<Combobox
 					id="rows-per-page"
 					v-model="activePageSize"
+					data-testid="rows-per-page"
 					:options="pageSizeOption"
 					:placeholder="t('AdminPage.editor.category.placeholder')"
 					width="w-24"

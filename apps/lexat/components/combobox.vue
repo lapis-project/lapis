@@ -14,6 +14,7 @@ export interface Props<T = string> {
 	hasSearch?: boolean;
 	width?: "w-24" | "w-44" | "w-60" | "w-64" | "w-80";
 	selectOnly?: boolean;
+	dataTestid?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -42,6 +43,7 @@ const hasColor = computed(() => {
 				:aria-expanded="open"
 				class="justify-between"
 				:class="[props.width]"
+				:data-testid="props.dataTestid"
 				role="combobox"
 				variant="outline"
 			>

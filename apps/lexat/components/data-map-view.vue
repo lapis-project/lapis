@@ -837,6 +837,7 @@ watch(activeVariants, updateUrlParams, {
 							<Combobox
 								v-if="mappedQuestions?.length"
 								v-model="activeQuestion"
+								data-testid="questions"
 								has-search
 								:options="mappedQuestions"
 								:placeholder="t('MapsPage.selection.variable.placeholder')"
@@ -851,6 +852,7 @@ watch(activeVariants, updateUrlParams, {
 							</div>
 							<MultiSelect
 								v-model="activeRegisters"
+								data-testid="registers"
 								:options="registerOptions"
 								:placeholder="t('MapsPage.selection.register.placeholder')"
 							/>
@@ -864,6 +866,7 @@ watch(activeVariants, updateUrlParams, {
 							</div>
 							<MultiSelect
 								v-model="activeVariants"
+								data-testid="variants"
 								:options="uniqueVariantsOptions"
 								:placeholder="t('MapsPage.selection.variants.placeholder')"
 								single-level
@@ -988,7 +991,12 @@ watch(activeVariants, updateUrlParams, {
 					</CollapsibleContent>
 				</div>
 				<div class="flex flex-col gap-2">
-					<Button id="reset" size="icon" variant="outline" @click="resetSelection()"
+					<Button
+						id="reset"
+						data-testid="reset"
+						size="icon"
+						variant="outline"
+						@click="resetSelection()"
 						><RotateCcwIcon class="size-4"
 					/></Button>
 					<ClientOnly>
@@ -1012,6 +1020,7 @@ watch(activeVariants, updateUrlParams, {
 				v-if="filteredUniqueVariants.length"
 				id="variantLegend"
 				class="absolute bottom-12 right-0 z-10 mr-2"
+				data-testid="variantLegend"
 			>
 				<div
 					class="rounded-md border border-input bg-background p-3 text-sm text-foreground shadow-md"
@@ -1043,7 +1052,12 @@ watch(activeVariants, updateUrlParams, {
 					</ul>
 				</div>
 			</div>
-			<div v-if="features.length" id="regionLegend" class="absolute bottom-2 left-28 z-10 mr-2">
+			<div
+				v-if="features.length"
+				id="regionLegend"
+				class="absolute bottom-2 left-28 z-10 mr-2"
+				data-testid="regionLegend"
+			>
 				<div
 					class="rounded-md border border-input bg-background px-2 py-0.5 text-sm text-foreground shadow-md"
 				>
@@ -1088,15 +1102,16 @@ watch(activeVariants, updateUrlParams, {
 				v-if="filteredPoints?.length && numberOfInformants"
 				id="dataLegend"
 				class="absolute bottom-12 left-0 z-10 ml-2"
+				data-testid="dataLegend"
 			>
 				<div
 					class="rounded-md border border-input bg-background p-3 text-sm text-foreground shadow-md"
 				>
-					<div class="mb-1 flex items-center gap-1">
+					<div class="mb-1 flex items-center gap-1" data-testid="datapoints">
 						<MapPinIcon class="size-4" /> {{ t("MapsPage.map.datapoints") }}:
 						{{ filteredPoints.length }}
 					</div>
-					<div class="flex items-center gap-1">
+					<div class="flex items-center gap-1" data-testid="informants">
 						<UserIcon class="size-4" />{{ t("MapsPage.map.informants") }}:
 						{{ numberOfInformants }}
 					</div>
@@ -1164,26 +1179,37 @@ watch(activeVariants, updateUrlParams, {
 		</VisualisationContainer>
 		<div class="flex w-full gap-8 justify-between">
 			<div class="flex w-full gap-3">
-				<p class="break-words rounded-md border p-2 text-sm text-foreground/70">{{ fullRoute }}</p>
+				<p
+					class="break-words rounded-md border p-2 text-sm text-foreground/70"
+					data-testid="clipboard-url"
+				>
+					{{ fullRoute }}
+				</p>
 				<CopyToClipboard :text="fullRoute" />
 			</div>
 			<div class="flex gap-3">
-				<Button v-if="postAlias" @click="goToArticlePage"
+				<Button v-if="postAlias" data-testid="goToArticlePage" @click="goToArticlePage"
 					><FileText class="mr-2 size-4" />{{ t("MapsPage.go-to-article") }}</Button
 				>
-				<Button v-if="activeQuestionId" @click="goToDbPage"
+				<Button v-if="activeQuestionId" data-testid="goToDbPage" @click="goToDbPage"
 					><Database class="mr-2 size-4" />{{ t("MapsPage.go-to-db") }}</Button
 				>
-				<Button v-else variant="outline" @click="resetOnboarding">
+				<Button v-else data-testid="resetOnboarding" variant="outline" @click="resetOnboarding">
 					<CircleHelp class="mr-2 size-5" /> {{ t("MapsPage.help") }}</Button
 				>
 			</div>
 		</div>
-		<DataTable v-if="tableData.length" :columns="columnsLocations" :data="tableData"></DataTable>
+		<DataTable
+			v-if="tableData.length"
+			:columns="columnsLocations"
+			:data="tableData"
+			data-testid="locationTable"
+		></DataTable>
 		<DataTable
 			v-if="tableDataForRegisters.length"
 			:columns="columnsRegisters"
 			:data="tableDataForRegisters"
+			data-testid="variantTable"
 		></DataTable>
 		<VOnboardingWrapper
 			ref="wrapper"
@@ -1192,7 +1218,7 @@ watch(activeVariants, updateUrlParams, {
 			@finish="onboardingFinished"
 		>
 			<template #default="{ previous, next, step, isFirst, isLast }">
-				<VOnboardingStep>
+				<VOnboardingStep data-testid="onboardingStep">
 					<div class="bg-white relative shadow sm:rounded-lg mt-5">
 						<div class="px-4 py-5 sm:p-6">
 							<div class="flex items-center justify-between flex-col gap-5">

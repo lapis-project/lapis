@@ -94,7 +94,7 @@ export function getRegisterOptions(t: TranslateFn): Array<DropdownOption> {
 			group: "dia",
 		},
 		{
-			label: "Umgangssprache oder Alltagssprache",
+			label: "Umgangssprache (Alltagssprache)",
 			// value: "usas",
 			value: "8",
 			level: 2,
@@ -106,7 +106,7 @@ export function getRegisterOptions(t: TranslateFn): Array<DropdownOption> {
 export const registerGroups = [
 	{
 		name: "dia",
-		values: ["Dialekt (Mundart)", "Umgangssprache oder Alltagssprache"],
+		values: ["Dialekt (Mundart)", "Umgangssprache (Alltagssprache)"],
 	},
 	{
 		name: "st",

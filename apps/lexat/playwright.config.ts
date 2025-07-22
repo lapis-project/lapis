@@ -28,7 +28,7 @@ process.env.NUXT_PUBLIC_API_BASE_URL = backendBaseUrl;
 export default defineConfig({
 	testDir: "./e2e",
 	snapshotDir: "./e2e/snapshots",
-	fullyParallel: true,
+	fullyParallel: false,
 	forbidOnly: isCI,
 	retries: isCI ? 2 : 0,
 	maxFailures: 10,

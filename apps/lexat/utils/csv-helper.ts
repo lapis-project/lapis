@@ -32,7 +32,7 @@ const escapeCSVValue = (value: number | string): string => {
 export function downloadCSV(
 	data: Array<TableEntry>,
 	columns: Array<TableColumn>,
-	fileName = "table-data.csv",
+	fileName = "table-data",
 ): void {
 	const csvRows: Array<string> = [];
 
@@ -53,7 +53,9 @@ export function downloadCSV(
 
 	const link = document.createElement("a");
 	link.href = url;
-	link.download = fileName;
+	const timeStamp = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // produces yyyymmdd (e.g. 20250402)
+	const linkFileName = `${fileName.toLowerCase()}-${timeStamp}`;
+	link.download = linkFileName;
 	document.body.appendChild(link);
 	link.click();
 

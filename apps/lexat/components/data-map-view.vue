@@ -510,13 +510,6 @@ const fullRoute = computed(() => {
 	return env.public.appBaseUrl + route.fullPath;
 });
 
-const sanititzeReg = (reg: string) => {
-	if (reg === "Umgangssprache oder Alltagssprache") {
-		return "Ugs. oder Alltagssprache";
-	}
-	return reg;
-};
-
 const columnsLocations = ref<Array<TableColumn>>([
 	{
 		label: t("MapsPage.table.locations.location.header"),
@@ -880,12 +873,6 @@ watch(activeVariants, updateUrlParams, {
 							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.age.title") }}
 							</div>
-							<!-- <MultiSelect
-								v-model="activeAgeGroup"
-								:options="ageGroupOptions"
-								:placeholder="t('MapsPage.selection.age.placeholder')"
-								single-level
-							/> -->
 							<div class="max-w-64 pl-1">
 								<DualRangeSlider
 									accessibility-label="Age Group"
@@ -1166,9 +1153,7 @@ watch(activeVariants, updateUrlParams, {
 												({{ showVariantPercentages ? `${value.percentage}%` : value.total }})
 											</div>
 										</summary>
-										<p v-for="(v, k) in value.varieties" :key="k" class="">
-											- {{ sanititzeReg(k) }}: {{ v }}
-										</p>
+										<p v-for="(v, k) in value.varieties" :key="k" class="">- {{ k }}: {{ v }}</p>
 									</details>
 								</li>
 							</ul>

@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
         os: [ubuntu-latest]
 
     steps:
@@ -42,16 +42,16 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Format
-        run: pnpm run format:check
+        run: pnpm --filter apps/lexat format:check
 
       - name: Lint
-        run: pnpm run lint:check
+        run: pnpm --filter apps/lexat lint:check
 
       - name: Typecheck
-        run: pnpm run types:check
+        run: pnpm --filter apps/lexat types:check
 
       - name: Test
-        run: pnpm run test
+        run: pnpm --filter apps/lexat test
 
       - name: Get playwright version
         run: |
@@ -73,14 +73,14 @@ jobs:
         run: pnpm exec playwright install-deps
 
       - name: Build app
-        run: pnpm run build
+        run: pnpm build:lexat
         env:
-          NUXT_PUBLIC_APP_BASE_URL: "http://localhost:3000"
+          NUXT_PUBLIC_APP_BASE_URL: "${{ needs.generate_workflow_vars.outputs.public_url }}"
           NUXT_PUBLIC_REDMINE_ID: "${{ vars.SERVICE_ID }}"
-          NUXT_PUBLIC_ZOTERO_BASE_URL: "https://api.zotero.org"
+          NUXT_PUBLIC_ZOTERO_BASE_URL: "${{ vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}"
 
       - name: Run e2e tests
-        run: pnpm run test:e2e
+        run: pnpm --filter apps/lexat run test:e2e
         env:
           NUXT_PUBLIC_APP_BASE_URL: "http://localhost:3000"
 

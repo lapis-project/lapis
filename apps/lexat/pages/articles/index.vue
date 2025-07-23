@@ -92,6 +92,7 @@ usePageMetadata({
 				<Combobox
 					id="category"
 					v-model="selectedCategory"
+					data-testid="category"
 					:options="categoryOptions"
 					:placeholder="t('AdminPage.editor.category.placeholder')"
 				/>
@@ -101,6 +102,7 @@ usePageMetadata({
 				<Combobox
 					id="language"
 					v-model="selectedLanguage"
+					data-testid="language"
 					:options="languageOptions"
 					:placeholder="t('AdminPage.editor.language.placeholder')"
 				/>
@@ -112,10 +114,13 @@ usePageMetadata({
 				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon class="size-4"
 			/></Button>
 		</aside>
-		<div class="flex flex-col gap-8">
-			<div class="text-3xl">{{ totalResults }} {{ t("ArticlesPage.results") }}</div>
-			<div v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
-				<div>
+		<div>
+			<div class="text-3xl mb-8" data-testid="results">
+				{{ totalResults }}
+				{{ totalResults === 1 ? t("ArticlesPage.result") : t("ArticlesPage.results") }}
+			</div>
+			<ul class="flex flex-col gap-8" data-testid="articles">
+				<li v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
 					<div
 						class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 text-sm font-light tracking-wider dark:text-primary-foreground"
 					>
@@ -143,8 +148,8 @@ usePageMetadata({
 							<p class="line-clamp-3 font-light">{{ article.abstract }}</p>
 						</div>
 					</div>
-				</div>
-			</div>
+				</li>
+			</ul>
 			<PagePagination
 				:current-page="currentPage"
 				:items-per-page="20"

@@ -124,6 +124,7 @@
 				"placeholder": "Suchbegriff eingeben..."
 			}
 		},
+		"result": "Eintrag",
 		"results": "Einträge"
 	},
 	"ArticleDetailPage": {

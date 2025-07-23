@@ -124,6 +124,7 @@
 				"placeholder": "Enter search term..."
 			}
 		},
+		"result": "Article",
 		"results": "Articles"
 	},
 	"ArticleDetailPage": {

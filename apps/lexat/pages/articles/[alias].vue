@@ -9,7 +9,7 @@ import { formatAuthors } from "@/utils/article-helper";
 import { addIdsToHeadings } from "@/utils/html-helpers";
 import { useFetch, useRoute } from "#app";
 
-const { bibliographyItems, getCitation, fetchBibliographyItems } = useCitationGenerator();
+const { bibliographyItems, getCitationItems, fetchBibliographyItems } = useCitationGenerator();
 
 const t = useTranslations();
 const env = useRuntimeConfig();
@@ -80,6 +80,15 @@ const tableOfContents = computed(() => {
 	}
 
 	return toc;
+});
+
+const bibliography = computed(() => {
+	if (!article.value?.bibliography?.length) {
+		return [];
+	}
+	const keys = article.value.bibliography.flatMap((entry) => (entry.name ? [entry.name] : []));
+
+	return keys.length ? getCitationItems(keys) : [];
 });
 
 const phenomenonId = computed(() => {
@@ -198,13 +207,9 @@ const scrollTo = (id) => {
 				</div>
 				<hr class="mt-5" />
 				<div class="article-content" v-html="article.content"></div>
-				<div v-if="article.bibliography && article.bibliography.length" class="article-content">
+				<div v-if="bibliography?.length" class="article-content">
 					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>
-					<p
-						v-for="key in article.bibliography"
-						:key="key.name!"
-						v-html="getCitation(key.name!)"
-					></p>
+					<p v-for="item in bibliography" :key="item" v-html="item"></p>
 				</div>
 				<hr class="mt-5" />
 				<div v-if="article.citation">

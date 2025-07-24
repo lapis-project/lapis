@@ -1,7 +1,7 @@
 import { StorageSerializers } from "@vueuse/core";
 
 import type { DropdownOption } from "@/types/dropdown-option";
-import type { BibliographyItem, BibliographyItemCreator } from "@/types/zotero";
+import type { BibliographyItem } from "@/types/zotero";
 
 export function useCitationGenerator() {
 	const env = useRuntimeConfig();
@@ -9,23 +9,6 @@ export function useCitationGenerator() {
 	const collectionId = "5540614";
 
 	const bibliographyItems = ref<Array<BibliographyItem>>([]);
-
-	// two authors: x & y, three authors: x / y & z
-	const formatAuthors = (creators: Array<BibliographyItemCreator>): string => {
-		if (creators.length === 0) return "";
-		if (creators.length === 1) {
-			return `${creators[0]?.lastName ?? ""}, ${creators[0]?.firstName ?? ""}`;
-		}
-
-		const lastAuthor = creators[creators.length - 1];
-		const otherAuthors = creators.slice(0, -1);
-
-		const formattedAuthors = otherAuthors
-			.map((creator) => `${creator.lastName ?? ""}, ${creator.firstName ?? ""}`)
-			.join(" / ");
-
-		return `${formattedAuthors} & ${lastAuthor?.lastName ?? ""}, ${lastAuthor?.firstName ?? ""}`;
-	};
 
 	const fetchBibliographyItems = async (keyList: string | null = null) => {
 		const cached = useSessionStorage<Array<BibliographyItem> | null>("bibliography", null, {
@@ -77,33 +60,14 @@ export function useCitationGenerator() {
 		}
 	};
 
-	const generateCitation = (item: BibliographyItem): string => {
-		const authors = formatAuthors(item.creators);
-		const pages = item.pages ? `, ${item.pages}` : "";
-
-		switch (item.itemType) {
-			case "journalArticle":
-				return `${authors}. ${item.date}. ${item.title}. ${item.publicationTitle ? `<em>${item.publicationTitle}</em>` : ""} ${item.volume}${pages}. ${item.doi ? `https://doi.org/${item.doi}` : ""}.`;
-
-			case "bookSection":
-				return `${authors}. ${item.date}. ${item.title}. ${item.bookTitle ? `In <em>${item.bookTitle}</em>${pages}. ` : ""}${item.place}:${item.publisher}.`;
-
-			case "book":
-				return `${authors}. ${item.date}. <em>${item.title}</em>. ${item.place}:${item.publisher}.`;
-
-			case "thesis":
-				return `${authors}. ${item.date}. <em>${item.title}</em>. ${item.university ?? ""}.`;
-			case "note":
-			default:
-				return "";
-		}
-	};
-
-	const getCitation = (key: string): string => {
-		const item = bibliographyItems.value.find((item) => item.key === key);
-		if (!item) return "";
-
-		return generateCitation(item);
+	const getCitationItems = (keys: Array<string>) => {
+		const sanitizedKeys = new Set(keys); // in case of duplicate items
+		return bibliographyItems.value
+			.filter((item) => sanitizedKeys.has(item.key))
+			.map((item) => item.extra) // take the “extra” field
+			.sort(
+				(a, b) => a.localeCompare(b, "de", { sensitivity: "base" }), // locale-aware alphabetical sort
+			);
 	};
 
 	const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
@@ -117,6 +81,6 @@ export function useCitationGenerator() {
 		bibliographyItems,
 		bibliographyOptions,
 		fetchBibliographyItems,
-		getCitation,
+		getCitationItems,
 	};
 }

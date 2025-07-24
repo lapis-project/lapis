@@ -53,8 +53,8 @@ jobs:
           # Fallback for branch logic
           elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "environment=production-backend"
-            ENV_NAME="production-corpus"
-            ENV_SHORT="prod-corpus"
+            ENV_NAME="production-backend"
+            ENV_SHORT="prod-backend"
             echo "environment=production-backend" >> $GITHUB_OUTPUT
             echo "environment_short=prod-backend" >> $GITHUB_OUTPUT
           else

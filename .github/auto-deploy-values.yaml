@@ -14,8 +14,8 @@ service:
   name: "web"
   url: "$public_url"
   type: ClusterIP
-  externalPort: # the port your app runs on
-  internalPort: # the port your app runs on
+  externalPort: 3000
+  internalPort: 3000
 ingress:
   enabled: true
   path: "/"

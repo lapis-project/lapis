@@ -1,0 +1,14 @@
+application:
+  port: 3000
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 3000
+    initialDelaySeconds: 5
+    periodSeconds: 10

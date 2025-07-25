@@ -153,7 +153,7 @@ jobs:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
       DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-lexat-frontend
       APP_NAME: "${{ needs.setup_workflow_env.outputs.app_name }}"
-      APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
+      APP_ROOT: "${{ vars.APP_ROOT_FRONTEND }}"
       SERVICE_ID: "${{ vars.SERVICE_ID_FRONTEND }}"
       PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.PUBLIC_URL }}"
       default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"

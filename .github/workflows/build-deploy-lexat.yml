@@ -22,7 +22,7 @@ jobs:
       fetch-depth: 10
       submodules: "true"
       APP_NAME: lexat
-      APP_ROOT: /
+      APP_ROOT: "${{ vars.APP_ROOT_FRONTEND }}"
       PUBLIC_URL: "${{ vars.PUBLIC_URL_FRONTEND }}"
     steps:
       - name: Get environment from git ref

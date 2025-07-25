@@ -23,14 +23,14 @@ ingress:
     kubernetes.io/ingressClassName: "nginx"
     #nginx.ingress.kubernetes.io/app-root: # the root route if it is not /
 livenessProbe:
-  path: /
+  path: /healthz
   port: 3000
   initialDelaySeconds: 15
   timeoutSeconds: 15
   scheme: "HTTP"
   probeType: "httpGet"
 readinessProbe:
-  path: /
+  path: /healthz
   port: 3000
   initialDelaySeconds: 5
   timeoutSeconds: 3

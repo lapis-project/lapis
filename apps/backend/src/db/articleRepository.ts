@@ -123,15 +123,6 @@ export async function getAllArticlesByProject(
 			if (lang) {
 				baseQuery = baseQuery.where("post.lang", "=", lang);
 			}
-			if (searchTerm === "" && postType === "") {
-				baseQuery = baseQuery.orderBy(sql`CASE
-					WHEN post_type.post_type_name = 'short_description' THEN 2
-					ELSE 1
-				END,
-				post.created_at,
-				post.published_at
-				`);
-			}
 
 			return baseQuery
 				.select(({ eb }) => [
@@ -142,8 +133,9 @@ export async function getAllArticlesByProject(
 					eb.ref("post.abstract").as("abstract"),
 					eb.ref("post.cover").as("cover"),
 					eb.ref("post.cover_alt").as("cover_alt"),
-					eb.ref("post_type.post_type_name").as("post_type"),
+					eb.ref("post_type.post_type_name").as("type_name"),
 					eb.ref("post.creator_id").as("creator_id"),
+					eb.ref("post.created_at").as("created_at"),
 					eb.ref("post.published_at").as("published_at"),
 					eb.fn
 						.coalesce(
@@ -164,25 +156,42 @@ export async function getAllArticlesByProject(
 		})
 		.selectFrom("post_query")
 		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
-		.select(({ eb, fn }) => [
-			fn
-				.jsonAgg(
-					jsonBuildObject({
-						post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
-						title: eb.cast<string>(eb.ref("post_query.title"), "text"),
-						alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
-						abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
-						post_type: eb.cast<string>(eb.ref("post_query.post_type"), "text"),
-						authors: eb.ref("post_query.authors"),
-						cover: eb.cast<string>(eb.ref("post_query.cover"), "text"),
-						cover_alt: eb.cast<string>(eb.ref("post_query.cover_alt"), "text"),
-						published_at: eb.cast<string>(eb.ref("post_query.published_at"), "text"),
-					}),
-				)
-				.filterWhere("rn", ">", offset)
-				.filterWhere("rn", "<=", pageSize + offset)
-				.as("articles"),
-			fn.countAll().as("total"),
-		]);
+		.select(({ eb, fn }) => {
+			let agg = fn.jsonAgg(
+				jsonBuildObject({
+					post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
+					title: eb.cast<string>(eb.ref("post_query.title"), "text"),
+					alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
+					abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
+					post_type: eb.cast<string>(eb.ref("post_query.type_name"), "text"),
+					authors: eb.ref("post_query.authors"),
+					cover: eb.cast<string>(eb.ref("post_query.cover"), "text"),
+					cover_alt: eb.cast<string>(eb.ref("post_query.cover_alt"), "text"),
+					published_at: eb.cast<string>(eb.ref("post_query.published_at"), "text"),
+				}),
+			);
+
+			if (searchTerm === "" && postType === "") {
+				agg = agg
+					.orderBy(
+						sql`CASE
+          WHEN type_name = 'short_description' THEN 2
+          ELSE 1
+        END`,
+					)
+					.orderBy("created_at")
+					.orderBy("published_at");
+			} else {
+				agg = agg.orderBy("post_query.published_at", "desc");
+			}
+
+			return [
+				agg
+					.filterWhere("rn", ">", offset)
+					.filterWhere("rn", "<=", pageSize + offset)
+					.as("articles"),
+				fn.countAll().as("total"),
+			];
+		});
 	return await query.execute();
 }

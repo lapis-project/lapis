@@ -882,7 +882,7 @@ watch(activeVariants, updateUrlParams, {
 									:label="(value) => value"
 									:max="100"
 									:min="0"
-									step="5"
+									:step="5"
 									:value="activeAgeGroup"
 									@update:value="setAgeGroup"
 								/>

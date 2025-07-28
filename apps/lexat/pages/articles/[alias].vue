@@ -155,6 +155,12 @@ const scrollTo = (id) => {
 	const top = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
 	window.scrollTo({ top, behavior: "smooth" });
 };
+
+const formattedTitle = computed(
+	() =>
+		// adds a space before and after every slash
+		article.value?.title?.replace(/\//g, "/\u200B") ?? "",
+);
 </script>
 
 <template>
@@ -166,14 +172,16 @@ const scrollTo = (id) => {
 			><ArrowLeft class="size-4" /> {{ t("ArticleDetailPage.back") }}</NuxtLinkLocale
 		>
 		<div class="flex flex-col sm:flex-row gap-8">
-			<article v-if="article" class="sm:w-3/4">
+			<article v-if="article" class="w-full sm:w-3/4">
 				<div
 					v-if="!isProjectDescription"
 					class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 tracking-wider dark:text-primary-foreground"
 				>
 					{{ t(`AdminPage.editor.category.${article.post_type_name}`) }}
 				</div>
-				<PageTitle class="mb-3">{{ article.title }}</PageTitle>
+				<h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold break-words">
+					{{ formattedTitle }}
+				</h1>
 				<p v-if="article.authors?.length" class="mb-1">
 					{{ t("ArticleDetailPage.authors") }}: {{ formatAuthors(article.authors) }}
 				</p>
@@ -186,7 +194,7 @@ const scrollTo = (id) => {
 				<NuxtImg
 					v-if="article.cover"
 					:alt="article.cover_alt ?? 'Cover'"
-					class="aspect-16/9 w-full rounded-t-lg object-cover"
+					class="object-cover aspect-16/9"
 					:src="article.cover"
 				/>
 				<div v-if="article?.post_type_name !== 'short_description'" class="block sm:hidden">
@@ -214,9 +222,9 @@ const scrollTo = (id) => {
 				<hr class="mt-5" />
 				<div v-if="article.citation">
 					<h2 class="mb-4 mt-8 text-xl font-bold">{{ t("ArticleDetailPage.citation") }}</h2>
-					<p class="max-w-2xl italic">
+					<blockquote class="max-w-2xl italic break-all sm:break-keep">
 						{{ article.citation }}
-					</p>
+					</blockquote>
 				</div>
 			</article>
 			<aside class="hidden sm:block w-1/4">

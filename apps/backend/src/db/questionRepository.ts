@@ -208,14 +208,29 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 }
 
 export async function getAnnotationsByPhaenAndProjectId(projectId: number, phenId: number) {
+	// This is currently commented out till the data has been completed
+	// return await db
+	// 	.selectFrom("annotation")
+	// 	.innerJoin("annotation_tagset", "annotation.id", "annotation_tagset.annotation_id")
+	// 	.innerJoin("tagset", "annotation_tagset.tagset_id", "tagset.id")
+	// 	.innerJoin("phenomenon_tagset", "tagset.id", "phenomenon_tagset.tagset_id")
+	// 	.select(["annotation.id", "annotation.annotation_name", "annotation.description"])
+	// 	.where("annotation.project_id", "=", projectId)
+	// 	.where("phenomenon_tagset.phenomenon_id", "=", phenId)
+	// 	.execute();
+
+	// WORKAROUND TODO DELETE THIS WHEN DATA HAS BEEN MENDED
 	return await db
-		.selectFrom("annotation")
-		.innerJoin("annotation_tagset", "annotation.id", "annotation_tagset.annotation_id")
-		.innerJoin("tagset", "annotation_tagset.tagset_id", "tagset.id")
-		.innerJoin("phenomenon_tagset", "tagset.id", "phenomenon_tagset.tagset_id")
+		.selectFrom("response")
+		.innerJoin("annotation_response", "response.id", "annotation_response.response_id")
+		.innerJoin("annotation", "annotation_response.annotation_id", "annotation.id")
+		.innerJoin("task", "response.task_id", "task.id")
+		.innerJoin("phenomenon_task", "task.id", "phenomenon_task.task_id")
+		.innerJoin("phenomenon", "phenomenon_task.phenomenon_id", "phenomenon.id")
 		.select(["annotation.id", "annotation.annotation_name", "annotation.description"])
 		.where("annotation.project_id", "=", projectId)
-		.where("phenomenon_tagset.phenomenon_id", "=", phenId)
+		.where("phenomenon.id", "=", phenId)
+		.distinct()
 		.execute();
 }
 

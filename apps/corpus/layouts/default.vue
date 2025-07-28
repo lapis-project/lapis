@@ -1,6 +1,4 @@
-<script lang="ts" setup>
-const t = useTranslations();
-</script>
+<script lang="ts" setup></script>
 
 <template>
 	<div class="grid min-h-full grid-rows-[auto_1fr_auto]">

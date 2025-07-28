@@ -121,34 +121,62 @@ watch(
 			</div>
 		</div>
 	</div>
-	<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="plain">
+	<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="info">
 		<div class="flex gap-4 items-center">
 			<TabsList class="w-full items-stretch">
+				<TabsTrigger value="info">Info</TabsTrigger>
 				<TabsTrigger value="plain"> Plain </TabsTrigger>
 				<TabsTrigger value="kwic"> KWIC </TabsTrigger>
 				<TabsTrigger value="xml"> XML </TabsTrigger>
 			</TabsList>
 			<NuxtLinkLocale
 				class="inline-flex rounded p-3 hover:bg-accent hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
-				focus-visible:ring-ring
-				font-med
 				:href="{
 					path: currentId ? `/transcripts/${currentId}` : '',
 				}"
-				items-center
-				ium
-				justify-center
-				ring-offset-background
-				rounded-md
-				text-sm
-				transition-colors
-				whitespace-nowrap
 			>
 				<span class="sr-only"> Detailview Demo </span>
 				<EyeIcon class="size-4" />
 			</NuxtLinkLocale>
 			<Button class="shrink-0" size="icon" variant="ghost"><DownloadIcon class="size-4" /></Button>
 		</div>
+		<TabsContent class="p-4 text-sm text-muted-foreground space-y-2" value="info">
+			<div v-if="currentTranscripts && currentId">
+				<div
+					v-for="transcript in currentTranscripts.filter((t) => String(t.id) === currentId)"
+					:key="transcript.id"
+					class="space-y-2"
+				>
+					<h2 class="text-lg font-semibold text-foreground">{{ transcript.name }}</h2>
+					<ul class="space-y-3">
+						<li>
+							<span class="font-medium text-foreground">Ort:</span>
+							<span class="pl-1">{{ transcript.location }}</span>
+						</li>
+						<li>
+							<span class="font-medium text-foreground">Setting:</span>
+							<span class="pl-1">{{ transcript.setting }}</span>
+						</li>
+
+						<li>
+							<span class="font-medium text-foreground">Sprecher:innen:</span>
+							<span
+								v-for="(speaker, index) in transcript.speakers"
+								:key="speaker"
+								class="pl-1 inline-flex"
+							>
+								<SpeakerButton :current-id="currentId" :speaker-name="speaker ?? ''" />
+								<span v-if="index < transcript.speakers.length - 1">, </span>
+							</span>
+						</li>
+						<li>
+							<span class="font-medium text-foreground">Anzahl der Events:</span>
+							<span class="pl-1">{{ transcript.events.length }}</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</TabsContent>
 		<TabsContent
 			v-if="currentId != null"
 			class="flex-grow w-full overflow-auto min-h-0"
@@ -162,10 +190,14 @@ watch(
 							{{ hit.event }}
 						</div>
 						<div v-else class="min-w-[10rem]"></div>
-						<div>
-							<span class="font-semibold pr-1">{{ speaker?.name }}</span>
+						<span class="flex flex-row items-center">
+							<SpeakerButton
+								:current-id="currentId"
+								:speaker-name="speaker?.name ?? ''"
+							></SpeakerButton>
+
 							<span>{{ speaker?.text }}</span>
-						</div>
+						</span>
 					</div>
 				</div>
 			</div>

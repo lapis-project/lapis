@@ -8,6 +8,7 @@
 			"setting": "Interview",
 			"icon": "vscode-icons:file-type-typescript",
 			"audioUrl": "/audio/transcriptAudio1.mp3",
+			"bookmarked": false,
 			"annotations": [
 				{
 					"id": 0,
@@ -386,6 +387,7 @@
 			"setting": "Interview",
 			"icon": "vscode-icons:file-type-audio",
 			"audioUrl": "/audio/transcriptAudio1.mp3",
+			"bookmarked": false,
 			"annotations": [
 				{
 					"id": 0,
@@ -480,6 +482,7 @@
 			"setting": "Interview",
 			"icon": "vscode-icons:file-type-json",
 			"audioUrl": "/audio/transcriptAudio1.mp3",
+			"bookmarked": false,
 			"annotations": [
 				{
 					"id": 0,

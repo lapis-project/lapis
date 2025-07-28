@@ -37,7 +37,9 @@ export interface Transcript {
 	name: string;
 	location: string;
 	setting: string;
+	icon: string;
 	audioUrl: string;
+	bookmarked: boolean;
 	annotations: Array<Annotation>;
 	speakers: Array<string>;
 	events: Array<TranscriptEvent>;
@@ -311,11 +313,11 @@ onUnmounted(() => {
 								<p class="text-xs text-gray-500">Spuren:</p>
 								<label class="flex items-center gap-2">
 									<input v-model="showLu" type="checkbox" />
-									Literal Utterance (lu)
+									Lautorientierte Transkription (lu)
 								</label>
 								<label class="flex items-center gap-2">
 									<input v-model="showPhon" type="checkbox" />
-									Phonographic (ph)
+									Phonetische Transkription (phon)
 								</label>
 							</div>
 							<hr class="my-2 border-foreground/10" />
@@ -418,21 +420,42 @@ onUnmounted(() => {
 							>
 								<div class="flex flex-row justify-between">
 									{{ speaker }}
-									<div class="text-sm font-normal text-right pr-3 text-gray-500">o</div>
+									<div class="text-sm font-normal text-right pr-3 text-gray-500 h-full">
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger> o </TooltipTrigger>
+												<TooltipContent> Standardorthografische Transkription </TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</div>
 								</div>
-								<div class="text-sm font-normal text-right pr-3 text-gray-500">lu</div>
-								<div class="text-sm font-normal text-right pr-3 text-gray-500">ph</div>
+								<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger> lu </TooltipTrigger>
+											<TooltipContent> Lautorientierte Transkription </TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								</div>
+								<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger> phon </TooltipTrigger>
+											<TooltipContent> Phonetische Transkription </TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								</div>
 							</div>
 
 							<div
 								v-for="(e, idx) in block[speaker]"
 								:key="speaker + '-event-' + idx"
-								class="p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80 h-full max-w-full flex flex-col flex-shrink-0"
+								class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
 							>
 								<Dialog>
-									<DialogTrigger as-child class="p-0 m-0">
+									<DialogTrigger as-child class="h-full">
 										<div
-											class="grid gap-1 items-start"
+											class="grid gap-1 h-full"
 											:style="{
 												gridTemplateColumns: 'repeat(' + e.ortho.length + ', minmax(0, auto))',
 											}"
@@ -440,7 +463,7 @@ onUnmounted(() => {
 											<div
 												v-for="(token, index) in e.ortho"
 												:key="'token-group-' + index"
-												class="flex flex-col items-start group hover:cursor-pointer h-full hover:bg-gray-100"
+												class="grid grid-rows-[auto_1fr] items-end group hover:cursor-pointer h-full hover:bg-gray-100"
 											>
 												<div
 													class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
@@ -458,9 +481,6 @@ onUnmounted(() => {
 													{{ e.lu[index]?.text }}
 												</div>
 
-												<div v-else class="italic text-gray-300 px-0 m-0 whitespace-nowrap py-0.5">
-													–
-												</div>
 												<div
 													v-if="showPhon"
 													class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
@@ -469,10 +489,6 @@ onUnmounted(() => {
 													"
 												>
 													{{ e.phon[index]?.text }}
-												</div>
-
-												<div v-else class="py-0.5 italic px-0 m-0 whitespace-nowrap text-gray-300">
-													–
 												</div>
 
 												<div
@@ -495,21 +511,23 @@ onUnmounted(() => {
 											<div class="border border-b w-full mt-2"></div>
 
 											<p class="font-semibold mt-2">Tokens:</p>
-											<p v-if="e.lu" class="italic text-sm mt-2">Ortho Tokens:</p>
+											<p v-if="e.lu" class="italic text-sm mt-2">
+												Standardorthografische Transkription:
+											</p>
 											<p>
 												<span v-for="(token, i) in e.ortho" :key="i" class="mr-1 text-xs">
 													{{ token.text }}
 												</span>
 											</p>
 
-											<p v-if="e.lu" class="italic text-sm mt-2">LU Tokens:</p>
+											<p v-if="e.lu" class="italic text-sm mt-2">Lautorientierte Transkription:</p>
 											<p v-if="e.lu">
 												<span v-for="(token, i) in e.lu" :key="i" class="mr-1 text-xs">
 													{{ token.text }}
 												</span>
 											</p>
 
-											<p v-if="e.phon" class="italic text-sm mt-2">PHON Tokens:</p>
+											<p v-if="e.phon" class="italic text-sm mt-2">Phonetische Transkription:</p>
 											<p v-if="e.phon">
 												<span v-for="(token, i) in e.phon" :key="i" class="mr-1 text-xs">
 													{{ token.text }}

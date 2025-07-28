@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import {
+	BookmarkIcon,
 	ChevronLeft,
 	ChevronRight,
 	Download,
@@ -10,10 +11,13 @@ import {
 	Undo2,
 } from "lucide-vue-next";
 import { TreeItem, TreeRoot } from "reka-ui";
+import { toast } from "vue-sonner";
 
-import searchResults from "@/assets/data/transcripts-demo.json";
-import type { RadioOption } from "@/components/base-radio-group.vue";
+import initialData from "@/assets/data/transcripts-demo.json";
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
+
+import Checkbox from "../../../ui/components/ui/checkbox/Checkbox.vue";
+import type { Transcript } from "./[id].vue";
 
 definePageMeta({
 	layout: "tool",
@@ -22,6 +26,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 
+const searchResults = ref<Array<Transcript>>(initialData.transcripts);
 const showFirstColumn = ref(true);
 const showThirdColumn = ref(true);
 
@@ -64,20 +69,19 @@ const sampleOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Option 2", value: "two" },
 	{ label: "Option 3", value: "three" },
 ]);
-const activeCompetence = ref("3");
 
-const competenceOptions = ref<Array<RadioOption>>([
-	{ id: "competence-option-one", label: "A1", value: "1" },
-	{ id: "competence-option-two", label: "A2", value: "2" },
-	{ id: "competence-option-three", label: "B1", value: "3" },
-	{ id: "competence-option-four", label: "B2", value: "4" },
-	{ id: "competence-option-five", label: "C1", value: "5" },
+const genderOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "m", value: "m" },
+	{ label: "w", value: "w" },
+	{ label: "divers", value: "divers" },
 ]);
+
+const competenceValue = ref<Array<number>>([1]);
 
 const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
 
 const filteredTranscripts = computed(() => {
-	return searchResults.transcripts.filter((transcript) => {
+	return searchResults.value.filter((transcript) => {
 		if (activeSetting.value && transcript.setting !== activeSetting.value) return false;
 		if (activeLocation.value && transcript.location !== activeLocation.value) return false;
 		// add other filters here
@@ -85,8 +89,17 @@ const filteredTranscripts = computed(() => {
 	});
 });
 
+const bookmarkedTranscripts = computed(() => {
+	return searchResults.value.filter((entry) => {
+		if (entry.bookmarked) {
+			return entry;
+		}
+		return null;
+	});
+});
+
 const treeItems = computed(() => {
-	const groups = filteredTranscripts.value.reduce(
+	const groups = filteredTranscripts.value?.reduce(
 		(acc, transcript) => {
 			if (!acc[transcript.setting]) acc[transcript.setting] = [];
 
@@ -128,6 +141,28 @@ function handleSelection(id: string) {
 	router.push({ query: { ...route.query, selection: [...current, id] } });
 }
 
+function handleBookmark(transcript: Transcript) {
+	transcript.bookmarked = !transcript.bookmarked;
+	localStorage.setItem("transcripts-demo", JSON.stringify(searchResults.value));
+
+	if (transcript.bookmarked) {
+		toast.info("Das Transcript wurde zu Ihrer Bibliothek hinzugefügt!");
+	} else {
+		toast.info("Das Transcript wurde aus Ihrer Bibliothek entfernt!");
+	}
+}
+
+onMounted(async () => {
+	localStorage.setItem("transcripts-demo", JSON.stringify(searchResults.value));
+
+	const saved = localStorage.getItem("transcripts-demo");
+	if (saved) {
+		searchResults.value = JSON.parse(saved);
+	} else {
+		localStorage.setItem("transcripts-demo", JSON.stringify(initialData));
+	}
+});
+
 watch(
 	() => {
 		return route.query.selection;
@@ -164,7 +199,15 @@ watch(
 					<TabsList class="w-full flex-shrink-0">
 						<TabsTrigger value="tree"> Tree </TabsTrigger>
 						<TabsTrigger value="filter"> Filter </TabsTrigger>
-						<TabsTrigger value="bookmark"> Bookmarks </TabsTrigger>
+						<TabsTrigger value="bookmark">
+							Bibliothek
+							<span
+								v-if="bookmarkedTranscripts.length > 0"
+								class="bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center"
+							>
+								{{ bookmarkedTranscripts.length }}
+							</span>
+						</TabsTrigger>
 					</TabsList>
 					<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="tree">
 						<TreeRoot
@@ -235,7 +278,7 @@ watch(
 									/></Button>
 								</div>
 							</div>
-							<div class="text-lg mb-1">Sprecher</div>
+							<div class="text-lg mb-1">Sprecher:innen</div>
 							<div class="grid w-full gap-1.5">
 								<Label class="tracking-wide pl-1" for="age">Altersklasse</Label>
 								<div class="flex gap-2">
@@ -279,17 +322,22 @@ watch(
 								</div>
 							</div>
 							<div class="grid w-full gap-3 my-2">
-								<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz (Deutsch)</Label>
-								<BaseRadioGroup
-									v-model="activeCompetence"
-									name="nos"
-									:options="competenceOptions"
-									orientation="horizontal"
-								></BaseRadioGroup>
-								<!-- <div class="text-sm justify-between flex">
-									<span> (Schlecht) </span>
-									<span> (Gut) </span>
-								</div> -->
+								<div class="flex gap-1">
+									<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz</Label>
+									<span class="text-xs text-muted-foreground">{{ competenceValue[0] }}</span>
+								</div>
+								<div class="flex flex-row gap-4">
+									<Slider v-model="competenceValue" :max="7" :min="1" :step="1" />
+									<div class="flex items-center space-x-2">
+										<Checkbox id="na" />
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger> <label class="text-sm" for="na">NA</label></TooltipTrigger>
+												<TooltipContent> „Nicht angegeben“ berücksichtigen </TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</div>
+								</div>
 							</div>
 							<div class="grid w-full gap-1.5">
 								<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>
@@ -297,7 +345,7 @@ watch(
 									<ComboboxBase
 										id="gender"
 										v-model="activeGender"
-										:options="sampleOptions"
+										:options="genderOptions"
 										placeholder="Geschlecht"
 									></ComboboxBase>
 									<Button size="icon" variant="outline" @click="activeGender = null"
@@ -308,7 +356,34 @@ watch(
 						</div>
 					</TabsContent>
 					<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="bookmark">
-						Sample content
+						<div v-if="bookmarkedTranscripts.length <= 0" class="text-sm text-muted-foreground">
+							Es befinden sich derzeit keine gespeicherten Transkripte in Ihrer Bibliothek.
+						</div>
+
+						<div v-else>
+							<div v-for="result in bookmarkedTranscripts" :key="result.id">
+								<div
+									class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center justify-between"
+								>
+									<Button
+										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
+										hover:no-underline
+										variant="transparent"
+										@click="handleSelection(String(result.id))"
+									>
+										<span class="sr-only"> Open Sidebar Demo </span>
+										{{ result.name }}
+									</Button>
+									<Button
+										class="p-0 justify-end"
+										variant="transparent"
+										@click="handleBookmark(result)"
+									>
+										<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+									</Button>
+								</div>
+							</div>
+						</div>
 					</TabsContent>
 				</Tabs>
 			</div>
@@ -344,8 +419,10 @@ watch(
 					</div>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						<div v-for="result in searchResults.transcripts" :key="result.id">
-							<div class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700">
+						<div v-for="result in searchResults" :key="result.id">
+							<div
+								class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center justify-between"
+							>
 								<Button
 									class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
 									hover:no-underline
@@ -354,6 +431,13 @@ watch(
 								>
 									<span class="sr-only"> Open Sidebar Demo </span>
 									{{ result.name }}
+								</Button>
+								<Button
+									class="p-0 justify-end"
+									variant="transparent"
+									@click="handleBookmark(result)"
+								>
+									<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
 								</Button>
 							</div>
 						</div>

@@ -22,8 +22,6 @@ jobs:
       fetch-depth: 10
       submodules: "true"
       APP_NAME: lexat
-      APP_ROOT: "${{ vars.APP_ROOT_FRONTEND }}"
-      PUBLIC_URL: "${{ vars.PUBLIC_URL_FRONTEND }}"
     steps:
       - name: Get environment from git ref
         id: get_environment_from_git_ref
@@ -88,8 +86,13 @@ jobs:
           fi
 
           echo "public_url=$public_url" >> $GITHUB_OUTPUT
+      - name: Generate APP_ROOT
+        id: generate_app_root
+        run: |
+          echo "app_root=${{ vars.APP_ROOT_FRONTEND }}" >> $GITHUB_OUTPUT
     outputs:
       PUBLIC_URL: "${{ steps.generate_public_url.outputs.public_url }}"
+      APP_ROOT: "${{ steps.generate_app_root.outputs.app_root }}"
   build-and-push-image:
     name: Build and push docker image
     needs:
@@ -153,7 +156,7 @@ jobs:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
       DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-lexat-frontend
       APP_NAME: "${{ needs.setup_workflow_env.outputs.APP_NAME }}"
-      APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"
+      APP_ROOT: "${{ needs.generate_workflow_vars.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID_FRONTEND }}"
       PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.PUBLIC_URL }}"
       default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"

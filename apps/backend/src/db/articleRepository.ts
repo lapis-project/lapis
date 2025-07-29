@@ -107,6 +107,20 @@ export async function getAllArticlesByProject(
 	postStatus: Poststatus,
 	lang?: Availablelang,
 ) {
+	let orderByClause;
+
+	if (searchTerm === "" && postType === "") {
+		orderByClause = sql`
+      CASE
+        WHEN post_type.post_type_name = 'short_description' THEN 2
+        ELSE 1
+      END,
+      post.created_at,
+      post.published_at
+    `;
+	} else {
+		orderByClause = sql`post.published_at DESC`;
+	}
 	const query = db
 		.with("post_query", (query) => {
 			let baseQuery = query
@@ -126,7 +140,7 @@ export async function getAllArticlesByProject(
 
 			return baseQuery
 				.select(({ eb }) => [
-					sql<number>`ROW_NUMBER() OVER (order by post.id) as rn`,
+					sql<number>`ROW_NUMBER() OVER (ORDER BY ${orderByClause})`.as("rn"),
 					eb.ref("post.id").as("post_id"),
 					eb.ref("post.title").as("title"),
 					eb.ref("post.alias").as("alias"),
@@ -157,7 +171,7 @@ export async function getAllArticlesByProject(
 		.selectFrom("post_query")
 		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
 		.select(({ eb, fn }) => {
-			let agg = fn.jsonAgg(
+			const agg = fn.jsonAgg(
 				jsonBuildObject({
 					post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
 					title: eb.cast<string>(eb.ref("post_query.title"), "text"),
@@ -170,20 +184,6 @@ export async function getAllArticlesByProject(
 					published_at: eb.cast<string>(eb.ref("post_query.published_at"), "text"),
 				}),
 			);
-
-			if (searchTerm === "" && postType === "") {
-				agg = agg
-					.orderBy(
-						sql`CASE
-          WHEN type_name = 'short_description' THEN 2
-          ELSE 1
-        END`,
-					)
-					.orderBy("created_at")
-					.orderBy("published_at");
-			} else {
-				agg = agg.orderBy("post_query.published_at", "desc");
-			}
 
 			return [
 				agg

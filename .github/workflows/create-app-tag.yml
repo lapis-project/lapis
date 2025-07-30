@@ -1,0 +1,49 @@
+name: Create App Version Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: "Provide which app should be tagged"
+        required: true
+        type: choice
+        options:
+          - backend
+          - lexat
+          - corpus
+
+jobs:
+  create-tag:
+    # ensure that this workflow only runs on the main branch
+    if: github.ref_name == 'main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetches all history for all branches and tags.
+          fetch-depth: 0
+
+      - name: Create the next version tag
+        id: semanticver
+        uses: paulhatch/semantic-version@v5.4.0
+        with:
+          tag_prefix: "${{ github.event.inputs.app_name }}-v"
+          change_path: "apps/${{ github.event.inputs.app_name }}"
+          major_pattern: "^feat\\(${{ github.event.inputs.app_name }}\\)!:"
+          minor_pattern: "^feat\\(${{ github.event.inputs.app_name }}\\):"
+
+      - name: Create and push tag
+        # This step only runs if the semver action found a new version to apply.
+        if: steps.semanticver.outputs.version
+        run: |
+          echo "New version found for ${{ github.event.inputs.app_name }}: ${{ steps.semanticver.outputs.version }}"
+          git tag ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }}
+          git push origin ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }}
+
+      - name: Handle no new version
+        if: ${{ !steps.semanticver.outputs.version }}
+        run: |
+          echo "No new version detected for ${{ github.event.inputs.app_name }} based on Conventional Commits in 'apps/${{ github.event.inputs.app_name }}'."

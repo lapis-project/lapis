@@ -47,7 +47,7 @@ jobs:
         if: steps.semanticver.outputs.version
         run: |
           echo "New version found for ${{ github.event.inputs.app_name }}: ${{ steps.semanticver.outputs.version }}"
-          git tag ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }} ${{ steps.find_commit.outputs.sha }} -m "Release v${{ steps.version.outputs.new_version }}"
+          git tag -a ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }} ${{ steps.find_commit.outputs.sha }} -m "Release v${{ steps.version.outputs.new_version }}"
           git push origin ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }}
 
       - name: Handle no new version

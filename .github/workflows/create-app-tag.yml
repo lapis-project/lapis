@@ -26,6 +26,13 @@ jobs:
           # Fetches all history for all branches and tags.
           fetch-depth: 0
 
+      - name: Find the last commit for the chosen app
+        id: find_commit
+        run: |
+          COMMIT_SHA=$(git log -1 --format=%H -- "apps/${{ github.event.inputs.app_name }}")
+          echo "Found last relevant commit: $COMMIT_SHA"
+          echo "sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+
       - name: Create the next version tag
         id: semanticver
         uses: paulhatch/semantic-version@v5.4.0
@@ -40,7 +47,7 @@ jobs:
         if: steps.semanticver.outputs.version
         run: |
           echo "New version found for ${{ github.event.inputs.app_name }}: ${{ steps.semanticver.outputs.version }}"
-          git tag ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }}
+          git tag -s ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }} ${{ steps.find_commit.outputs.sha }} -m "Release v${{ steps.version.outputs.new_version }}"
           git push origin ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }}
 
       - name: Handle no new version

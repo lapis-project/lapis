@@ -46,6 +46,8 @@ jobs:
         # This step only runs if the semver action found a new version to apply.
         if: steps.semanticver.outputs.version
         run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           echo "New version found for ${{ github.event.inputs.app_name }}: ${{ steps.semanticver.outputs.version }}"
           git tag -a ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }} ${{ steps.find_commit.outputs.sha }} -m "Release v${{ steps.version.outputs.new_version }}"
           git push origin ${{ github.event.inputs.app_name }}-v${{ steps.semanticver.outputs.version }}

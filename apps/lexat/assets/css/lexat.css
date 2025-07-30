@@ -253,4 +253,33 @@
 	.article-content code {
 		@apply bg-gray-100 px-1 py-0.5 rounded text-sm text-red-600;
 	}
+
+	/* ─── table styling ─────────────────────────── */
+	.article-content table {
+		@apply w-full table-fixed border-collapse text-sm my-6 border border-foreground/30 rounded-md;
+	}
+
+	.article-content th {
+		@apply bg-muted;
+	}
+
+	/* cells – add vertical and horizontal borders */
+	.article-content th,
+	.article-content td {
+		@apply py-2 px-3 border-b border-l border-foreground/30 break-words;
+	}
+
+	/* remove the extra left border on the first column */
+	.article-content th:first-child,
+	.article-content td:first-child {
+		@apply border-l-0;
+	}
+
+	/* .article-content tbody tr:hover {
+		@apply bg-gray-100;
+	} */
+
+	.article-content caption {
+		@apply text-muted-foreground text-sm mt-2;
+	}
 }

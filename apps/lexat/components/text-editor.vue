@@ -3,6 +3,7 @@
 import CharacterCount from "@tiptap/extension-character-count";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import { TableKit } from "@tiptap/extension-table";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import type { Level } from "@tiptap/pm";
@@ -22,6 +23,7 @@ import {
 	ListOrderedIcon,
 	RedoIcon,
 	StrikethroughIcon,
+	TableIcon,
 	UnderlineIcon,
 	UndoIcon,
 } from "lucide-vue-next";
@@ -40,15 +42,19 @@ const props = withDefaults(defineProps<{ modelValue?: string }>(), {
 	modelValue: "",
 });
 
+const addTableHeader = ref<boolean>(false);
 const dropdownOpen = ref(false);
 const dropbtn = ref<HTMLButtonElement | null>(null);
 const isLinkDialogOpen = ref<boolean>(false);
 const isImageDialogOpen = ref<boolean>(false);
+const isTableDialogOpen = ref<boolean>(false);
 const urlInput = ref<string>("");
 const imageAnnotation = ref<string>("");
 const imageMapLink = ref<string>("");
 const imageAltText = ref<string>("");
 const selectedImage = ref(null);
+const tableColumns = ref(3);
+const tableRows = ref(3);
 
 const emit = defineEmits<{
 	(e: "update:modelValue", value: string): void;
@@ -67,6 +73,7 @@ const editor = ref(
 			Link,
 			Image,
 			Figure,
+			TableKit,
 		],
 		onUpdate: () => {
 			emit("update:modelValue", editor.value.getHTML());
@@ -121,6 +128,7 @@ const textActions = ref([
 	{ slug: "redo", icon: RedoIcon, active: "redo" },
 	{ slug: "link", icon: LinkIcon, active: "link" },
 	{ slug: "image", icon: ImagePlusIcon, active: "image" },
+	{ slug: "table", icon: TableIcon, active: "table" },
 ]);
 
 const wordsCount = computed(() => {
@@ -166,6 +174,16 @@ const focusPrevious = (event: KeyboardEvent) => {
 	}
 };
 
+const handleTableInsert = () => {
+	editor.value.commands.insertTable({
+		rows: tableRows.value,
+		cols: tableColumns.value,
+		withHeaderRow: addTableHeader.value,
+	});
+	tableRows.value = 3;
+	isTableDialogOpen.value = false;
+};
+
 type ActionSlug =
 	| "align"
 	| "bold"
@@ -178,6 +196,7 @@ type ActionSlug =
 	| "orderedList"
 	| "redo"
 	| "strike"
+	| "table"
 	| "underline"
 	| "undo";
 
@@ -257,6 +276,9 @@ const onActionClick = (slug: ActionSlug, option = "left") => {
 		},
 		image: () => {
 			isImageDialogOpen.value = true;
+		},
+		table: () => {
+			isTableDialogOpen.value = true;
 		},
 	};
 
@@ -353,44 +375,6 @@ const handleFileChange = (event) => {
 				<DialogHeader>
 					<DialogTitle>Add Image</DialogTitle>
 				</DialogHeader>
-
-				<!-- <form @submit.prevent="onSubmit">
-					<FormField name="image">
-						<FormItem>
-							<FormLabel>Image</FormLabel>
-							<FormControl>
-								<Input
-									id="image"
-									type="file"
-									accept="image/jpeg, image/png"
-									@change="handleFileChange"
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					</FormField>
-					<FormField v-slot="{ componentField }" name="alt">
-						<FormItem>
-							<FormLabel>Alt text</FormLabel>
-							<FormControl>
-								<Input id="alt" type="text" v-bind="componentField" />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					</FormField>
-					<FormField v-slot="{ componentField }" name="annotation">
-						<FormItem>
-							<FormLabel>Annotation</FormLabel>
-							<FormControl>
-								<Input id="annotation" type="text" v-bind="componentField" />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					</FormField>
-					<DialogFooter>
-						<Button type="submit"> Insert </Button>
-					</DialogFooter>
-				</form> -->
 				<div class="grid w-full max-w-sm items-center gap-1.5">
 					<Label for="image">Image</Label>
 					<Input
@@ -425,6 +409,44 @@ const handleFileChange = (event) => {
 
 				<DialogFooter>
 					<Button @click="handleImageUpload"> Insert </Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+
+		<Dialog :open="isTableDialogOpen" @update:open="(newVal) => (isTableDialogOpen = newVal)">
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Add Table</DialogTitle>
+				</DialogHeader>
+				<div class="flex gap-4">
+					<NumberField id="tableRows" v-model="tableRows" :min="1">
+						<Label for="tableRows">Rows</Label>
+						<NumberFieldContent>
+							<NumberFieldDecrement />
+							<NumberFieldInput />
+							<NumberFieldIncrement />
+						</NumberFieldContent>
+					</NumberField>
+					<NumberField id="tableColums" v-model="tableColumns" :min="1">
+						<Label for="tableColums">Columns</Label>
+						<NumberFieldContent>
+							<NumberFieldDecrement />
+							<NumberFieldInput />
+							<NumberFieldIncrement />
+						</NumberFieldContent>
+					</NumberField>
+				</div>
+				<div class="flex gap-2 rounded border px-3 py-2 items-center">
+					<Checkbox id="tableHeader" v-model="addTableHeader" />
+					<label
+						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						for="tableHeader"
+					>
+						Add Header
+					</label>
+				</div>
+				<DialogFooter>
+					<Button @click="handleTableInsert"> Insert </Button>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

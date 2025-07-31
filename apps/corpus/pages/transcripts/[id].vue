@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { ChevronRight, DownloadIcon, FileText, PauseCircle, PlayCircle } from "lucide-vue-next";
-import { Separator } from "reka-ui";
+import {
+	ChevronRight,
+	DownloadIcon,
+	FileText,
+	PauseCircle,
+	PlayCircle,
+} from "lucide-vue-next";
 
 import data from "@/assets/data/transcripts-demo.json";
 
@@ -177,6 +182,7 @@ const chunkedSpeakerEvents = computed(() => {
 });
 
 const audioRef = ref<HTMLAudioElement | null>(null);
+
 const currentTime = ref(0);
 const duration = ref(0);
 
@@ -233,10 +239,11 @@ onUnmounted(() => {
 		audioRef.value.removeEventListener("ended", resetAudio);
 	}
 });
+
 </script>
 
 <template>
-	<main class="max-w-full container py-8 pt-4 flex flex-col">
+	<main class="max-w-full container py-8 pt-4 flex flex-col overflow-hidden">
 		<div class="w-fit">
 			<Button
 				class="fixed z-10 flex items-center border rounded-none rounded-br-md rounded-tr-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
@@ -366,6 +373,7 @@ onUnmounted(() => {
 											type="text"
 										/>
 									</div>
+									s
 									<Button type="submit"> Suchen </Button>
 								</form>
 							</div>
@@ -376,7 +384,7 @@ onUnmounted(() => {
 			<div
 				v-if="transcript?.events && transcript.speakers"
 				id="eventViewContainer"
-				class="overflow-hidden flex flex-col gap-4"
+				class="overflow-hidden flex flex-col gap-4 border border-foreground/20 rounded-lg bg-muted"
 			>
 				<!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
 				<audio
@@ -408,7 +416,6 @@ onUnmounted(() => {
 									width: (() => {
 										const total = transcript.events.length; // total events in all rows
 										const globalIndex = blockIndex * maxEventsPerRow + idx;
-										console.log(globalIndex);
 
 										const fullFillThreshold = (globalIndex + 1) / total;
 										const prevFillThreshold = globalIndex / total;
@@ -429,7 +436,7 @@ onUnmounted(() => {
 							:key="speaker"
 						>
 							<div
-								class="text-sm font-semibold p-2 bg-gray-100 border-foreground/20 border min-h-[64px]"
+								class="text-sm font-semibold p-2 bg-gray-200 border-foreground/20 border min-h-[64px]"
 							>
 								<div class="flex flex-row justify-between">
 									{{ speaker }}
@@ -560,17 +567,33 @@ onUnmounted(() => {
 					</div>
 				</div>
 
-				<Separator />
-				<section class="absolute bottom-0 w-full flex justify-center m-auto mt-6">
-					<div class="bg-gray-50 border rounded flex justify-center items-center gap-4 p-4 w-2xl">
-						<Button class="cursor-pointer" variant="transparent" @click="togglePlayback">
-							<PlayCircle v-if="!audioIsPlaying" />
-							<PauseCircle v-else />
-						</Button>
-						<DownloadIcon></DownloadIcon>
+				<!-- <section class="absolute bottom-0 w-full flex justify-center m-auto mt-6">
+					<div class="border z-10 rounded flex justify-center items-center gap-4 p-4 w-2xl">
+						<AudioVisualizer :audio="audioRef" class="-z-50" />
 					</div>
-				</section>
+				</section> -->
 			</div>
 		</div>
+		<section class="bottom-0 border border-foreground/20 w-full flex justify-center m-auto mt-6">
+			<div class="relative w-full rounded overflow-hidden">
+				<AudioWaveform
+					:audio="audioRef"
+					:is-playing="audioIsPlaying"
+					class="absolute inset-0 w-full h-full z-0 bg-accent-foreground"
+					:class="{ 'opacity-0 transition-opacity': !audioIsPlaying }"
+				/>
+
+				<div
+					class="relative z-10 rounded flex justify-center items-center gap-4 p-4 bg-none transition-all"
+					:class="{ 'bg-white': !audioIsPlaying }"
+				>
+					<Button class="cursor-pointer" variant="transparent" @click="togglePlayback">
+						<PlayCircle v-if="!audioIsPlaying" />
+						<PauseCircle v-else />
+					</Button>
+					<DownloadIcon />
+				</div>
+			</div>
+		</section>
 	</main>
 </template>

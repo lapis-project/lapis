@@ -1,0 +1,207 @@
+name: Deploy to Dev Workflow
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+      git_ref:
+        required: true
+        type: string
+      # --- Public Build Arguments as Inputs ---
+      # ADD NEW BUILD_ARGS HERE (Also look further down in the file!!!)
+      NUXT_PUBLIC_ZOTERO_BASE_URL:
+        required: false
+        type: string
+      NUXT_PUBLIC_REDMINE_ID:
+        required: false
+        type: string
+      NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT:
+        required: false
+        type: string
+      NUXT_PUBLIC_MAP_BASELAYER_URL_DARK:
+        required: false
+        type: string
+      NUXT_PUBLIC_APP_BASE_URL:
+        required: false
+        type: string
+    # secrets:
+    # Example: if there was a secret API key
+    # LEXAT_API_KEY:
+    #   required: false
+
+jobs:
+  setup_workflow_env:
+    environment: dev-${{ inputs.app_name }}
+    runs-on: ubuntu-latest
+    outputs:
+      image_name: ""
+      registry_root: "ghcr.io/${{ github.repository }}"
+      default_port: "3000"
+      fetch-depth: 10
+      submodules: "true"
+      PUBLIC_URL: "${{ vars.PUBLIC_URL }}"
+      APP_NAME: ${{ inputs.app_name }}
+      APP_ROOT: /
+    steps:
+      - name: Set Workflow outputs
+        id: set_outputs
+        run: |
+          echo "environment=dev-${{ inputs.app_name }}" >> $GITHUB_OUTPUT
+          echo "All outputs are set directly in the job's 'outputs' context."
+  generate_workflow_vars:
+    needs:
+      - setup_workflow_env
+    environment: dev-${{ inputs.app_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate PUBLIC_URL if not set
+        id: generate_public_url
+        run: >
+          kube_ingress_base_domain="${{ vars.KUBE_INGRESS_BASE_DOMAIN }}"
+
+          public_url="${{ needs.setup_workflow_env.outputs.PUBLIC_URL || vars.PUBLIC_URL }}"
+
+          if [ "${public_url}x" == 'x' ]
+
+          then public_url=https://${{ needs.setup_workflow_env.outputs.environment_short
+          }}.${kube_ingress_base_domain}
+
+          fi
+
+          echo "public_url=$public_url" >> $GITHUB_OUTPUT
+      - name: Generate APP_ROOT
+        id: generate_app_root
+        run: |
+          echo "app_root=${{ vars.APP_ROOT }}" >> $GITHUB_OUTPUT
+      - name: Export KUBE_NAMESPACE
+        id: generate_kube_namespace
+        run: |
+          echo "kube_namespace=${{ vars.KUBE_NAMESPACE }}" >> $GITHUB_OUTPUT
+      - name: Export KUBE_INGRESS_BASE_DOMAIN
+        id: generate_kube_ingress
+        run: |
+          echo "kube_ingress_base_domain=${{ vars.KUBE_INGRESS_BASE_DOMAIN }}" >> $GITHUB_OUTPUT
+    outputs:
+      PUBLIC_URL: "${{ steps.generate_public_url.outputs.public_url }}"
+      APP_ROOT: "${{ steps.generate_app_root.outputs.app_root }}"
+      KUBE_NAMESPACE: "${{ steps.generate_kube_namespace.outputs.kube_namespace }}"
+      KUBE_INGRESS_BASE_DOMAIN:
+        "${{ steps.generate_kube_ingress.outputs.kube_ingress_base_domain }}"
+  build_and_deploy:
+    needs:
+      - setup_workflow_env
+      - generate_workflow_vars
+    environment: dev-${{ inputs.app_name }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.git_ref }}
+
+      - name: Set App-Specific Configuration
+        id: config
+        shell: bash
+        env:
+          # Make the public inputs available to the script as environment variables
+          # ADD NEW BUILD_ARGS HERE
+          NUXT_PUBLIC_ZOTERO_BASE_URL: ${{ inputs.NUXT_PUBLIC_ZOTERO_BASE_URL }}
+          NUXT_PUBLIC_REDMINE_ID: ${{ inputs.NUXT_PUBLIC_REDMINE_ID }}
+          NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT: ${{ inputs.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT }}
+          NUXT_PUBLIC_MAP_BASELAYER_URL_DARK: ${{ inputs.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK }}
+          NUXT_PUBLIC_APP_BASE_URL: ${{ inputs.NUXT_PUBLIC_APP_BASE_URL }}
+        run: |
+          APP_NAME="${{ inputs.app_name }}"
+          case $APP_NAME in
+            backend)
+              echo "dockerfile=Dockerfile_Backend" >> $GITHUB_OUTPUT
+              echo "build_args=" >> $GITHUB_OUTPUT
+              ;;
+            lexat)
+              echo "dockerfile=Dockerfile_Lexat" >> $GITHUB_OUTPUT
+
+              # Use printf to safely create the multi-line string for build args
+              BUILD_ARGS=$(printf "%s\n" \
+                "NUXT_PUBLIC_ZOTERO_BASE_URL=${NUXT_PUBLIC_ZOTERO_BASE_URL}" \
+                "NUXT_PUBLIC_REDMINE_ID=${NUXT_PUBLIC_REDMINE_ID}" \
+                "NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT=${NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT}" \
+                "NUXT_PUBLIC_MAP_BASELAYER_URL_DARK=${NUXT_PUBLIC_MAP_BASELAYER_URL_DARK}" \
+                "NUXT_PUBLIC_APP_BASE_URL=${NUXT_PUBLIC_APP_BASE_URL}")
+
+              # Use the official syntax to set the multi-line output variable
+              echo "build_args<<EOF" >> $GITHUB_OUTPUT
+              echo "$BUILD_ARGS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
+              ;;
+            corpus)
+              echo "dockerfile=Dockerfile_Corpus" >> $GITHUB_OUTPUT
+              echo "build_args=" >> $GITHUB_OUTPUT
+              ;;
+          esac
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: "${{ github.repository_owner }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+      - name: "Extract metadata (tags, labels) for Docker"
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: >
+            ghcr.io/${{ github.repository }}-${{ inputs.app_name }}-dev # The container is located
+            at the repository registry root at the moment.
+          flavor: |
+            latest=auto
+          tags: |
+            type=raw,value={{sha}}
+            type=ref,event=branch
+      - name: Build and push Docker image
+        # This step remains the same as before
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ steps.config.outputs.dockerfile }}
+          build-args: ${{ steps.config.outputs.build_args }}
+          push: true
+          tags: "${{ steps.meta.outputs.tags }}"
+          labels: "${{ steps.meta.outputs.labels }}"
+          cache-from: type=gha
+          cache-to: "type=gha,mode=max"
+  deploy:
+    permissions:
+      contents: read
+      packages: write
+    name: Deploy docker image
+    needs:
+      - setup_workflow_env
+      - generate_workflow_vars
+      - build_and_deploy
+    uses: lapis-project/gl-autodevops-minimal-port/.github/workflows/deploy.yml@main
+    secrets: inherit
+    with:
+      environment: "${{ needs.setup_workflow_env.outputs.environment }}"
+      DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-${{ inputs.app_name }}-dev
+      APP_NAME: lapis-"${{ needs.setup_workflow_env.outputs.APP_NAME }}"-dev
+      APP_ROOT: "${{ needs.generate_workflow_vars.outputs.APP_ROOT }}"
+      SERVICE_ID: "${{ vars.SERVICE_ID }}"
+      PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.PUBLIC_URL }}"
+      default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
+      KUBE_NAMESPACE: ${{ needs.generate_workflow_vars.outputs.KUBE_NAMESPACE }}
+      KUBE_INGRESS_BASE_DOMAIN: ${{ needs.generate_workflow_vars.outputs.KUBE_INGRESS_BASE_DOMAIN }}
+      do_not_generate_additional_host_names: true
+  clean_up_cache:
+    needs:
+      - build_and_deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: MyAlbum/purge-cache@v2
+        with:
+          max-age: 604800

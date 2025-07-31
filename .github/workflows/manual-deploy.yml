@@ -1,0 +1,34 @@
+name: Manual Deployment of App
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: "The application to deploy"
+        required: true
+        type: choice
+        options:
+          - backend
+          - lexat
+          - corpus
+      branch:
+        description: "Branch to deploy (EITHER this or Tag)"
+        required: false
+      tag:
+        description: "Tag to deploy (EITHER this or Branch)"
+        required: false
+
+jobs:
+  call_build_workflow:
+    uses: ./.github/workflows/build-and-push-app.yml
+    with:
+      app_name: ${{ github.event.inputs.app_name }}
+      git_ref: ${{ github.event.inputs.tag || github.event.inputs.branch }}
+      # Pass public config from GitHub Variables (vars) into the action's inputs
+      # ADD HERE IF THERE ARE NEW BUILD ARGS
+      NUXT_PUBLIC_ZOTERO_BASE_URL: ${{ vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}
+      NUXT_PUBLIC_REDMINE_ID: ${{ vars.NUXT_PUBLIC_REDMINE_ID }}
+      NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT: ${{ vars.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT }}
+      NUXT_PUBLIC_MAP_BASELAYER_URL_DARK: ${{ vars.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK }}
+      NUXT_PUBLIC_APP_BASE_URL: ${{ vars.NUXT_PUBLIC_APP_BASE_URL }}
+    secrets: inherit # Pass all secrets from the environment to the reusable workflow

@@ -98,6 +98,12 @@ const hiddenSpeakers = ref<Set<string>>(new Set());
 const eventMinWidth = 200;
 
 const containerElementWidth = ref(0);
+const maxEventsPerRow = computed(() => {
+	if (!transcript.value || containerElementWidth.value <= 0) return 1;
+	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
+	const slotWidth = eventMinWidth + GRID_COL_GAP;
+	return Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
+});
 
 function handleResize() {
 	const element = document.getElementById("eventViewContainer");
@@ -232,17 +238,22 @@ onUnmounted(() => {
 <template>
 	<main class="max-w-full container py-8 pt-4 flex flex-col">
 		<div class="w-fit">
-			<Button size="icon" variant="outline" @click="toggleFirstColumn">
+			<Button
+				class="fixed z-10 flex items-center border rounded-none rounded-br-md rounded-tr-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
+				:class="showFirstColumn ? 'left-[371px]' : 'left-0'"
+				variant="ghost"
+				@click="toggleFirstColumn"
+			>
 				<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
 			</Button>
 		</div>
 		<div
-			class="relative gap-4 pt-2 overflow-x-hidden overflow-y-auto flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
+			class="relative gap-8 overflow-x-hidden overflow-y-auto flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
 			:style="{ gridTemplateColumns: gridColumns }"
 		>
 			<div
 				class="h-full border border-foreground/20 rounded"
-				:class="{ 'opacity-0 pointer-events-none': !showFirstColumn }"
+				:class="{ 'opacity-0 pointer-events-none transition-all': !showFirstColumn }"
 			>
 				<div class="p-3">
 					<div class="text-normal text-sm items-center mb-1 inline-flex gap-2">
@@ -395,14 +406,16 @@ onUnmounted(() => {
 								class="bg-accent-foreground z-20 h-full"
 								:style="{
 									width: (() => {
-										const total = block[transcript.speakers[0]].length;
-										const fullFillThreshold = (idx + 1) / total;
-										const prevFillThreshold = idx / total;
+										const total = transcript.events.length; // total events in all rows
+										const globalIndex = blockIndex * maxEventsPerRow + idx;
+										console.log(globalIndex);
+
+										const fullFillThreshold = (globalIndex + 1) / total;
+										const prevFillThreshold = globalIndex / total;
 
 										if (progressFraction >= fullFillThreshold) return '100%';
 										else if (progressFraction <= prevFillThreshold) return '0%';
 										else {
-											// Partial fill inside this event block
 											const partial = (progressFraction - prevFillThreshold) * total;
 											return (partial * 100).toFixed(2) + '%';
 										}

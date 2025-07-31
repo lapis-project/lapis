@@ -103,6 +103,7 @@ watch(
 			<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
 		</Button>
 		<Button
+			v-if="currentId"
 			class="fixed z-10 flex items-center border rounded-none rounded-bl-md rounded-tl-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
 			:class="showThirdColumn ? 'right-[531px]' : 'right-0'"
 			variant="ghost"
@@ -117,7 +118,7 @@ watch(
 		>
 			<div
 				class="p-4 border border-foreground/20 rounded-b-lg rounded-tl-lg flex flex-col overflow-hidden"
-				:class="{ 'opacity-0 pointer-events-none': !showFirstColumn }"
+				:class="{ 'opacity-0 pointer-events-none transition-all': !showFirstColumn }"
 			>
 				<FilterSidebar
 					:transcripts="searchResults"
@@ -194,7 +195,7 @@ watch(
 			<div
 				v-if="currentId != null"
 				class="transition p-4 border border-foreground/20 rounded-b-lg rounded-tr-lg flex flex-col overflow-hidden"
-				:class="{ 'opacity-0 pointer-events-none': !showThirdColumn }"
+				:class="{ 'opacity-0 pointer-events-none transition-all': !showThirdColumn }"
 			>
 				<TranscriptDemoSidebar />
 			</div>

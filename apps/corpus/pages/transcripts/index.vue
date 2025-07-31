@@ -374,13 +374,15 @@ watch(
 										<span class="sr-only"> Open Sidebar Demo </span>
 										{{ result.name }}
 									</Button>
-									<Button
-										class="p-0 justify-end"
-										variant="transparent"
-										@click="handleBookmark(result)"
-									>
-										<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
-									</Button>
+									<div class="w-full flex justify-end">
+										<Button
+											class="p-0 w-fit self-end"
+											variant="transparent"
+											@click="handleBookmark(result)"
+										>
+											<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+										</Button>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -421,7 +423,7 @@ watch(
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
 						<div v-for="result in searchResults" :key="result.id">
 							<div
-								class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center justify-between"
+								class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
 							>
 								<Button
 									class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
@@ -432,13 +434,15 @@ watch(
 									<span class="sr-only"> Open Sidebar Demo </span>
 									{{ result.name }}
 								</Button>
-								<Button
-									class="p-0 justify-end"
-									variant="transparent"
-									@click="handleBookmark(result)"
-								>
-									<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
-								</Button>
+								<div class="w-full flex justify-end">
+									<Button
+										class="p-0 w-fit self-end"
+										variant="transparent"
+										@click="handleBookmark(result)"
+									>
+										<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+									</Button>
+								</div>
 							</div>
 						</div>
 					</TabsContent>

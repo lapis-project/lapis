@@ -140,7 +140,19 @@ jobs:
               ;;
             corpus)
               echo "dockerfile=Dockerfile_Corpus" >> $GITHUB_OUTPUT
-              echo "build_args=" >> $GITHUB_OUTPUT
+
+                            # Use printf to safely create the multi-line string for build args
+              BUILD_ARGS=$(printf "%s\n" \
+                "NUXT_PUBLIC_ZOTERO_BASE_URL=${NUXT_PUBLIC_ZOTERO_BASE_URL}" \
+                "NUXT_PUBLIC_REDMINE_ID=${NUXT_PUBLIC_REDMINE_ID}" \
+                "NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT=${NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT}" \
+                "NUXT_PUBLIC_MAP_BASELAYER_URL_DARK=${NUXT_PUBLIC_MAP_BASELAYER_URL_DARK}" \
+                "NUXT_PUBLIC_APP_BASE_URL=${NUXT_PUBLIC_APP_BASE_URL}")
+
+              # Use the official syntax to set the multi-line output variable
+              echo "build_args<<EOF" >> $GITHUB_OUTPUT
+              echo "$BUILD_ARGS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
               ;;
           esac
       - name: Set up Docker Buildx

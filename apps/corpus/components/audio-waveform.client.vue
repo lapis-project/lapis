@@ -4,6 +4,7 @@ import WaveSurfer from "wavesurfer.js";
 const props = defineProps<{
 	audio: HTMLAudioElement | null;
 	isPlaying: boolean;
+	isStopped: boolean;
 }>();
 const container = ref<HTMLElement | string>("");
 const wavesurfer = ref<WaveSurfer | null>(null);
@@ -18,6 +19,11 @@ function PauseSurfer() {
 	wavesurfer.value.pause();
 }
 
+function ResetPlayer() {
+	if (wavesurfer.value == null) return;
+	wavesurfer.value.stop();
+}
+
 watch(
 	() => {
 		return props.isPlaying;
@@ -29,10 +35,20 @@ watch(
 	},
 );
 
+watch(
+	() => {
+		return props.isStopped;
+	},
+	() => {
+		if (props.isStopped) {
+			ResetPlayer();
+		}
+	},
+);
+
 onMounted(async () => {
 	await nextTick();
 	if (props.audio && container.value) {
-		console.log(props.audio.src, container.value);
 		wavesurfer.value = WaveSurfer.create({
 			container: container.value,
 			waveColor: "#e7acc5",

@@ -3,8 +3,9 @@ import {
 	ChevronRight,
 	DownloadIcon,
 	FileText,
-	PauseCircle,
-	PlayCircle,
+	PauseIcon,
+	PlayIcon,
+	SquareIcon,
 } from "lucide-vue-next";
 
 import data from "@/assets/data/transcripts-demo.json";
@@ -86,6 +87,7 @@ const toggleFirstColumn = () => {
 	showFirstColumn.value = !showFirstColumn.value;
 };
 
+const audioIsStopped = ref(false);
 const audioIsPlaying = ref(false);
 
 const gridColumns = computed(() => {
@@ -113,7 +115,6 @@ const maxEventsPerRow = computed(() => {
 function handleResize() {
 	const element = document.getElementById("eventViewContainer");
 	if (element != null) {
-		console.log(element.getBoundingClientRect().width);
 		containerElementWidth.value = element.getBoundingClientRect().width;
 	}
 	windowWidth.value = window.innerWidth;
@@ -182,6 +183,7 @@ const chunkedSpeakerEvents = computed(() => {
 });
 
 const audioRef = ref<HTMLAudioElement | null>(null);
+let timer: ReturnType<typeof setTimeout> | null = null;
 
 const currentTime = ref(0);
 const duration = ref(0);
@@ -198,6 +200,18 @@ function togglePlayback() {
 		audioRef.value.pause();
 		audioIsPlaying.value = false;
 	}
+}
+
+function stopPlayback() {
+	if (audioRef.value) {
+		audioRef.value.pause();
+		audioRef.value.currentTime = 0;
+		audioIsStopped.value = true;
+	}
+	audioIsPlaying.value = false;
+	timer = setTimeout(() => {
+		audioIsStopped.value = false;
+	}, 300);
 }
 
 function updateProgress() {
@@ -240,10 +254,15 @@ onUnmounted(() => {
 	}
 });
 
+onScopeDispose(() => {
+	if (timer != null) {
+		clearTimeout(timer);
+	}
+});
 </script>
 
 <template>
-	<main class="max-w-full container py-8 pt-4 flex flex-col overflow-hidden">
+	<main class="max-w-full container py-8 pt-4 flex flex-col !overflow-y-hidden">
 		<div class="w-fit">
 			<Button
 				class="fixed z-10 flex items-center border rounded-none rounded-br-md rounded-tr-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
@@ -255,11 +274,11 @@ onUnmounted(() => {
 			</Button>
 		</div>
 		<div
-			class="relative gap-8 overflow-x-hidden overflow-y-auto flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
+			class="relative gap-8 !overflow-hidden flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
 			:style="{ gridTemplateColumns: gridColumns }"
 		>
 			<div
-				class="h-full border border-foreground/20 rounded"
+				class="h-full border border-foreground/20 rounded overflow-y-auto"
 				:class="{ 'opacity-0 pointer-events-none transition-all': !showFirstColumn }"
 			>
 				<div class="p-3">
@@ -381,219 +400,235 @@ onUnmounted(() => {
 					</Tabs>
 				</div>
 			</div>
-			<div
-				v-if="transcript?.events && transcript.speakers"
-				id="eventViewContainer"
-				class="overflow-hidden flex flex-col gap-4 border border-foreground/20 rounded-lg bg-muted"
-			>
-				<!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
-				<audio
-					ref="audioRef"
-					:src="transcript.audioUrl"
-					@loadedmetadata="updateMetadata"
-					@timeupdate="updateProgress"
-				/>
 
-				<div v-for="(block, blockIndex) in chunkedSpeakerEvents" :key="blockIndex" class="w-full">
-					<div
-						class="grid"
-						:style="{
-							gridTemplateColumns:
-								'160px repeat(' + block[transcript.speakers[0]].length + ', max-content)',
-						}"
-					>
-						<div class="pl-2 text-white bg-black font-bold text-sm rounded-tl">Zeitleiste</div>
+			<div class="relative overflow-y-hidden grid grid-rows-[1fr_auto]">
+				<div
+					v-if="transcript?.events && transcript.speakers"
+					id="eventViewContainer"
+					class="overflow-y-auto flex flex-col gap-4 border border-foreground/20 rounded-lg bg-muted"
+				>
+					<!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
+					<audio
+						ref="audioRef"
+						:src="transcript.audioUrl"
+						@loadedmetadata="updateMetadata"
+						@timeupdate="updateProgress"
+					/>
+
+					<div v-for="(block, blockIndex) in chunkedSpeakerEvents" :key="blockIndex" class="w-full">
 						<div
-							v-for="(event, idx) in block[transcript.speakers[0]]"
-							:key="'header-' + idx"
-							class="text-xs text-start py-1 text-white bg-black"
+							class="grid"
+							:style="{
+								gridTemplateColumns:
+									'160px repeat(' + block[transcript.speakers[0]].length + ', max-content)',
+							}"
 						>
-							<div class="relative z-10 px-2">{{ event.start }} – {{ event.end }}</div>
-
+							<div class="pl-2 text-white bg-black font-bold text-sm rounded-tl">Zeitleiste</div>
 							<div
-								class="bg-accent-foreground z-20 h-full"
-								:style="{
-									width: (() => {
-										const total = transcript.events.length; // total events in all rows
-										const globalIndex = blockIndex * maxEventsPerRow + idx;
-
-										const fullFillThreshold = (globalIndex + 1) / total;
-										const prevFillThreshold = globalIndex / total;
-
-										if (progressFraction >= fullFillThreshold) return '100%';
-										else if (progressFraction <= prevFillThreshold) return '0%';
-										else {
-											const partial = (progressFraction - prevFillThreshold) * total;
-											return (partial * 100).toFixed(2) + '%';
-										}
-									})(),
-								}"
-							></div>
-						</div>
-
-						<template
-							v-for="speaker in transcript.speakers.filter((s) => !hiddenSpeakers.has(s))"
-							:key="speaker"
-						>
-							<div
-								class="text-sm font-semibold p-2 bg-gray-200 border-foreground/20 border min-h-[64px]"
+								v-for="(event, idx) in block[transcript.speakers[0]]"
+								:key="'header-' + idx"
+								class="text-xs text-start py-1 text-white bg-black"
 							>
-								<div class="flex flex-row justify-between">
-									{{ speaker }}
-									<div class="text-sm font-normal text-right pr-3 text-gray-500 h-full">
+								<div class="relative z-10 px-2">{{ event.start }} – {{ event.end }}</div>
+
+								<div
+									class="bg-accent-foreground z-20 h-full"
+									:style="{
+										width: (() => {
+											const total = transcript.events.length; // total events in all rows
+											const globalIndex = blockIndex * maxEventsPerRow + idx;
+
+											const fullFillThreshold = (globalIndex + 1) / total;
+											const prevFillThreshold = globalIndex / total;
+
+											if (progressFraction >= fullFillThreshold) return '100%';
+											else if (progressFraction <= prevFillThreshold) return '0%';
+											else {
+												const partial = (progressFraction - prevFillThreshold) * total;
+												return (partial * 100).toFixed(2) + '%';
+											}
+										})(),
+									}"
+								></div>
+							</div>
+
+							<template
+								v-for="speaker in transcript.speakers.filter((s) => !hiddenSpeakers.has(s))"
+								:key="speaker"
+							>
+								<div
+									class="text-sm font-semibold p-2 bg-gray-200 border-foreground/20 border min-h-[64px]"
+								>
+									<div class="flex flex-row justify-between">
+										{{ speaker }}
+										<div class="text-sm font-normal text-right pr-3 text-gray-500 h-full">
+											<TooltipProvider>
+												<Tooltip>
+													<TooltipTrigger> o </TooltipTrigger>
+													<TooltipContent> Standardorthografische Transkription </TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										</div>
+									</div>
+									<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
 										<TooltipProvider>
 											<Tooltip>
-												<TooltipTrigger> o </TooltipTrigger>
-												<TooltipContent> Standardorthografische Transkription </TooltipContent>
+												<TooltipTrigger> lu </TooltipTrigger>
+												<TooltipContent> Lautorientierte Transkription </TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</div>
+									<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger> phon </TooltipTrigger>
+												<TooltipContent> Phonetische Transkription </TooltipContent>
 											</Tooltip>
 										</TooltipProvider>
 									</div>
 								</div>
-								<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
-									<TooltipProvider>
-										<Tooltip>
-											<TooltipTrigger> lu </TooltipTrigger>
-											<TooltipContent> Lautorientierte Transkription </TooltipContent>
-										</Tooltip>
-									</TooltipProvider>
-								</div>
-								<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
-									<TooltipProvider>
-										<Tooltip>
-											<TooltipTrigger> phon </TooltipTrigger>
-											<TooltipContent> Phonetische Transkription </TooltipContent>
-										</Tooltip>
-									</TooltipProvider>
-								</div>
-							</div>
 
-							<div
-								v-for="(e, idx) in block[speaker]"
-								:key="speaker + '-event-' + idx"
-								class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
-							>
-								<Dialog>
-									<DialogTrigger as-child class="h-full">
-										<div
-											class="grid gap-1 h-full"
-											:style="{
-												gridTemplateColumns: 'repeat(' + e.ortho.length + ', minmax(0, auto))',
-											}"
-										>
+								<div
+									v-for="(e, idx) in block[speaker]"
+									:key="speaker + '-event-' + idx"
+									class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
+								>
+									<Dialog>
+										<DialogTrigger as-child class="h-full">
 											<div
-												v-for="(token, index) in e.ortho"
-												:key="'token-group-' + index"
-												class="grid grid-rows-[auto_1fr] items-end group hover:cursor-pointer h-full hover:bg-gray-100"
+												class="grid gap-1 h-full"
+												:style="{
+													gridTemplateColumns: 'repeat(' + e.ortho.length + ', minmax(0, auto))',
+												}"
 											>
 												<div
-													class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
-													:class="token.hasTags ? 'text-accent-foreground font-semibold' : ''"
+													v-for="(token, index) in e.ortho"
+													:key="'token-group-' + index"
+													class="grid grid-rows-[auto_1fr] items-end group hover:cursor-pointer h-full hover:bg-gray-100"
 												>
-													{{ token.text }}
-												</div>
-												<div
-													v-if="showLu"
-													class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
-													:class="
-														e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
-													"
-												>
-													{{ e.lu[index]?.text }}
-												</div>
+													<div
+														class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
+														:class="token.hasTags ? 'text-accent-foreground font-semibold' : ''"
+													>
+														{{ token.text }}
+													</div>
+													<div
+														v-if="showLu"
+														class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
+														:class="
+															e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
+														"
+													>
+														{{ e.lu[index]?.text }}
+													</div>
 
-												<div
-													v-if="showPhon"
-													class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
-													:class="
-														e.phon[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
-													"
-												>
-													{{ e.phon[index]?.text }}
-												</div>
+													<div
+														v-if="showPhon"
+														class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
+														:class="
+															e.phon[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
+														"
+													>
+														{{ e.phon[index]?.text }}
+													</div>
 
-												<div
-													class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
-												></div>
+													<div
+														class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
+													></div>
+												</div>
 											</div>
-										</div>
-									</DialogTrigger>
-									<DialogContent class="sm:max-w-[425px]">
-										<DialogHeader>
-											<DialogTitle>Details</DialogTitle>
-											<DialogDescription> Hier finden Sie weitere Informationen </DialogDescription>
-										</DialogHeader>
-										<div>
+										</DialogTrigger>
+										<DialogContent class="sm:max-w-[425px]">
+											<DialogHeader>
+												<DialogTitle>Details</DialogTitle>
+												<DialogDescription>
+													Hier finden Sie weitere Informationen
+												</DialogDescription>
+											</DialogHeader>
 											<div>
-												<span class="font-semibold mr-1">Sprecher:</span>
-												<span class="text-xs">{{ speaker }}</span>
+												<div>
+													<span class="font-semibold mr-1">Sprecher:</span>
+													<span class="text-xs">{{ speaker }}</span>
+												</div>
+
+												<div class="border border-b w-full mt-2"></div>
+
+												<p class="font-semibold mt-2">Tokens:</p>
+												<p v-if="e.lu" class="italic text-sm mt-2">
+													Standardorthografische Transkription:
+												</p>
+												<p>
+													<span v-for="(token, i) in e.ortho" :key="i" class="mr-1 text-xs">
+														{{ token.text }}
+													</span>
+												</p>
+
+												<p v-if="e.lu" class="italic text-sm mt-2">
+													Lautorientierte Transkription:
+												</p>
+												<p v-if="e.lu">
+													<span v-for="(token, i) in e.lu" :key="i" class="mr-1 text-xs">
+														{{ token.text }}
+													</span>
+												</p>
+
+												<p v-if="e.phon" class="italic text-sm mt-2">Phonetische Transkription:</p>
+												<p v-if="e.phon">
+													<span v-for="(token, i) in e.phon" :key="i" class="mr-1 text-xs">
+														{{ token.text }}
+													</span>
+												</p>
+												<div class="border border-b w-full mt-2"></div>
+
+												<p class="font-semibold mt-2">Annotationen:</p>
+												<div class="mr-1 text-xs">loremipsum</div>
+
+												<div class="border border-b w-full mt-2"></div>
 											</div>
-
-											<div class="border border-b w-full mt-2"></div>
-
-											<p class="font-semibold mt-2">Tokens:</p>
-											<p v-if="e.lu" class="italic text-sm mt-2">
-												Standardorthografische Transkription:
-											</p>
-											<p>
-												<span v-for="(token, i) in e.ortho" :key="i" class="mr-1 text-xs">
-													{{ token.text }}
-												</span>
-											</p>
-
-											<p v-if="e.lu" class="italic text-sm mt-2">Lautorientierte Transkription:</p>
-											<p v-if="e.lu">
-												<span v-for="(token, i) in e.lu" :key="i" class="mr-1 text-xs">
-													{{ token.text }}
-												</span>
-											</p>
-
-											<p v-if="e.phon" class="italic text-sm mt-2">Phonetische Transkription:</p>
-											<p v-if="e.phon">
-												<span v-for="(token, i) in e.phon" :key="i" class="mr-1 text-xs">
-													{{ token.text }}
-												</span>
-											</p>
-											<div class="border border-b w-full mt-2"></div>
-
-											<p class="font-semibold mt-2">Annotationen:</p>
-											<div class="mr-1 text-xs">loremipsum</div>
-
-											<div class="border border-b w-full mt-2"></div>
-										</div>
-									</DialogContent>
-								</Dialog>
-							</div>
-						</template>
+										</DialogContent>
+									</Dialog>
+								</div>
+							</template>
+						</div>
 					</div>
-				</div>
 
-				<!-- <section class="absolute bottom-0 w-full flex justify-center m-auto mt-6">
+					<!-- <section class="absolute bottom-0 w-full flex justify-center m-auto mt-6">
 					<div class="border z-10 rounded flex justify-center items-center gap-4 p-4 w-2xl">
 						<AudioVisualizer :audio="audioRef" class="-z-50" />
 					</div>
 				</section> -->
+				</div>
+				<section
+					class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
+				>
+					<div class="relative p-4 w-full rounded overflow-hidden">
+						<AudioWaveform
+							:audio="audioRef"
+							class="absolute inset-0 w-full h-full z-0 bg-accent-foreground"
+							:class="{ 'opacity-0 transition-opacity': !audioIsPlaying }"
+							:is-playing="audioIsPlaying"
+							:is-stopped="audioIsStopped"
+						/>
+
+						<div
+							class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-none transition-all"
+							:class="{ 'bg-white/80 hover:bg-white': audioIsPlaying }"
+						>
+							<Button variant="ghost" @click="togglePlayback">
+								<PlayIcon v-if="!audioIsPlaying" :size="16" />
+								<PauseIcon v-else :size="16" />
+							</Button>
+							<Button variant="ghost" @click="stopPlayback">
+								<SquareIcon :size="16" />
+							</Button>
+							<span :class="audioIsPlaying ? `text-black/50` : `text-foreground/20`">|</span>
+							<Button variant="ghost">
+								<DownloadIcon :size="16" />
+							</Button>
+						</div>
+					</div>
+				</section>
 			</div>
 		</div>
-		<section class="bottom-0 border border-foreground/20 w-full flex justify-center m-auto mt-6">
-			<div class="relative w-full rounded overflow-hidden">
-				<AudioWaveform
-					:audio="audioRef"
-					:is-playing="audioIsPlaying"
-					class="absolute inset-0 w-full h-full z-0 bg-accent-foreground"
-					:class="{ 'opacity-0 transition-opacity': !audioIsPlaying }"
-				/>
-
-				<div
-					class="relative z-10 rounded flex justify-center items-center gap-4 p-4 bg-none transition-all"
-					:class="{ 'bg-white': !audioIsPlaying }"
-				>
-					<Button class="cursor-pointer" variant="transparent" @click="togglePlayback">
-						<PlayCircle v-if="!audioIsPlaying" />
-						<PauseCircle v-else />
-					</Button>
-					<DownloadIcon />
-				</div>
-			</div>
-		</section>
 	</main>
 </template>

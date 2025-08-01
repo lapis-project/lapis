@@ -31,7 +31,6 @@ onMounted(async () => {
 			width: container.value.offsetWidth,
 		});
 
-		console.log(analyzerInstance);
 		analyzerInstance.connectInput(props.audio);
 	}
 });

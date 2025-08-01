@@ -140,7 +140,19 @@ jobs:
               ;;
             corpus)
               echo "dockerfile=Dockerfile_Corpus" >> $GITHUB_OUTPUT
-              echo "build_args=" >> $GITHUB_OUTPUT
+
+                            # Use printf to safely create the multi-line string for build args
+              BUILD_ARGS=$(printf "%s\n" \
+                "NUXT_PUBLIC_ZOTERO_BASE_URL=${NUXT_PUBLIC_ZOTERO_BASE_URL}" \
+                "NUXT_PUBLIC_REDMINE_ID=${NUXT_PUBLIC_REDMINE_ID}" \
+                "NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT=${NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT}" \
+                "NUXT_PUBLIC_MAP_BASELAYER_URL_DARK=${NUXT_PUBLIC_MAP_BASELAYER_URL_DARK}" \
+                "NUXT_PUBLIC_APP_BASE_URL=${NUXT_PUBLIC_APP_BASE_URL}")
+
+              # Use the official syntax to set the multi-line output variable
+              echo "build_args<<EOF" >> $GITHUB_OUTPUT
+              echo "$BUILD_ARGS" >> $GITHUB_OUTPUT
+              echo "EOF" >> $GITHUB_OUTPUT
               ;;
           esac
       - name: Set up Docker Buildx
@@ -189,7 +201,7 @@ jobs:
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
       DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-${{ inputs.app_name }}-dev
-      APP_NAME: lapis-"${{ needs.setup_workflow_env.outputs.APP_NAME }}"-dev
+      APP_NAME: lapis-${{ needs.setup_workflow_env.outputs.APP_NAME }}-dev
       APP_ROOT: "${{ needs.generate_workflow_vars.outputs.APP_ROOT }}"
       SERVICE_ID: "${{ vars.SERVICE_ID }}"
       PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.PUBLIC_URL }}"

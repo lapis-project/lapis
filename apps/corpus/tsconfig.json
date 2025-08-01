@@ -1,4 +1,7 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"extends": ["./.nuxt/tsconfig.json", "@acdh-oeaw/tsconfig"]
+	"extends": ["./.nuxt/tsconfig.json", "@acdh-oeaw/tsconfig"],
+	"compilerOptions": {
+		"typeRoots": ["./types", "./node_modules/@types"]
+	}
 }

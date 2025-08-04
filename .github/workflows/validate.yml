@@ -55,7 +55,7 @@ jobs:
 
       - name: Get playwright version
         run: |
-          PLAYWRIGHT_VERSION=$(pnpm ls @playwright/test --json | jq --raw-output '.[0].devDependencies["@playwright/test"].version')
+          PLAYWRIGHT_VERSION=$(pnpm --filter apps/lexat ls @playwright/test --json | jq --raw-output '.[0].devDependencies["@playwright/test"].version')
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
       - name: Cache playwright browsers
@@ -67,10 +67,10 @@ jobs:
 
       - name: Install playwright browsers
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps
+        run: pnpm --filter apps/lexat exec playwright install --with-deps
       - name: Install playwright browsers (os dependencies)
         if: steps.cache-playwright-browsers.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps
+        run: pnpm --filter apps/lexat pnpm exec playwright install-deps
 
       - name: Build app
         run: pnpm build:lexat

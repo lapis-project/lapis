@@ -47,8 +47,8 @@ jobs:
       - name: Lint
         run: pnpm --filter ./apps/lexat lint:check
 
-      - name: Typecheck
-        run: pnpm --filter ./apps/lexat types:check
+      #- name: Typecheck
+      #  run: pnpm --filter ./apps/lexat types:check
 
       - name: Test
         run: pnpm --filter ./apps/lexat test

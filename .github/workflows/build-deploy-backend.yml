@@ -3,13 +3,6 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true
 "on":
-  #  push:
-  #    branches:
-  #      - main
-  #    paths:
-  #      - "apps/backend/**"
-  #    tags:
-  #      - 'release-prod-v\d\.'
   workflow_call: null
   workflow_dispatch: null
 jobs:
@@ -43,11 +36,9 @@ jobs:
             TAG_LOWER=$(echo "$TAG_NAME" | tr '[:upper:]' '[:lower:]')
             echo "Processing tag: $TAG_NAME"
 
-            # Pattern 1: Explicit environment in tag name (e.g., backend-production, backend-dev-v1.2)
-            if [[ "$TAG_LOWER" == backend-production || "$TAG_LOWER" == backend-prod || "$TAG_LOWER" == backend-prod-* ]]; then
+            # Pattern 1: Explicit environment in tag name (e.g., backend-production, backend-v1.2)
+            if [[ "$TAG_LOWER" == backend-production || "$TAG_LOWER" == backend-prod || "$TAG_LOWER" == backend-prod-* || "$TAG_LOWER" == backend-v* ]]; then
               ENV_NAME="production-backend"; ENV_SHORT="prod-backend"
-            elif [[ "$TAG_LOWER" == backend-dev || "$TAG_LOWER" == backend-development || "$TAG_LOWER" == backend-dev-* ]]; then
-              ENV_NAME="development-backend"; ENV_SHORT="dev-backend"
             fi
 
           # Fallback for branch logic

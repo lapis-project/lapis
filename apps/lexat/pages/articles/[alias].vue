@@ -65,18 +65,18 @@ const tableOfContents = computed(() => {
 	}
 
 	// regex to match headings with mandatory IDs (assumes addIdsToHeadings has run)
-	const headingRegex = /<(h[1-6])\s+id="([^"]+)"[^>]*>(.*?)<\/\1>/g;
-	const toc = [];
-	let match;
+	const headingRegex = /<(h[1-6])[^>]*\sid=['"]([^'"]+)['"][^>]*>(.*?)<\/\1>/gis;
+	const toc: Array<{ text: string; level: number; id: string }> = [];
 
 	// extract headings and build TOC
+	let match: RegExpExecArray | null;
 	while ((match = headingRegex.exec(article.value.content)) !== null) {
-		const [_, tag, id, text] = match;
-		if (tag?.[1]) {
-			const level = parseInt(tag[1]); // extract heading level (1-6)
-
-			toc.push({ text, level, id });
-		}
+		const [, tag, id, text] = match;
+		toc.push({
+			text: text ?? "", // inner HTML of the heading
+			level: Number(tag?.slice(1)), // “h2” → 2
+			id: id ?? "",
+		});
 	}
 
 	return toc;

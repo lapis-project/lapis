@@ -300,8 +300,7 @@ const handleDownload = async (): Promise<void> => {
 	if (result.responses) {
 		const questionName =
 			questions.value?.find((q) => q.id === activeQuestionId.value)?.phenomenon_name ?? "undefined";
-		const timeStamp = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // produces yyyymmdd (e.g. 20250402)
-		const fileName = `db-${questionName.toLowerCase()}-${timeStamp}`;
+		const fileName = `db-${questionName.toLowerCase()}`;
 		downloadCSV(result.responses, columns.value, fileName);
 	}
 };

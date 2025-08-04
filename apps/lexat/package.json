@@ -22,7 +22,7 @@
 		"test:e2e:install": "playwright install --with-deps",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:update-snapshots": "playwright test --update-snapshots",
-		"format:check": "prettier . \"!./@(content|public)/**\" --cache --cache-location ./.prettiercache --check",
+		"format:check": "prettier . \"!./assets/data/*.json\" --cache --cache-location ./.prettiercache --check",
 		"format:fix": "pnpm run format:check --write --ignore-path ../../.prettierignore",
 		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
 		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",

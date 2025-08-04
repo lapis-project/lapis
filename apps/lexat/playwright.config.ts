@@ -84,7 +84,7 @@ export default defineConfig({
 	webServer: [
 		{
 			name: "Hono",
-			command: "pnpm -w dev:backend",
+			command: "pnpm -w dev-test:backend",
 			url: backendBaseUrl,
 			env: { PORT: String(backendPort) }, // if your API reads PORT
 			reuseExistingServer: !isCI,
@@ -92,7 +92,7 @@ export default defineConfig({
 		},
 		{
 			name: "LexAT21",
-			command: "pnpm start",
+			command: "pnpm start-test",
 			url: frontendBaseUrl,
 			reuseExistingServer: !isCI,
 			timeout: 120_000,

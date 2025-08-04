@@ -16,6 +16,7 @@
 		"postinstall": "nuxt prepare",
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.dev.local",
+		"start-test": "nuxt preview",
 		"test": "exit 0",
 		"test:e2e": "playwright test",
 		"test:e2e:codegen": "playwright codegen",

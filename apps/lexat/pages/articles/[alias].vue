@@ -146,7 +146,7 @@ usePageMetadata({
 });
 
 // solution using scroll-margin-top doesn't seem to work just yet https://github.com/nuxt/nuxt/pull/9187
-const scrollTo = (id) => {
+const scrollTo = (id: string) => {
 	const el = document.getElementById(id);
 	if (!el) {
 		return;

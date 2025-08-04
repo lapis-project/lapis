@@ -42,20 +42,20 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Format
-        run: pnpm --filter apps/lexat format:check
+        run: pnpm --filter ./apps/lexat format:check
 
       - name: Lint
-        run: pnpm --filter apps/lexat lint:check
+        run: pnpm --filter ./apps/lexat lint:check
 
       - name: Typecheck
-        run: pnpm --filter apps/lexat types:check
+        run: pnpm --filter ./apps/lexat types:check
 
       - name: Test
-        run: pnpm --filter apps/lexat test
+        run: pnpm --filter ./apps/lexat test
 
       - name: Get playwright version
         run: |
-          PLAYWRIGHT_VERSION=$(pnpm --filter apps/lexat ls @playwright/test --json | jq --raw-output '.[0].devDependencies["@playwright/test"].version')
+          PLAYWRIGHT_VERSION=$(pnpm --filter ./apps/lexat ls @playwright/test --json | jq --raw-output '.[0].devDependencies["@playwright/test"].version')
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
       - name: Cache playwright browsers
@@ -67,10 +67,10 @@ jobs:
 
       - name: Install playwright browsers
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
-        run: pnpm --filter apps/lexat exec playwright install --with-deps
+        run: pnpm --filter ./apps/lexat exec playwright install --with-deps
       - name: Install playwright browsers (os dependencies)
         if: steps.cache-playwright-browsers.outputs.cache-hit == 'true'
-        run: pnpm --filter apps/lexat pnpm exec playwright install-deps
+        run: pnpm --filter ./apps/lexat pnpm exec playwright install-deps
 
       - name: Build app
         run: pnpm build:lexat
@@ -80,7 +80,7 @@ jobs:
           NUXT_PUBLIC_ZOTERO_BASE_URL: "${{ vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}"
 
       - name: Run e2e tests
-        run: pnpm --filter apps/lexat run test:e2e
+        run: pnpm --filter ./apps/lexat run test:e2e
         env:
           NUXT_PUBLIC_APP_BASE_URL: "http://localhost:3000"
 

@@ -247,3 +247,76 @@ For GPG signing to work, the following secrets must be configured in your reposi
 
 - **Branch Restriction**: This workflow includes a check (`if: github.ref_name == 'main'`) to ensure
   it can only be run from the `main` branch.
+
+---
+
+## Workflow: `Create App Version Tag`
+
+### 🚀 Overview
+
+This workflow automates the creation of semantic version Git tags for a specific application
+(`backend`, `lexat`, or `corpus`). It is designed to be triggered manually.
+
+The workflow identifies the last relevant commit for the chosen application, calculates the next
+version number based on Conventional Commit messages, and then creates and pushes an annotated tag
+to that specific commit.
+
+---
+
+### 🛠️ How to Use
+
+This workflow must be triggered manually. It is the primary method for creating official version
+tags.
+
+1.  Navigate to the **Actions** tab in the GitHub repository.
+2.  Select the **"Create App Version Tag"** workflow from the list on the left.
+3.  Click the **"Run workflow"** dropdown button.
+4.  Ensure you are on the **`main`** branch, as the workflow will not run if triggered from any
+    other branch.
+5.  Fill out the required inputs as described in the table below.
+6.  Click the green **"Run workflow"** button to start the tagging process.
+
+---
+
+### ⚙️ Inputs & Configuration
+
+This workflow requires the following manual inputs to run.
+
+#### Manual Inputs
+
+| Parameter  | Description                                           | Required | Default | Options                      |
+| :--------- | :---------------------------------------------------- | :------- | :------ | :--------------------------- |
+| `app_name` | The application you want to create a version tag for. | Yes      | `N/A`   | `backend`, `lexat`, `corpus` |
+
+---
+
+### ✨ Additional Notes
+
+- **Branch Restriction**: This workflow includes a check (`if: github.ref_name == 'main'`) to ensure
+  it can only be run from the `main` branch.
+
+- **Semantic Versioning Logic**: The workflow uses the
+  [paulhatch/semantic-version](https://github.com/paulhatch/semantic-version) action to
+  automatically calculate the next version number based on your commit history.
+
+- **Versioning Strategy**: The version bump is determined by the format of your commit messages
+  within the application's specific path (e.g., `apps/lexat`).
+
+  - A **MAJOR** version bump (e.g., `v1.2.3` -> `v2.0.0`) is triggered by a commit message with a
+    breaking change indicator (`!`) in the header.
+    - Example: `feat(lexat)!: remove deprecated search endpoint`
+  - A **MINOR** version bump (e.g., `v1.2.3` -> `v1.3.0`) is triggered by a `feat` commit.
+    - Example: `feat(lexat): add new filter option to search`
+  - A **PATCH** version bump (e.g., `v1.2.3` -> `v1.2.4`) is the default for other standard commit
+    types like `fix:`, `chore:`, etc.
+
+- **Scoped Versioning**: This workflow isolates versioning for each application. It uses the
+  `change_path` parameter to ensure that only commits affecting a specific app's directory (e.g.,
+  `/apps/lexat`) will be considered for a version bump for that app.
+
+- **Targeted Tagging**: The tag is not placed on the latest commit of the `main` branch by default.
+  Instead, the workflow finds the **last commit that actually modified the chosen application's
+  code** and attaches the new version tag there. This ensures maximum accuracy in versioning.
+
+- **No Version Change**: If no new version is detected based on the commit history since the last
+  tag for that app, the workflow will simply report that and exit without creating a new tag.

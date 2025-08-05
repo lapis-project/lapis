@@ -22,9 +22,6 @@ const backendPort = isMac ? 5001 : 5000;
 const frontendBaseUrl = `http://localhost:${String(frontendPort)}`;
 const backendBaseUrl = `http://localhost:${String(backendPort)}`;
 
-// make API base URL available to the tests and nuxt app
-process.env.NUXT_PUBLIC_API_BASE_URL = backendBaseUrl;
-
 export default defineConfig({
 	testDir: "./e2e",
 	snapshotDir: "./e2e/snapshots",
@@ -33,7 +30,7 @@ export default defineConfig({
 	retries: isCI ? 2 : 0,
 	maxFailures: 10,
 	workers: isCI ? 1 : undefined,
-	reporter: isCI ? "github" : "html",
+	reporter: isCI ? [["github"], ["html", { outputFolder: "playwright-report" }]] : "html",
 	use: {
 		baseURL: frontendBaseUrl,
 		trace: "on-first-retry",
@@ -84,7 +81,7 @@ export default defineConfig({
 	webServer: [
 		{
 			name: "Hono",
-			command: "pnpm -w dev:backend",
+			command: isCI ? "pnpm -w dev-test:backend" : "pnpm -w dev:backend",
 			url: backendBaseUrl,
 			env: { PORT: String(backendPort) }, // if your API reads PORT
 			reuseExistingServer: !isCI,
@@ -92,7 +89,7 @@ export default defineConfig({
 		},
 		{
 			name: "LexAT21",
-			command: "pnpm start",
+			command: isCI ? "pnpm start-test" : "pnpm start",
 			url: frontendBaseUrl,
 			reuseExistingServer: !isCI,
 			timeout: 120_000,

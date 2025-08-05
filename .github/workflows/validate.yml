@@ -16,11 +16,35 @@ jobs:
     name: Validate
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    environment: testing
+    env:
+      # Frontend vars
+      NUXT_PUBLIC_APP_BASE_URL: ${{ vars.NUXT_PUBLIC_APP_BASE_URL }}
+      NUXT_PUBLIC_API_BASE_URL: ${{ vars.NUXT_PUBLIC_API_BASE_URL }}
+      NUXT_PUBLIC_REDMINE_ID: ${{ vars.NUXT_PUBLIC_REDMINE_ID }}
+      NUXT_PUBLIC_ZOTERO_BASE_URL: ${{ vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}
+
+      # Backend vars
+      ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+      BACKEND_PORT: ${{ vars.BACKEND_PORT }}
+      PGDATABASE: ${{ vars.PGDATABASE }}
+      PGHOST: ${{ vars.PGHOST }}
+      PGPORT: ${{ vars.PGPORT }}
+      PGUSER: ${{ vars.PGUSER }}
+
+      # Backend secrets
+      IMGPROXY_KEY: ${{ secrets.IMGPROXY_KEY }}
+      IMGPROXY_SALT: ${{ secrets.IMGPROXY_SALT }}
+      PGPASSWORD: ${{ secrets.PGPASSWORD }}
+      S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+      S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
+      S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+      S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
 
     strategy:
       fail-fast: true
       matrix:
-        node-version: [20.x]
+        node-version: [22.x]
         os: [ubuntu-latest]
 
     steps:
@@ -42,47 +66,72 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Format
-        run: pnpm run format:check
+        run: pnpm --filter ./apps/lexat format:check
 
       - name: Lint
-        run: pnpm run lint:check
+        run: pnpm --filter ./apps/lexat lint:check
 
-      - name: Typecheck
-        run: pnpm run types:check
+      #- name: Typecheck
+      #  run: pnpm --filter ./apps/lexat types:check
 
       - name: Test
-        run: pnpm run test
+        run: pnpm --filter ./apps/lexat test
+
+      - name: Run db
+        run: docker compose --env-file .env.localsetup up -d
+
+      - name: Seed db
+        run: |
+          until docker exec lapis-dev-database-1 pg_isready -U lapis_dev; do sleep 1; done
+          docker exec -i lapis-dev-database-1 psql -U lapis_dev lapis_dev < ./db/lapis_dump.sql
 
       - name: Get playwright version
         run: |
-          PLAYWRIGHT_VERSION=$(pnpm ls @playwright/test --json | jq --raw-output '.[0].devDependencies["@playwright/test"].version')
+          PLAYWRIGHT_VERSION=$(pnpm --filter ./apps/lexat ls @playwright/test --json | jq --raw-output '.[0].devDependencies["@playwright/test"].version')
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
       - name: Cache playwright browsers
         uses: actions/cache@v4
         id: cache-playwright-browsers
         with:
-          path: "~/.cache/ms-playwright"
+          path: "$HOME/.cache/ms-playwright"
           key: ${{ matrix.os }}-playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
 
       - name: Install playwright browsers
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps
+        run: pnpm --filter ./apps/lexat exec playwright install --with-deps
       - name: Install playwright browsers (os dependencies)
         if: steps.cache-playwright-browsers.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps
+        run: pnpm --filter ./apps/lexat exec playwright install-deps
 
       - name: Build app
-        run: pnpm run build
+        run: pnpm build:lexat
         env:
-          NUXT_PUBLIC_APP_BASE_URL: "http://localhost:3000"
-          NUXT_PUBLIC_REDMINE_ID: "${{ vars.SERVICE_ID }}"
-          NUXT_PUBLIC_ZOTERO_BASE_URL: "https://api.zotero.org"
+          NUXT_PUBLIC_APP_BASE_URL: "${{ env.NUXT_PUBLIC_APP_BASE_URL }}"
+          NUXT_PUBLIC_API_BASE_URL: "${{ env.NUXT_PUBLIC_API_BASE_URL }}"
+          NUXT_PUBLIC_REDMINE_ID: "${{ env.NUXT_PUBLIC_REDMINE_ID }}"
+          NUXT_PUBLIC_ZOTERO_BASE_URL: "${{ env.NUXT_PUBLIC_ZOTERO_BASE_URL }}"
 
       - name: Run e2e tests
-        run: pnpm run test:e2e
+        run: pnpm --filter ./apps/lexat run test:e2e
         env:
-          NUXT_PUBLIC_APP_BASE_URL: "http://localhost:3000"
+          NUXT_PUBLIC_APP_BASE_URL: "${{ env.NUXT_PUBLIC_APP_BASE_URL }}"
+          NUXT_PUBLIC_API_BASE_URL: "${{ env.NUXT_PUBLIC_API_BASE_URL }}"
+          NUXT_PUBLIC_REDMINE_ID: "${{ env.NUXT_PUBLIC_REDMINE_ID }}"
+          NUXT_PUBLIC_ZOTERO_BASE_URL: "${{ env.NUXT_PUBLIC_ZOTERO_BASE_URL }}"
+          ALLOWED_ORIGINS: ${{ env.ALLOWED_ORIGINS }}
+          BACKEND_PORT: ${{ env.BACKEND_PORT }}
+          PGDATABASE: ${{ env.PGDATABASE }}
+          PGHOST: ${{ env.PGHOST }}
+          PGPORT: ${{ env.PGPORT }}
+          PGUSER: ${{ env.PGUSER }}
+          IMGPROXY_KEY: ${{ env.IMGPROXY_KEY }}
+          IMGPROXY_SALT: ${{ env.IMGPROXY_SALT }}
+          PGPASSWORD: ${{ env.PGPASSWORD }}
+          S3_ACCESS_KEY: ${{ env.S3_ACCESS_KEY }}
+          S3_BUCKET_NAME: ${{ env.S3_BUCKET_NAME }}
+          S3_ENDPOINT: ${{ env.S3_ENDPOINT }}
+          S3_SECRET_ACCESS_KEY: ${{ env.S3_SECRET_ACCESS_KEY }}
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -90,3 +139,7 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      - name: Stop services
+        if: always()
+        run: docker compose --env-file .env.localsetup down

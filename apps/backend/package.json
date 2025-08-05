@@ -30,6 +30,7 @@
 	},
 	"scripts": {
 		"dev": "tsx watch --env-file .env.local src/index.ts",
+		"dev-test": "tsx watch src/index.ts",
 		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
 		"test:cms-handler": "vitest cmsHandler",
 		"test:article-handler": "vitest articleHandler",

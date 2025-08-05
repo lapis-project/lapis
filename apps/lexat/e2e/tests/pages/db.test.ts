@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("DB page functionality", () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto("/db");
+		await page.goto("/db", { waitUntil: "domcontentloaded" });
 	});
 
 	test("default page has a selected question,  and  table rows", async ({ page }) => {

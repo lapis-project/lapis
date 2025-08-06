@@ -51,7 +51,7 @@ onMounted(async () => {
 	if (props.audio && container.value) {
 		wavesurfer.value = WaveSurfer.create({
 			container: container.value,
-			waveColor: "#e7acc5",
+			waveColor: "grey",
 			progressColor: "white",
 			height: 100,
 			barWidth: 2,

@@ -161,7 +161,15 @@ importers:
         version: 3.5.2(magicast@0.3.5)
       '@nuxtjs/i18n':
         specifier: ^9.5.5
+<<<<<<< HEAD
         version: 9.5.6(@vue/compiler-dom@3.5.18)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(rollup@4.46.2)(vue@3.5.18(typescript@5.9.2))
+=======
+<<<<<<< HEAD
+        version: 9.5.5(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.5.1))(magicast@0.3.5)(rollup@4.46.2)(vue@3.5.18(typescript@5.8.3))
+=======
+        version: 9.5.5(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.44.1)(vue@3.5.18(typescript@5.8.3))
+>>>>>>> 96e30b0 (refactor: remove audiovisualizer library)
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       '@tailwindcss/vite':
         specifier: ^4.1.11
         version: 4.1.11(vite@5.4.19(@types/node@22.17.1)(lightningcss@1.30.1)(terser@5.43.1))
@@ -178,6 +186,7 @@ importers:
 =======
         specifier: ^11.3.0
 <<<<<<< HEAD
+<<<<<<< HEAD
         version: 11.3.0(magicast@0.3.5)(nuxt@3.18.1(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.46.2)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
 =======
         version: 11.3.0(magicast@0.3.5)(nuxt@3.17.7(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.44.1)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
@@ -185,7 +194,13 @@ importers:
         specifier: ^4.5.1
         version: 4.5.1
 >>>>>>> b19da5a (feat(corpus): display audio waveform when playing audio in detail view)
+<<<<<<< HEAD
 >>>>>>> f0165da (feat(corpus): display audio waveform when playing audio in detail view)
+=======
+=======
+        version: 11.3.0(magicast@0.3.5)(nuxt@3.17.7(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.4.2))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.44.1)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
+>>>>>>> 96e30b0 (refactor: remove audiovisualizer library)
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -199,8 +214,17 @@ importers:
         specifier: ^0.487.0
         version: 0.487.0(vue@3.5.18(typescript@5.9.2))
       nuxt:
+<<<<<<< HEAD
         specifier: ^3.18.1
+<<<<<<< HEAD
         version: 3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@22.17.1)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.33.0(jiti@2.5.1))(ioredis@5.7.0)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.46.2)(stylelint@16.23.1(typescript@5.9.2))(terser@5.43.1)(tsx@4.20.3)(typescript@5.9.2)(vite@5.4.19(@types/node@22.17.1)(lightningcss@1.30.1)(terser@5.43.1))(vue-tsc@2.2.12(typescript@5.9.2))(yaml@2.8.1)
+=======
+        version: 3.18.1(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.46.2)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0)
+=======
+        specifier: ^3.17.7
+        version: 3.17.7(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.4.2))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.44.1)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0)
+>>>>>>> 96e30b0 (refactor: remove audiovisualizer library)
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       nuxt-svgo:
         specifier: ^4.2.4
         version: 4.2.6(magicast@0.3.5)(vue@3.5.18(typescript@5.9.2))
@@ -240,6 +264,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/eslint-config':
         specifier: ^2.0.9
+<<<<<<< HEAD
         version: 2.0.9(@typescript-eslint/utils@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.33.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
       '@acdh-oeaw/eslint-config-nuxt':
         specifier: ^2.0.14
@@ -250,6 +275,18 @@ importers:
       '@acdh-oeaw/eslint-config-vue':
         specifier: ^2.0.12
         version: 2.0.12(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.33.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.33.0(jiti@2.5.1))
+=======
+        version: 2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(globals@16.2.0)(typescript@5.8.3)
+      '@acdh-oeaw/eslint-config-nuxt':
+        specifier: ^2.0.14
+        version: 2.0.14(@acdh-oeaw/eslint-config-vue@2.0.12(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(globals@16.2.0)(typescript@5.8.3))(eslint@9.28.0(jiti@2.4.2)))(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(globals@16.2.0)(typescript@5.8.3))(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
+      '@acdh-oeaw/eslint-config-playwright':
+        specifier: ^2.0.10
+        version: 2.0.10(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(globals@16.2.0)(typescript@5.8.3))(eslint@9.28.0(jiti@2.4.2))
+      '@acdh-oeaw/eslint-config-vue':
+        specifier: ^2.0.12
+        version: 2.0.12(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(globals@16.2.0)(typescript@5.8.3))(eslint@9.28.0(jiti@2.4.2))
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       '@acdh-oeaw/stylelint-config':
         specifier: ^2.2.0
         version: 2.3.0(postcss-html@1.8.0)(stylelint-order@7.0.0(stylelint@16.23.1(typescript@5.9.2)))(stylelint@16.23.1(typescript@5.9.2))
@@ -260,8 +297,13 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0(rollup@4.46.2)(vite@5.4.19(@types/node@22.17.1)(lightningcss@1.30.1)(terser@5.43.1))(vue@3.5.18(typescript@5.9.2))
       '@nuxt/eslint':
+<<<<<<< HEAD
         specifier: ^1.6.0
         version: 1.8.0(@typescript-eslint/utils@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(@vue/compiler-sfc@3.5.18)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(typescript@5.9.2)(vite@5.4.19(@types/node@22.17.1)(lightningcss@1.30.1)(terser@5.43.1))
+=======
+        specifier: ^1.4.1
+        version: 1.4.1(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(@vue/compiler-sfc@3.5.18)(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(magicast@0.3.5)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       '@playwright/test':
         specifier: ^1.54.1
         version: 1.54.2
@@ -276,10 +318,17 @@ importers:
         version: 11.0.7
       eslint:
         specifier: ^9.28.0
+<<<<<<< HEAD
         version: 9.33.0(jiti@2.5.1)
       eslint-config-flat-gitignore:
         specifier: ^0.3.0
         version: 0.3.0(eslint@9.33.0(jiti@2.5.1))
+=======
+        version: 9.28.0(jiti@2.4.2)
+      eslint-config-flat-gitignore:
+        specifier: ^0.3.0
+        version: 0.3.0(eslint@9.28.0(jiti@2.4.2))
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       schema-dts:
         specifier: ^1.1.5
         version: 1.1.5
@@ -560,7 +609,19 @@ importers:
         version: 13.6.0(vue@3.5.18(typescript@5.9.2))
       '@vueuse/nuxt':
         specifier: ^11.3.0
+<<<<<<< HEAD
         version: 11.3.0(magicast@0.3.5)(nuxt@3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.46.2)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+        version: 11.3.0(magicast@0.3.5)(nuxt@3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.46.2)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
+=======
+        version: 11.3.0(magicast@0.3.5)(nuxt@3.17.7(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.4.2))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.44.1)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
+>>>>>>> 2dcad3a (feat: add speaker information, bookmark functionality and adjust detail view behaviour)
+=======
+        version: 11.3.0(magicast@0.3.5)(nuxt@3.17.7(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.44.1)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0))(vue@3.5.18(typescript@5.8.3))
+>>>>>>> 96e30b0 (refactor: remove audiovisualizer library)
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -577,6 +638,17 @@ importers:
 <<<<<<< HEAD
         specifier: ^3.18.1
         version: 3.18.1(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.46.2)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0)
+<<<<<<< HEAD
+=======
+=======
+        specifier: ^3.17.7
+<<<<<<< HEAD
+        version: 3.17.7(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.4.2))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.44.1)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0)
+>>>>>>> 2dcad3a (feat: add speaker information, bookmark functionality and adjust detail view behaviour)
+=======
+        version: 3.17.7(@netlify/blobs@8.2.0)(@parcel/watcher@2.5.1)(@types/node@22.16.5)(@vue/compiler-sfc@3.5.18)(db0@0.3.2)(eslint@9.28.0(jiti@2.5.1))(ioredis@5.6.1)(lightningcss@1.30.1)(magicast@0.3.5)(meow@13.2.0)(optionator@0.9.4)(rollup@4.44.1)(stylelint@16.22.0(typescript@5.8.3))(terser@5.40.0)(tsx@4.20.3)(typescript@5.8.3)(vite@5.4.19(@types/node@22.16.5)(lightningcss@1.30.1)(terser@5.40.0))(vue-tsc@2.2.12(typescript@5.8.3))(yaml@2.8.0)
+>>>>>>> 96e30b0 (refactor: remove audiovisualizer library)
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       reka-ui:
         specifier: ^2.4.0
         version: 2.4.1(typescript@5.9.2)(vue@3.5.18(typescript@5.9.2))
@@ -4145,9 +4217,6 @@ packages:
   atomic-sleep@1.0.0:
     resolution: {integrity: sha512-kNOjDqAh7px0XWNI+4QbzoiR/nTkHAWNud2uvnJquD1/x5a7EQZMJT0AczqK0Qn67oY/TTQ1LbUKajZpp3I9tQ==}
     engines: {node: '>=8.0.0'}
-
-  audiomotion-analyzer@4.5.1:
-    resolution: {integrity: sha512-vEO5HgivsZa9ZhQDItSMjXD5+qsRu6rAEKzAmrg7HbOFeM4tPVrE/wxiRREWxzbGpuH9NZT4Ze+v95G1w/rRAA==}
 
   autoprefixer@10.4.21:
     resolution: {integrity: sha512-O+A6LWV5LDHSJD3LjHYoNi4VLsj/Whi7k6zG12xTYaU4cQ8oxQGckXNX8cRHK5yOZ/ppVHe0ZBXGzSV9jXdVbQ==}
@@ -8726,8 +8795,30 @@ snapshots:
 
   '@acdh-oeaw/eslint-config-playwright@2.0.10(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.33.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.33.0(jiti@2.5.1))':
     dependencies:
+<<<<<<< HEAD
       '@acdh-oeaw/eslint-config': 2.0.9(@typescript-eslint/utils@8.39.0(eslint@9.33.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.33.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
       eslint-plugin-playwright: 2.2.2(eslint@9.33.0(jiti@2.5.1))
+=======
+      '@acdh-oeaw/eslint-config': 2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.5.1))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.5.1))(globals@16.2.0)(typescript@5.8.3)
+      '@acdh-oeaw/eslint-config-vue': 2.0.12(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.5.1))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.5.1))(globals@16.2.0)(typescript@5.8.3))(eslint@9.28.0(jiti@2.5.1))
+      '@nuxt/eslint-plugin': 1.4.1(eslint@9.28.0(jiti@2.5.1))(typescript@5.8.3)
+    transitivePeerDependencies:
+      - eslint
+      - supports-color
+      - typescript
+
+  '@acdh-oeaw/eslint-config-playwright@2.0.10(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(globals@16.2.0)(typescript@5.8.3))(eslint@9.28.0(jiti@2.4.2))':
+    dependencies:
+      '@acdh-oeaw/eslint-config': 2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.4.2))(globals@16.2.0)(typescript@5.8.3)
+      eslint-plugin-playwright: 2.2.0(eslint@9.28.0(jiti@2.4.2))
+    transitivePeerDependencies:
+      - eslint
+
+  '@acdh-oeaw/eslint-config-playwright@2.0.10(@acdh-oeaw/eslint-config@2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.5.1))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.5.1))(globals@16.2.0)(typescript@5.8.3))(eslint@9.28.0(jiti@2.5.1))':
+    dependencies:
+      '@acdh-oeaw/eslint-config': 2.0.9(@typescript-eslint/utils@8.33.1(eslint@9.28.0(jiti@2.5.1))(typescript@5.8.3))(eslint-import-resolver-node@0.3.9)(eslint@9.28.0(jiti@2.5.1))(globals@16.2.0)(typescript@5.8.3)
+      eslint-plugin-playwright: 2.2.0(eslint@9.28.0(jiti@2.5.1))
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
     transitivePeerDependencies:
       - eslint
 
@@ -10061,7 +10152,45 @@ snapshots:
 
   '@intlify/shared@9.14.5': {}
 
+<<<<<<< HEAD
   '@intlify/unplugin-vue-i18n@6.0.8(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.5.1))(rollup@4.46.2)(typescript@5.8.3)(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))(vue@3.5.18(typescript@5.8.3))':
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+  '@intlify/unplugin-vue-i18n@6.0.8(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.5.1))(rollup@4.46.2)(typescript@5.8.3)(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))(vue@3.5.18(typescript@5.8.3))':
+=======
+=======
+  '@intlify/unplugin-vue-i18n@6.0.8(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.4.2))(rollup@4.44.1)(typescript@5.8.3)(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))(vue@3.5.18(typescript@5.8.3))':
+    dependencies:
+      '@eslint-community/eslint-utils': 4.7.0(eslint@9.28.0(jiti@2.4.2))
+      '@intlify/bundle-utils': 10.0.1(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))
+      '@intlify/shared': 11.1.9
+      '@intlify/vue-i18n-extensions': 8.0.0(@intlify/shared@11.1.9)(@vue/compiler-dom@3.5.18)(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))(vue@3.5.18(typescript@5.8.3))
+      '@rollup/pluginutils': 5.2.0(rollup@4.44.1)
+      '@typescript-eslint/scope-manager': 8.36.0
+      '@typescript-eslint/typescript-estree': 8.36.0(typescript@5.8.3)
+      debug: 4.4.1
+      fast-glob: 3.3.3
+      js-yaml: 4.1.0
+      json5: 2.2.3
+      pathe: 1.1.2
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+      unplugin: 1.16.1
+      vue: 3.5.18(typescript@5.8.3)
+    optionalDependencies:
+      vue-i18n: 10.0.7(vue@3.5.18(typescript@5.8.3))
+    transitivePeerDependencies:
+      - '@vue/compiler-dom'
+      - eslint
+      - rollup
+      - supports-color
+      - typescript
+
+>>>>>>> 96e30b0 (refactor: remove audiovisualizer library)
+  '@intlify/unplugin-vue-i18n@6.0.8(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.5.1))(rollup@4.44.1)(typescript@5.8.3)(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))(vue@3.5.18(typescript@5.8.3))':
+>>>>>>> 2dcad3a (feat: add speaker information, bookmark functionality and adjust detail view behaviour)
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
     dependencies:
       '@eslint-community/eslint-utils': 4.7.0(eslint@9.33.0(jiti@2.5.1))
       '@intlify/bundle-utils': 10.0.1(vue-i18n@10.0.8(vue@3.5.18(typescript@5.9.2)))
@@ -10820,11 +10949,27 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
+<<<<<<< HEAD
   '@nuxtjs/i18n@9.5.6(@vue/compiler-dom@3.5.18)(eslint@9.33.0(jiti@2.5.1))(magicast@0.3.5)(rollup@4.46.2)(vue@3.5.18(typescript@5.9.2))':
     dependencies:
       '@intlify/h3': 0.6.1
       '@intlify/shared': 10.0.8
       '@intlify/unplugin-vue-i18n': 6.0.8(@vue/compiler-dom@3.5.18)(eslint@9.33.0(jiti@2.5.1))(rollup@4.46.2)(typescript@5.9.2)(vue-i18n@10.0.8(vue@3.5.18(typescript@5.9.2)))(vue@3.5.18(typescript@5.9.2))
+=======
+<<<<<<< HEAD
+  '@nuxtjs/i18n@9.5.5(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.5.1))(magicast@0.3.5)(rollup@4.46.2)(vue@3.5.18(typescript@5.8.3))':
+    dependencies:
+      '@intlify/h3': 0.6.1
+      '@intlify/shared': 10.0.7
+      '@intlify/unplugin-vue-i18n': 6.0.8(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.5.1))(rollup@4.46.2)(typescript@5.8.3)(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))(vue@3.5.18(typescript@5.8.3))
+=======
+  '@nuxtjs/i18n@9.5.5(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.4.2))(magicast@0.3.5)(rollup@4.44.1)(vue@3.5.18(typescript@5.8.3))':
+    dependencies:
+      '@intlify/h3': 0.6.1
+      '@intlify/shared': 10.0.7
+      '@intlify/unplugin-vue-i18n': 6.0.8(@vue/compiler-dom@3.5.18)(eslint@9.28.0(jiti@2.4.2))(rollup@4.44.1)(typescript@5.8.3)(vue-i18n@10.0.7(vue@3.5.18(typescript@5.8.3)))(vue@3.5.18(typescript@5.8.3))
+>>>>>>> 96e30b0 (refactor: remove audiovisualizer library)
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
       '@intlify/utils': 0.13.0
       '@miyaneee/rollup-plugin-json5': 1.2.0(rollup@4.46.2)
       '@nuxt/kit': 3.18.1(magicast@0.3.5)
@@ -12823,8 +12968,6 @@ snapshots:
 
   atomic-sleep@1.0.0: {}
 
-  audiomotion-analyzer@4.5.1: {}
-
   autoprefixer@10.4.21(postcss@8.5.6):
     dependencies:
       browserslist: 4.25.2
@@ -13772,7 +13915,16 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+<<<<<<< HEAD
   eslint-plugin-playwright@2.2.2(eslint@9.33.0(jiti@2.5.1)):
+=======
+  eslint-plugin-playwright@2.2.0(eslint@9.28.0(jiti@2.4.2)):
+    dependencies:
+      eslint: 9.28.0(jiti@2.4.2)
+      globals: 13.24.0
+
+  eslint-plugin-playwright@2.2.0(eslint@9.28.0(jiti@2.5.1)):
+>>>>>>> d726ee1 (refactor: remove audiovisualizer library)
     dependencies:
       eslint: 9.33.0(jiti@2.5.1)
       globals: 13.24.0

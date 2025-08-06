@@ -591,30 +591,24 @@ onScopeDispose(() => {
 							</template>
 						</div>
 					</div>
+
+					<!-- <section class="absolute bottom-0 w-full flex justify-center m-auto mt-6">
+					<div class="border z-10 rounded flex justify-center items-center gap-4 p-4 w-2xl">
+						<AudioVisualizer :audio="audioRef" class="-z-50" />
+					</div>
+				</section> -->
 				</div>
 				<section
 					class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
 				>
 					<div class="relative p-4 w-full rounded overflow-hidden">
-						<!-- <AudioWaveform
+						<AudioWaveform
 							:audio="audioRef"
 							class="absolute inset-0 w-full h-full z-0 bg-accent-foreground"
 							:class="{ 'opacity-0 transition-opacity': !audioIsPlaying }"
 							:is-playing="audioIsPlaying"
 							:is-stopped="audioIsStopped"
-						/> -->
-
-						<div
-							class="absolute inset-0 w-full h-full z-0"
-							:class="{ 'opacity-0 transition-opacity': !audioIsPlaying }"
-						>
-							<AudioVisualizer
-								:audio="audioRef"
-								class="-z-50"
-								:is-playing="audioIsPlaying"
-								:is-stopped="audioIsStopped"
-							/>
-						</div>
+						/>
 
 						<div
 							class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-none transition-all"

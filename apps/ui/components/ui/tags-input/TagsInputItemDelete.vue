@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import { XIcon } from "lucide-vue-next";
-import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from "reka-ui";
-import { computed, type HTMLAttributes } from "vue";
-
+import type { TagsInputItemDeleteProps } from "reka-ui";
+import type { HTMLAttributes } from "vue";
+import { reactiveOmit } from "@vueuse/core";
+import { X } from "lucide-vue-next";
+import { TagsInputItemDelete, useForwardProps } from "reka-ui";
 import { cn } from "@/utils/styles";
 
 const props = defineProps<TagsInputItemDeleteProps & { class?: HTMLAttributes["class"] }>();
 
-const delegatedProps = computed(() => {
-	const { class: _, ...delegated } = props;
-
-	return delegated;
-});
+const delegatedProps = reactiveOmit(props, "class");
 
 const forwardedProps = useForwardProps(delegatedProps);
 </script>
@@ -22,7 +19,7 @@ const forwardedProps = useForwardProps(delegatedProps);
 		:class="cn('flex rounded bg-transparent mr-1', props.class)"
 	>
 		<slot>
-			<XIcon class="size-4" />
+			<X class="w-4 h-4" />
 		</slot>
 	</TagsInputItemDelete>
 </template>

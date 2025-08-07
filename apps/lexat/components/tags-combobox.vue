@@ -41,7 +41,7 @@ const moveItem = (index: number, direction: "left" | "right") => {
 </script>
 
 <template>
-	<TagsInput class="gap-0 px-0" :model-value="modelValue">
+	<TagsInput v-model="modelValue" class="gap-0 px-0">
 		<div class="flex flex-wrap items-center gap-2 px-3">
 			<TagsInputItem v-for="(item, index) in modelValue" :key="item" :value="item">
 				<TagsInputItemText />

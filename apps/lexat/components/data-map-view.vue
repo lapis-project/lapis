@@ -834,7 +834,7 @@ watch(activeVariants, updateUrlParams, {
 									<InfoIcon class="size-4"></InfoIcon>
 								</InfoTooltip>
 							</div>
-							<Combobox
+							<ComboboxBase
 								v-if="mappedQuestions?.length"
 								v-model="activeQuestion"
 								data-testid="questions"
@@ -896,7 +896,7 @@ watch(activeVariants, updateUrlParams, {
 								<div class="mb-1 ml-1 text-sm font-semibold">
 									{{ t("MapsPage.selection.basemap.title") }}
 								</div>
-								<Combobox
+								<ComboboxBase
 									v-model="activeBasemap"
 									has-search
 									:options="basemapOptions"

@@ -369,7 +369,7 @@ await refresh(); // manually refetch using updated state
 								<InfoIcon class="size-4"></InfoIcon>
 							</InfoTooltip>
 						</div>
-						<Combobox
+						<ComboboxBase
 							v-model="activeQuestion"
 							data-testid="questions"
 							has-search
@@ -437,7 +437,7 @@ await refresh(); // manually refetch using updated state
 			</div>
 			<div class="flex items-center gap-2">
 				<Label for="rows-per-page">{{ t("DbPage.table.items-per-page") }}:</Label>
-				<Combobox
+				<ComboboxBase
 					id="rows-per-page"
 					v-model="activePageSize"
 					data-testid="rows-per-page"

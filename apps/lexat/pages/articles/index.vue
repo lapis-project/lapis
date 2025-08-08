@@ -89,7 +89,7 @@ usePageMetadata({
 			</div>
 			<div v-if="categoryOptions" class="mb-5 grid max-w-sm items-center gap-1.5">
 				<Label for="category">{{ t("ArticlesPage.filters.category") }}</Label>
-				<Combobox
+				<ComboboxBase
 					id="category"
 					v-model="selectedCategory"
 					data-testid="category"
@@ -99,7 +99,7 @@ usePageMetadata({
 			</div>
 			<div v-if="languageOptions" class="mb-6 grid items-center gap-1.5">
 				<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-				<Combobox
+				<ComboboxBase
 					id="language"
 					v-model="selectedLanguage"
 					data-testid="language"

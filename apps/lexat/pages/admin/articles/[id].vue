@@ -292,7 +292,7 @@ usePageMetadata({
 				</div>
 				<div class="flex items-center gap-3">
 					<Label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</Label>
-					<Combobox id="status" v-model="activeStatus" :options="statusOptions" width="w-44" />
+					<ComboboxBase id="status" v-model="activeStatus" :options="statusOptions" width="w-44" />
 					<Button @click="saveArticle">Save</Button>
 				</div>
 			</div>
@@ -332,7 +332,7 @@ usePageMetadata({
 						</div>
 						<div v-if="languageOptions" class="grid items-center gap-1.5">
 							<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-							<Combobox
+							<ComboboxBase
 								id="language"
 								v-model="selectedLanguage"
 								:options="languageOptions"
@@ -394,7 +394,7 @@ usePageMetadata({
 				<div class="mb-6 flex items-baseline gap-8">
 					<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">
 						<Label for="category">{{ t("AdminPage.editor.category.label") }}</Label>
-						<Combobox
+						<ComboboxBase
 							id="category"
 							v-model="selectedCategory"
 							:options="categoryOptions"
@@ -410,7 +410,7 @@ usePageMetadata({
 						class="grid max-w-sm items-center gap-1.5"
 					>
 						<Label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</Label>
-						<Combobox
+						<ComboboxBase
 							id="phenomenon"
 							v-model="selectedQuestion"
 							has-search
@@ -456,7 +456,7 @@ usePageMetadata({
 								({{ selectedBibliographyItems.length }})</template
 							></Label
 						>
-						<Combobox
+						<ComboboxBase
 							has-search
 							:options="bibliographyOptions"
 							:placeholder="t('AdminPage.editor.bibliography.placeholder')"

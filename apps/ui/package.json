@@ -9,6 +9,7 @@
 		"pnpm": "10.x"
 	},
 	"scripts": {
+		"build": "nuxt build",
 		"dev": "nuxt dev"
 	},
 	"dependencies": {
@@ -16,8 +17,9 @@
 		"@fontsource-variable/inter": "^5.2.6",
 		"@tailwindcss/vite": "^4.1.11",
 		"@tanstack/vue-table": "^8.21.3",
-		"@vueuse/core": "^11.3.0",
-		"@vueuse/nuxt": "^11.3.0",
+		"@vueuse/core": "^13.6.0",
+		"@vueuse/nuxt": "^13.6.0",
+		"@vueuse/shared": "^13.6.0",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cva": "1.0.0-beta.1",

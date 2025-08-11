@@ -6,7 +6,7 @@ For details on the project's architecture, see [Architecture](architecture.md).
 
 ## Requirements
 
-- Node 22
+- Node >=22.18
 - `pnpm` package manager (can be enabled through
   [corepack](https://pnpm.io/installation#using-corepack) via `corepack enable pnpm`)
 - [docker](https://docs.docker.com/engine/install/ubuntu/) installed on your system (for local
@@ -19,8 +19,8 @@ For details on the project's architecture, see [Architecture](architecture.md).
 1. Clone the repository
 2. Install dependencies from the project root via `pnpm i`
 3. Run `pnpm dev:lexat` to start the LexAT application on port `3000` (Note: authentication between
-   localhost and production is currently not supported -> follow the `Setup for local development`
-   guide to setup a full-stack environment)
+   localhost and production is currently not supported -> follow `Setup for local development` to
+   setup a full-stack environment)
 
 ## Setup for local development
 
@@ -40,6 +40,11 @@ For details on the project's architecture, see [Architecture](architecture.md).
 
 1. Navigate to `/apps/corpus` and create a `.env.dev.local` file
 2. TODO
+
+### Build UI Layer
+
+1. In the project's root run `pnpm build` to generate the `.nuxt` folder (this is neccessary for
+   extending Nuxt's default `tsconfig`)
 
 ### Option 1: Run setup via VSCode task
 

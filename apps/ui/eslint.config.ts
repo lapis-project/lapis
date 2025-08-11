@@ -1,5 +1,3 @@
-import { resolve } from "node:path";
-
 import baseConfig from "@acdh-oeaw/eslint-config";
 import nuxtConfig from "@acdh-oeaw/eslint-config-nuxt";
 import vueConfig from "@acdh-oeaw/eslint-config-vue";
@@ -14,13 +12,6 @@ const configs = config(
 	baseConfig,
 	vueConfig,
 	nuxtConfig,
-	{
-		settings: {
-			tailwindcss: {
-				config: resolve("./app/styles/index.css"),
-			},
-		},
-	},
 	{
 		files: ["**/*.vue"],
 		rules: {

@@ -1,27 +1,26 @@
-/** @typedef {import("typescript-eslint").Config} Config */
-
 import baseConfig from "@acdh-oeaw/eslint-config";
 import nuxtConfig from "@acdh-oeaw/eslint-config-nuxt";
 import playwrightConfig from "@acdh-oeaw/eslint-config-playwright";
 import vueConfig from "@acdh-oeaw/eslint-config-vue";
 import gitignore from "eslint-config-flat-gitignore";
+import { config } from "typescript-eslint";
 
 import { withNuxt } from "./.nuxt/eslint.config.mjs";
 
-/** @type {Config} */
-const config = [
+const configs = config(
 	gitignore({ strict: false }),
-	...baseConfig,
-	...vueConfig,
-	...nuxtConfig,
-	// ...tailwindcssConfig, // DON'T USE TILL TAILWIND 4 COMPATIBLE
-	...playwrightConfig,
+	{ ignores: ["public/**"] },
+	baseConfig,
+	vueConfig,
+	nuxtConfig,
+	playwrightConfig,
 	{
+		files: ["**/*.vue"],
 		rules: {
 			"vue/attributes-order": ["warn", { alphabetical: true }],
 		},
 	},
-];
+);
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-export default withNuxt(/** @type {any} */ (config));
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+export default withNuxt(configs as any);

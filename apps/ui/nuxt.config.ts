@@ -1,6 +1,6 @@
 import tailwindcss from "@tailwindcss/vite";
-import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
@@ -13,7 +13,7 @@ export default defineNuxtConfig({
 	vite: {
 		plugins: [tailwindcss()],
 	},
-	modules: ["shadcn-nuxt"],
+	modules: ["@nuxt/eslint", "shadcn-nuxt"],
 	shadcn: {
 		prefix: "",
 		componentDir: join(currentDir, "./components/ui"),

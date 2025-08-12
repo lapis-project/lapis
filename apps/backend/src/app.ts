@@ -6,10 +6,14 @@ import { prettyJSON } from "hono/pretty-json";
 import { verifyRequestOrigin } from "lucia";
 
 import { lucia } from "@/auth/auth";
+import auth from "@/handler/authHandler";
+import statistics from "@/handler/statHandler";
+import streamHandler from "@/handler/streamHandler";
+import user from "@/handler/userHandler";
+import type { Context } from "@/lib/context";
 
 import { getUserById } from "./db/authRepository";
 import articles from "./handler/articleHandler";
-import auth from "./handler/authHandler";
 import cms from "./handler/cmsHandler";
 import media from "./handler/mediaHandler";
 import questions from "./handler/questionHandler";
@@ -101,7 +105,8 @@ const app: Hono<Context> = new Hono<Context>()
 	.route("/auth", auth)
 	.route("/user", user)
 	.route("/media", media)
-	.route("/stat", statistics);
+	.route("/stat", statistics)
+	.route("/stream", streamHandler);
 
 export { app };
 

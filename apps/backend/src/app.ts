@@ -9,6 +9,7 @@ import { lucia } from "@/auth/auth";
 import { getUserById } from "@/db/authRepository";
 import auth from "@/handler/authHandler";
 import statistics from "@/handler/statHandler";
+import streamHandler from "@/handler/streamHandler";
 import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
 
@@ -101,7 +102,8 @@ const app = new Hono<Context>()
 	.route("/auth", auth)
 	.route("/user", user)
 	.route("/media", media)
-	.route("/stat", statistics);
+	.route("/stat", statistics)
+	.route("/stream", streamHandler);
 
 export { app };
 

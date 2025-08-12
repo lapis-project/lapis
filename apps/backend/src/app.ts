@@ -7,15 +7,16 @@ import { verifyRequestOrigin } from "lucia";
 
 import { lucia } from "@/auth/auth";
 import { getUserById } from "@/db/authRepository";
+import auth from "@/handler/authHandler";
+import statistics from "@/handler/statHandler";
+import streamHandler from "@/handler/streamHandler";
+import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
 
 import articles from "./handler/articleHandler";
-import auth from "./handler/authHandler";
 import cms from "./handler/cmsHandler";
 import media from "./handler/mediaHandler";
 import questions from "./handler/questionHandler";
-import statistics from "./handler/statHandler";
-import user from "./handler/userHandler";
 
 const app = new Hono<Context>()
 
@@ -101,7 +102,8 @@ const app = new Hono<Context>()
 	.route("/auth", auth)
 	.route("/user", user)
 	.route("/media", media)
-	.route("/stat", statistics);
+	.route("/stat", statistics)
+	.route("/stream", streamHandler);
 
 export { app };
 

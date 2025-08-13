@@ -5,5 +5,8 @@
 	<NuxtLayout>
 		<NuxtPage />
 		<NuxtLoadingIndicator />
+		<LazyClientOnly>
+			<Toaster />
+		</LazyClientOnly>
 	</NuxtLayout>
 </template>

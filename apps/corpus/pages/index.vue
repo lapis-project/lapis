@@ -1,9 +1,3 @@
-<script setup lang="ts">
-definePageMeta({
-	layout: "tool",
-});
-</script>
-
 <template>
-	<div>Corpus</div>
+	<div class="container pt-16 py-8">welcome!</div>
 </template>

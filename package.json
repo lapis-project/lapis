@@ -12,6 +12,8 @@
 		"build:corpus": "cd apps/corpus && pnpm build",
 		"build:lexat": "cd apps/lexat && pnpm build",
 		"build:ui": "cd apps/ui && pnpm build",
+		"clean:workspace": "node ./scripts/clean-workspace.mjs",
+		"clean:workspace:dry": "node ./scripts/clean-workspace.mjs --dry-run",
 		"dev:backend": "cd apps/backend && pnpm dev",
 		"dev:corpus": "cd apps/corpus && pnpm dev",
 		"dev:lexat": "cd apps/lexat && pnpm dev",

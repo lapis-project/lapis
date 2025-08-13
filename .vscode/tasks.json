@@ -60,6 +60,16 @@
 			"command": "docker compose --env-file .env.localsetup down",
 			"problemMatcher": [],
 			"isBackground": true
+		},
+		{
+			"label": "Clean workspace (node_modules + caches)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["-w", "run", "clean:workspace"],
+			"options": { "cwd": "${workspaceFolder}" },
+			"problemMatcher": [],
+			"presentation": { "reveal": "always", "panel": "dedicated" },
+			"group": "build"
 		}
 	]
 }

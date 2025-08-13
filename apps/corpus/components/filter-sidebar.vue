@@ -144,12 +144,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="context">Projektkontext</Label>
 						<div class="flex gap-2">
-							<Combobox
+							<ComboboxBase
 								id="context"
 								v-model="activeContext"
 								:options="sampleOptions"
 								placeholder="Projektkontext"
-							></Combobox>
+							></ComboboxBase>
 							<Button size="icon" variant="outline" @click="activeContext = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -158,12 +158,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5 pb-4 border-b">
 						<Label class="tracking-wide pl-1" for="setting">Setting</Label>
 						<div class="flex gap-2">
-							<Combobox
+							<ComboboxBase
 								id="setting"
 								v-model="activeSetting"
 								:options="sampleOptions"
 								placeholder="Setting"
-							></Combobox>
+							></ComboboxBase>
 							<Button size="icon" variant="outline" @click="activeSetting = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -173,12 +173,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="age">Altersklasse</Label>
 						<div class="flex gap-2">
-							<Combobox
+							<ComboboxBase
 								id="age"
 								v-model="activeAge"
 								:options="sampleOptions"
 								placeholder="Altersklasse"
-							></Combobox>
+							></ComboboxBase>
 							<Button size="icon" variant="outline" @click="activeAge = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -187,12 +187,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="location">Ort</Label>
 						<div class="flex gap-2">
-							<Combobox
+							<ComboboxBase
 								id="location"
 								v-model="activeLocation"
 								:options="sampleOptions"
 								placeholder="Ort"
-							></Combobox>
+							></ComboboxBase>
 							<Button size="icon" variant="outline" @click="activeLocation = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -201,12 +201,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="first-languaage">Erstprache</Label>
 						<div class="flex gap-2">
-							<Combobox
+							<ComboboxBase
 								id="first-languaage"
 								v-model="activeFirstLanguage"
 								:options="sampleOptions"
 								placeholder="Erstprache"
-							></Combobox>
+							></ComboboxBase>
 							<Button size="icon" variant="outline" @click="activeFirstLanguage = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -233,12 +233,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>
 						<div class="flex gap-2">
-							<Combobox
+							<ComboboxBase
 								id="gender"
 								v-model="activeGender"
 								:options="genderOptions"
 								placeholder="Geschlecht"
-							></Combobox>
+							></ComboboxBase>
 							<Button size="icon" variant="outline" @click="activeGender = null"
 								><Undo2 class="size-4"
 							/></Button>

@@ -44,15 +44,15 @@ export async function getUserById(id: number) {
 		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
 		.where("user_account.id", "=", id)
 		.select([
-			"username",
+			"user_account.username",
 			"user_account.id",
-			"firstname",
-			"lastname",
+			"user_account.firstname",
+			"user_account.lastname",
 			"user_roles.role_name",
-			"email",
+			"user_account.email",
 			"user_account.inactive",
 		])
-		.executeTakeFirst();
+		.executeTakeFirstOrThrow();
 }
 
 export async function createUser(

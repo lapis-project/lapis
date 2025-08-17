@@ -50,6 +50,7 @@ export async function getUserById(id: number) {
 			"lastname",
 			"user_roles.role_name",
 			"email",
+			"user_account.inactive",
 		])
 		.executeTakeFirst();
 }

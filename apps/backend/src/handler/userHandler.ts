@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import {
 	array,
 	email,
+	literal,
 	minLength,
 	object,
 	optional,
@@ -11,6 +12,7 @@ import {
 	string,
 	toLowerCase,
 	trim,
+	union,
 } from "valibot";
 
 import { argon2Config } from "@/config/config";
@@ -20,6 +22,7 @@ import {
 	editUserPassword,
 	editUserRoleByUserId,
 	getUsersByRole,
+	setUserInactive,
 } from "@/db/userRepostiory";
 import {
 	checkIfPrivilegedForAdminOrHigher,
@@ -43,6 +46,10 @@ const editUserDataSchema = object({
 	email: pipe(string(), trim(), email(), toLowerCase()),
 	firstname: pipe(string(), trim(), minLength(1)),
 	lastname: optional(pipe(string(), trim(), minLength(1))),
+});
+
+const editActiveTypeSchema = object({
+	active: union([literal("active"), literal("inactive")]),
 });
 
 const user = new Hono<Context>()
@@ -223,6 +230,26 @@ const user = new Hono<Context>()
 		}
 
 		return c.json(userObject, 200);
+	})
+	.put("/roles/active/:id", vValidator("json", editActiveTypeSchema), async (c) => {
+		const userId = c.req.param("id");
+
+		const { active } = c.req.valid("json");
+
+		// Check if userid is a number
+		if (Number.isNaN(Number(userId))) {
+			return c.json("Invalid user id provided", 400);
+		}
+
+		const userObject = await getUserById(Number(userId));
+		if (!userObject) {
+			return c.json("User not found", 404);
+		}
+
+		// Update the active type of the user
+		await setUserInactive(Number(userId), active);
+
+		return c.json("Ok", 200);
 	});
 
 user.use("*", restrictedRoute);

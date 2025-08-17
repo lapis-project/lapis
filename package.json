@@ -28,7 +28,6 @@
 		"lint:styles:fix": "pnpm run lint:styles:check --fix",
 		"start:backend": "cd apps/backend && pnpm start",
 		"start:corpus": "cd apps/corpus && pnpm start",
-		"start:devSetup": "cd apps/backend && pnpm run build:types",
 		"start:lexat": "cd apps/lexat && pnpm start"
 	},
 	"packageManager": "pnpm@10.12.3",

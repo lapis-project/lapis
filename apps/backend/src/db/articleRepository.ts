@@ -115,8 +115,8 @@ export async function getAllArticlesByProject(
         WHEN post_type.post_type_name = 'short_description' THEN 2
         ELSE 1
       END,
-      post.created_at,
-      post.published_at
+      post.published_at DESC,
+      post.created_at DESC
     `;
 	} else {
 		orderByClause = sql`post.published_at DESC`;

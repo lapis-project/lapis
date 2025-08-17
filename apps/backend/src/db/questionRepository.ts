@@ -362,10 +362,10 @@ export async function getAllSurveys() {
 	return await db
 		.selectFrom("survey")
 		.innerJoin("survey_conducted", "survey.id", "survey_conducted.survey_id")
-		.select(() => [
+		.select([
 			"survey.id",
-			"survey.survey_name",
 			"survey.description",
+			"survey.survey_name",
 			// workaround to return the count as number instead of string
 			sql<number>`CAST(COUNT(survey_conducted.id) AS INTEGER)`.as("conducted_num"),
 		])

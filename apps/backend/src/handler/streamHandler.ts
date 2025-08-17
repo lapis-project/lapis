@@ -46,6 +46,7 @@ const streamHandler = new Hono<Context>().get("/audio/:filename", async (c) => {
 
 	c.header("Content-Type", contentType);
 	c.header("Accept-Ranges", "bytes");
+	c.status(206);
 
 	if (range) {
 		const parts = range.replace(/bytes=/, "").split("-");
@@ -62,7 +63,6 @@ const streamHandler = new Hono<Context>().get("/audio/:filename", async (c) => {
 		const end = endString ? parseInt(endString, 10) : stat.size - 1;
 		const chunksize = end - start + 1;
 
-		c.status(206);
 		c.header("Content-Range", `bytes ${String(start)}-${String(end)}/${String(stat.size)}`);
 		c.header("Content-Length", chunksize.toString());
 

@@ -10,6 +10,7 @@ import {
 	getAllPhenomenon,
 	getAllPhenomenonById,
 	getAllRegister,
+	getAllSurveys,
 	getAnnotationsByPhaenAndProjectId,
 	getResultsByPhaen,
 } from "../db/questionRepository";
@@ -75,6 +76,10 @@ const questions = new Hono<Context>()
 	})
 	.get("/map/:id", (c) => {
 		return c.json("OK", 201);
+	})
+	.get("/surveys", async (c) => {
+		const response = await getAllSurveys();
+		return c.json(response, 201);
 	})
 	.get("/table/:id", async (c) => {
 		const phenomenonId = c.req.param("id");

@@ -43,11 +43,11 @@ const signupSchema = object({
 const auth = new Hono<Context>()
 	.get("/session", async (c) => {
 		const session = c.get("session");
-		if (session?.userId) {
-			const user = await getUserById(Number(session.userId));
-			return c.json(user, 200);
+		if (!session?.userId) {
+			return c.json("Unauthorized", 401);
 		}
-		return c.json(null, 401);
+		const user = await getUserById(Number(session.userId));
+		return c.json(user, 200);
 	})
 	.post("/login", vValidator("json", loginSchema), async (c) => {
 		const { email, password } = c.req.valid("json");

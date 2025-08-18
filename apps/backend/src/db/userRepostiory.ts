@@ -1,5 +1,5 @@
 import { db } from "@/db/connect";
-import type { Userroles } from "@/types/db";
+import type { Inactivetype, Userroles } from "@/types/db";
 
 export async function getUsersByRole(role_name: Userroles) {
 	return await db
@@ -68,4 +68,17 @@ export async function editUserData(
 
 export async function editUserPassword(userId: number, password: string) {
 	return await db.updateTable("user_account").set({ password }).where("id", "=", userId).execute();
+}
+
+/**
+ * Sets the user with the given id into inactive. This function sets an active user into inactive state.
+ * If the user is inactive the user will be made active again
+ * @param userId UserId of the user that will be set inactive or active.
+ */
+export async function setUserInactive(userId: number, activeType: Inactivetype) {
+	return await db
+		.updateTable("user_account")
+		.set({ inactive: activeType })
+		.where("id", "=", userId)
+		.execute();
 }

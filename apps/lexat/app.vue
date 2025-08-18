@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import "vue-sonner/style.css"; // https://github.com/unovue/shadcn-vue/issues/1258#issuecomment-2901073646
+
 import { createUrl, isNonEmptyString } from "@acdh-oeaw/lib";
 import type { WebSite, WithContext } from "schema-dts";
 
@@ -95,8 +97,8 @@ useHead({
 	<NuxtLayout>
 		<NuxtPage />
 		<NuxtLoadingIndicator />
-		<LazyClientOnly>
-			<Toaster />
-		</LazyClientOnly>
+		<Teleport to="body">
+			<Toaster class="pointer-events-auto" />
+		</Teleport>
 	</NuxtLayout>
 </template>

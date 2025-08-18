@@ -52,8 +52,8 @@ usePageMetadata({
 </script>
 
 <template>
-	<MainContent class="w-full content-start">
-		<div class="mb-8 flex justify-between">
+	<main class="w-full grid gap-8" :tabindex="-1">
+		<div class="flex justify-between">
 			<PageTitle>{{ totalResults }} {{ t("AdminPage.articles.title") }}</PageTitle>
 			<Button @click="createNewArticle"
 				><Plus class="mr-2 size-4" />{{ t("AdminPage.articles.new") }}</Button
@@ -72,5 +72,5 @@ usePageMetadata({
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
 		></PagePagination>
-	</MainContent>
+	</main>
 </template>

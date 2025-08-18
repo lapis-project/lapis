@@ -1,6 +1,12 @@
 <script setup lang="ts">
 const t = useTranslations();
 
+const user = useUser();
+
+const isSuperadmin = computed(() => {
+	return user.value?.role_name === "superadmin";
+});
+
 const collections = [
 	{
 		label: t("AdminNavigation.articles"),
@@ -8,9 +14,9 @@ const collections = [
 		disabled: false,
 	},
 	{
-		label: `${t("AdminNavigation.users")} (soon)`,
-		alias: "users",
-		disabled: true,
+		label: `${t("AdminNavigation.users")}`,
+		alias: "user-management",
+		disabled: !isSuperadmin.value,
 	},
 	{
 		label: `${t("AdminNavigation.categories")} (soon)`,

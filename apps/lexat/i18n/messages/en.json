@@ -1,7 +1,7 @@
 {
 	"AdminNavigation": {
 		"articles": "Articles",
-		"users": "Users",
+		"users": "User Management",
 		"categories": "Categories"
 	},
 	"AdminPage": {
@@ -148,7 +148,8 @@
 		"confirmPassword": "Repeat password",
 		"confirmPasswordPlaceholder": "Enter password again",
 		"email": "E-mail",
-		"email_invalid": "The provided E-mail is invalid.",
+		"email_domain_invalid": "The provided domain is not valid.",
+		"email_invalid": "The provided E-mail is not valid.",
 		"firstname": "First name",
 		"firstname_min_length": "Your first name must contain at least 2 characters.",
 		"lastname": "Last name",
@@ -161,7 +162,12 @@
 		"signup": "Sign Up",
 		"signup_failed": "Signup failed",
 		"username": "Username",
-		"username_min_length": "Your username must contain at least 2 characters."
+		"username_min_length": "Your username must contain at least 2 characters.",
+		"user_creation_failed": "User could not be created.",
+		"user_creation_succeeded": "User created successfully.",
+		"user_role": "User role",
+		"user_role_invalid": "The selected user role is invalid.",
+		"user_role_required": "User role required."
 	},
 	"Categories": {
 		"commentary": "Map commentary",
@@ -225,6 +231,10 @@
 		},
 		"title": "Something went wrong!",
 		"try-again": "Try again"
+	},
+	"General": {
+		"cancel": "Cancel",
+		"create": "Create"
 	},
 	"HomePage": {
 		"meta": {
@@ -444,6 +454,11 @@
 				"placeholder": "Annotation below the image"
 			}
 		}
+	},
+	"UserManagement": {
+		"role": "Role",
+		"create-new-user": "Create User",
+		"title": "User Management"
 	},
 	"UserPanel": {
 		"admin": "Admin",

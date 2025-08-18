@@ -78,7 +78,7 @@
 	--secondary: oklch(26.9% 0 0deg);
 	--secondary-foreground: oklch(98.5% 0 0deg);
 	--accent: oklch(31.07% 0.03 258.4deg); /* From hsl(217.2 32.6% 17.5%) */
-	--accent-foreground: oklch(98.11% 0.006 257.8deg); /* From hsl(210 40% 98%) */
+	--accent-foreground: oklch(65.14% 0.168 358.8deg); /* From hsl(210 40% 98%) */
 	--destructive: oklch(39.6% 0.141 25.723deg);
 	--destructive-foreground: oklch(63.7% 0.237 25.331deg);
 	--ring: oklch(43.9% 0 0deg);

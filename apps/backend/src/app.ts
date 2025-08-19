@@ -8,7 +8,7 @@ import { verifyRequestOrigin } from "lucia";
 import { lucia } from "@/auth/auth";
 import auth from "@/handler/authHandler";
 import statistics from "@/handler/statHandler";
-import streamHandler from "@/handler/streamHandler";
+import audio from "@/handler/streamHandler";
 import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
 
@@ -106,7 +106,7 @@ const app: Hono<Context> = new Hono<Context>()
 	.route("/user", user)
 	.route("/media", media)
 	.route("/stat", statistics)
-	.route("/stream", streamHandler);
+	.route("/audio", audio);
 
 export { app };
 

@@ -71,6 +71,7 @@ const showPhon = ref(false);
 
 const route = useRoute();
 
+const { fetchAudioStream } = useAudioStream();
 const id = computed(() => {
 	return Number(route.params.id as string);
 });
@@ -233,6 +234,10 @@ const progressFraction = computed(() => {
 function resetAudio() {
 	audioIsPlaying.value = false;
 	currentTime.value = 0;
+}
+
+async function getAudio() {
+	await fetchAudioStream();
 }
 
 onMounted(() => {
@@ -608,7 +613,7 @@ onScopeDispose(() => {
 							class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-none transition-all"
 							:class="{ 'bg-white/80 hover:bg-white': audioIsPlaying }"
 						>
-							<Button variant="ghost" @click="togglePlayback">
+							<Button variant="ghost" @click="getAudio()">
 								<PlayIcon v-if="!audioIsPlaying" :size="16" />
 								<PauseIcon v-else :size="16" />
 							</Button>

@@ -146,6 +146,7 @@ const auth = new Hono<Context>()
 	});
 
 auth.use("/signup", checkIfPrivilegedForAdminOrHigher);
+auth.use("/create-user", checkIfPrivilegedForAdminOrHigher);
 
 export default auth;
 

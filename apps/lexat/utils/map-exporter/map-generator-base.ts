@@ -278,7 +278,7 @@ export abstract class MapGeneratorBase {
 	private stripHtml(htmlString: string) {
 		const tempElement = document.createElement("div");
 		tempElement.innerHTML = htmlString;
-		return (tempElement.textContent ?? tempElement.innerText) || "";
+		return tempElement.textContent || tempElement.innerText || "";
 	}
 
 	/**

@@ -1,7 +1,11 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
 import { InfoIcon, MapPin, Quote, RotateCcw } from "lucide-vue-next";
-import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
+import type {
+	LocationQueryRaw,
+	LocationQueryValue,
+	RouteLocationNormalizedLoaded,
+} from "vue-router";
 
 import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
@@ -107,8 +111,15 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 			}))
 			.sort((a, b) => {
 				// extract priority values from the specialOrder object or default to 0
-				const priorityA = specialOrder[a.label] ?? 0;
-				const priorityB = specialOrder[b.label] ?? 0;
+				const priorityA =
+					a.label && a.label in specialOrder
+						? specialOrder[a.label as keyof typeof specialOrder]
+						: 0;
+
+				const priorityB =
+					b.label && b.label in specialOrder
+						? specialOrder[b.label as keyof typeof specialOrder]
+						: 0;
 
 				// sort by priority, with lower values appearing later
 				return priorityB - priorityA;
@@ -220,7 +231,7 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 };
 
 const updateUrlParams = async () => {
-	const queryObject: Record<string, string | Array<string>> = {};
+	const queryObject: LocationQueryRaw = {};
 	Object.entries(route.query).forEach(([key, value]) => {
 		if (!["a", "q", "r", "v", "c", "sv"].includes(key)) {
 			queryObject[key] = value;
@@ -306,6 +317,10 @@ const handleDownload = async (): Promise<void> => {
 };
 
 const citation = computed(() => {
+	if (!import.meta.client) {
+		return "";
+	}
+
 	// format date as DD.MM.YYYY in German (Austria) locale
 	const formattedDate = new Date().toLocaleDateString("de-AT", {
 		day: "2-digit",
@@ -413,7 +428,7 @@ await refresh(); // manually refetch using updated state
 						<div class="max-w-64 pl-1">
 							<DualRangeSlider
 								accessibility-label="Age Group"
-								:label="(value) => value"
+								:label="(value: string) => value"
 								:max="100"
 								:min="0"
 								:step="5"
@@ -449,6 +464,7 @@ await refresh(); // manually refetch using updated state
 		</section>
 
 		<DataTable
+			v-if="tableData"
 			class="mb-3"
 			:columns="columns"
 			:data="tableData"
@@ -460,7 +476,7 @@ await refresh(); // manually refetch using updated state
 			<template #left>
 				<div class="mr-auto">
 					<Popover>
-						<PopoverTrigger>
+						<PopoverTrigger as-child>
 							<Button variant="outline"
 								><Quote class="mr-2 size-4" />{{ t("DbPage.citation") }}</Button
 							></PopoverTrigger

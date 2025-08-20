@@ -5,6 +5,8 @@ import { db } from "@/db/connect";
 import { jsonbBuildObject } from "@/lib/dbHelper";
 import type { Availablelang, Poststatus } from "@/types/db";
 
+import type { PagedArticlesResult } from "../types/apiTypes";
+
 export async function getArticleByAlias(alias: string) {
 	const query = db
 		.with("authors", (query) =>
@@ -164,30 +166,30 @@ export async function getAllArticlesByProject(
 			.groupBy(["post.id", "post_type.post_type_name"]);
 	});
 
-	const dbQuery = query
-		.selectFrom("post_query")
-		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
-		.select(({ eb, fn }) => {
-			const agg = fn.jsonAgg(
-				jsonBuildObject({
-					post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
-					title: eb.cast<string>(eb.ref("post_query.title"), "text"),
-					alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
-					abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
-					post_type: eb.cast<string>(eb.ref("post_query.type_name"), "text"),
-					authors: eb.ref("post_query.authors"),
-					cover: eb.cast<string>(eb.ref("post_query.cover"), "text"),
-					cover_alt: eb.cast<string>(eb.ref("post_query.cover_alt"), "text"),
-					published_at: eb.cast<string>(eb.ref("post_query.published_at"), "text"),
-				}),
-			);
-			return [
-				agg
-					.filterWhere("rn", ">", offset)
-					.filterWhere("rn", "<=", pageSize + offset)
-					.as("articles"),
-				eb.fn.countAll().as("total"),
-			];
-		});
-	return await dbQuery.execute();
+	const dbQuery = query.selectFrom("post_query").select(({ eb, fn }) => {
+		const agg = fn.jsonAgg(
+			jsonBuildObject({
+				post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
+				title: eb.cast<string>(eb.ref("post_query.title"), "text"),
+				alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
+				abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
+				post_type: eb.cast<string>(eb.ref("post_query.type_name"), "text"),
+				authors: eb.ref("post_query.authors"),
+				cover: eb.cast<string>(eb.ref("post_query.cover"), "text"),
+				cover_alt: eb.cast<string>(eb.ref("post_query.cover_alt"), "text"),
+				published_at: eb.cast<string>(eb.ref("post_query.published_at"), "text"),
+			}),
+		);
+		return [
+			agg
+				.filterWhere("rn", ">", offset)
+				.filterWhere("rn", "<=", pageSize + offset)
+				.as("articles"),
+			eb.fn.countAll().as("total"),
+		];
+	});
+
+	// Workaround since execute() causes problems with the type inference in the frontend
+	// Should be checked after a bit of time => Maybe this issue will be resolved
+	return (await dbQuery.execute()) as Array<PagedArticlesResult>;
 }

@@ -5,13 +5,13 @@ export interface Category {
 	name: string;
 }
 
-export enum Status {
+export const enum Status {
 	DRAFT,
 	PUBLISHED,
 	ARCHIVED,
 }
 
-export enum ResponseInflucenced {
+export const enum ResponseInflucenced {
 	F,
 }
 
@@ -58,4 +58,26 @@ export interface QuestionResponse {
 	responseSelected: number;
 	responseOrder: number;
 	responseInfluenced: ResponseInflucenced;
+}
+
+export interface Author {
+	firstname: string | null;
+	lastname: string | null;
+}
+
+export interface ArticleTeaserAPI {
+	post_id: number;
+	title: string;
+	alias: string;
+	abstract: string | null;
+	post_type: string;
+	authors: Array<Author>;
+	cover: string | null;
+	cover_alt: string | null;
+	published_at: string | null;
+}
+
+export interface PagedArticlesResult {
+	articles: Array<ArticleTeaserAPI> | null; // json_agg can return null
+	total: number;
 }

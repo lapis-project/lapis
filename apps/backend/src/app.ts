@@ -9,7 +9,7 @@ import { lucia } from "@/auth/auth";
 import { getUserById } from "@/db/authRepository";
 import auth from "@/handler/authHandler";
 import statistics from "@/handler/statHandler";
-import audio from "@/handler/streamHandler";
+import audio from "@/handler/audioHandler";
 import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
 
@@ -36,10 +36,17 @@ const app = new Hono<Context>()
 			allowHeaders: [
 				"Content-Type",
 				"Authorization",
+				"Range", // TODO: refactor to use this in audiohandler ohly
 				"X-Custom-Header",
 				"Upgrade-Insecure-Requests",
 			],
-			exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
+			exposeHeaders: [
+				"Accept-Ranges", // TODO: refactor to use this in audiohandler ohly
+				"Content-Range", // TODO: refactor to use this in audiohandler ohly
+				"Content-Length", // TODO: refactor to use this in audiohandler ohly
+				"Content-Type", // TODO: refactor to use this in audiohandler ohly
+				"X-Kuma-Revision", // TODO: refactor to use this in audiohandler ohly
+			],
 			maxAge: 600,
 			credentials: true,
 		}),

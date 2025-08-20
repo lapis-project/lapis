@@ -1,14 +1,7 @@
 <script setup lang="ts">
 import { ArrowDown, ArrowUp, ArrowUpDown, Download } from "lucide-vue-next";
 
-const props = defineProps<{
-	data: Array<TableEntry>;
-	columns: Array<TableColumn>;
-	serverSideSorting?: boolean;
-	isLoading?: boolean;
-}>();
-
-export type TableEntry = Record<string, number | string>;
+export type TableEntry = Record<string, number | string | null>;
 
 export interface TableColumn {
 	label: string;
@@ -18,6 +11,13 @@ export interface TableColumn {
 	sum?: boolean;
 	criterion?: string;
 }
+
+const props = defineProps<{
+	data: Array<TableEntry>;
+	columns: Array<TableColumn>;
+	serverSideSorting?: boolean;
+	isLoading?: boolean;
+}>();
 
 const t = useTranslations();
 
@@ -202,8 +202,8 @@ onBeforeUnmount(() => {
 						class="border-b bg-white dark:border-gray-700 dark:bg-gray-800 text-foreground/80"
 					>
 						<td
-							v-for="value in Object.values(row)"
-							:key="value"
+							v-for="(value, i) in Object.values(row)"
+							:key="i"
 							class="px-6 py-4"
 							:class="columnWidth"
 						>

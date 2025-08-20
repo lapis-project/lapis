@@ -25,7 +25,7 @@ export function useMapColors() {
 
 	const colors = ref([...ogColors]);
 
-	const specialColors = ref({
+	const specialColors = ref<Record<string, string>>({
 		...ogSpecialColors,
 	});
 

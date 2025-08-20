@@ -10,6 +10,8 @@ import {
 
 import data from "@/assets/data/transcripts-demo.json";
 
+import { useAudioController } from "@/composables/use-audio-controller";
+
 definePageMeta({
 	layout: "tool",
 });
@@ -63,6 +65,7 @@ interface Event {
 	lu: Array<EventToken>;
 	phon: Array<EventToken>;
 }
+const env = useRuntimeConfig();
 
 const transcripts = data as { transcripts: Array<Transcript> };
 
@@ -71,7 +74,8 @@ const showPhon = ref(false);
 
 const route = useRoute();
 
-const { fetchAudioStream } = useAudioStream();
+const { audioRef, src, bind, play, pause, seekTo, loadTrack } = useAudioController();
+
 const id = computed(() => {
 	return Number(route.params.id as string);
 });
@@ -183,13 +187,48 @@ const chunkedSpeakerEvents = computed(() => {
 	return chunks;
 });
 
-const audioRef = ref<HTMLAudioElement | null>(null);
+// const audioRef = ref<HTMLAudioElement | null>(null);
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 const currentTime = ref(0);
 const duration = ref(0);
 
 const searchInput = ref("");
+
+const isScrubbing = ref(false);
+const scrub = ref(0); // slider’s own value
+const isReady = ref(false);
+
+function updateMetadata() {
+	if (!audioRef.value) return;
+	duration.value = Number.isFinite(audioRef.value.duration) ? audioRef.value.duration : 0;
+	currentTime.value = audioRef.value.currentTime || 0;
+	scrub.value = currentTime.value; // keep slider in sync initially
+	isReady.value = duration.value > 0;
+}
+
+function updateProgress() {
+	if (!audioRef.value) return;
+	if (isScrubbing.value) return; // don’t fight the user while dragging
+	currentTime.value = audioRef.value.currentTime;
+	scrub.value = currentTime.value; // keep slider following playback
+}
+
+// call this when the user lets go (mouseup/touchend or change)
+function commitScrub(autoplay = true) {
+	if (!audioRef.value) return;
+	isScrubbing.value = false;
+	audioRef.value.currentTime = scrub.value;
+	if (autoplay) {
+		audioRef.value.play().catch(() => {});
+	}
+}
+
+// optional: live scrubbing (seek on every input event)
+function liveScrub() {
+	if (!audioRef.value) return;
+	audioRef.value.currentTime = scrub.value;
+}
 
 function togglePlayback() {
 	if (!audioRef.value) return;
@@ -215,17 +254,6 @@ function stopPlayback() {
 	}, 300);
 }
 
-function updateProgress() {
-	if (!audioRef.value) return;
-	currentTime.value = audioRef.value.currentTime;
-}
-
-function updateMetadata() {
-	if (audioRef.value) {
-		duration.value = audioRef.value.duration;
-	}
-}
-
 const progressFraction = computed(() => {
 	if (!duration.value) return 0;
 	return currentTime.value / duration.value;
@@ -236,9 +264,11 @@ function resetAudio() {
 	currentTime.value = 0;
 }
 
-async function getAudio() {
-	await fetchAudioStream();
-}
+const audioSrc = computed(() => {
+	const base = env.public.apiBaseUrl;
+	const name = transcript.value?.audioUrl ?? "";
+	return new URL(`/audio/stream/${name}`, base).toString();
+});
 
 onMounted(() => {
 	windowWidth.value = window.innerWidth;
@@ -412,14 +442,15 @@ onScopeDispose(() => {
 					id="eventViewContainer"
 					class="overflow-y-auto flex flex-col gap-4 border border-foreground/20 rounded-lg bg-muted"
 				>
-					<!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
-					<audio
-						ref="audioRef"
-						:src="transcript.audioUrl"
-						@loadedmetadata="updateMetadata"
-						@timeupdate="updateProgress"
-					/>
-
+					<ClientOnly>
+						<audio
+							:ref="(el) => bind(el as HTMLAudioElement)"
+							:src="audioSrc"
+							preload="metadata"
+							@loadedmetadata="updateMetadata"
+							@timeupdate="updateProgress"
+						/>
+					</ClientOnly>
 					<div v-for="(block, blockIndex) in chunkedSpeakerEvents" :key="blockIndex" class="w-full">
 						<div
 							class="grid"
@@ -600,7 +631,29 @@ onScopeDispose(() => {
 				<section
 					class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
 				>
-					<div class="relative p-4 w-full rounded overflow-hidden">
+					<div class="controls">
+						<ClientOnly>
+							<input
+								type="range"
+								min="0"
+								:max="duration || 0"
+								step="0.01"
+								class="w-72 mr-5"
+								v-model.number="scrub"
+								@mousedown="isScrubbing = true"
+								@touchstart="isScrubbing = true"
+								@input="liveScrub()"
+								@mouseup="commitScrub(true)"
+								@touchend="commitScrub(true)"
+								@change="commitScrub(true)"
+							/>
+						</ClientOnly>
+						<Button variant="ghost" @click="togglePlayback">
+							<PlayIcon v-if="!audioIsPlaying" :size="16" />
+							<PauseIcon v-else :size="16" />
+						</Button>
+					</div>
+					<!-- <div class="relative p-4 w-full rounded overflow-hidden">
 						<AudioWaveform
 							:audio="audioRef"
 							class="absolute inset-0 w-full h-full z-0 bg-black"
@@ -625,7 +678,7 @@ onScopeDispose(() => {
 								<DownloadIcon :size="16" />
 							</Button>
 						</div>
-					</div>
+					</div> -->
 				</section>
 			</div>
 		</div>

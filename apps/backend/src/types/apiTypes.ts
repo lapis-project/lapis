@@ -5,15 +5,15 @@ export interface Category {
 	name: string;
 }
 
-export const enum Status {
-	DRAFT,
-	PUBLISHED,
-	ARCHIVED,
-}
+export const Status = {
+	DRAFT: "Draft",
+	PUBLISHED: "Published",
+	ARCHIVED: "Archived",
+} as const;
 
-export const enum ResponseInflucenced {
-	F,
-}
+export const ResponseInflucenced = {
+	F: "F",
+} as const;
 
 export interface UserObject {
 	email: string | null;
@@ -47,7 +47,7 @@ export interface Article {
 }
 
 export interface ArticleCMS extends Article {
-	status: Status;
+	status: typeof Status;
 }
 
 export interface ArticleTeaser extends Omit<Article, "biblography" | "content"> {}
@@ -57,7 +57,7 @@ export interface QuestionResponse {
 	timestampAudio: string;
 	responseSelected: number;
 	responseOrder: number;
-	responseInfluenced: ResponseInflucenced;
+	responseInfluenced: typeof ResponseInflucenced;
 }
 
 export interface Author {

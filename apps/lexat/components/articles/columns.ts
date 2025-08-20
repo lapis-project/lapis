@@ -10,19 +10,6 @@ export const columns: Array<ColumnDef<ArticleListEntry>> = [
 		header: () => h("div", { class: "text-left" }, "Title"),
 		cell: ({ row }) => h("div", { class: "text-left" }, row.getValue("title")),
 	},
-	// {
-	// 	accessorKey: "authors",
-	// 	header: () => h("div", { class: "text-left" }, "Authors"),
-	// 	cell: ({ row }) =>
-	// 		h(
-	// 			"div",
-	// 			{ class: "text-left" },
-	// 			row
-	// 				.getValue("authors")
-	// 				.map((author: User) => nameShortener(author.firstname, author.lastname))
-	// 				.join(", "),
-	// 		),
-	// },
 	{
 		accessorKey: "category",
 		header: () => h("div", { class: "text-left" }, "Category"),
@@ -38,7 +25,8 @@ export const columns: Array<ColumnDef<ArticleListEntry>> = [
 		enableHiding: false,
 		cell: ({ row, table }) => {
 			const article = row.original;
-			const fn = table.options.meta?.deleteArticle as (id: number) => Promise<void>;
+			const fn = (table.options.meta as { deleteArticle: (id: number) => Promise<void> })
+				.deleteArticle;
 			return h(
 				"div",
 				{ class: "relative" },

@@ -9,11 +9,7 @@ const env = useRuntimeConfig();
 const locale = useLocale();
 const t = useTranslations();
 
-const i18nHead = useLocaleHead({
-	addDirAttribute: true,
-	identifierAttribute: "id",
-	addSeoAttributes: true,
-});
+const i18nHead = useLocaleHead();
 
 useHead({
 	htmlAttrs: {
@@ -66,7 +62,7 @@ useHead({
 			description: t("DefaultLayout.meta.description"),
 		};
 
-		const scripts = [
+		const scripts: Array<{ type?: string; innerHTML: string }> = [
 			{ type: "application/ld+json", innerHTML: JSON.stringify(jsonLd, safeJsonLdReplacer) },
 		];
 

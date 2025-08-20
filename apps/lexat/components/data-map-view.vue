@@ -181,7 +181,10 @@ const mappedColors = computed(() => {
 	uniqueVariants.value.forEach((u, i) => {
 		// apply distinct colors for "irrelevant" and "sonstige"
 		if (Object.keys(specialOrder).includes(u.anno)) {
-			tempColors[i] = specialColors.value[u.anno];
+			const specialColor = specialColors.value[u.anno];
+			if (specialColor) {
+				tempColors[i] = specialColor;
+			}
 		}
 		const color = tempColors[i];
 
@@ -216,8 +219,8 @@ const filteredPoints = computed(() => {
 			const filteredProperties = item.coalesce.filter((prop) => {
 				const ageBounds = prop.age.split("-");
 				return (
-					ageBounds[0] >= (debouncedActiveAgeGroup.value[0] ?? 0) &&
-					ageBounds[1] < (debouncedActiveAgeGroup.value[1] ?? 100)
+					parseInt(ageBounds[0]!) >= (debouncedActiveAgeGroup.value[0] ?? 0) &&
+					parseInt(ageBounds[1]!) < (debouncedActiveAgeGroup.value[1] ?? 100)
 				);
 			});
 
@@ -879,7 +882,7 @@ watch(activeVariants, updateUrlParams, {
 							<div class="max-w-64 pl-1">
 								<DualRangeSlider
 									accessibility-label="Age Group"
-									:label="(value) => value"
+									:label="(value: string) => value"
 									:max="100"
 									:min="0"
 									:step="5"

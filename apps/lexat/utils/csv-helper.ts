@@ -1,4 +1,4 @@
-export type TableEntry = Record<string, number | string>;
+export type TableEntry = Record<string, number | string | null>;
 
 export interface TableColumn {
 	label: string;

@@ -121,53 +121,50 @@ export async function getAllArticlesByProject(
 	} else {
 		orderByClause = sql`post.published_at DESC`;
 	}
-	const query = db
-		.with("post_query", (query) => {
-			let baseQuery = query
-				.selectFrom("post")
-				.innerJoin("project_post", "post.id", "project_post.post_id")
-				.leftJoin("user_post", "post.id", "user_post.post_id")
-				.leftJoin("user_account", (join) => join.onRef("user_post.user_id", "=", "user_account.id"))
-				.innerJoin("post_type", "post.post_type_id", "post_type.id")
-				.where("post_type.post_type_name", "<>", "project_description")
-				.where("project_post.project_id", "=", projectId)
-				.where("post.title", "~*", searchTerm)
-				.where("post_type.post_type_name", "~*", postType)
-				.where("post.post_status", "=", postStatus);
-			if (lang) {
-				baseQuery = baseQuery.where("post.lang", "=", lang);
-			}
+	const query = db.with("post_query", (query) => {
+		return query
+			.selectFrom("post")
+			.innerJoin("project_post", "post.id", "project_post.post_id")
+			.leftJoin("user_post", "post.id", "user_post.post_id")
+			.leftJoin("user_account", (join) => join.onRef("user_post.user_id", "=", "user_account.id"))
+			.innerJoin("post_type", "post.post_type_id", "post_type.id")
+			.where((eb) => {
+				const conditions = [];
+				conditions.push(eb("post_type.post_type_name", "<>", "project_description"));
+				conditions.push(eb("project_post.project_id", "=", projectId));
+				conditions.push(eb("post.title", "~*", searchTerm));
+				conditions.push(eb("post_type.post_type_name", "~*", postType));
+				conditions.push(eb("post.post_status", "=", postStatus));
+				if (lang) {
+					conditions.push(eb("post.lang", "=", lang));
+				}
+				return eb.and(conditions);
+			})
+			.select(({ eb }) => [
+				sql<number>`ROW_NUMBER() OVER (ORDER BY ${orderByClause})`.as("rn"),
+				eb.ref("post.id").as("post_id"),
+				eb.ref("post.title").as("title"),
+				eb.ref("post.alias").as("alias"),
+				eb.ref("post.abstract").as("abstract"),
+				eb.ref("post.cover").as("cover"),
+				eb.ref("post.cover_alt").as("cover_alt"),
+				eb.ref("post_type.post_type_name").as("type_name"),
+				eb.ref("post.creator_id").as("creator_id"),
+				eb.ref("post.created_at").as("created_at"),
+				eb.ref("post.published_at").as("published_at"),
+				eb.fn
+					.jsonAgg(
+						jsonBuildObject({
+							firstname: eb.cast<string>(eb.ref("user_account.firstname"), "text"),
+							lastname: eb.cast<string>(eb.ref("user_account.lastname"), "text"),
+						}),
+					)
+					.as("authors"),
+			])
+			.groupBy(["post.id", "post_type.post_type_name"]);
+	});
 
-			return baseQuery
-				.select(({ eb }) => [
-					sql<number>`ROW_NUMBER() OVER (ORDER BY ${orderByClause})`.as("rn"),
-					eb.ref("post.id").as("post_id"),
-					eb.ref("post.title").as("title"),
-					eb.ref("post.alias").as("alias"),
-					eb.ref("post.abstract").as("abstract"),
-					eb.ref("post.cover").as("cover"),
-					eb.ref("post.cover_alt").as("cover_alt"),
-					eb.ref("post_type.post_type_name").as("type_name"),
-					eb.ref("post.creator_id").as("creator_id"),
-					eb.ref("post.created_at").as("created_at"),
-					eb.ref("post.published_at").as("published_at"),
-					eb.fn
-						.coalesce(
-							eb.fn
-								.jsonAgg(
-									jsonBuildObject({
-										firstname: eb.cast<string>(eb.ref("user_account.firstname"), "text"),
-										lastname: eb.cast<string>(eb.ref("user_account.lastname"), "text"),
-									}),
-								)
-								.filterWhere("user_post.post_id", "is not", null)
-								.filterWhere("post.creator_id", "is not", null),
-							sql`'[]'`,
-						)
-						.as("authors"),
-				])
-				.groupBy(["post.id", "post_type.post_type_name"]);
-		})
+	const dbQuery = query
 		.selectFrom("post_query")
 		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
 		.select(({ eb, fn }) => {
@@ -184,14 +181,13 @@ export async function getAllArticlesByProject(
 					published_at: eb.cast<string>(eb.ref("post_query.published_at"), "text"),
 				}),
 			);
-
 			return [
 				agg
 					.filterWhere("rn", ">", offset)
 					.filterWhere("rn", "<=", pageSize + offset)
 					.as("articles"),
-				fn.countAll().as("total"),
+				eb.fn.countAll().as("total"),
 			];
 		});
-	return await query.execute();
+	return await dbQuery.execute();
 }

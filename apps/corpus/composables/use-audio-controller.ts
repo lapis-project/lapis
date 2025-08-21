@@ -1,6 +1,7 @@
 // composables/use-audio-controller.ts
-import { ref, computed } from "vue";
-import { useRuntimeConfig, useRoute, useRouter } from "#imports";
+import { computed, ref } from "vue";
+
+import { useRoute, useRouter, useRuntimeConfig } from "#imports";
 
 const parseTime = (raw?: string | number | null): number | null => {
 	if (raw == null) return null;
@@ -8,7 +9,7 @@ const parseTime = (raw?: string | number | null): number | null => {
 	const s = decodeURIComponent(String(raw).trim());
 
 	// ISO 8601 duration
-	const m = s.match(/^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/i);
+	const m = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/i.exec(s);
 	if (m) {
 		const [_, d, h, mi, se] = m;
 		return +(d || 0) * 86400 + +(h || 0) * 3600 + +(mi || 0) * 60 + (se ? +se : 0);
@@ -33,6 +34,8 @@ const formatClock = (sec: number) => {
 };
 
 export function useAudioController() {
+	console.log("hello from controller!");
+
 	const env = useRuntimeConfig();
 	const route = useRoute();
 	const router = useRouter();
@@ -97,5 +100,6 @@ export function useAudioController() {
 		// We don't call el.src = … here to keep it declarative in the component.
 	}
 
+	console.log("audioRef: ", audioEl, src);
 	return { audioRef: audioEl, src, bind, play, pause, seekTo, loadTrack, parseTime };
 }

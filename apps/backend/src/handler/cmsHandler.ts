@@ -211,7 +211,7 @@ const cms = new Hono<Context>()
 			searchTerm ?? "",
 			category ?? "",
 		);
-		const articles = allArticles[0]?.articles;
+		const articles = allArticles[0]?.articles ?? [];
 		const totalCount = Number(allArticles[0]?.total);
 		const requestUrl = c.req.url;
 		return c.json(
@@ -230,7 +230,7 @@ const cms = new Hono<Context>()
 								`page=${String(pageNumParsed + 1)}`,
 							)
 						: null,
-				articles: articles ?? [],
+				articles: articles,
 				currentPage: requestUrl,
 				totalResults: totalCount,
 			},

@@ -222,30 +222,28 @@ export async function getAllArticlesByProjectId(
 			return baseQuery;
 		})
 		.selectFrom("post_query")
-		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
-		.select(({ eb, fn }) => [
-			fn
-				.jsonAgg(
-					jsonBuildObject({
-						post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
-						title: eb.cast<string>(eb.ref("post_query.title"), "text"),
-						alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
-						content: eb.cast<string>(eb.ref("post_query.content"), "text"),
-						abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
-						status: eb.cast<string>(eb.ref("post_query.status"), "text"),
-						post_type: eb.cast<string>(eb.ref("post_query.type_name"), "text"),
-						authors: eb.ref("post_query.authors"),
-					}),
-				)
-				.filterWhere("rn", ">", offset)
-				.filterWhere("rn", "<=", pageSize + offset)
-				.as("articles"),
-			fn.countAll().as("total"),
-		]);
+		.select(({ eb, fn }) => {
+			const agg = fn.jsonAgg(
+				jsonBuildObject({
+					post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
+					title: eb.cast<string>(eb.ref("post_query.title"), "text"),
+					alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
+					content: eb.cast<string>(eb.ref("post_query.content"), "text"),
+					abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
+					status: eb.cast<string>(eb.ref("post_query.status"), "text"),
+					post_type: eb.cast<string>(eb.ref("post_query.type_name"), "text"),
+					authors: eb.ref("post_query.authors"),
+				}),
+			);
+			return [
+				agg
+					.filterWhere("rn", ">", offset)
+					.filterWhere("rn", "<=", pageSize + offset)
+					.as("articles"),
+				fn.countAll().as("total"),
+			];
+		});
 	return await query.execute();
-	/* .select(({ eb, fn }) => [
-			fn.jsonAgg(jsonbBuildObject({ abstract: eb.ref("post_query.abstract") })).as("articles"),
-		])*/
 }
 
 export async function createNewPost(creator_id: number) {

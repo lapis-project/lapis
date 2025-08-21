@@ -9,7 +9,6 @@ import {
 } from "lucide-vue-next";
 
 import data from "@/assets/data/transcripts-demo.json";
-
 import { useAudioController } from "@/composables/use-audio-controller";
 
 definePageMeta({
@@ -94,6 +93,7 @@ const toggleFirstColumn = () => {
 
 const audioIsStopped = ref(false);
 const audioIsPlaying = ref(false);
+const isLoading = ref(false);
 
 const gridColumns = computed(() => {
 	return [showFirstColumn.value ? "340px" : "0px", "1fr"].join(" ");
@@ -193,6 +193,8 @@ let timer: ReturnType<typeof setTimeout> | null = null;
 const currentTime = ref(0);
 const duration = ref(0);
 
+const waveformReady = ref(false);
+
 const searchInput = ref("");
 
 const isScrubbing = ref(false);
@@ -214,18 +216,16 @@ function updateProgress() {
 	scrub.value = currentTime.value; // keep slider following playback
 }
 
-// call this when the user lets go (mouseup/touchend or change)
-function commitScrub(autoplay = true) {
+function commitScrub() {
 	if (!audioRef.value) return;
 	isScrubbing.value = false;
 	audioRef.value.currentTime = scrub.value;
-	if (autoplay) {
+	if (audioIsPlaying.value) {
 		audioRef.value.play().catch(() => {});
 	}
 }
 
-// optional: live scrubbing (seek on every input event)
-function liveScrub() {
+function updateScrub() {
 	if (!audioRef.value) return;
 	audioRef.value.currentTime = scrub.value;
 }
@@ -233,6 +233,13 @@ function liveScrub() {
 function togglePlayback() {
 	if (!audioRef.value) return;
 
+	if (!waveformReady.value) {
+		console.log("loading...");
+		isLoading.value = true;
+		return;
+	}
+
+	isLoading.value = false;
 	if (audioRef.value.paused) {
 		audioRef.value.play();
 		audioIsPlaying.value = true;
@@ -427,7 +434,7 @@ onScopeDispose(() => {
 											type="text"
 										/>
 									</div>
-									s
+
 									<Button type="submit"> Suchen </Button>
 								</form>
 							</div>
@@ -445,8 +452,8 @@ onScopeDispose(() => {
 					<ClientOnly>
 						<audio
 							:ref="(el) => bind(el as HTMLAudioElement)"
-							:src="audioSrc"
 							preload="metadata"
+							:src="audioSrc"
 							@loadedmetadata="updateMetadata"
 							@timeupdate="updateProgress"
 						/>
@@ -631,46 +638,44 @@ onScopeDispose(() => {
 				<section
 					class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
 				>
-					<div class="controls">
-						<ClientOnly>
-							<input
-								type="range"
-								min="0"
-								:max="duration || 0"
-								step="0.01"
-								class="w-72 mr-5"
-								v-model.number="scrub"
-								@mousedown="isScrubbing = true"
-								@touchstart="isScrubbing = true"
-								@input="liveScrub()"
-								@mouseup="commitScrub(true)"
-								@touchend="commitScrub(true)"
-								@change="commitScrub(true)"
-							/>
-						</ClientOnly>
-						<Button variant="ghost" @click="togglePlayback">
-							<PlayIcon v-if="!audioIsPlaying" :size="16" />
-							<PauseIcon v-else :size="16" />
-						</Button>
-					</div>
-					<!-- <div class="relative p-4 w-full rounded overflow-hidden">
+					<div class="relative p-4 w-full rounded overflow-hidden">
 						<AudioWaveform
 							:audio="audioRef"
 							class="absolute inset-0 w-full h-full z-0 bg-black"
-							:class="{ 'opacity-0 transition-opacity': !audioIsPlaying }"
+							:class="{ 'opacity-0 transition-opacity': !audioIsPlaying || !waveformReady }"
 							:is-playing="audioIsPlaying"
+							:is-scrubbing="isScrubbing"
 							:is-stopped="audioIsStopped"
+							:scrub="scrub"
+							@commit-scrub="commitScrub"
+							@ready="
+								waveformReady = true;
+								isLoading = false;
+								togglePlayback();
+							"
+							@update:scrub="updateScrub"
 						/>
 
 						<div
 							class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-none transition-all"
 							:class="{ 'bg-white/80 hover:bg-white': audioIsPlaying }"
 						>
-							<Button variant="ghost" @click="getAudio()">
-								<PlayIcon v-if="!audioIsPlaying" :size="16" />
-								<PauseIcon v-else :size="16" />
+							<Button variant="ghost" @click="togglePlayback">
+								<PlayIcon v-if="!audioIsPlaying && !isLoading" :size="16" />
+								<div v-if="isLoading" class="w-full h-full z-0 pt-1">
+									<div
+										class="w-4 h-4 border-2 border-foreground/20 border-t-transparent rounded-full animate-spin"
+									></div>
+								</div>
+								<PauseIcon v-if="audioIsPlaying" :size="16" />
 							</Button>
-							<Button variant="ghost" @click="stopPlayback">
+							<Button
+								variant="ghost"
+								@click="
+									stopPlayback();
+									isLoading = false;
+								"
+							>
 								<SquareIcon :size="16" />
 							</Button>
 							<span :class="audioIsPlaying ? `text-black/50` : `text-foreground/20`">|</span>
@@ -678,7 +683,7 @@ onScopeDispose(() => {
 								<DownloadIcon :size="16" />
 							</Button>
 						</div>
-					</div> -->
+					</div>
 				</section>
 			</div>
 		</div>

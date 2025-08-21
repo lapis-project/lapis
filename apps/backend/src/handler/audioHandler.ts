@@ -9,6 +9,7 @@ import { stream } from "hono/streaming";
 import type { Context } from "@/lib/context";
 
 const audio = new Hono<Context>().get("/stream/:filename", async (c) => {
+	console.log("hello from backend");
 	const filename = c.req.param("filename");
 	const persistentDir = path.join(process.cwd(), "persistent");
 	const base = path.basename(filename, path.extname(filename)); // sanitize and strip any ext
@@ -36,16 +37,23 @@ const audio = new Hono<Context>().get("/stream/:filename", async (c) => {
 
 	if (range) {
 		// Parse "bytes=start-end"
+		console.log(range);
 		const m = /^bytes=(\d*)-(\d*)$/.exec(range);
-		if (!m) return c.text("Invalid Range header", 400);
+		if (!m) {
+			return c.text("Invalid Range header", 400);
+		}
 
 		const size = stat.size;
 		let start = m[1] ? Number.parseInt(m[1], 10) : 0;
 		let end = m[2] ? Number.parseInt(m[2], 10) : size - 1;
 
 		// Normalize / validate
-		if (Number.isNaN(start)) start = 0;
-		if (Number.isNaN(end) || end >= size) end = size - 1;
+		if (Number.isNaN(start)) {
+			start = 0;
+		}
+		if (Number.isNaN(end) || end >= size) {
+			end = size - 1;
+		}
 
 		if (start > end || start < 0) {
 			c.status(416);

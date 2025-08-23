@@ -1,11 +1,13 @@
 import { Hono } from "hono";
 import { minLength, number, optional, pipe, safeParse, string } from "valibot";
 
-import { getAllArticlesByProject, getArticleByAlias } from "@/db/articleRepository";
+import type { Context } from "@/lib/context";
 import { generateSignedImageUrl } from "@/service/imageService";
 import type { Availablelang } from "@/types/db";
 
-const articles = new Hono()
+import { getAllArticlesByProject, getArticleByAlias } from "../db/articleRepository";
+
+const articles = new Hono<Context>()
 
 	/**
 	 * Fetches all articles by project id which have the status as published.
@@ -76,7 +78,17 @@ const articles = new Hono()
 			cover: a.cover.startsWith("s3://") ? generateSignedImageUrl(a.cover, 640) : a.cover,
 		}));
 		const totalCount = Number(fetchedArticles[0]?.total);
-		const requestUrl = c.req.url;
+		let requestUrl = c.req.url;
+
+		if (!requestUrl.includes("page=")) {
+			requestUrl += requestUrl.includes("?") ? "&" : "?";
+			requestUrl += `page=${String(pageNumParsed)}`;
+		}
+
+		if (!requestUrl.includes("pageSize=")) {
+			requestUrl += requestUrl.includes("?") ? "&" : "?";
+			requestUrl += `pageSize=${String(pageSizeParsed)}`;
+		}
 		return c.json(
 			{
 				prev:
@@ -93,9 +105,9 @@ const articles = new Hono()
 								`page=${String(pageNumParsed + 1)}`,
 							)
 						: null,
-				articles,
 				currentPage: requestUrl,
 				totalResults: totalCount,
+				articles: articles,
 			},
 			200,
 		);

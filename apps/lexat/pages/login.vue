@@ -11,11 +11,5 @@ usePageMetadata({
 		<div class="mx-auto w-full max-w-2xl border p-8">
 			<LoginForm></LoginForm>
 		</div>
-		<DevOnly>
-			<div class="mx-auto w-full max-w-2xl border p-8">
-				<h2>Secret signup form</h2>
-				<SignupForm></SignupForm>
-			</div>
-		</DevOnly>
 	</MainContent>
 </template>

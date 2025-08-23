@@ -66,7 +66,7 @@
 		"fast-glob": "^3.3.3",
 		"hono": "^4.8.9",
 		"html2canvas-pro": "^1.5.11",
-		"lucide-vue-next": "^0.487.0",
+		"lucide-vue-next": "^0.540.0",
 		"maplibre-gl": "^4.7.1",
 		"nuxt": "3.18.1",
 		"nuxt-svgo": "^4.2.4",

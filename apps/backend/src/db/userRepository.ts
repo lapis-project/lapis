@@ -24,36 +24,42 @@ export async function getAllUsers() {
 		.innerJoin("user_has_role", "user_account.id", "user_has_role.user_id")
 		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
 		.select([
-			"username",
+			"user_account.username",
 			"user_account.id",
-			"firstname",
-			"lastname",
+			"user_account.firstname",
+			"user_account.lastname",
 			"user_roles.role_name",
-			"email",
+			"user_account.email",
 		])
 		.execute();
 }
 
-export async function editUserRoleByUserId(userId: number, roleIds: Array<Userroles>) {
-	// Delete all roles for the user
-	await db.deleteFrom("user_has_role").where("user_id", "=", userId).execute();
-
-	// get the role ids
-	const userRoles = await db
-		.selectFrom("user_roles")
-		.where("role_name", "in", roleIds)
-		.select(["id"])
-		.execute();
-
-	// Insert new roles for the user
+export async function getAllUserRoles() {
 	return await db
-		.insertInto("user_has_role")
-		.columns(["user_id", "role_id"])
-		.values(userRoles.map((role) => ({ user_id: userId, role_id: role.id })))
-		//.values(roleIds.map((roleId) => ({ user_id: userId, role_id: roleId })))
+		.selectFrom("user_roles")
+		.select(["user_roles.id", "user_roles.description", "user_roles.role_name"])
 		.execute();
 }
+export async function editUserRoleByUserId(userId: number, roleName: Userroles) {
+	return db.transaction().execute(async (trx) => {
+		// 1) remove all current roles
+		await trx.deleteFrom("user_has_role").where("user_id", "=", userId).execute();
 
+		// 2) find the role id for the given role name
+		const role = await trx
+			.selectFrom("user_roles")
+			.select(["id"])
+			.where("role_name", "=", roleName)
+			.executeTakeFirst();
+
+		if (!role) {
+			throw new Error(`Role "${roleName}" not found`);
+		}
+
+		// 3) insert the single new role
+		return trx.insertInto("user_has_role").values({ user_id: userId, role_id: role.id }).execute();
+	});
+}
 export async function editUserData(
 	userId: number,
 	userData: {
@@ -75,7 +81,7 @@ export async function editUserPassword(userId: number, password: string) {
  * If the user is inactive the user will be made active again
  * @param userId UserId of the user that will be set inactive or active.
  */
-export async function setUserInactive(userId: number, activeType: Inactivetype) {
+export async function setUserActiveState(userId: number, activeType: Inactivetype) {
 	return await db
 		.updateTable("user_account")
 		.set({ inactive: activeType })

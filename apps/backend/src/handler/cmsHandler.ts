@@ -2,10 +2,8 @@
 import { log } from "@acdh-oeaw/lib";
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
-import { hc, type InferRequestType, type InferResponseType } from "hono/client";
 import { array, minLength, number, object, optional, pipe, string } from "valibot";
 
-import { getUsersByList } from "@/db/authRepository";
 import {
 	createNewPost,
 	deleteArticleById,
@@ -17,13 +15,12 @@ import {
 	getArticleById,
 	getCoverById,
 	getPostTypeIdsByName,
-	getProjectByIds,
-	insertNewArticle,
 	linkArticleToPhenomenon,
 	linkAuthorsToPost,
 	linkProjectToPost,
 	updateArticleById,
 } from "@/db/cmsRepository";
+import { getAllUserRoles, getAllUsers } from "@/db/userRepository";
 import { restrictedRoute } from "@/lib/authHelper";
 import type { Context } from "@/lib/context";
 import {
@@ -85,7 +82,7 @@ const cms = new Hono<Context>()
 
 		// Delete the article
 		await deleteArticleById(Number(articleId));
-		return c.json(`Article with the ID ${String(articleId)} has been deleted`, 200);
+		return c.json(`Article with the ID ${articleId} has been deleted`, 200);
 	})
 	/**
 	 * Edit the article with the provided id as queryparam
@@ -214,8 +211,8 @@ const cms = new Hono<Context>()
 			searchTerm ?? "",
 			category ?? "",
 		);
-		const articles = allArticles[0]?.articles;
-		const totalCount = Number(allArticles[0]?.total);
+		const articles = allArticles[0]?.articles ?? [];
+		const totalCount = Number(allArticles[0]?.total ?? 0);
 		const requestUrl = c.req.url;
 		return c.json(
 			{
@@ -233,7 +230,7 @@ const cms = new Hono<Context>()
 								`page=${String(pageNumParsed + 1)}`,
 							)
 						: null,
-				articles: articles ?? [],
+				articles: articles,
 				currentPage: requestUrl,
 				totalResults: totalCount,
 			},
@@ -405,6 +402,17 @@ const cms = new Hono<Context>()
 			survey: survey,
 		};
 		return c.json(informationList, 200);
+	})
+	.get("/users/all", async (c) => {
+		const users = await getAllUsers();
+		const userRoles = await getAllUserRoles();
+		return c.json(
+			{
+				users,
+				userRoles,
+			},
+			200,
+		);
 	});
 
 // Enable in order to restrict the route only to signed in users

@@ -47,3 +47,7 @@ export const checkIfRoleIsAllowed = (
 
 	return true;
 };
+
+export const isSuperadmin = (userRole: Userroles | null) => {
+	return userRole === "superadmin";
+};

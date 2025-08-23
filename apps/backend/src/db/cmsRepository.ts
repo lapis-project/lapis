@@ -191,23 +191,23 @@ export async function getAllArticlesByProjectId(
 				.leftJoin("post_type", "post.post_type_id", "post_type.id")
 				.where("project_post.project_id", "=", projectId)
 				.select(({ eb }) => [
-					sql<number>`ROW_NUMBER() OVER (order by post.id) as rn`,
+					sql<number>`ROW_NUMBER() OVER (order by post.id)`.as("rn"),
 					eb.ref("post.id").as("post_id"),
 					eb.ref("post.title").as("title"),
 					eb.ref("post.alias").as("alias"),
 					eb.ref("post.content").as("content"),
 					eb.ref("post.abstract").as("abstract"),
 					eb.ref("post.post_status").as("status"),
-					eb.ref("post_type.post_type_name").as("post_type"),
+					eb.ref("post_type.post_type_name").as("type_name"),
 					eb.ref("post.creator_id").as("creator_id"),
 					eb.fn
 						.jsonAgg(
 							jsonbBuildObject({
-								user_id: eb.ref("user_account.id"),
-								username: eb.ref("user_account.username"),
-								email: eb.ref("user_account.email"),
-								firstname: eb.ref("user_account.firstname"),
-								lastname: eb.ref("user_account.lastname"),
+								user_id: eb.cast<number>(eb.ref("user_account.id"), "integer"),
+								username: eb.cast<string>(eb.ref("user_account.username"), "text"),
+								email: eb.cast<string>(eb.ref("user_account.email"), "text"),
+								firstname: eb.cast<string>(eb.ref("user_account.firstname"), "text"),
+								lastname: eb.cast<string>(eb.ref("user_account.lastname"), "text"),
 							}),
 						)
 						.as("authors"),
@@ -222,30 +222,28 @@ export async function getAllArticlesByProjectId(
 			return baseQuery;
 		})
 		.selectFrom("post_query")
-		//.select(({ eb, fn }) => [fn.jsonAgg(eb.ref("post_query")).as("articles")])
-		.select(({ eb, fn }) => [
-			fn
-				.jsonAgg(
-					jsonBuildObject({
-						post_id: eb.ref("post_query.post_id"),
-						title: eb.ref("post_query.title"),
-						alias: eb.ref("post_query.alias"),
-						content: eb.ref("post_query.content"),
-						abstract: eb.ref("post_query.abstract"),
-						status: eb.ref("post_query.status"),
-						post_type: eb.ref("post_query.post_type"),
-						authors: eb.ref("authors"),
-					}),
-				)
-				.filterWhere("rn", ">", offset)
-				.filterWhere("rn", "<=", pageSize + offset)
-				.as("articles"),
-			fn.countAll().as("total"),
-		]);
+		.select(({ eb, fn }) => {
+			const agg = fn.jsonAgg(
+				jsonBuildObject({
+					post_id: eb.cast<number>(eb.ref("post_query.post_id"), "integer"),
+					title: eb.cast<string>(eb.ref("post_query.title"), "text"),
+					alias: eb.cast<string>(eb.ref("post_query.alias"), "text"),
+					content: eb.cast<string>(eb.ref("post_query.content"), "text"),
+					abstract: eb.cast<string>(eb.ref("post_query.abstract"), "text"),
+					status: eb.cast<string>(eb.ref("post_query.status"), "text"),
+					post_type: eb.cast<string>(eb.ref("post_query.type_name"), "text"),
+					authors: eb.ref("post_query.authors"),
+				}),
+			);
+			return [
+				agg
+					.filterWhere("rn", ">", offset)
+					.filterWhere("rn", "<=", pageSize + offset)
+					.as("articles"),
+				fn.countAll().as("total"),
+			];
+		});
 	return await query.execute();
-	/* .select(({ eb, fn }) => [
-			fn.jsonAgg(jsonbBuildObject({ abstract: eb.ref("post_query.abstract") })).as("articles"),
-		])*/
 }
 
 export async function createNewPost(creator_id: number) {

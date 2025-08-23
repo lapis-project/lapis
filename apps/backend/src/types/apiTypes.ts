@@ -5,15 +5,15 @@ export interface Category {
 	name: string;
 }
 
-export enum Status {
-	DRAFT,
-	PUBLISHED,
-	ARCHIVED,
-}
+export const Status = {
+	DRAFT: "Draft",
+	PUBLISHED: "Published",
+	ARCHIVED: "Archived",
+} as const;
 
-export enum ResponseInflucenced {
-	F,
-}
+export const ResponseInflucenced = {
+	F: "F",
+} as const;
 
 export interface UserObject {
 	email: string | null;
@@ -47,7 +47,7 @@ export interface Article {
 }
 
 export interface ArticleCMS extends Article {
-	status: Status;
+	status: typeof Status;
 }
 
 export interface ArticleTeaser extends Omit<Article, "biblography" | "content"> {}
@@ -57,5 +57,27 @@ export interface QuestionResponse {
 	timestampAudio: string;
 	responseSelected: number;
 	responseOrder: number;
-	responseInfluenced: ResponseInflucenced;
+	responseInfluenced: typeof ResponseInflucenced;
+}
+
+export interface Author {
+	firstname: string | null;
+	lastname: string | null;
+}
+
+export interface ArticleTeaserAPI {
+	post_id: number;
+	title: string;
+	alias: string;
+	abstract: string | null;
+	post_type: string;
+	authors: Array<Author>;
+	cover: string | null;
+	cover_alt: string | null;
+	published_at: string | null;
+}
+
+export interface PagedArticlesResult {
+	articles: Array<ArticleTeaserAPI> | null; // json_agg can return null
+	total: number;
 }

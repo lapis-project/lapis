@@ -2,7 +2,6 @@ import { vValidator } from "@hono/valibot-validator";
 import { hash } from "@node-rs/argon2";
 import { Hono } from "hono";
 import {
-	array,
 	email,
 	literal,
 	minLength,
@@ -22,19 +21,19 @@ import {
 	editUserPassword,
 	editUserRoleByUserId,
 	getUsersByRole,
-	setUserInactive,
-} from "@/db/userRepostiory";
+	setUserActiveState,
+} from "@/db/userRepository";
 import {
 	checkIfPrivilegedForAdminOrHigher,
 	checkIfRoleIsAllowed,
+	isSuperadmin,
 	restrictedRoute,
 } from "@/lib/authHelper";
 import type { Context } from "@/lib/context";
 import { instanceOfUserRole } from "@/lib/RepoHelper";
-import type { Userroles } from "@/types/db";
 
 const editRoleSchema = object({
-	role: array(string()),
+	user_role: string(),
 });
 
 const editPasswordSchema = object({
@@ -86,25 +85,23 @@ const user = new Hono<Context>()
 	 *
 	 */
 	.put("/roles/:id", vValidator("json", editRoleSchema), async (c) => {
-		const userId = c.req.param("id");
-		const body = c.req.valid("json");
-		const roleNames = body.role;
+		const userId = Number(c.req.param("id"));
+		const { user_role } = c.req.valid("json");
+
 		// Check if the passed roles is an instance of Userroles
 		// Check if the provided status is an element from the Poststatus enum
-		for (const roleName of roleNames) {
-			if (!instanceOfUserRole(roleName)) {
-				return c.json("Invalid role provided", 400);
-			}
+		if (!instanceOfUserRole(user_role)) {
+			return c.json("Invalid role provided", 400);
 		}
 
 		// Check if userid is a number
-		if (Number.isNaN(Number(userId))) {
+		if (Number.isNaN(userId)) {
 			return c.json("Invalid user id provided", 400);
 		}
 
 		// Get the userobject of the user with the provided id
-		const userObject = await getUserById(Number(userId));
-		if (!userObject) {
+		const userObject = await getUserById(userId);
+		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
 
@@ -112,14 +109,11 @@ const user = new Hono<Context>()
 		const userRole = c.get("role");
 		const editedUserRole = userObject.role_name;
 
-		if (
-			(editedUserRole === "admin" || editedUserRole === "superadmin") &&
-			userRole !== "superadmin"
-		) {
+		if (editedUserRole === "superadmin" && userRole !== "superadmin") {
 			return c.json("Forbidden action", 403);
 		}
 
-		await editUserRoleByUserId(Number(userId), roleNames as Array<Userroles>);
+		await editUserRoleByUserId(userId, user_role);
 		return c.json(`Roles for user ${userObject.username ?? ""} have been updated`, 200);
 	})
 
@@ -147,7 +141,7 @@ const user = new Hono<Context>()
 
 		// Get the userobject of the user with the provided id
 		const userObject = await getUserById(Number(userId));
-		if (!userObject) {
+		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
 
@@ -178,18 +172,18 @@ const user = new Hono<Context>()
 	 * @returns status code 404 if the user with the provided id does not exist.
 	 */
 	.put("/password/:id", vValidator("json", editPasswordSchema), async (c) => {
-		const userId = c.req.param("id");
+		const userId = Number(c.req.param("id"));
 		const { password } = c.req.valid("json");
 		const passwordHash = await hash(password, argon2Config);
 
 		// Check if userid is a number
-		if (Number.isNaN(Number(userId))) {
+		if (Number.isNaN(userId)) {
 			return c.json("Invalid user id provided", 400);
 		}
 
 		// Get the userobject of the user with the provided id
-		const userObject = await getUserById(Number(userId));
-		if (!userObject) {
+		const userObject = await getUserById(userId);
+		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
 
@@ -198,12 +192,16 @@ const user = new Hono<Context>()
 		const signedInUser = c.get("user");
 		const editedUserRole = userObject.role_name;
 
-		if (userId !== signedInUser?.id || checkIfRoleIsAllowed(editedUserRole, userRole)) {
+		if (
+			!isSuperadmin(userRole) &&
+			(userId !== Number(signedInUser?.id) || checkIfRoleIsAllowed(editedUserRole, userRole))
+		) {
 			return c.json("Forbidden action", 403);
 		}
 
-		const updatedRows = await editUserPassword(Number(userId), passwordHash);
-		return c.json(updatedRows, 200);
+		await editUserPassword(userId, passwordHash);
+
+		return c.json("ok", 200);
 	})
 
 	/**
@@ -225,13 +223,13 @@ const user = new Hono<Context>()
 		}
 
 		const userObject = await getUserById(Number(userId));
-		if (!userObject) {
+		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
 
 		return c.json(userObject, 200);
 	})
-	.put("/roles/active/:id", vValidator("json", editActiveTypeSchema), async (c) => {
+	.put("/active/:id", vValidator("json", editActiveTypeSchema), async (c) => {
 		const userId = c.req.param("id");
 
 		const { active } = c.req.valid("json");
@@ -242,12 +240,12 @@ const user = new Hono<Context>()
 		}
 
 		const userObject = await getUserById(Number(userId));
-		if (!userObject) {
+		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
 
 		// Update the active type of the user
-		await setUserInactive(Number(userId), active);
+		await setUserActiveState(Number(userId), active);
 
 		return c.json("Ok", 200);
 	});

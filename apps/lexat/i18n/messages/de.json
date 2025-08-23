@@ -1,7 +1,7 @@
 {
 	"AdminNavigation": {
 		"articles": "Einträge",
-		"users": "Benutzer",
+		"users": "Benutzerverwaltung",
 		"categories": "Kategorien"
 	},
 	"AdminPage": {
@@ -148,6 +148,7 @@
 		"confirmPassword": "Passwort-Kontrolle",
 		"confirmPasswordPlaceholder": "Passwort erneut eingeben",
 		"email": "E-Mail",
+		"email_domain_invalid": "Die angegebene Domäne ist ungültig.",
 		"email_invalid": "Die angegebene E-Mail ist ungültig.",
 		"firstname": "Vorname",
 		"firstname_min_length": "Ihr Vorname muss mindestens 1 Zeichen enthalten.",
@@ -161,7 +162,12 @@
 		"signup": "Registrieren",
 		"signup_failed": "Registrierung fehlgeschlagen",
 		"username": "Benutzername",
-		"username_min_length": "Ihr Benutzername muss mindestens 2 Zeichen enthalten."
+		"username_min_length": "Ihr Benutzername muss mindestens 2 Zeichen enthalten.",
+		"user_creation_failed": "Der Benutzer konnte nicht erstellt werden.",
+		"user_creation_succeeded": "Der Benutzer wurde erfolgreich erstellt.",
+		"user_role": "Benutzerrolle",
+		"user_role_invalid": "Die gewählte Benutzerrolle ist ungültig.",
+		"user_role_required": "Benutzerrolle benötigt."
 	},
 	"Categories": {
 		"commentary": "Kartenkommentar",
@@ -225,6 +231,10 @@
 		},
 		"title": "Etwas ist schief gelaufen!",
 		"try-again": "Erneut versuchen"
+	},
+	"General": {
+		"cancel": "Abbrechen",
+		"create": "Erstellen"
 	},
 	"HomePage": {
 		"meta": {
@@ -438,6 +448,11 @@
 				"placeholder": "Annotation unterhalb des Bilds"
 			}
 		}
+	},
+	"UserManagement": {
+		"role": "Rolle",
+		"create-new-user": "Benutzer erstellen",
+		"title": "Benutzerverwaltung"
 	},
 	"UserPanel": {
 		"admin": "Admin",

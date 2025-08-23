@@ -116,9 +116,37 @@ const auth = new Hono<Context>()
 
 		const user = await getUserById(newUser.id);
 		return c.json(user, 200);
+	})
+	.post("/create-user", vValidator("json", signupSchema), async (c) => {
+		const { username, password, email, user_role, firstname, lastname } = c.req.valid("json");
+
+		// Check if the email ends with @oeaw.ac.at or @univie.ac.at
+		if (!email.endsWith("@oeaw.ac.at") && !email.endsWith("@univie.ac.at")) {
+			log.info(`Email ${email} is not from oeaw or univie`);
+			return c.json("This email handle is not allowed to be used!", 400);
+		}
+		const passwordHash = await hash(password, argon2Config);
+		const newUser = await createUser(
+			username,
+			passwordHash,
+			email,
+			user_role as Userroles,
+			firstname,
+			lastname,
+		);
+
+		if (!newUser) {
+			log.info(`Error while creating user`);
+			return c.json("User already exists", 409);
+		}
+		log.info(`User ${username} created`);
+
+		const user = await getUserById(newUser.id);
+		return c.json({ user }, 200);
 	});
 
 auth.use("/signup", checkIfPrivilegedForAdminOrHigher);
+auth.use("/create-user", checkIfPrivilegedForAdminOrHigher);
 
 export default auth;
 

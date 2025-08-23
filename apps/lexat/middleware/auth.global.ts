@@ -28,7 +28,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 			credentials: "include", // optional, but makes intent clear
 		});
 
-		// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 		if (data) {
 			user.value = data;
 		}

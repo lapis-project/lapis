@@ -212,7 +212,7 @@ const cms = new Hono<Context>()
 			category ?? "",
 		);
 		const articles = allArticles[0]?.articles ?? [];
-		const totalCount = Number(allArticles[0]?.total);
+		const totalCount = Number(allArticles[0]?.total ?? 0);
 		const requestUrl = c.req.url;
 		return c.json(
 			{

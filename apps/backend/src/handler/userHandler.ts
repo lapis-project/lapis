@@ -21,7 +21,7 @@ import {
 	editUserPassword,
 	editUserRoleByUserId,
 	getUsersByRole,
-	setUserInactive,
+	setUserActiveState,
 } from "@/db/userRepository";
 import {
 	checkIfPrivilegedForAdminOrHigher,
@@ -229,7 +229,7 @@ const user = new Hono<Context>()
 
 		return c.json(userObject, 200);
 	})
-	.put("/roles/active/:id", vValidator("json", editActiveTypeSchema), async (c) => {
+	.put("/active/:id", vValidator("json", editActiveTypeSchema), async (c) => {
 		const userId = c.req.param("id");
 
 		const { active } = c.req.valid("json");
@@ -245,7 +245,7 @@ const user = new Hono<Context>()
 		}
 
 		// Update the active type of the user
-		await setUserInactive(Number(userId), active);
+		await setUserActiveState(Number(userId), active);
 
 		return c.json("Ok", 200);
 	});

@@ -81,7 +81,7 @@ export async function editUserPassword(userId: number, password: string) {
  * If the user is inactive the user will be made active again
  * @param userId UserId of the user that will be set inactive or active.
  */
-export async function setUserInactive(userId: number, activeType: Inactivetype) {
+export async function setUserActiveState(userId: number, activeType: Inactivetype) {
 	return await db
 		.updateTable("user_account")
 		.set({ inactive: activeType })

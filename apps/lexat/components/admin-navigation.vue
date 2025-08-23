@@ -36,7 +36,7 @@ const collections = [
 				{{ collections.length }}
 			</div>
 		</div>
-		<ul class="list-inside list-disc px-2 py-3 text-lg">
+		<ul class="py-3 text-lg">
 			<li v-for="collection in collections" :key="collection.alias">
 				<NuxtLinkLocale
 					v-if="collection.disabled === false"

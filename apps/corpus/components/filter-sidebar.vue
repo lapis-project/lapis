@@ -12,22 +12,55 @@ const props = defineProps<{
 const emit = defineEmits(["closeFilterSidebar", "handleBookmark", "handleSelection"]);
 
 const activeContext = ref<string | null>(null);
-const activeAge = ref<string | null>(null);
+const activeAgeGroup = ref<string | null>(null);
 const activeFirstLanguage = ref<string | null>(null);
 const activeGender = ref<string | null>(null);
 const activeSetting = ref<string | null>(null);
 const activeLocation = ref<string | null>(null);
 
-const sampleOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "Option 1", value: "one" },
-	{ label: "Option 2", value: "two" },
-	{ label: "Option 3", value: "three" },
+const projectOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "PP02", value: "PP02" },
+	{ label: "PP03", value: "PP03" },
+	{ label: "PP04", value: "PP04" },
+	{ label: "PP07", value: "PP07" },
+]);
+
+const settingOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "Interview", value: "interview" },
+	{ label: "Freundesgespräch", value: "freundesgespraech" },
+	{ label: "Nordwind & Sonne", value: "nordwind-und-sonne" },
+]);
+
+const ageGroupOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "5-10", value: "5-10" },
+	{ label: "10-15", value: "10-15" },
+	{ label: "15-20", value: "15-20" },
+	{ label: "20-25", value: "20-25" },
+	{ label: "25-30", value: "25-30" },
 ]);
 
 const genderOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "m", value: "m" },
-	{ label: "w", value: "w" },
-	{ label: "divers", value: "divers" },
+	{ label: "Männlich", value: "m" },
+	{ label: "Weiblich", value: "w" },
+	{ label: "Divers", value: "divers" },
+]);
+
+const languageOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "Deutsch", value: "german" },
+	{ label: "Englisch", value: "english" },
+	{ label: "Spanisch", value: "spanish" },
+	{ label: "Französisch", value: "french" },
+	{ label: "Russisch", value: "russian" },
+	{ label: "Polnisch", value: "polish" },
+]);
+
+const locationOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "Wien", value: "wien" },
+	{ label: "Graz", value: "graz" },
+	{ label: "Innsbruck", value: "innsbruck" },
+	{ label: "Linz", value: "linz" },
+	{ label: "Eisenstadt", value: "eisenstadt" },
+	{ label: "St. Pölten", value: "stpoelten" },
 ]);
 
 const competenceValue = ref<Array<number>>([1]);
@@ -144,12 +177,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="context">Projektkontext</Label>
 						<div class="flex gap-2">
-							<ComboboxBase
+							<BaseSelect
 								id="context"
 								v-model="activeContext"
-								:options="sampleOptions"
-								placeholder="Projektkontext"
-							></ComboboxBase>
+								:options="projectOptions"
+								placeholder="Projektkontext wählen..."
+							></BaseSelect>
 							<Button size="icon" variant="outline" @click="activeContext = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -158,12 +191,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5 pb-4 border-b">
 						<Label class="tracking-wide pl-1" for="setting">Setting</Label>
 						<div class="flex gap-2">
-							<ComboboxBase
+							<BaseSelect
 								id="setting"
 								v-model="activeSetting"
-								:options="sampleOptions"
-								placeholder="Setting"
-							></ComboboxBase>
+								:options="settingOptions"
+								placeholder="Setting wählen..."
+							></BaseSelect>
 							<Button size="icon" variant="outline" @click="activeSetting = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -173,13 +206,13 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="age">Altersklasse</Label>
 						<div class="flex gap-2">
-							<ComboboxBase
+							<BaseSelect
 								id="age"
-								v-model="activeAge"
-								:options="sampleOptions"
-								placeholder="Altersklasse"
-							></ComboboxBase>
-							<Button size="icon" variant="outline" @click="activeAge = null"
+								v-model="activeAgeGroup"
+								:options="ageGroupOptions"
+								placeholder="Altersklasse wählen..."
+							></BaseSelect>
+							<Button size="icon" variant="outline" @click="activeAgeGroup = null"
 								><Undo2 class="size-4"
 							/></Button>
 						</div>
@@ -187,12 +220,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="location">Ort</Label>
 						<div class="flex gap-2">
-							<ComboboxBase
+							<BaseSelect
 								id="location"
 								v-model="activeLocation"
-								:options="sampleOptions"
-								placeholder="Ort"
-							></ComboboxBase>
+								:options="locationOptions"
+								placeholder="Ort wählen..."
+							></BaseSelect>
 							<Button size="icon" variant="outline" @click="activeLocation = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -201,12 +234,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="first-languaage">Erstprache</Label>
 						<div class="flex gap-2">
-							<ComboboxBase
+							<BaseSelect
 								id="first-languaage"
 								v-model="activeFirstLanguage"
-								:options="sampleOptions"
-								placeholder="Erstprache"
-							></ComboboxBase>
+								:options="languageOptions"
+								placeholder="Erstprache wählen..."
+							></BaseSelect>
 							<Button size="icon" variant="outline" @click="activeFirstLanguage = null"
 								><Undo2 class="size-4"
 							/></Button>
@@ -233,12 +266,12 @@ function handleSelection(id: string) {
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>
 						<div class="flex gap-2">
-							<ComboboxBase
+							<BaseSelect
 								id="gender"
 								v-model="activeGender"
 								:options="genderOptions"
-								placeholder="Geschlecht"
-							></ComboboxBase>
+								placeholder="Geschlecht wählen..."
+							></BaseSelect>
 							<Button size="icon" variant="outline" @click="activeGender = null"
 								><Undo2 class="size-4"
 							/></Button>

@@ -29,10 +29,6 @@ const emit = defineEmits<{
 }>();
 
 const open = ref(false);
-
-const hasColor = computed(() => {
-	return props.options.find((o) => o.color);
-});
 </script>
 
 <template>
@@ -47,23 +43,13 @@ const hasColor = computed(() => {
 				role="combobox"
 				variant="outline"
 			>
-				<div class="flex items-center truncate">
-					<svg v-if="hasColor && model" class="mr-2" height="12" width="12">
-						<circle
-							cx="6"
-							cy="6"
-							:fill="props.options.find((question) => question.value === model)?.color"
-							r="6"
-						/>
-					</svg>
-					<span class="truncate">
-						{{
-							model
-								? props.options.find((question) => question.value === model)?.label
-								: t("Combobox.button", { placeholder: props.placeholder })
-						}}
-					</span>
-				</div>
+				<span class="truncate">
+					{{
+						model
+							? props.options.find((question) => question.value === model)?.label
+							: t("Combobox.button", { placeholder: props.placeholder })
+					}}
+				</span>
 				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
 			</Button>
 		</PopoverTrigger>
@@ -94,14 +80,6 @@ const hasColor = computed(() => {
 								}
 							"
 						>
-							<svg
-								v-if="hasColor && question.color"
-								class="mr-2 inline align-baseline"
-								height="12"
-								width="12"
-							>
-								<circle cx="6" cy="6" :fill="question.color" r="6" />
-							</svg>
 							{{ question.label }}
 							<Check
 								:class="

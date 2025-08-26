@@ -14,7 +14,11 @@ const articles = new Hono<Context>()
 	 * Will return this in a paged format as a json. The page size is 20 by default and it starts from page 1 with an offset of 0.
 	 * The projectId is passed as a parameter in the URL and is required.
 	 *
-	 * searchTerm, page, offset, pageSize, category and language (lang) are optional query parameters and will be included if they are provided.
+	 * searchTerm, page, offset, pageSize, category, sort and language (lang) are optional query parameters and will be included if they are provided.
+	 * The sort parameter takes a string which can be "type" (where the articles are then sorted by their post_type) or
+	 * date where the articles are sorted in descending order by their publish date.
+	 * Another possiblity is sort=variable which will then sort the resulting articles by their assigned
+	 * phenomenon
 	 *
 	 * @returns status code 400 if the projectId is not a number
 	 * @returns status code 201 with an result object containing the articles, the total number of articles and the current page.
@@ -30,7 +34,9 @@ const articles = new Hono<Context>()
 			return c.json("Provided projectId is not a number", 400);
 		}
 
-		const { searchTerm, page, offset, pageSize, category, lang } = c.req.query();
+		const { searchTerm, page, offset, pageSize, category, lang, sort } = c.req.query();
+
+		const sortParamParsed = sort ?? "";
 
 		// TODO Refactor this functions into utilities
 		const stringSchema = optional(string());
@@ -59,6 +65,14 @@ const articles = new Hono<Context>()
 		if (!safeParse(stringSchema, lang).success) {
 			return c.json("Provided language is not a string", 400);
 		}
+		if (
+			sortParamParsed !== "" &&
+			sortParamParsed.toLowerCase() !== "type" &&
+			sortParamParsed.toLowerCase() !== "published_date" &&
+			sortParamParsed.toLowerCase() !== "variable"
+		) {
+			return c.json("Provided sort parameter does not match the requirements", 400);
+		}
 
 		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
 		const fetchedArticles = await getAllArticlesByProject(
@@ -68,6 +82,7 @@ const articles = new Hono<Context>()
 			searchTerm ?? "",
 			category ?? "",
 			"Published",
+			sortParamParsed,
 			lang as Availablelang,
 		);
 

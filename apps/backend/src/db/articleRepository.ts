@@ -107,11 +107,12 @@ export async function getAllArticlesByProject(
 	searchTerm: string,
 	postType: string,
 	postStatus: Poststatus,
+	sort: string,
 	lang?: Availablelang,
 ) {
 	let orderByClause;
 
-	if (searchTerm === "" && postType === "") {
+	if (searchTerm === "" && postType === "" && sort === "type") {
 		orderByClause = sql`
       CASE
         WHEN post_type.post_type_name = 'short_description' THEN 2
@@ -120,7 +121,10 @@ export async function getAllArticlesByProject(
       post.published_at DESC,
       post.created_at DESC
     `;
+	} else if (sort === "variable") {
+		orderByClause = sql`phenomenon.phenomenon_name`;
 	} else {
+		// If expanded should use else if(sort === "published_date")
 		orderByClause = sql`post.published_at DESC`;
 	}
 	const query = db.with("post_query", (query) => {
@@ -129,6 +133,8 @@ export async function getAllArticlesByProject(
 			.innerJoin("project_post", "post.id", "project_post.post_id")
 			.leftJoin("user_post", "post.id", "user_post.post_id")
 			.leftJoin("user_account", (join) => join.onRef("user_post.user_id", "=", "user_account.id"))
+			.leftJoin("phenomenon_post", "post.id", "phenomenon_post.post_id")
+			.leftJoin("phenomenon", "phenomenon.id", "phenomenon_post.phenomenon_id")
 			.innerJoin("post_type", "post.post_type_id", "post_type.id")
 			.where((eb) => {
 				const conditions = [];
@@ -163,7 +169,7 @@ export async function getAllArticlesByProject(
 					)
 					.as("authors"),
 			])
-			.groupBy(["post.id", "post_type.post_type_name"]);
+			.groupBy(["post.id", "post_type.post_type_name", "phenomenon.phenomenon_name"]);
 	});
 
 	const dbQuery = query.selectFrom("post_query").select(({ eb, fn }) => {

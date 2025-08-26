@@ -3,11 +3,6 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true
 "on":
-  #  push:
-  #    branches:
-  #      - main
-  #    paths:
-  #      - "apps/lexat/**"
   workflow_call: null
   workflow_dispatch: null
 jobs:
@@ -39,11 +34,9 @@ jobs:
             TAG_LOWER=$(echo "$TAG_NAME" | tr '[:upper:]' '[:lower:]')
             echo "Processing tag: $TAG_NAME"
 
-            # Pattern 1: Explicit environment in tag name (e.g., lexat-production, lexat-dev-v1.2)
-            if [[ "$TAG_LOWER" == lexat-production || "$TAG_LOWER" == lexat-prod || "$TAG_LOWER" == lexat-prod-* ]]; then
+            # Pattern 1: Explicit environment in tag name (e.g., lexat-production, lexat-v1.2.0)
+            if [[ "$TAG_LOWER" == lexat-production || "$TAG_LOWER" == lexat-prod || "$TAG_LOWER" == lexat-v* ]]; then
               ENV_NAME="production-lexat"; ENV_SHORT="prod-lexat"
-            elif [[ "$TAG_LOWER" == lexat-dev || "$TAG_LOWER" == lexat-development || "$TAG_LOWER" == lexat-dev-* ]]; then
-              ENV_NAME="development-lexat"; ENV_SHORT="dev-lexat"
             fi
 
           # Fallback for branch logic

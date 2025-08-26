@@ -3,11 +3,6 @@ concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true
 "on":
-  #  push:
-  #    branches:
-  #      - main
-  #    paths:
-  #      - "apps/corpus/**"
   workflow_call: null
   workflow_dispatch: null
 jobs:
@@ -41,11 +36,9 @@ jobs:
             TAG_LOWER=$(echo "$TAG_NAME" | tr '[:upper:]' '[:lower:]')
             echo "Processing tag: $TAG_NAME"
 
-            # Pattern 1: Explicit environment in tag name (e.g., corpus-production, corpus-dev-v1.2)
-            if [[ "$TAG_LOWER" == corpus-production || "$TAG_LOWER" == corpus-prod || "$TAG_LOWER" == corpus-prod-* ]]; then
+            # Pattern 1: Explicit environment in tag name (e.g., corpus-production, corpus-v1.2.0)
+            if [[ "$TAG_LOWER" == corpus-production || "$TAG_LOWER" == corpus-prod || "$TAG_LOWER" == corpus-v* ]]; then
               ENV_NAME="production-corpus"; ENV_SHORT="prod-corpus"
-            elif [[ "$TAG_LOWER" == corpus-dev || "$TAG_LOWER" == corpus-development || "$TAG_LOWER" == corpus-dev-* ]]; then
-              ENV_NAME="development-corpus"; ENV_SHORT="dev-corpus"
             fi
 
           # Fallback for branch logic
@@ -55,10 +48,6 @@ jobs:
             ENV_SHORT="prod-corpus"
             echo "environment=production-corpus" >> $GITHUB_OUTPUT
             echo "environment_short=prod-corpus" >> $GITHUB_OUTPUT
-          else
-            echo "environment=dev-corpus"
-            echo "environment=dev-corpus" >> $GITHUB_OUTPUT
-            echo "environment_short=dev-corpus" >> $GITHUB_OUTPUT
           fi
 
           echo "environment=$ENV_NAME" >> $GITHUB_OUTPUT

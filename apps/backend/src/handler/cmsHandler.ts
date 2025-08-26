@@ -4,6 +4,18 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, minLength, number, object, optional, pipe, string } from "valibot";
 
+import { getAllUserRoles, getAllUsers } from "@/db/userRepository";
+import { restrictedRoute } from "@/lib/authHelper";
+import type { Context } from "@/lib/context";
+import {
+	insertBibliography,
+	instanceOfAvailablelang,
+	instanceOfPoststatus,
+} from "@/lib/RepoHelper";
+import { generateSignedImageUrl } from "@/service/imageService";
+import { deleteFromS3 } from "@/service/storageService";
+import type { Article } from "@/types/apiTypes";
+
 import {
 	createNewPost,
 	deleteArticleById,
@@ -19,18 +31,7 @@ import {
 	linkAuthorsToPost,
 	linkProjectToPost,
 	updateArticleById,
-} from "@/db/cmsRepository";
-import { getAllUserRoles, getAllUsers } from "@/db/userRepository";
-import { restrictedRoute } from "@/lib/authHelper";
-import type { Context } from "@/lib/context";
-import {
-	insertBibliography,
-	instanceOfAvailablelang,
-	instanceOfPoststatus,
-} from "@/lib/RepoHelper";
-import { generateSignedImageUrl } from "@/service/imageService";
-import { deleteFromS3 } from "@/service/storageService";
-import type { Article } from "@/types/apiTypes";
+} from "./../db/cmsRepository";
 
 const createNewArticleSchema = object({
 	title: pipe(string(), minLength(5)),
@@ -212,7 +213,7 @@ const cms = new Hono<Context>()
 			category ?? "",
 		);
 		const articles = allArticles[0]?.articles ?? [];
-		const totalCount = Number(allArticles[0]?.total ?? 0);
+		const totalCount = allArticles[0]?.total ?? 0;
 		const requestUrl = c.req.url;
 		return c.json(
 			{
@@ -230,9 +231,9 @@ const cms = new Hono<Context>()
 								`page=${String(pageNumParsed + 1)}`,
 							)
 						: null,
-				articles: articles,
 				currentPage: requestUrl,
 				totalResults: totalCount,
+				articles: articles,
 			},
 			200,
 		);

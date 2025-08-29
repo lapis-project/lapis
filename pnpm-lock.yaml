@@ -51,11 +51,11 @@ importers:
         specifier: ^3.850.0
         version: 3.864.0
       '@hono/node-server':
-        specifier: ^1.17.1
-        version: 1.19.0(hono@4.9.2)
+        specifier: ^1.19.0
+        version: 1.19.0(hono@4.9.4)
       '@hono/valibot-validator':
-        specifier: ^0.4.1
-        version: 0.4.1(hono@4.9.2)(valibot@0.42.1(typescript@5.9.2))
+        specifier: ^0.5.3
+        version: 0.5.3(hono@4.9.4)(valibot@0.42.1(typescript@5.9.2))
       '@imgproxy/imgproxy-node':
         specifier: ^1.1.0
         version: 1.1.0
@@ -66,11 +66,11 @@ importers:
         specifier: ^16.6.1
         version: 16.6.1
       hono:
-        specifier: ^4.8.9
-        version: 4.9.2
+        specifier: ^4.9.4
+        version: 4.9.4
       kysely:
-        specifier: ^0.27.6
-        version: 0.27.6
+        specifier: ^0.28.5
+        version: 0.28.5
       lucia:
         specifier: ^3.2.2
         version: 3.2.2
@@ -118,8 +118,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(eslint@9.33.0(jiti@2.5.1))
       kysely-codegen:
-        specifier: ^0.17.0
-        version: 0.17.0(kysely@0.27.6)(pg@8.16.3)
+        specifier: ^0.18.5
+        version: 0.18.5(kysely@0.28.5)(pg@8.16.3)(typescript@5.9.2)
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
@@ -383,8 +383,8 @@ importers:
         specifier: ^3.3.3
         version: 3.3.3
       hono:
-        specifier: ^4.8.9
-        version: 4.9.2
+        specifier: ^4.9.4
+        version: 4.9.4
       html2canvas-pro:
         specifier: ^1.5.11
         version: 1.5.11
@@ -1681,11 +1681,11 @@ packages:
     peerDependencies:
       hono: ^4
 
-  '@hono/valibot-validator@0.4.1':
-    resolution: {integrity: sha512-yOxJfU//A6T5oceBz+SylwYCQEmbgvsLxjqereIBSnRABEbQpd1j7zKf4lBP8i7JP5zvrKsHZHLmcLa/TCh8Sw==}
+  '@hono/valibot-validator@0.5.3':
+    resolution: {integrity: sha512-91wjmjDvrTdEm2ZcuCyLBghtld78QoLEduzfkqLo1L74n6sqqoVfc0gDfmju1Ar6w1eK8Q0UyIubrtj4KMWVnQ==}
     peerDependencies:
       hono: '>=3.9.0'
-      valibot: ^1.0.0 || ^1.0.0-beta || ^1.0.0-rc
+      valibot: ^1.0.0 || ^1.0.0-beta.4 || ^1.0.0-rc
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4855,6 +4855,10 @@ packages:
     resolution: {integrity: sha512-zIHwmZPRshsCdpMDyVsqGmgyP0yT8GAgXUnkdAoJisxvf33k7yO6OuoKmcTGuXPWSsm8Oh88nZicRLA9Y0rUeA==}
     engines: {node: '>=12'}
 
+  dotenv-expand@12.0.2:
+    resolution: {integrity: sha512-lXpXz2ZE1cea1gL4sz2Ipj8y4PiVjytYr3Ij0SWoms1PGxIv7m2CRKuRuCRtHdVuvM/hNJPMxt5PbhboNC4dPQ==}
+    engines: {node: '>=12'}
+
   dotenv@16.6.1:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
@@ -5566,8 +5570,8 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
-  hono@4.9.2:
-    resolution: {integrity: sha512-UG2jXGS/gkLH42l/1uROnwXpkjvvxkl3kpopL3LBo27NuaDPI6xHNfuUSilIHcrBkPfl4y0z6y2ByI455TjNRw==}
+  hono@4.9.4:
+    resolution: {integrity: sha512-61hl6MF6ojTl/8QSRu5ran6GXt+6zsngIUN95KzF5v5UjiX/xnrLR358BNRawwIRO49JwUqJqQe3Rb2v559R8Q==}
     engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
@@ -5969,20 +5973,21 @@ packages:
   kuler@2.0.0:
     resolution: {integrity: sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A==}
 
-  kysely-codegen@0.17.0:
-    resolution: {integrity: sha512-C36g6epial8cIOSBEWGI9sRfkKSsEzTcivhjPivtYFQnhMdXnrVFaUe7UMZHeSdXaHiWDqDOkReJgWLD8nPKdg==}
+  kysely-codegen@0.18.5:
+    resolution: {integrity: sha512-bj6DMsXcKo0PrrXUk/fdjFgNC6Pwq+HPBCqhNGuD57gwUJZdci2s2OqhNneQeYpAIWGot7/481WdzTyXrClY2Q==}
+    engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
-      '@libsql/kysely-libsql': ^0.3.0
-      '@tediousjs/connection-string': ^0.5.0
-      better-sqlite3: '>=7.6.2'
-      kysely: ^0.27.0
-      kysely-bun-sqlite: ^0.3.2
-      kysely-bun-worker: ^0.5.3
-      mysql2: ^2.3.3 || ^3.0.0
-      pg: ^8.8.0
-      tarn: ^3.0.0
-      tedious: ^18.0.0
+      '@libsql/kysely-libsql': '>=0.3.0 <0.5.0'
+      '@tediousjs/connection-string': '>=0.5.0 <0.6.0'
+      better-sqlite3: '>=7.6.2 <8.0.0'
+      kysely: '>=0.27.0 <1.0.0'
+      kysely-bun-sqlite: '>=0.3.2 <1.0.0'
+      kysely-bun-worker: '>=1.2.0 <2.0.0'
+      mysql2: '>=2.3.3 <4.0.0'
+      pg: '>=8.8.0 <9.0.0'
+      tarn: '>=3.0.0 <4.0.0'
+      tedious: '>=18.0.0 <20.0.0'
     peerDependenciesMeta:
       '@libsql/kysely-libsql':
         optional: true
@@ -6003,9 +6008,9 @@ packages:
       tedious:
         optional: true
 
-  kysely@0.27.6:
-    resolution: {integrity: sha512-FIyV/64EkKhJmjgC0g2hygpBv5RNWVPyNCqSAD7eTCv6eFWNIi4PN1UvdSJGicN/o35bnevgis4Y0UDC0qi8jQ==}
-    engines: {node: '>=14.0.0'}
+  kysely@0.28.5:
+    resolution: {integrity: sha512-rlB0I/c6FBDWPcQoDtkxi9zIvpmnV5xoIalfCMSMCa7nuA6VGA3F54TW9mEgX4DVf10sXAWCF5fDbamI/5ZpKA==}
+    engines: {node: '>=20.0.0'}
 
   lambda-local@2.2.0:
     resolution: {integrity: sha512-bPcgpIXbHnVGfI/omZIlgucDqlf4LrsunwoKue5JdZeGybt8L6KyJz2Zu19ffuZwIwLj2NAI2ZyaqNT6/cetcg==}
@@ -10001,13 +10006,13 @@ snapshots:
 
   '@fontsource-variable/inter@5.2.6': {}
 
-  '@hono/node-server@1.19.0(hono@4.9.2)':
+  '@hono/node-server@1.19.0(hono@4.9.4)':
     dependencies:
-      hono: 4.9.2
+      hono: 4.9.4
 
-  '@hono/valibot-validator@0.4.1(hono@4.9.2)(valibot@0.42.1(typescript@5.9.2))':
+  '@hono/valibot-validator@0.5.3(hono@4.9.4)(valibot@0.42.1(typescript@5.9.2))':
     dependencies:
-      hono: 4.9.2
+      hono: 4.9.4
       valibot: 0.42.1(typescript@5.9.2)
 
   '@humanfs/core@0.19.1': {}
@@ -13547,6 +13552,10 @@ snapshots:
     dependencies:
       dotenv: 16.6.1
 
+  dotenv-expand@12.0.2:
+    dependencies:
+      dotenv: 16.6.1
+
   dotenv@16.6.1: {}
 
   dotenv@17.2.1: {}
@@ -14388,7 +14397,7 @@ snapshots:
 
   he@1.2.0: {}
 
-  hono@4.9.2: {}
+  hono@4.9.4: {}
 
   hookable@5.5.3: {}
 
@@ -14759,20 +14768,24 @@ snapshots:
 
   kuler@2.0.0: {}
 
-  kysely-codegen@0.17.0(kysely@0.27.6)(pg@8.16.3):
+  kysely-codegen@0.18.5(kysely@0.28.5)(pg@8.16.3)(typescript@5.9.2):
     dependencies:
       chalk: 4.1.2
+      cosmiconfig: 9.0.0(typescript@5.9.2)
       dotenv: 16.6.1
-      dotenv-expand: 11.0.7
+      dotenv-expand: 12.0.2
       git-diff: 2.0.6
-      kysely: 0.27.6
+      kysely: 0.28.5
       micromatch: 4.0.8
       minimist: 1.2.8
       pluralize: 8.0.0
+      zod: 3.25.76
     optionalDependencies:
       pg: 8.16.3
+    transitivePeerDependencies:
+      - typescript
 
-  kysely@0.27.6: {}
+  kysely@0.28.5: {}
 
   lambda-local@2.2.0:
     dependencies:

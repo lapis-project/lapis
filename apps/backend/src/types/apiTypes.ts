@@ -70,7 +70,7 @@ export interface CmsArticle {
 	alias: string;
 	content: string;
 	abstract: string;
-	status: Poststatus;
+	status: string | null;
 	post_type: string;
 	authors: Array<CmsAuthor>;
 }

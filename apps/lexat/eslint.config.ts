@@ -1,3 +1,6 @@
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import baseConfig from "@acdh-oeaw/eslint-config";
 import nuxtConfig from "@acdh-oeaw/eslint-config-nuxt";
 import playwrightConfig from "@acdh-oeaw/eslint-config-playwright";
@@ -6,6 +9,8 @@ import gitignore from "eslint-config-flat-gitignore";
 import { config } from "typescript-eslint";
 
 import { withNuxt } from "./.nuxt/eslint.config.mjs";
+
+const tsconfigRootDir = dirname(fileURLToPath(import.meta.url));
 
 const configs = config(
 	gitignore({ strict: false }),
@@ -18,6 +23,14 @@ const configs = config(
 		files: ["**/*.vue"],
 		rules: {
 			"vue/attributes-order": ["warn", { alphabetical: true }],
+		},
+	},
+	{
+		languageOptions: {
+			parserOptions: {
+				tsconfigRootDir,
+				projectService: true,
+			},
 		},
 	},
 );

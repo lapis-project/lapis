@@ -14,7 +14,7 @@ import {
 } from "@/lib/RepoHelper";
 import { generateSignedImageUrl } from "@/service/imageService";
 import { deleteFromS3 } from "@/service/storageService";
-import type { Article, CmsArticle, PagesCMSArticleResult } from "@/types/apiTypes";
+import type { Article } from "@/types/apiTypes";
 
 import {
 	createNewPost,
@@ -212,7 +212,7 @@ const cms = new Hono<Context>()
 			searchTerm ?? "",
 			category ?? "",
 		);
-		const articles: Array<CmsArticle> = allArticles[0]?.articles ?? [];
+		const articles = allArticles[0]?.articles ?? [];
 		const totalCount = Number(allArticles[0]?.total);
 
 		// 2. Use the URL API for robust pagination link generation. Avoids brittle string replacement.
@@ -225,16 +225,29 @@ const cms = new Hono<Context>()
 		const prevUrl = new URL(requestUrl);
 		prevUrl.searchParams.set("page", String(pageNumParsed - 1));
 
-		// 3. Return a clean, well-typed object. No 'as' assertion is needed if the repository
-		// function and this logic are correctly typed.
+		// TODO: fix type inference
 		return c.json(
 			{
-				// Simplified and safer conditional logic for prev/next links
 				prev: pageNumParsed > 1 ? prevUrl.href : null,
 				next: totalCount > pageSizeParsed + queryOffset ? nextUrl.href : null,
 				currentPage: requestUrl.href,
 				totalResults: totalCount,
-				articles: articles,
+				articles: articles as Array<{
+					post_id: number;
+					title: string;
+					alias: string;
+					content: string;
+					abstract: string;
+					status: string | null;
+					post_type: string;
+					authors: Array<{
+						user_id: number;
+						username: string;
+						email: string;
+						firstname: string;
+						lastname: string;
+					}>;
+				}>,
 			},
 			200,
 		);

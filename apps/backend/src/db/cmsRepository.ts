@@ -3,7 +3,7 @@ import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect";
 import { jsonbBuildObject } from "@/lib/dbHelper";
-import type { Article, PagesCMSArticleResult } from "@/types/apiTypes";
+import type { Article } from "@/types/apiTypes";
 import type { Availablelang, Poststatus } from "@/types/db";
 
 // export async function get
@@ -243,7 +243,7 @@ export async function getAllArticlesByProjectId(
 				eb.fn.countAll().as("total"),
 			];
 		});
-	return (await query.execute()) as Array<PagesCMSArticleResult>;
+	return await query.execute();
 }
 
 export async function createNewPost(creator_id: number) {

@@ -46,10 +46,6 @@ export interface Article {
 	citation: string | null;
 }
 
-export interface ArticleCMS extends Article {
-	status: typeof Status;
-}
-
 export interface ArticleTeaser extends Omit<Article, "biblography" | "content"> {}
 
 export interface QuestionResponse {
@@ -58,6 +54,30 @@ export interface QuestionResponse {
 	responseSelected: number;
 	responseOrder: number;
 	responseInfluenced: typeof ResponseInflucenced;
+}
+
+export interface CmsAuthor {
+	user_id: number;
+	username: string;
+	email: string;
+	firstname: string;
+	lastname: string;
+}
+
+export interface CmsArticle {
+	post_id: number;
+	title: string;
+	alias: string;
+	content: string;
+	abstract: string;
+	status: string | null;
+	post_type: string;
+	authors: Array<CmsAuthor>;
+}
+
+export interface PagesCMSArticleResult {
+	articles: Array<CmsArticle>;
+	total: number;
 }
 
 export interface Author {

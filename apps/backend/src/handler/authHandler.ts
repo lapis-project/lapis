@@ -40,6 +40,17 @@ const signupSchema = object({
 	lastname: optional(pipe(string(), trim(), minLength(1))),
 });
 
+// TODO: fix type inference to avoid defining explicit return type
+export interface SessionUserDTO {
+	id: number;
+	email: string;
+	firstname: string | null;
+	inactive: "active" | "inactive" | null;
+	lastname: string | null;
+	username: string | null;
+	role_name: "admin" | "editor" | "superadmin" | null;
+}
+
 const auth = new Hono<Context>()
 	.get("/session", async (c) => {
 		const session = c.get("session");
@@ -47,7 +58,7 @@ const auth = new Hono<Context>()
 			return c.json("Unauthorized", 401);
 		}
 		const user = await getUserById(Number(session.userId));
-		return c.json(user, 200);
+		return c.json<SessionUserDTO>(user, 200);
 	})
 	.post("/login", vValidator("json", loginSchema), async (c) => {
 		const { email, password } = c.req.valid("json");

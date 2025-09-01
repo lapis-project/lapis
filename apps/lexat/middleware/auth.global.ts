@@ -28,7 +28,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 			credentials: "include", // optional, but makes intent clear
 		});
 
-		if (data) {
+		if (data.id) {
 			user.value = data;
 		}
 	} catch (error: unknown) {

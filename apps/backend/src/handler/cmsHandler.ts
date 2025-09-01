@@ -4,6 +4,18 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, minLength, number, object, optional, pipe, string } from "valibot";
 
+import { getAllUserRoles, getAllUsers } from "@/db/userRepository";
+import { restrictedRoute } from "@/lib/authHelper";
+import type { Context } from "@/lib/context";
+import {
+	insertBibliography,
+	instanceOfAvailablelang,
+	instanceOfPoststatus,
+} from "@/lib/RepoHelper";
+import { generateSignedImageUrl } from "@/service/imageService";
+import { deleteFromS3 } from "@/service/storageService";
+import type { Article } from "@/types/apiTypes";
+
 import {
 	createNewPost,
 	deleteArticleById,
@@ -19,18 +31,7 @@ import {
 	linkAuthorsToPost,
 	linkProjectToPost,
 	updateArticleById,
-} from "@/db/cmsRepository";
-import { getAllUserRoles, getAllUsers } from "@/db/userRepository";
-import { restrictedRoute } from "@/lib/authHelper";
-import type { Context } from "@/lib/context";
-import {
-	insertBibliography,
-	instanceOfAvailablelang,
-	instanceOfPoststatus,
-} from "@/lib/RepoHelper";
-import { generateSignedImageUrl } from "@/service/imageService";
-import { deleteFromS3 } from "@/service/storageService";
-import type { Article } from "@/types/apiTypes";
+} from "./../db/cmsRepository";
 
 const createNewArticleSchema = object({
 	title: pipe(string(), minLength(5)),
@@ -212,27 +213,41 @@ const cms = new Hono<Context>()
 			category ?? "",
 		);
 		const articles = allArticles[0]?.articles ?? [];
-		const totalCount = Number(allArticles[0]?.total ?? 0);
-		const requestUrl = c.req.url;
+		const totalCount = Number(allArticles[0]?.total);
+
+		// 2. Use the URL API for robust pagination link generation. Avoids brittle string replacement.
+		const requestUrl = new URL(c.req.url);
+
+		// Base the 'next' and 'prev' URLs on the current one to preserve other query params.
+		const nextUrl = new URL(requestUrl);
+		nextUrl.searchParams.set("page", String(pageNumParsed + 1));
+
+		const prevUrl = new URL(requestUrl);
+		prevUrl.searchParams.set("page", String(pageNumParsed - 1));
+
+		// TODO: fix type inference
 		return c.json(
 			{
-				prev:
-					pageNumParsed > 1 && totalCount !== 0 && !(queryOffset > totalCount)
-						? requestUrl.replace(
-								`page=${String(pageNumParsed)}`,
-								`page=${String(pageNumParsed - 1)}`,
-							)
-						: null,
-				next:
-					totalCount > pageSizeParsed + queryOffset
-						? requestUrl.replace(
-								`page=${String(pageNumParsed)}`,
-								`page=${String(pageNumParsed + 1)}`,
-							)
-						: null,
-				articles: articles,
-				currentPage: requestUrl,
+				prev: pageNumParsed > 1 ? prevUrl.href : null,
+				next: totalCount > pageSizeParsed + queryOffset ? nextUrl.href : null,
+				currentPage: requestUrl.href,
 				totalResults: totalCount,
+				articles: articles as Array<{
+					post_id: number;
+					title: string;
+					alias: string;
+					content: string;
+					abstract: string;
+					status: string | null;
+					post_type: string;
+					authors: Array<{
+						user_id: number;
+						username: string;
+						email: string;
+						firstname: string;
+						lastname: string;
+					}>;
+				}>,
 			},
 			200,
 		);

@@ -10,9 +10,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(e: "commit-scrub"): void;
+	(e: "commit-scrub" | "ready"): void;
 	(e: "update:scrub", value: number): void;
-	(e: "ready"): void;
 }>();
 
 const container = ref<HTMLElement | string>("");
@@ -76,12 +75,11 @@ onMounted(async () => {
 			barGap: 0,
 			barHeight: 1,
 			backend: "MediaElement",
-			url: props.audio.src,
+			media: props.audio,
 			interact: true,
 		});
 
 		PauseSurfer();
-		wavesurfer.value.setMuted(true);
 
 		// Wait for WaveSurfer to be ready
 		wavesurfer.value.on("ready", () => {
@@ -91,9 +89,8 @@ onMounted(async () => {
 		});
 
 		wavesurfer.value.on("seeking", (ratio: number) => {
-			console.log(ratio);
 			const time = ratio * wavesurfer.value!.getDuration();
-			console.log(time);
+
 			emit("update:scrub", time);
 			emit("commit-scrub");
 		});

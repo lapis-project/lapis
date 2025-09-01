@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/media-has-caption -->
 <script setup lang="ts">
 import {
 	ChevronRight,
@@ -73,7 +74,7 @@ const showPhon = ref(false);
 
 const route = useRoute();
 
-const { audioRef, src, bind, play, pause, seekTo, loadTrack } = useAudioController();
+const { audioRef, bind } = useAudioController();
 
 const id = computed(() => {
 	return Number(route.params.id as string);
@@ -209,25 +210,22 @@ function updateMetadata() {
 	isReady.value = duration.value > 0;
 }
 
-function updateProgress() {
-	if (!audioRef.value) return;
-	if (isScrubbing.value) return; // don’t fight the user while dragging
-	currentTime.value = audioRef.value.currentTime;
-	scrub.value = currentTime.value; // keep slider following playback
-}
-
 function commitScrub() {
-	if (!audioRef.value) return;
 	isScrubbing.value = false;
-	audioRef.value.currentTime = scrub.value;
-	if (audioIsPlaying.value) {
+
+	if (audioIsPlaying.value && audioRef.value?.paused) {
 		audioRef.value.play().catch(() => {});
 	}
 }
 
-function updateScrub() {
-	if (!audioRef.value) return;
-	audioRef.value.currentTime = scrub.value;
+function updateScrub(newTime: number) {
+	scrub.value = newTime;
+	currentTime.value = newTime;
+}
+
+function updateProgress() {
+	if (isScrubbing.value) return;
+	currentTime.value = scrub.value;
 }
 
 function togglePlayback() {
@@ -456,7 +454,9 @@ onScopeDispose(() => {
 							:src="audioSrc"
 							@loadedmetadata="updateMetadata"
 							@timeupdate="updateProgress"
-						/>
+						>
+							<track kind="captions" />
+						</audio>
 					</ClientOnly>
 					<div v-for="(block, blockIndex) in chunkedSpeakerEvents" :key="blockIndex" class="w-full">
 						<div

@@ -34,8 +34,6 @@ const formatClock = (sec: number) => {
 };
 
 export function useAudioController() {
-	console.log("hello from controller!");
-
 	const env = useRuntimeConfig();
 	const route = useRoute();
 	const router = useRouter();

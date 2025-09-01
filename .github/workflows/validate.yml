@@ -77,6 +77,9 @@ jobs:
       - name: Test
         run: pnpm --filter ./apps/lexat test
 
+      - name: Build UI Nuxt Layer
+        run: pnpm --filter ./apps/ui build
+
       - name: Run db
         run: docker compose --env-file .env.localsetup up -d
 

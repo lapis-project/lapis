@@ -61,13 +61,12 @@ const { data: informationList } = await useFetch<APIInformationList>("/cms/artic
 	credentials: "include",
 });
 
-const categoryOptions = ref<Array<DropdownOption>>([]);
-const mappedQuestions = ref<Array<DropdownOption>>([]);
+const categoryOptions = ref([]);
+const mappedQuestions = ref([]);
 const users = ref<Array<{ id: number; value: number; firstName: string; lastName: string }>>([]);
 
 if (informationList.value) {
 	categoryOptions.value = informationList.value.categories.map((c) => ({
-		id: c.id,
 		value: c.name,
 		label: t(`AdminPage.editor.category.${c.name}`),
 	}));
@@ -88,7 +87,7 @@ if (routeId && routeId !== "new") {
 
 	if (error.value) {
 		console.error("Failed to fetch article:", error.value);
-	} else if (data.value && data.value.article) {
+	} else if (data.value?.article) {
 		// Populate properties with API data
 		const article = data.value.article;
 		const articleBibliography = article.bibliography.map((b) => b.name);
@@ -188,8 +187,8 @@ const saveArticle = async () => {
 			body: article,
 			credentials: "include",
 		});
-		toast.success(t("AdminPage.editor.saving_succeeded.title"));
 		if (response) {
+			toast.success(t("AdminPage.editor.saving_succeeded.title"));
 			await navigateTo(localePath("/admin/articles"));
 		}
 	} catch (error) {
@@ -292,7 +291,7 @@ usePageMetadata({
 				</div>
 				<div class="flex items-center gap-3">
 					<Label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</Label>
-					<ComboboxBase id="status" v-model="activeStatus" :options="statusOptions" width="w-44" />
+					<BaseSelect id="status" v-model="activeStatus" :options="statusOptions" />
 					<Button @click="saveArticle">Save</Button>
 				</div>
 			</div>
@@ -332,7 +331,7 @@ usePageMetadata({
 						</div>
 						<div v-if="languageOptions" class="grid items-center gap-1.5">
 							<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-							<ComboboxBase
+							<BaseSelect
 								id="language"
 								v-model="selectedLanguage"
 								:options="languageOptions"
@@ -394,7 +393,7 @@ usePageMetadata({
 				<div class="mb-6 flex items-baseline gap-8">
 					<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">
 						<Label for="category">{{ t("AdminPage.editor.category.label") }}</Label>
-						<ComboboxBase
+						<BaseSelect
 							id="category"
 							v-model="selectedCategory"
 							:options="categoryOptions"
@@ -405,7 +404,7 @@ usePageMetadata({
 					<div
 						v-if="
 							(selectedCategory === 'commentary' || selectedCategory === 'short_description') &&
-							mappedQuestions
+							mappedQuestions.length
 						"
 						class="grid max-w-sm items-center gap-1.5"
 					>

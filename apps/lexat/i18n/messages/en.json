@@ -36,7 +36,7 @@
 			},
 			"category": {
 				"label": "Category",
-				"placeholder": "category",
+				"placeholder": "Select category...",
 				"commentary": "Map commentary",
 				"project_description": "Project description",
 				"short_description": "Short infos",
@@ -61,7 +61,7 @@
 			"created-at": "Created at",
 			"language": {
 				"label": "Language",
-				"placeholder": "language"
+				"placeholder": "Select language..."
 			},
 			"published-at": "Published at",
 			"question": {

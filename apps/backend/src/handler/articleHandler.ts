@@ -90,7 +90,7 @@ const articles = new Hono<Context>()
 		// TODO kkukelka: remove s3:// check once all images are migrated
 		articles = articles.map((a) => ({
 			...a,
-			cover: a.cover.startsWith("s3://") ? generateSignedImageUrl(a.cover, 640) : a.cover,
+			cover: a.cover?.startsWith("s3://") ? generateSignedImageUrl(a.cover, 640) : a.cover,
 		}));
 		const totalCount = Number(fetchedArticles[0]?.total);
 		let requestUrl = c.req.url;

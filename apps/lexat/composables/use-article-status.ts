@@ -1,12 +1,10 @@
-import type { DropdownOption } from "@/types/dropdown-option";
-
 export type Status = "Draft" | "Published" | "ReadyToPublish" | "Unpublished";
 
 export function useArticleStatus() {
 	const t = useTranslations();
 
 	// color palette reference: https://www.color-hex.com/color-palette/35021
-	const statusOptions: Array<DropdownOption<Status>> = [
+	const statusOptions = [
 		{
 			value: "Draft",
 			label: t("AdminPage.editor.status.draft"),

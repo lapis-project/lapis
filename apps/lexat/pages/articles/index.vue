@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { RotateCcwIcon, SearchIcon } from "lucide-vue-next";
 
-import type { DropdownOption } from "@/types/dropdown-option";
 import { formatAuthors } from "@/utils/article-helper";
 
 const t = useTranslations();
@@ -22,10 +21,9 @@ const {
 
 const searchInput = ref("");
 
-const categoryOptions = ref<Array<DropdownOption>>([
-	{ id: 1, value: "commentary", label: t("Categories.commentary") },
-	// { id: 3, value: "project_description", label: t("Categories.project_description") },
-	{ id: 2, value: "short_description", label: t("Categories.short_description") },
+const categoryOptions = ref([
+	{ value: "commentary", label: t("Categories.commentary") },
+	{ value: "short_description", label: t("Categories.short_description") },
 ]);
 
 const languageOptions = [
@@ -89,7 +87,7 @@ usePageMetadata({
 			</div>
 			<div v-if="categoryOptions" class="mb-5 grid max-w-sm items-center gap-1.5">
 				<Label for="category">{{ t("ArticlesPage.filters.category") }}</Label>
-				<ComboboxBase
+				<BaseSelect
 					id="category"
 					v-model="selectedCategory"
 					data-testid="category"
@@ -99,7 +97,7 @@ usePageMetadata({
 			</div>
 			<div v-if="languageOptions" class="mb-6 grid items-center gap-1.5">
 				<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-				<ComboboxBase
+				<BaseSelect
 					id="language"
 					v-model="selectedLanguage"
 					data-testid="language"

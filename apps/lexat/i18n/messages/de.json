@@ -36,7 +36,7 @@
 			},
 			"category": {
 				"label": "Kategorie",
-				"placeholder": "Kategorie",
+				"placeholder": "Kategorie wählen...",
 				"commentary": "Kartenkommentar",
 				"project_description": "Projektbeschreibung",
 				"short_description": "Kurzbeschreibung",
@@ -61,7 +61,7 @@
 			"created-at": "Erstellt am",
 			"language": {
 				"label": "Sprache",
-				"placeholder": "Sprache"
+				"placeholder": "Sprache wählen..."
 			},
 			"published-at": "Veröffentlicht am",
 			"question": {

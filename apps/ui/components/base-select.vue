@@ -26,24 +26,26 @@ const hasColor = computed(() => {
 	<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
 	<Select v-model="modelValue">
 		<SelectTrigger class="w-[250px]">
-			<SelectValue :placeholder="props.placeholder">
-				<svg v-if="hasColor && modelValue" class="size-3" viewBox="0 0 12 12">
-					<circle
-						cx="6"
-						cy="6"
-						:fill="props.options.find((o) => o.value === modelValue)?.color"
-						r="6"
-					/>
-				</svg>
-
-				{{ props.options.find((question) => question.value === modelValue)?.label }}
+			<SelectValue>
+				<template v-if="modelValue">
+					<svg v-if="hasColor" class="size-3" viewBox="0 0 12 12">
+						<circle
+							cx="6"
+							cy="6"
+							:fill="props.options.find((o) => o.value === modelValue)?.color"
+							r="6"
+						/>
+					</svg>
+					{{ props.options.find((question) => question.value === modelValue)?.label }}
+				</template>
+				<template v-else>{{ props.placeholder }}</template>
 			</SelectValue>
 		</SelectTrigger>
 		<SelectContent>
 			<SelectGroup>
 				<SelectLabel v-if="props.label">{{ props.label }}</SelectLabel>
 				<SelectItem v-for="option in props.options" :key="option.value" :value="option.value">
-					<svg v-if="hasColor && option.color" class="size-3" viewBox="0 0 12 12">
+					<svg v-if="option.color" class="size-3" viewBox="0 0 12 12">
 						<circle cx="6" cy="6" :fill="option.color" r="6" />
 					</svg>
 					{{ option.label }}

@@ -71,7 +71,8 @@ if (informationList.value) {
 		label: t(`AdminPage.editor.category.${c.name}`),
 	}));
 	mappedQuestions.value = informationList.value.phenomenon.map((c) => ({
-		value: c.id.toString(),
+		id: c.id,
+		value: c.name,
 		label: c.name,
 	}));
 	users.value = informationList.value.authors;
@@ -105,7 +106,7 @@ if (routeId && routeId !== "new") {
 		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
 			articleBibliography.includes(b.key),
 		);
-		selectedQuestion.value = article.phenomenon?.[0]?.phenomenon_id?.toString() ?? null;
+		selectedQuestion.value = article.phenomenon?.[0]?.name ?? null;
 		postId.value = article.post_id;
 		activeStatus.value = article.post_status ?? "Draft";
 	} else {
@@ -173,7 +174,9 @@ const saveArticle = async () => {
 	};
 
 	if (selectedQuestion.value) {
-		article["phenomenonId"] = Number(selectedQuestion.value);
+		article["phenomenonId"] = Number(
+			mappedQuestions.value?.find((q) => q.value === selectedQuestion.value)?.id,
+		);
 	}
 
 	try {
@@ -406,9 +409,10 @@ usePageMetadata({
 						class="grid max-w-sm items-center gap-1.5"
 					>
 						<Label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</Label>
-						<BaseSelect
+						<ComboboxBase
 							id="phenomenon"
 							v-model="selectedQuestion"
+							has-search
 							:options="mappedQuestions"
 							:placeholder="t('AdminPage.editor.question.placeholder')"
 						/>

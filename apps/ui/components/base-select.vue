@@ -11,6 +11,7 @@ export interface Props {
 	options: Array<SelectOption>;
 	placeholder?: string;
 	label?: string;
+	dataTestid?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +26,7 @@ const hasColor = computed(() => {
 <template>
 	<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
 	<Select v-model="modelValue">
-		<SelectTrigger class="w-[250px]">
+		<SelectTrigger class="w-[250px]" :data-testid="props.dataTestid">
 			<SelectValue>
 				<template v-if="modelValue">
 					<svg v-if="hasColor" class="size-3" viewBox="0 0 12 12">

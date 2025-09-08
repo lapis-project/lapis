@@ -3,12 +3,12 @@ import { fileURLToPath } from "node:url";
 
 import baseConfig from "@acdh-oeaw/eslint-config";
 import nodeConfig from "@acdh-oeaw/eslint-config-node";
+import { defineConfig } from "eslint/config";
 import gitignore from "eslint-config-flat-gitignore";
-import { config } from "typescript-eslint";
 
 const tsconfigRootDir = dirname(fileURLToPath(import.meta.url));
 
-const configs = config(gitignore({ strict: false }), baseConfig, nodeConfig, {
+const configs = defineConfig(gitignore({ strict: false }), baseConfig, nodeConfig, {
 	languageOptions: {
 		parserOptions: {
 			tsconfigRootDir,

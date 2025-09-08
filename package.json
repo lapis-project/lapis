@@ -35,7 +35,7 @@
 		"@acdh-oeaw/commitlint-config": "^2.0.0",
 		"@acdh-oeaw/prettier-config": "^2.0.1",
 		"@commitlint/cli": "^19.8.1",
-		"@types/node": "^20.19.12",
+		"@types/node": "^20.19.13",
 		"is-ci": "^3.0.1",
 		"lint-staged": "^15.5.2",
 		"npm-run-all2": "^6.2.6",

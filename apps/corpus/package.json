@@ -59,9 +59,9 @@
 	},
 	"devDependencies": {
 		"@acdh-oeaw/eslint-config": "^2.0.10",
-		"@acdh-oeaw/eslint-config-nuxt": "^2.0.15",
-		"@acdh-oeaw/eslint-config-playwright": "^2.0.11",
-		"@acdh-oeaw/eslint-config-vue": "^2.0.13",
+		"@acdh-oeaw/eslint-config-nuxt": "^2.0.16",
+		"@acdh-oeaw/eslint-config-playwright": "^2.0.12",
+		"@acdh-oeaw/eslint-config-vue": "^2.0.14",
 		"@acdh-oeaw/stylelint-config": "^2.3.0",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@nuxt/devtools": "^1.7.0",

@@ -233,14 +233,14 @@ importers:
         specifier: ^2.0.10
         version: 2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
       '@acdh-oeaw/eslint-config-nuxt':
-        specifier: ^2.0.15
-        version: 2.0.15(@acdh-oeaw/eslint-config-vue@2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
+        specifier: ^2.0.16
+        version: 2.0.16(@acdh-oeaw/eslint-config-vue@2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
       '@acdh-oeaw/eslint-config-playwright':
-        specifier: ^2.0.11
-        version: 2.0.11(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
+        specifier: ^2.0.12
+        version: 2.0.12(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
       '@acdh-oeaw/eslint-config-vue':
-        specifier: ^2.0.13
-        version: 2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
+        specifier: ^2.0.14
+        version: 2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
       '@acdh-oeaw/stylelint-config':
         specifier: ^2.3.0
         version: 2.3.0(postcss-html@1.8.0)(stylelint-order@7.0.0(stylelint@16.24.0(typescript@5.9.2)))(stylelint@16.24.0(typescript@5.9.2))
@@ -459,14 +459,14 @@ importers:
         specifier: ^2.0.10
         version: 2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
       '@acdh-oeaw/eslint-config-nuxt':
-        specifier: ^2.0.15
-        version: 2.0.15(@acdh-oeaw/eslint-config-vue@2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
+        specifier: ^2.0.16
+        version: 2.0.16(@acdh-oeaw/eslint-config-vue@2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
       '@acdh-oeaw/eslint-config-playwright':
-        specifier: ^2.0.11
-        version: 2.0.11(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
+        specifier: ^2.0.12
+        version: 2.0.12(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
       '@acdh-oeaw/eslint-config-vue':
-        specifier: ^2.0.13
-        version: 2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
+        specifier: ^2.0.14
+        version: 2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
       '@acdh-oeaw/stylelint-config':
         specifier: ^2.3.0
         version: 2.3.0(postcss-html@1.8.0)(stylelint-order@7.0.0(stylelint@16.24.0(typescript@5.9.2)))(stylelint@16.24.0(typescript@5.9.2))
@@ -604,11 +604,11 @@ importers:
         specifier: ^2.0.10
         version: 2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
       '@acdh-oeaw/eslint-config-nuxt':
-        specifier: ^2.0.15
-        version: 2.0.15(@acdh-oeaw/eslint-config-vue@2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
+        specifier: ^2.0.16
+        version: 2.0.16(@acdh-oeaw/eslint-config-vue@2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
       '@acdh-oeaw/eslint-config-vue':
-        specifier: ^2.0.13
-        version: 2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
+        specifier: ^2.0.14
+        version: 2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
       '@acdh-oeaw/stylelint-config':
         specifier: ^2.3.0
         version: 2.3.0(postcss-html@1.8.0)(stylelint-order@7.0.0(stylelint@16.24.0(typescript@5.9.2)))(stylelint@16.24.0(typescript@5.9.2))
@@ -659,21 +659,21 @@ packages:
     peerDependencies:
       '@acdh-oeaw/eslint-config': 2.0.10
 
-  '@acdh-oeaw/eslint-config-nuxt@2.0.15':
-    resolution: {integrity: sha512-CHYLIPSxNbp45o5YwAEK75buLfdIW7Pm/n4Pqg3FFzIYh/dHdhk3YkhYfBVYXMxAkk6BabRDC74xEG6G1AZxWA==}
+  '@acdh-oeaw/eslint-config-nuxt@2.0.16':
+    resolution: {integrity: sha512-yEFCio/g6ibR/njYGE7N8Am0bUuz7d6Bn068q5unKyvAmPs5Oxu5PXDFjiqlbfDMrjhKSwmxBqW/Co9DZDttrQ==}
     engines: {node: '>=20.11'}
     peerDependencies:
       '@acdh-oeaw/eslint-config': 2.0.10
-      '@acdh-oeaw/eslint-config-vue': 2.0.13
+      '@acdh-oeaw/eslint-config-vue': 2.0.14
 
-  '@acdh-oeaw/eslint-config-playwright@2.0.11':
-    resolution: {integrity: sha512-/unp1As4rchzd39S5ko4uTNmfvUU1pNuiD8y18lWnMhKFGxnF2EVBD7kBQzWZSFQqcjoLCfLy/b9OSk5Dsd4hg==}
+  '@acdh-oeaw/eslint-config-playwright@2.0.12':
+    resolution: {integrity: sha512-xZfGjYpXaUvkppxMJ8o3xhAwgqa5OdPogUlzV9+XhAGP75OXdcVoh5HGe+m0Z329ml+nqfWx9f5FWCI+SFvQdg==}
     engines: {node: '>=20.11'}
     peerDependencies:
       '@acdh-oeaw/eslint-config': 2.0.10
 
-  '@acdh-oeaw/eslint-config-vue@2.0.13':
-    resolution: {integrity: sha512-UkJn0/Wkmxf3zdLl9fashPpxDOy8jr/P/AhM0ItqTJJ2K4uIe/ycIJ7Z9bMJI1NCB2nLq0qIpNj6h1/pQjiqvQ==}
+  '@acdh-oeaw/eslint-config-vue@2.0.14':
+    resolution: {integrity: sha512-KhXBglVAN/tocNw6KQJLVnEsREyaKJUC2O4eYlJ6rdyfTZ1/c/WP1Im2wG/bUD7bTC7CLwhqAiWgKTEYPc/I+g==}
     engines: {node: '>=20.11'}
     peerDependencies:
       '@acdh-oeaw/eslint-config': 2.0.10
@@ -8387,24 +8387,24 @@ snapshots:
       - eslint
       - typescript
 
-  '@acdh-oeaw/eslint-config-nuxt@2.0.15(@acdh-oeaw/eslint-config-vue@2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)':
+  '@acdh-oeaw/eslint-config-nuxt@2.0.16(@acdh-oeaw/eslint-config-vue@2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1)))(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)':
     dependencies:
       '@acdh-oeaw/eslint-config': 2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
-      '@acdh-oeaw/eslint-config-vue': 2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
+      '@acdh-oeaw/eslint-config-vue': 2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))
       '@nuxt/eslint-plugin': 1.9.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
     transitivePeerDependencies:
       - eslint
       - supports-color
       - typescript
 
-  '@acdh-oeaw/eslint-config-playwright@2.0.11(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))':
+  '@acdh-oeaw/eslint-config-playwright@2.0.12(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))':
     dependencies:
       '@acdh-oeaw/eslint-config': 2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
       eslint-plugin-playwright: 2.2.2(eslint@9.34.0(jiti@2.5.1))
     transitivePeerDependencies:
       - eslint
 
-  '@acdh-oeaw/eslint-config-vue@2.0.13(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))':
+  '@acdh-oeaw/eslint-config-vue@2.0.14(@acdh-oeaw/eslint-config@2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2))(@typescript-eslint/parser@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))':
     dependencies:
       '@acdh-oeaw/eslint-config': 2.0.10(@eslint/config-helpers@0.3.1)(@typescript-eslint/utils@8.42.0(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(eslint@9.34.0(jiti@2.5.1))(globals@16.3.0)(typescript@5.9.2)
       eslint-config-prettier: 10.1.8(eslint@9.34.0(jiti@2.5.1))

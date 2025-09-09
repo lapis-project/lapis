@@ -291,7 +291,7 @@ usePageMetadata({
 				</div>
 				<div class="flex items-center gap-3">
 					<Label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</Label>
-					<BaseSelect id="status" v-model="activeStatus" :options="statusOptions" />
+					<BaseSelect id="status" v-model="activeStatus" :options="statusOptions" size="medium" />
 					<Button @click="saveArticle">Save</Button>
 				</div>
 			</div>

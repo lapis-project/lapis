@@ -133,11 +133,11 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 	return variantOptions;
 });
 
-const pageSizeOption: Array<DropdownOption> = [
-	{ id: 1, value: "100", label: "100" },
-	{ id: 2, value: "250", label: "250" },
-	{ id: 3, value: "500", label: "500" },
-	{ id: 4, value: "1000", label: "1000" },
+const pageSizeOptions = [
+	{ value: "100", label: "100" },
+	{ value: "250", label: "250" },
+	{ value: "500", label: "500" },
+	{ value: "1000", label: "1000" },
 ];
 
 const lowerAge = computed(() => {
@@ -452,13 +452,12 @@ await refresh(); // manually refetch using updated state
 			</div>
 			<div class="flex items-center gap-2">
 				<Label for="rows-per-page">{{ t("DbPage.table.items-per-page") }}:</Label>
-				<ComboboxBase
+				<BaseSelect
 					id="rows-per-page"
 					v-model="activePageSize"
 					data-testid="rows-per-page"
-					:options="pageSizeOption"
-					:placeholder="t('AdminPage.editor.category.placeholder')"
-					width="w-24"
+					:options="pageSizeOptions"
+					size="small"
 				/>
 			</div>
 		</section>

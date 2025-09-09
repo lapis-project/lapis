@@ -12,21 +12,35 @@ export interface Props {
 	placeholder?: string;
 	label?: string;
 	dataTestid?: string;
+	size?: "large" | "medium" | "small";
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	placeholder: "Select an option",
+	size: "large",
 });
 
 const hasColor = computed(() => {
 	return props.options.find((o) => o.color);
+});
+
+const width = computed(() => {
+	switch (props.size) {
+		default:
+		case "large":
+			return "w-64";
+		case "medium":
+			return "w-48";
+		case "small":
+			return "w-32";
+	}
 });
 </script>
 
 <template>
 	<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
 	<Select v-model="modelValue">
-		<SelectTrigger class="w-[250px]" :data-testid="props.dataTestid">
+		<SelectTrigger :class="width" :data-testid="props.dataTestid">
 			<SelectValue>
 				<template v-if="modelValue">
 					<svg v-if="hasColor" class="size-3" viewBox="0 0 12 12">

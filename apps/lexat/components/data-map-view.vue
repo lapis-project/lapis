@@ -899,9 +899,8 @@ watch(activeVariants, updateUrlParams, {
 								<div class="mb-1 ml-1 text-sm font-semibold">
 									{{ t("MapsPage.selection.basemap.title") }}
 								</div>
-								<ComboboxBase
+								<BaseSelect
 									v-model="activeBasemap"
-									has-search
 									:options="basemapOptions"
 									:placeholder="t('MapsPage.selection.basemap.placeholder')"
 								/>

@@ -16,7 +16,7 @@ export const stateCapitalsList = [
 ];
 
 // https://medium.com/@go2garret/free-basemap-tiles-for-maplibre-18374fab60cb
-export const basemapOptions: Array<DropdownOption> = [
+export const basemapOptions = [
 	{
 		label: "OpenStreetMaps",
 		value:

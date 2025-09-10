@@ -125,7 +125,13 @@
 			}
 		},
 		"result": "Article",
-		"results": "Articles"
+		"results": "Articles",
+		"sort": {
+			"published_date": "Publication date",
+			"sort_by": "Sort by",
+			"type": "Article type",
+			"variable": "Phenomenon"
+		}
 	},
 	"ArticleDetailPage": {
 		"authors": "Authors",

@@ -15,6 +15,7 @@ const {
 	isPending,
 	setCurrentPage,
 	setSearchParams,
+	selectedSortingOption,
 	totalPages,
 	totalResults,
 } = useArticles();
@@ -29,6 +30,12 @@ const categoryOptions = ref([
 const languageOptions = [
 	{ value: "en", label: t("LocaleSwitcher.english") },
 	{ value: "de", label: t("LocaleSwitcher.german") },
+];
+
+const sortingOptions = [
+	{ value: "published_date", label: t("ArticlesPage.sort.published_date") },
+	{ value: "type", label: t("ArticlesPage.sort.type") },
+	{ value: "variable", label: t("ArticlesPage.sort.variable") },
 ];
 
 const resetSelection = () => {
@@ -113,10 +120,20 @@ usePageMetadata({
 			/></Button>
 		</aside>
 		<div>
-			<div class="text-3xl mb-8" data-testid="results">
-				{{ totalResults }}
-				{{ totalResults === 1 ? t("ArticlesPage.result") : t("ArticlesPage.results") }}
-			</div>
+			<section class="flex items-center justify-between mb-8">
+				<div class="text-3xl" data-testid="results">
+					{{ totalResults }}
+					{{ totalResults === 1 ? t("ArticlesPage.result") : t("ArticlesPage.results") }}
+				</div>
+				<div class="flex items-center gap-2">
+					<Label for="rows-per-page">{{ t("ArticlesPage.sort.sort_by") }}:</Label>
+					<BaseSelect
+						v-model="selectedSortingOption"
+						:options="sortingOptions"
+						size="medium"
+					></BaseSelect>
+				</div>
+			</section>
 			<ul class="flex flex-col gap-8" data-testid="articles">
 				<li v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
 					<div

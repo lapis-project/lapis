@@ -21,6 +21,7 @@ node_modules/
 # misc
 .DS_Store
 .idea/
+/pages/test.vue
 
 # nuxt.js
 dist

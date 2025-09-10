@@ -85,12 +85,19 @@
 }
 
 @layer base {
+	html {
+		scrollbar-gutter: stable;
+	}
+
 	* {
 		@apply border-border outline-ring/50;
 	}
 
 	body {
 		@apply bg-background text-foreground text-lg sm:text-base;
+
+		/* TODO: Investigate why reka-ui adds padding when SelectContent is visible */
+		padding-right: 0 !important;
 	}
 
 	:root {

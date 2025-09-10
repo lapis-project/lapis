@@ -125,7 +125,13 @@
 			}
 		},
 		"result": "Eintrag",
-		"results": "Einträge"
+		"results": "Einträge",
+		"sort": {
+			"published_date": "Erscheinungsdatum",
+			"sort_by": "Sortieren nach",
+			"type": "Beitragsart",
+			"variable": "Phänomen"
+		}
 	},
 	"ArticleDetailPage": {
 		"authors": "Autor/in",

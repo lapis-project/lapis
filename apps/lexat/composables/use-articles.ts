@@ -16,6 +16,8 @@ export function useArticles() {
 
 	const selectedLanguage = ref<"de" | "en" | null>(null);
 
+	const selectedSortingOption = ref("type");
+
 	const currentSearchTerm = ref<string | null>(null);
 
 	const { data, refresh, status } = useFetch<APIArticles>("articles/articles/1", {
@@ -24,6 +26,7 @@ export function useArticles() {
 			category: selectedCategory,
 			lang: selectedLanguage,
 			searchTerm: currentSearchTerm,
+			sort: selectedSortingOption,
 		},
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
@@ -68,6 +71,7 @@ export function useArticles() {
 		totalResults,
 		setCurrentPage,
 		setSearchParams,
+		selectedSortingOption,
 		refreshArticles: refresh,
 		isPending,
 	};

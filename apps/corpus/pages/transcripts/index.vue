@@ -126,7 +126,17 @@ watch(
 			</div>
 
 			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
-				<SearchBar></SearchBar>
+				<div class="flex relative items-center mb-4 pb-4 border-b gap-4">
+					<SearchBar />
+					<Separator orientation="vertical" />
+					<Drawer>
+						<DrawerTrigger>Filter</DrawerTrigger>
+						<DrawerContent>
+							<TagBuilder></TagBuilder>
+						</DrawerContent>
+					</Drawer>
+				</div>
+
 				<p class="text-lg mb-3 flex-shrink-0"><b>122</b> Ergebnisse in <b>45</b> Events</p>
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
 					<div class="flex gap-4 items-center flex-shrink-0">

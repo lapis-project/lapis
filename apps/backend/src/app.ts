@@ -17,7 +17,7 @@ import statistics from "./handler/statHandler";
 import user from "./handler/userHandler";
 import type { Context } from "./lib/context";
 
-const app = new Hono<Context>()
+const app: Hono<Context> = new Hono<Context>()
 
 	.use(logger())
 	.use(prettyJSON())

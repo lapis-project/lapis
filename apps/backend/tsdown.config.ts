@@ -1,15 +1,15 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
 	clean: true,
 	dts: true,
-	entry: ["./src/*.ts"],
+	entry: ["src/*.ts"],
 	format: ["esm"],
+	platform: "node",
 	minify: false,
+	splitting: false,
 	sourcemap: false,
 	treeshake: true,
+	skipNodeModulesBundle: true,
 	target: "node20",
-	platform: "node",
-	bundle: true,
-	splitting: false,
 });

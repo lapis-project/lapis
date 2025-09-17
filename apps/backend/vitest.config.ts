@@ -17,7 +17,7 @@ export default defineConfig({
 				"benchmarks",
 				"runtime_tests",
 				"build.ts",
-				"tsup.types.config.ts",
+				"tsdown.config.ts",
 				"src/index.ts",
 				"src/test-utils",
 

@@ -1,0 +1,184 @@
+{
+	"results": [
+  {
+    "tag_id": 100,
+    "tag_abbrev": "G0_TagA",
+    "tag_gene": 0,
+    "tag_name": "Grundebene Tag A",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[{\"childtags\":101,\"taglang\":\"Untertag A1\",\"tag_id\":101},{\"childtags\":102,\"taglang\":\"Untertag A2\",\"tag_id\":102}]",
+    "parent_ids": []
+  },
+  {
+    "tag_id": 101,
+    "tag_abbrev": "G1_TagA1",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag A1",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[{\"childtags\":201,\"taglang\":\"Untertag A1-1\",\"tag_id\":201}]",
+    "parent_ids": [1]
+  },
+  {
+    "tag_id": 102,
+    "tag_abbrev": "G1_TagA2",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag A2",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[]",
+    "parent_ids": [1]
+  },
+  {
+    "tag_id": 201,
+    "tag_abbrev": "G2_TagA1-1",
+    "tag_gene": 2,
+    "tag_name": "Ebene 2 Tag A1-1",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[{\"childtags\":301,\"taglang\":\"Untertag A1-1-1\",\"tag_id\":301}]",
+    "parent_ids": [1]
+  },
+  {
+    "tag_id": 301,
+    "tag_abbrev": "G3_TagA1-1-1",
+    "tag_gene": 3,
+    "tag_name": "Ebene 3 Tag A1-1-1",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[{\"childtags\":401,\"taglang\":\"Untertag A1-1-1-1\",\"tag_id\":401}]",
+    "parent_ids": [1]
+  },
+  {
+    "tag_id": 401,
+    "tag_abbrev": "G4_TagA1-1-1-1",
+    "tag_gene": 4,
+    "tag_name": "Ebene 4 Tag A1-1-1-1",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[]",
+    "parent_ids": [1]
+  },
+  {
+    "tag_id": 103,
+    "tag_abbrev": "G1_TagA3",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag A3",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[]",
+    "parent_ids": [1]
+  },
+  {
+    "tag_id": 104,
+    "tag_abbrev": "G1_TagA4",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag A4",
+    "tag_ebene_name": "EbeneA",
+    "tag_ebene_id": 1,
+    "children_ids": "[]",
+    "parent_ids": [1]
+  },
+  {
+    "tag_id": 105,
+    "tag_abbrev": "G0_TagB",
+    "tag_gene": 0,
+    "tag_name": "Grundebene Tag B",
+    "tag_ebene_name": "EbeneB",
+    "tag_ebene_id": 2,
+    "children_ids": "[{\"childtags\":106,\"taglang\":\"Untertag B1\",\"tag_id\":106},{\"childtags\":107,\"taglang\":\"Untertag B2\",\"tag_id\":107}]",
+    "parent_ids": []
+  },
+  {
+    "tag_id": 106,
+    "tag_abbrev": "G1_TagB1",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag B1",
+    "tag_ebene_name": "EbeneB",
+    "tag_ebene_id": 2,
+    "children_ids": "[{\"childtags\":202,\"taglang\":\"Untertag B1-1\",\"tag_id\":202}]",
+    "parent_ids": [2]
+  },
+  {
+    "tag_id": 107,
+    "tag_abbrev": "G1_TagB2",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag B2",
+    "tag_ebene_name": "EbeneB",
+    "tag_ebene_id": 2,
+    "children_ids": "[]",
+    "parent_ids": [2]
+  },
+  {
+    "tag_id": 202,
+    "tag_abbrev": "G2_TagB1-1",
+    "tag_gene": 2,
+    "tag_name": "Ebene 2 Tag B1-1",
+    "tag_ebene_name": "EbeneB",
+    "tag_ebene_id": 2,
+    "children_ids": "[{\"childtags\":302,\"taglang\":\"Untertag B1-1-1\",\"tag_id\":302}]",
+    "parent_ids": [2]
+  },
+  {
+    "tag_id": 302,
+    "tag_abbrev": "G3_TagB1-1-1",
+    "tag_gene": 3,
+    "tag_name": "Ebene 3 Tag B1-1-1",
+    "tag_ebene_name": "EbeneB",
+    "tag_ebene_id": 2,
+    "children_ids": "[{\"childtags\":402,\"taglang\":\"Untertag B1-1-1-1\",\"tag_id\":402}]",
+    "parent_ids": [2]
+  },
+  {
+    "tag_id": 402,
+    "tag_abbrev": "G4_TagB1-1-1-1",
+    "tag_gene": 4,
+    "tag_name": "Ebene 4 Tag B1-1-1-1",
+    "tag_ebene_name": "EbeneB",
+    "tag_ebene_id": 2,
+    "children_ids": "[]",
+    "parent_ids": [2]
+  },
+  {
+    "tag_id": 108,
+    "tag_abbrev": "G1_TagB3",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag B3",
+    "tag_ebene_name": "EbeneB",
+    "tag_ebene_id": 2,
+    "children_ids": "[]",
+    "parent_ids": [2]
+  },
+  {
+    "tag_id": 109,
+    "tag_abbrev": "G0_TagC",
+    "tag_gene": 0,
+    "tag_name": "Grundebene Tag C",
+    "tag_ebene_name": "EbeneC",
+    "tag_ebene_id": 3,
+    "children_ids": "[{\"childtags\":110,\"taglang\":\"Untertag C1\",\"tag_id\":110}]",
+    "parent_ids": []
+  },
+  {
+    "tag_id": 110,
+    "tag_abbrev": "G1_TagC1",
+    "tag_gene": 1,
+    "tag_name": "Ebene 1 Tag C1",
+    "tag_ebene_name": "EbeneC",
+    "tag_ebene_id": 3,
+    "children_ids": "[{\"childtags\":203,\"taglang\":\"Untertag C1-1\",\"tag_id\":203}]",
+    "parent_ids": [3]
+  },
+  {
+    "tag_id": 203,
+    "tag_abbrev": "G2_TagC1-1",
+    "tag_gene": 2,
+    "tag_name": "Ebene 2 Tag C1-1",
+    "tag_ebene_name": "EbeneC",
+    "tag_ebene_id": 3,
+    "children_ids": "[{\"childtags\":303,\"taglang\":\"Untertag C1-1-1\",\"tag_id\":303}]",
+    "parent_ids": [3]
+  }
+]
+}

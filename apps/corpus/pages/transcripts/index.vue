@@ -4,6 +4,7 @@ import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
 
+import { Sheet, SheetContent, SheetTrigger } from "../../../ui/components/ui/sheet/";
 import type { Transcript } from "./[id].vue";
 
 definePageMeta({
@@ -129,12 +130,12 @@ watch(
 				<div class="flex relative items-center mb-4 pb-4 border-b gap-4">
 					<SearchBar />
 					<Separator orientation="vertical" />
-					<Drawer>
-						<DrawerTrigger>Filter</DrawerTrigger>
-						<DrawerContent>
+					<Sheet>
+						<SheetTrigger><Button variant="ghost"> Filter </Button></SheetTrigger>
+						<SheetContent class="h-1/2" side="bottom">
 							<TagBuilder></TagBuilder>
-						</DrawerContent>
-					</Drawer>
+						</SheetContent>
+					</Sheet>
 				</div>
 
 				<p class="text-lg mb-3 flex-shrink-0"><b>122</b> Ergebnisse in <b>45</b> Events</p>

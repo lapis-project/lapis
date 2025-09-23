@@ -1,31 +1,37 @@
 <script setup lang="ts">
-import { ChevronsRight } from "lucide-vue-next";
-import { PaginationLast, type PaginationLastProps } from "reka-ui";
-import { computed, type HTMLAttributes } from "vue";
+import { reactiveOmit } from "@vueuse/core";
+import { ChevronRightIcon } from "lucide-vue-next";
+import { PaginationLast, type PaginationLastProps, useForwardProps } from "reka-ui";
+import type { HTMLAttributes } from "vue";
 
-import { Button } from "@/components/ui/button";
+import { type ButtonVariants, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/utils/styles";
 
 const props = withDefaults(
-	defineProps<PaginationLastProps & { class?: HTMLAttributes["class"] }>(),
+	defineProps<
+		PaginationLastProps & {
+			size?: ButtonVariants["size"];
+			class?: HTMLAttributes["class"];
+		}
+	>(),
 	{
-		asChild: true,
+		size: "default",
 	},
 );
 
-const delegatedProps = computed(() => {
-	const { class: _, ...delegated } = props;
-
-	return delegated;
-});
+const delegatedProps = reactiveOmit(props, "class", "size");
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
-	<PaginationLast v-bind="delegatedProps">
-		<Button :class="cn('size-10 p-0', props.class)" variant="outline">
-			<slot>
-				<ChevronsRight class="size-4" />
-			</slot>
-		</Button>
+	<PaginationLast
+		:class="cn(buttonVariants({ variant: 'ghost', size }), 'gap-1 px-2.5 sm:pr-2.5', props.class)"
+		data-slot="pagination-last"
+		v-bind="forwarded"
+	>
+		<slot>
+			<span class="hidden sm:block">Last</span>
+			<ChevronRightIcon />
+		</slot>
 	</PaginationLast>
 </template>

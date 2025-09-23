@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ChevronLeft, ChevronRight } from "lucide-vue-next";
-import { ComboboxAnchor, ComboboxInput, ComboboxPortal, ComboboxRoot } from "reka-ui";
 import { computed, ref } from "vue";
 
 import type { DropdownOption } from "@/types/dropdown-option";
@@ -57,52 +56,45 @@ const moveItem = (index: number, direction: "left" | "right") => {
 			</TagsInputItem>
 		</div>
 
-		<ComboboxRoot v-model="modelValue" v-model:open="open" class="w-full">
+		<Combobox v-model="modelValue" v-model:open="open" by="value">
 			<ComboboxAnchor as-child>
 				<ComboboxInput
 					v-model="searchTerm"
 					as-child
 					:placeholder="t('TagsCombobox.button', { placeholder: props.placeholder })"
 				>
-					<TagsInputInput
-						class="w-full px-3"
-						:class="modelValue.length > 0 ? 'mt-2' : ''"
-						@focus="open = true"
-						@keydown.enter.prevent
-					/>
+					<TagsInputInput class="px-3" @keydown.enter.prevent />
 				</ComboboxInput>
 			</ComboboxAnchor>
 
-			<ComboboxPortal>
-				<CommandList
-					class="mt-2 w-(--reka-popper-anchor-width) rounded-md border bg-popover text-popover-foreground shadow-md outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
-					dismissable
-					position="popper"
-				>
-					<CommandEmpty>{{ t("Combobox.empty") }}</CommandEmpty>
-					<CommandGroup>
-						<CommandItem
-							v-for="option in filteredOptions"
-							:key="option.value"
-							:value="option.label"
-							@select.prevent="
-								(ev) => {
-									if (typeof ev.detail.value === 'string') {
-										searchTerm = '';
-										modelValue.push(ev.detail.value);
-									}
-
-									if (filteredOptions.length === 0) {
-										open = false;
-									}
+			<ComboboxList
+				class="w-(--reka-popper-anchor-width) rounded-md border bg-popover text-popover-foreground shadow-md outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+				dismissable
+				position="popper"
+			>
+				<ComboboxEmpty>{{ t("Combobox.empty") }}</ComboboxEmpty>
+				<ComboboxGroup>
+					<ComboboxItem
+						v-for="option in filteredOptions"
+						:key="option.value"
+						:value="option.label"
+						@select.prevent="
+							(ev) => {
+								if (typeof ev.detail.value === 'string') {
+									searchTerm = '';
+									modelValue.push(ev.detail.value);
 								}
-							"
-						>
-							{{ option.label }}
-						</CommandItem>
-					</CommandGroup>
-				</CommandList>
-			</ComboboxPortal>
-		</ComboboxRoot>
+
+								if (filteredOptions.length === 0) {
+									open = false;
+								}
+							}
+						"
+					>
+						{{ option.label }}
+					</ComboboxItem>
+				</ComboboxGroup>
+			</ComboboxList>
+		</Combobox>
 	</TagsInput>
 </template>

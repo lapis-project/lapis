@@ -9,7 +9,10 @@ const props = defineProps<{
 </script>
 
 <template>
-	<tfoot :class="cn('border-t bg-muted/50 font-medium last:[&>tr]:border-b-0', props.class)">
+	<tfoot
+		:class="cn('bg-muted/50 border-t font-medium [&>tr]:last:border-b-0', props.class)"
+		data-slot="table-footer"
+	>
 		<slot />
 	</tfoot>
 </template>

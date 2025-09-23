@@ -1,38 +1,25 @@
 <script setup lang="ts">
-import {
-	ComboboxContent,
-	type ComboboxContentEmits,
-	type ComboboxContentProps,
-	useForwardPropsEmits,
-} from "reka-ui";
-import { computed, type HTMLAttributes } from "vue";
+import { reactiveOmit } from "@vueuse/core";
+import { ListboxContent, type ListboxContentProps, useForwardProps } from "reka-ui";
+import type { HTMLAttributes } from "vue";
 
 import { cn } from "@/utils/styles";
 
-const props = withDefaults(
-	defineProps<ComboboxContentProps & { class?: HTMLAttributes["class"] }>(),
-	{
-		dismissable: false,
-	},
-);
-const emits = defineEmits<ComboboxContentEmits>();
+const props = defineProps<ListboxContentProps & { class?: HTMLAttributes["class"] }>();
 
-const delegatedProps = computed(() => {
-	const { class: _, ...delegated } = props;
+const delegatedProps = reactiveOmit(props, "class");
 
-	return delegated;
-});
-
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
-	<ComboboxContent
+	<ListboxContent
 		v-bind="forwarded"
-		:class="cn('max-h-[300px] overflow-y-auto overflow-x-hidden', props.class)"
+		:class="cn('max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto', props.class)"
+		data-slot="command-list"
 	>
 		<div role="presentation">
 			<slot />
 		</div>
-	</ComboboxContent>
+	</ListboxContent>
 </template>

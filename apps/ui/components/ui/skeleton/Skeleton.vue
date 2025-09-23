@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
+
 import { cn } from "@/utils/styles";
 
 interface SkeletonProps {
@@ -10,5 +11,5 @@ const props = defineProps<SkeletonProps>();
 </script>
 
 <template>
-	<div :class="cn('animate-pulse rounded-md bg-muted', props.class)" />
+	<div :class="cn('animate-pulse rounded-md bg-primary/10', props.class)" data-slot="skeleton" />
 </template>

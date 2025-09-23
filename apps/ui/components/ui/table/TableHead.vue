@@ -12,10 +12,11 @@ const props = defineProps<{
 	<th
 		:class="
 			cn(
-				'h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0',
+				'text-muted-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
 				props.class,
 			)
 		"
+		data-slot="table-head"
 	>
 		<slot />
 	</th>

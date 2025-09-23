@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import type { ComboboxItemIndicatorProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
-import { reactiveOmit } from "@vueuse/core"
-import { ComboboxItemIndicator, useForwardProps } from "reka-ui"
-import { cn } from '@/utils/styles'
+import { reactiveOmit } from "@vueuse/core";
+import { ComboboxItemIndicator, type ComboboxItemIndicatorProps, useForwardProps } from "reka-ui";
+import type { HTMLAttributes } from "vue";
 
-const props = defineProps<ComboboxItemIndicatorProps & { class?: HTMLAttributes["class"] }>()
+import { cn } from "@/utils/styles";
 
-const delegatedProps = reactiveOmit(props, "class")
+const props = defineProps<ComboboxItemIndicatorProps & { class?: HTMLAttributes["class"] }>();
 
-const forwarded = useForwardProps(delegatedProps)
+const delegatedProps = reactiveOmit(props, "class");
+
+const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <ComboboxItemIndicator
-    data-slot="combobox-item-indicator"
-    v-bind="forwarded"
-    :class="cn('ml-auto', props.class)"
-  >
-    <slot />
-  </ComboboxItemIndicator>
+	<ComboboxItemIndicator
+		v-bind="forwarded"
+		:class="cn('ml-auto', props.class)"
+		data-slot="combobox-item-indicator"
+	>
+		<slot />
+	</ComboboxItemIndicator>
 </template>

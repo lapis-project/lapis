@@ -45,7 +45,7 @@ function loadCurrentChildren(node: TagNode) {
 
 <template>
 	<Draggable
-		class="flex flex-row gap-2 items-start transition-all duration-300"
+		class="flex flex-row gap-2 items-start transition-all duration-300 border rounded border-black h-full"
 		:group="{
 			name: props.groupName,
 			pull: false,
@@ -64,6 +64,7 @@ function loadCurrentChildren(node: TagNode) {
 		<template #item="{ element }">
 			<TagChildRenderer
 				class="transition-transform duration-300"
+				:depth="props.depth ?? 0"
 				:group-name="`tags-${element.value}`"
 				:has-children="hasChildren"
 				:load-children="props.loadChildren"
@@ -76,8 +77,9 @@ function loadCurrentChildren(node: TagNode) {
 			<div
 				v-if="!props.modelValue.length"
 				class="flex items-center justify-start text-xs text-muted-foreground"
+				:class="props.groupName == 'tags-root' ? 'text-muted-foreground' : 'text-white'"
 			>
-				Tags hinzufügen...
+				Tag hinzufügen...
 			</div>
 		</template>
 	</Draggable>

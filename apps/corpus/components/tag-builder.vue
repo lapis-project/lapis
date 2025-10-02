@@ -19,8 +19,8 @@ const tagLayerOne = computed(() => {
 			return {
 				value: r.tag_id,
 				label: r.tag_abbrev,
-				parentLayerName: r.tag_ebene_name,
-				parentLayerId: r.tag_ebene_id,
+				children: [],
+				raw: r,
 			};
 		});
 });
@@ -55,15 +55,18 @@ const activeTagLayerOneOption = ref<string | null>(null);
 const tagLayerTwoActive = ref(false);
 const tagLayerOneActive = ref(false);
 const activeTags = ref<Array<TagNode>>([]);
-const availableTagLayer = ref<Array<{ value: number; label: string }>>([]);
+const availableTagLayer = ref<Array<TagNode>>([]);
 const parentLocked = ref(false);
+const availableGroupName = ref<string>("tags-root");
 
 function setNextLayer(layer: number) {
 	switch (layer) {
-		case 1:
+		case 1: {
 			tagLayerOneActive.value = true;
 			parentLocked.value = true;
 			break;
+		}
+
 		case 2:
 			tagLayerTwoActive.value = true;
 			break;
@@ -104,77 +107,71 @@ watch(
 	{ immediate: true },
 );
 
-function loadChildren(node: TagNode): Array<TagNode> {
-	console.log(node);
-	const parentTag = results.results.find((r) => r.tag_id === node.value);
-	if (!parentTag || !parentTag.children_ids) return [];
-
-	try {
-		const parsed = JSON.parse(parentTag.children_ids);
-		if (!Array.isArray(parsed)) return [];
-
-		return parsed
-			.map((child: any) => {
-				const fullChild = results.results.find((r) => r.tag_id === child.childtags);
-				if (!fullChild) return null; // keep all children that exist
-				return {
-					value: fullChild.tag_id,
-					label: fullChild.tag_abbrev || fullChild.tag_name || `Tag ${fullChild.tag_id}`,
-					children: [],
-				};
-			})
-			.filter(Boolean) as Array<TagNode>;
-	} catch {
-		return [];
-	}
-}
-
-function handleLoadChildren(node: TagNode) {
-	const children = loadChildren(node);
-
-	// Add children to available list if not already in activeTags or availableTagLayer
-	children.forEach((child) => {
-		if (
-			!activeTags.value.some((t) => t.value === child.value) &&
-			!availableTagLayer.value.some((t) => t.value === child.value)
-		) {
-			availableTagLayer.value.push({ value: child.value, label: child.label });
-		}
-	});
-}
-
-function hasChildren(node: TagNode): boolean {
-	const parentTag = results.results.find((r) => r.tag_id === node.value);
+function hasChildren(node: TagNode) {
+	const parentTag = node.raw ?? results.results.find((r) => r.tag_id === node.value);
 	if (!parentTag || !parentTag.children_ids) return false;
-
 	try {
 		const parsed = JSON.parse(parentTag.children_ids);
-		if (!Array.isArray(parsed)) return false;
-
-		return parsed.some((child: any) => {
-			const fullChild = results.results.find((r) => r.tag_id === child.childtags);
-			return fullChild?.tag_gene === 2; // <-- only allows gene 2
-		});
+		return Array.isArray(parsed) && parsed.length > 0;
 	} catch {
 		return false;
 	}
 }
 
+function loadChildren(node: TagNode): Array<TagNode> {
+	const parentTag = node.raw ?? results.results.find((r) => r.tag_id === node.value);
+	if (!parentTag) return [];
+	const parsed = JSON.parse(parentTag.children_ids || "[]");
+	return parsed
+		.map((c: any) => {
+			const fullChild = results.results.find((r) => r.tag_id === c.childtags);
+			if (!fullChild) return null;
+			return {
+				value: fullChild.tag_id,
+				label: fullChild.tag_abbrev || fullChild.tag_name,
+				children: [],
+				raw: fullChild,
+			};
+		})
+		.filter(Boolean);
+}
+
+function handleLoadChildren(node: TagNode) {
+	const children = loadChildren(node);
+	if (!children.length) return;
+
+	availableGroupName.value = `tags-${node.value}`;
+
+	children.forEach((child) => {
+		if (
+			!activeTags.value.some((t) => t.value === child.value) &&
+			!availableTagLayer.value.some((t) => t.value === child.value)
+		) {
+			availableTagLayer.value.push({
+				...child,
+				groupName: `tags-${node.value}`,
+				children: child.children ?? [],
+			});
+		}
+	});
+}
+
 function handleRemove(node: TagNode) {
 	// Recursively remove node from activeTags
-	function removeFromList(list: Array<TagNode>) {
+	function removeFromList(list: Array<TagNode>): boolean {
 		const index = list.findIndex((n) => n.value === node.value);
 		if (index !== -1) {
 			list.splice(index, 1);
 			return true;
 		}
+
 		return list.some((child) => removeFromList(child.children));
 	}
 
 	removeFromList(activeTags.value);
 
 	if (!availableTagLayer.value.some((t) => t.value === node.value)) {
-		availableTagLayer.value.push({ ...node, children: [] });
+		availableTagLayer.value.push({ ...node, children: node.children ?? [] });
 	}
 }
 </script>
@@ -229,6 +226,7 @@ function handleRemove(node: TagNode) {
 					<TagDropZone
 						v-model="activeTags"
 						class="border border-muted-foreground rounded p-2 w-full min-w-40"
+						group-name="tags-root"
 						:has-children="hasChildren"
 						:is-root="true"
 						:load-children="loadChildren"
@@ -248,7 +246,7 @@ function handleRemove(node: TagNode) {
 				id="tags"
 				v-model="availableTagLayer"
 				class="border border-muted-foreground rounded p-2 w-40 min-h-[100px] h-full"
-				:group="{ name: 'tags', pull: true, put: false }"
+				:group="{ name: availableGroupName, pull: true, put: false }"
 				item-key="value"
 			>
 				<template #item="{ element }">

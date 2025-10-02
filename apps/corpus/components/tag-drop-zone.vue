@@ -5,6 +5,16 @@ export interface TagNode {
 	value: number;
 	label: string;
 	children: Array<TagNode>;
+	raw?: {
+		tag_id: number;
+		tag_abbrev: string;
+		tag_gene: number;
+		tag_name: string;
+		tag_ebene_name: string;
+		tag_ebene_id: number;
+		children_ids: string;
+		parent_ids: Array<number>;
+	};
 }
 
 const props = defineProps<{
@@ -18,6 +28,7 @@ const props = defineProps<{
 }>();
 
 const activeZone = computed(() => {
+	console.log("active dropzone: ", (props.isRoot ?? false) || props.isActiveDropZone);
 	return (props.isRoot ?? false) || props.isActiveDropZone;
 });
 
@@ -34,8 +45,15 @@ function loadCurrentChildren(node: TagNode) {
 
 <template>
 	<Draggable
-		class="w-full"
-		:group="{ name: props.groupName, pull: true, put: activeZone }"
+		class="flex flex-row gap-2 items-start transition-all duration-300"
+		:group="{
+			name: props.groupName,
+			pull: false,
+			put: (to, from) => {
+				console.log('hello from put: ', from?.options?.group?.name, props.groupName);
+				return activeZone && from?.options?.group?.name === props.groupName;
+			},
+		}"
 		item-key="value"
 		:list="props.modelValue"
 		@update:model-value="
@@ -45,6 +63,7 @@ function loadCurrentChildren(node: TagNode) {
 	>
 		<template #item="{ element }">
 			<TagChildRenderer
+				class="transition-transform duration-300"
 				:group-name="`tags-${element.value}`"
 				:has-children="hasChildren"
 				:load-children="props.loadChildren"

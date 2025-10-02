@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { PlusCircleIcon, XIcon } from "lucide-vue-next";
 
-interface TagNode {
-	value: number;
-	label: string;
-	children: Array<TagNode>;
-}
+import type { TagNode } from "./tag-drop-zone.vue";
 
 const props = defineProps<{
 	node: TagNode | null | undefined;
@@ -21,8 +17,6 @@ const emit = defineEmits<{
 
 const depth = computed(() => props.depth ?? 0);
 const expanded = ref(false);
-const currentNode = ref<TagNode | null>();
-
 const isActiveDropZone = ref(false);
 
 function activateDropZone() {
@@ -35,12 +29,11 @@ function deactivateDropZone() {
 
 function handleLoadChildren() {
 	if (!currentNode.value || !props.loadChildren) return;
-
 	if (!Array.isArray(currentNode.value.children)) {
 		currentNode.value.children = [];
 	}
 
-	if (currentNode.value.children.length === 0 && props.hasChildren) {
+	if (currentNode.value.children.length === 0 && props.hasChildren?.(currentNode.value)) {
 		emit("loadChildren", currentNode.value);
 	}
 
@@ -52,12 +45,12 @@ function handleRemove() {
 	emit("removeTag", currentNode.value);
 }
 
+const currentNode = ref<TagNode | null | undefined>(null);
+
 watch(
-	() => {
-		return props.node;
-	},
-	() => {
-		currentNode.value = props.node;
+	() => props.node,
+	(newNode) => {
+		currentNode.value = newNode;
 	},
 	{ immediate: true },
 );
@@ -79,7 +72,7 @@ watch(
 				<!-- Expand/Load children -->
 				<button
 					:class="`${props.hasChildren ? `hover:text-accent-foreground` : `disabled:opacity-50`}`"
-					:disabled="!props.hasChildren"
+					:disabled="!(props.hasChildren && currentNode && props.hasChildren(currentNode))"
 					@click="
 						handleLoadChildren();
 						activateDropZone();
@@ -95,8 +88,11 @@ watch(
 						v-model="currentNode.children"
 						:depth="depth + 1"
 						:group-name="`tags-${currentNode?.value}`"
+						:has-children="props.hasChildren"
 						:is-active-drop-zone="isActiveDropZone"
 						:load-children="props.loadChildren"
+						@load-current-children="$emit('load-children', $event)"
+						@remove-current="$emit('remove-tag', $event)"
 					/>
 				</div>
 			</div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlusCircleIcon, XIcon } from "lucide-vue-next";
+import { PlusCircleIcon, Popsicle, XIcon } from "lucide-vue-next";
 
 import type { TagNode } from "./tag-drop-zone.vue";
 
@@ -7,8 +7,44 @@ const props = defineProps<{
 	node: TagNode | null | undefined;
 	loadChildren: (node: TagNode) => Array<TagNode>;
 	hasChildren?: (node: TagNode) => boolean;
-	depth?: number;
+	depth: number;
 }>();
+
+// color: gradient
+
+// const bgColorClass = computed(() => {
+// 	switch (props.depth) {
+// 		case 0:
+// 			return "#e5c2d2";
+// 		case 1:
+// 			return "#d499b5";
+// 		case 2:
+// 			return "#c37097";
+// 		case 3:
+// 			return "#ba5b88";
+// 		case 4:
+// 			return "#a9326a";
+// 		default:
+// 			return "#a9326a";
+// 	}
+// });
+
+const bgColorClass = computed(() => {
+	switch (props.depth) {
+		case 0:
+			return "#fd9a00";
+		case 1:
+			return "#ad46ff";
+		case 2:
+			return "#a9326a";
+		case 3:
+			return "#009689";
+		case 4:
+			return "#104e64";
+		default:
+			return "#a9326a";
+	}
+});
 
 const emit = defineEmits<{
 	(e: "removeTag", node: TagNode): void;
@@ -57,8 +93,12 @@ watch(
 </script>
 
 <template>
-	<div class="inline-flex ml-2 mt-1 items-center">
-		<div id="hello" class="inline-flex items-center rounded p-1 mb-2 bg-accent-foreground">
+	<div class="inline-flex items-center">
+		<div
+			id="hello"
+			class="inline-flex items-center rounded p-1"
+			:style="{ 'background-color': bgColorClass }"
+		>
 			<div class="inline-flex items-center gap-2">
 				<div class="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary text-white text-sm">
 					<span class="pr-4">{{ currentNode?.label }}</span>
@@ -71,7 +111,7 @@ watch(
 
 				<!-- Expand/Load children -->
 				<button
-					:class="`${props.hasChildren ? `hover:text-accent-foreground` : `disabled:opacity-50`}`"
+					:class="`${props.hasChildren ? `hover:text-white` : `disabled:opacity-50`}`"
 					:disabled="!(props.hasChildren && currentNode && props.hasChildren(currentNode))"
 					@click="
 						handleLoadChildren();
@@ -83,10 +123,10 @@ watch(
 			</div>
 
 			<div v-if="expanded && currentNode != null" class="ml-1">
-				<div v-if="expanded && currentNode" class="ml-6">
+				<div v-if="expanded && currentNode">
 					<TagDropZone
 						v-model="currentNode.children"
-						:depth="depth + 1"
+						:depth="props.depth + 1"
 						:group-name="`tags-${currentNode?.value}`"
 						:has-children="props.hasChildren"
 						:is-active-drop-zone="isActiveDropZone"

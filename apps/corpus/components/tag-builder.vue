@@ -112,6 +112,7 @@ function hasChildren(node: TagNode) {
 	if (!parentTag || !parentTag.children_ids) return false;
 	try {
 		const parsed = JSON.parse(parentTag.children_ids);
+		console.log(parsed);
 		return Array.isArray(parsed) && parsed.length > 0;
 	} catch {
 		return false;
@@ -141,6 +142,7 @@ function handleLoadChildren(node: TagNode) {
 	if (!children.length) return;
 
 	availableGroupName.value = `tags-${node.value}`;
+	availableTagLayer.value = [];
 
 	children.forEach((child) => {
 		if (

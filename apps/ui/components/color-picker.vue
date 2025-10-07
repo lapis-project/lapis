@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useDebounceFn } from "@vueuse/core";
+
 const modelValue = defineModel<string>({ default: "" });
 
 const emit = defineEmits<{

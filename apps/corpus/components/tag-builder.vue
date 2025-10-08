@@ -1,10 +1,20 @@
 <script lang="ts" setup>
-import { MinusCircleIcon, PlusCircleIcon } from "lucide-vue-next";
-import Draggable from "vuedraggable";
+import { PlusCircleIcon } from "lucide-vue-next";
 
-import results from "@/assets/data/test-tags.json";
+// import results from "@/assets/data/test-tags.json";
+import results from "@/assets/data/dioe-tags-tree.json";
 
+import type { LegendItem } from "./annotation-legend.vue";
 import type { TagNode } from "./tag-drop-zone.vue";
+
+const emit = defineEmits<{
+	(e: "annotationSelected", hasAnnotation: boolean): void;
+	(e: "availableTags", tags: Array<TagNode>, groupName: string): void;
+}>();
+
+const props = defineProps<{
+	legend: Array<LegendItem>;
+}>();
 
 const tagLayerOne = computed(() => {
 	return results.results
@@ -38,54 +48,11 @@ const parentLayer = computed(() => {
 	});
 });
 
-const tagLayerTwo = computed(() => {
-	return results.results
-		.filter((res) => {
-			return (
-				res.tag_gene === 1 && res.parent_ids.includes(parseInt(activeTagLayerOneOption.value ?? ""))
-			);
-		})
-		.map((r) => {
-			return { value: r.tag_id, label: r.tag_abbrev };
-		});
-});
-
 const activeParentLayerOption = ref<string | null>(null);
-const activeTagLayerOneOption = ref<string | null>(null);
-const tagLayerTwoActive = ref(false);
-const tagLayerOneActive = ref(false);
 const activeTags = ref<Array<TagNode>>([]);
 const availableTagLayer = ref<Array<TagNode>>([]);
 const parentLocked = ref(false);
 const availableGroupName = ref<string>("tags-root");
-
-function setNextLayer(layer: number) {
-	switch (layer) {
-		case 1: {
-			tagLayerOneActive.value = true;
-			parentLocked.value = true;
-			break;
-		}
-
-		case 2:
-			tagLayerTwoActive.value = true;
-			break;
-	}
-}
-
-function collapseLayer(layer: number) {
-	switch (layer) {
-		case 1:
-			tagLayerOneActive.value = false;
-			parentLocked.value = false; // unlock parent select
-			activeTags.value = []; // remove all tags from this layer
-			break;
-		case 2:
-			tagLayerTwoActive.value = false;
-			// optionally remove G1 tags
-			break;
-	}
-}
 
 watch(
 	tagLayerOne,
@@ -98,8 +65,18 @@ watch(
 );
 
 watch(
-	activeTags,
+	() => {
+		return availableTagLayer.value;
+	},
+	() => {
+		emit("availableTags", availableTagLayer.value, availableGroupName.value);
+	},
+);
+
+watch(
+	activeTags.value,
 	(newStack) => {
+		emit("annotationSelected", activeTags.value.length > 0);
 		availableTagLayer.value = availableTagLayer.value.filter(
 			(tag) => !newStack.some((s) => s.value === tag.value),
 		);
@@ -112,7 +89,6 @@ function hasChildren(node: TagNode) {
 	if (!parentTag || !parentTag.children_ids) return false;
 	try {
 		const parsed = JSON.parse(parentTag.children_ids);
-		console.log(parsed);
 		return Array.isArray(parsed) && parsed.length > 0;
 	} catch {
 		return false;
@@ -179,11 +155,11 @@ function handleRemove(node: TagNode) {
 </script>
 
 <template>
-	<div class="grid grid-cols-2 py-4 h-full">
-		<div class="flex-row flex items-center p-4 mb-auto">
+	<div class="flex relative items-center">
+		<div class="flex-row flex items-center px-4 py-8">
 			<div>
 				<Label class="text-sm text-muted-foreground" for="context">Tag Ebene</Label>
-				<div class="grid grid-cols-[auto_1fr] items-center">
+				<div class="grid grid-cols-[auto_1fr] items-center gap-2">
 					<BaseSelect
 						id="context"
 						v-model="activeParentLayerOption"
@@ -193,17 +169,25 @@ function handleRemove(node: TagNode) {
 					></BaseSelect>
 
 					<div>
-						<div v-if="!tagLayerTwoActive" class="relative group inline-block">
-							<Button
-								v-if="activeParentLayerOption && !tagLayerOneActive"
+						<div class="flex relative group">
+							<PlusCircleIcon
+								v-if="activeParentLayerOption"
+								class="text-accent-foreground mr-2"
+								:size="18"
+							/>
+
+							<!--other option: this needs review-->
+
+							<!-- <Button
+								v-if="activeParentLayerOption"
 								class="p-2 h-8 m-0"
 								variant="ghost"
 								@click="setNextLayer(1)"
 							>
 								<PlusCircleIcon :size="18" />
-							</Button>
+							</Button> -->
 
-							<Button
+							<!-- <Button
 								v-else-if="activeParentLayerOption && tagLayerOneActive"
 								class="p-2 h-8 m-0 relative"
 								variant="ghost"
@@ -217,46 +201,27 @@ function handleRemove(node: TagNode) {
 									class="absolute justify-self-start transition-opacity duration-200 opacity-0 group-hover:opacity-100"
 									:size="18"
 								/>
-							</Button>
+							</Button> -->
 						</div>
 					</div>
 				</div>
 			</div>
-			<div v-if="tagLayerOne.length > 0 && tagLayerOneActive">
+			<div v-if="activeParentLayerOption">
 				<div>
-					<Label class="text-sm text-muted-foreground" for="tags">G0</Label>
+					<Label class="text-sm text-muted-foreground" for="tags">Annotation</Label>
 					<TagDropZone
 						v-model="activeTags"
 						class="border border-muted-foreground rounded p-2 w-full min-w-40"
 						group-name="tags-root"
 						:has-children="hasChildren"
 						:is-root="true"
+						:legend="props.legend"
 						:load-children="loadChildren"
 						@load-current-children="handleLoadChildren"
 						@remove-current="handleRemove"
 					/>
 				</div>
 			</div>
-		</div>
-
-		<div
-			v-if="tagLayerOne.length > 0 && tagLayerOneActive"
-			class="justify-self-end pr-8 flex h-full flex-col"
-		>
-			<Label class="text-sm text-muted-foreground" for="tags">G0-Tags</Label>
-			<Draggable
-				id="tags"
-				v-model="availableTagLayer"
-				class="border border-muted-foreground rounded p-2 w-40 min-h-[100px] h-full"
-				:group="{ name: availableGroupName, pull: true, put: false }"
-				item-key="value"
-			>
-				<template #item="{ element }">
-					<div class="cursor-move px-2 py-1 bg-muted rounded my-1">
-						{{ element.label }}
-					</div>
-				</template>
-			</Draggable>
 		</div>
 	</div>
 </template>

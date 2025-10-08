@@ -132,8 +132,8 @@ watch(
 					<Separator orientation="vertical" />
 					<Sheet>
 						<SheetTrigger><Button variant="ghost"> Filter </Button></SheetTrigger>
-						<SheetContent class="h-1/2" side="bottom">
-							<TagBuilder></TagBuilder>
+						<SheetContent class="h-[50vh] scroll-y-auto max-h-full" side="bottom">
+							<TagBuilderGroup />
 						</SheetContent>
 					</Sheet>
 				</div>

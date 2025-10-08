@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import Draggable from "vuedraggable";
 
+import type { LegendItem } from "./annotation-legend.vue";
+
 export interface TagNode {
 	value: number;
 	label: string;
@@ -25,10 +27,10 @@ const props = defineProps<{
 	groupName?: string;
 	isActiveDropZone?: boolean;
 	isRoot?: boolean;
+	legend: Array<LegendItem>;
 }>();
 
 const activeZone = computed(() => {
-	console.log("active dropzone: ", (props.isRoot ?? false) || props.isActiveDropZone);
 	return (props.isRoot ?? false) || props.isActiveDropZone;
 });
 
@@ -64,6 +66,7 @@ function loadCurrentChildren(node: TagNode) {
 		<template #item="{ element }">
 			<TagChildRenderer
 				class="transition-transform duration-300"
+				:colors="props.legend"
 				:depth="props.depth ?? 0"
 				:group-name="`tags-${element.value}`"
 				:has-children="hasChildren"

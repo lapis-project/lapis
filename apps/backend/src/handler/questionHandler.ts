@@ -1,6 +1,6 @@
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
-import type { OrderByDirectionExpression } from "kysely";
+import type { OrderByDirection } from "kysely";
 import { array, number, object, optional, safeParse, string } from "valibot";
 
 // import { restrictedRoute } from "@/lib/authHelper";
@@ -47,11 +47,13 @@ const questions = new Hono<Context>()
 			return c.json("Project Id is required", 400);
 		}
 
+		const frontendURL = process.env.FRONTEND_URL_LEXAT ?? "http://localhost:3000";
+
 		const allQuestions = await getAllPhenomenon(projectId);
 
 		for (const question of allQuestions) {
 			if (question.post_alias) {
-				question.post_alias = `https://lexat.acdh-ch-dev.oeaw.ac.at/de/articles/${question.post_alias}`;
+				question.post_alias = `${frontendURL}/de/articles/${question.post_alias}`;
 			}
 		}
 		return c.json(allQuestions, 200);
@@ -141,7 +143,7 @@ const questions = new Hono<Context>()
 		if (annotations && !annotations.includes("")) {
 			annotationsParsed = annotations;
 		}
-		let orderByDir: OrderByDirectionExpression = "desc";
+		let orderByDir: OrderByDirection = "desc";
 		if (orderByParsed.length > 0 && orderBy) {
 			if (orderByParsed.startsWith("res")) {
 				orderByParsed = "response_text";

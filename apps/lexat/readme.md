@@ -1,7 +1,7 @@
 # LexAT
 
 This is the frontend repository for the LexAT project. You can access the current development build
-via https://lexat.acdh-ch-dev.oeaw.ac.at/
+via https://lexat.acdh-dev.oeaw.ac.at/
 
 ## how to run
 

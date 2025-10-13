@@ -611,6 +611,7 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 		activeRegisters.value = ["all"];
 	}
 	activeVariants.value = ["all"];
+	activeLocations.value = [];
 	popover.value = null;
 	changedColors.value = {};
 	await updateUrlParams();

@@ -313,6 +313,7 @@
 		"go-to-db": "Belege ansehen",
 		"help": "Hilfe",
 		"selection": {
+			"locations": "Ortsnamen wählen",
 			"legend": "Legende",
 			"simplified-view": {
 				"label": "Simplifizierte Darstellung",
@@ -321,7 +322,7 @@
 			"show-region-names": "Dialektregionennamen",
 			"show-regions": "Dialektregionen anzeigen",
 			"show-state-capitals": "Landeshauptstädte",
-			"show-urban-locations": "Ortspunkte (ausgenommen Landeshauptstädte)",
+			"show-urban-locations": "Orte (ohne Landeshauptstädte)",
 			"show-variant-percentages": "Werte in Prozent",
 			"variable": {
 				"title": "Phänomen",
@@ -354,7 +355,11 @@
 				"hide": "Erweiterte Filter ausblenden"
 			},
 			"display-options": "Anzeigeoptionen",
-			"filter-locations": "Ortspunkte filtern"
+			"filter-locations": "Ortspunkte filtern",
+			"survey": {
+				"title": "Fragebogenrunden",
+				"placeholder": "Runden wählen"
+			}
 		},
 		"map": {
 			"datapoints": "Ortspunkte",

@@ -313,6 +313,7 @@
 		"go-to-db": "Browse data",
 		"help": "Help",
 		"selection": {
+			"locations": "Choose locations",
 			"legend": "Legend",
 			"simplified-view": {
 				"label": "Simplified view",
@@ -321,7 +322,7 @@
 			"show-region-names": "Show dialect region names",
 			"show-regions": "Show dialect regions",
 			"show-state-capitals": "State capitals",
-			"show-urban-locations": "Locations (except state capitals)",
+			"show-urban-locations": "Locations (w/o state capitals)",
 			"show-variant-percentages": "Values as percentages",
 			"variable": {
 				"title": "Phenomenon",
@@ -360,7 +361,11 @@
 				"hide": "Hide advanced filters"
 			},
 			"display-options": "Display options",
-			"filter-locations": "Filter locations"
+			"filter-locations": "Filter locations",
+			"survey": {
+				"title": "Survey rounds",
+				"placeholder": "Choose rounds"
+			}
 		},
 		"map": {
 			"datapoints": "Localities",

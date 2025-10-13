@@ -47,6 +47,7 @@ import {
 	processUniqueVariants,
 } from "@/utils/variant-helper";
 
+import BaseCombobox, { type ComboboxOption } from "../../ui/components/base-combobox.vue";
 import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
 
@@ -78,6 +79,8 @@ const mappedQuestions = computed(() => {
 });
 
 const activeAgeGroup = ref([0, 100]);
+const activeLocations = ref<Array<ComboboxOption>>([]);
+const activeSurveyRound = ref<string>("1");
 const changedColors = ref<Record<string, string>>({});
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
@@ -98,6 +101,12 @@ const activeQuestionId = computed(() => {
 	return activeQuestion.value ? parseInt(activeQuestion.value) : null;
 	// return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
 });
+
+// survey rounds select dummy data
+const surveyRoundOptions = [
+	{ value: "1", label: "Runde 1" },
+	{ value: "2", label: "Runde 2" },
+];
 
 const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
 	query: { id: activeQuestionId, project: "1" },
@@ -124,9 +133,6 @@ const points = computed(() => {
 		}
 		f.id = `${f.plz.toString()}-${f.place_name}`;
 	});
-
-	// TODO experiment without Vienna point
-	// features = features.filter((f) => f.place_name !== "Wien");
 
 	// only entries with coordinates are considered valid points
 	// let filteredFeatures = features.filter((f) => f.geometry.coordinates);
@@ -240,6 +246,12 @@ const filteredPoints = computed(() => {
 	if (!showUrbanLocations.value) {
 		visibleLocationPoints = visibleLocationPoints.filter((p) =>
 			stateCapitalsList.includes(p.place_name),
+		);
+	}
+	if (activeLocations.value.length) {
+		const activeLocationLabels = activeLocations.value.map((a) => a.label);
+		visibleLocationPoints = visibleLocationPoints.filter((p) =>
+			activeLocationLabels.includes(p.place_name),
 		);
 	}
 	return visibleLocationPoints;
@@ -757,6 +769,10 @@ const focusNextButton = (): void => {
 	});
 };
 
+const activeLocationOptions = computed(() => {
+	return points.value.map((p) => ({ value: p.place_name, label: p.place_name }));
+});
+
 const handleStepChange = (direction: () => void): void => {
 	direction(); // Execute the library's next/previous action
 	focusNextButton();
@@ -904,6 +920,15 @@ watch(activeVariants, updateUrlParams, {
 									:options="basemapOptions"
 									:placeholder="t('MapsPage.selection.basemap.placeholder')"
 								/>
+								<div class="mt-2 mb-1 ml-1 text-sm font-semibold">
+									{{ t("MapsPage.selection.survey.title") }}
+								</div>
+								<BaseSelect
+									v-model="activeSurveyRound"
+									disabled
+									:options="surveyRoundOptions"
+									:placeholder="t('MapsPage.selection.survey.placeholder')"
+								/>
 							</div>
 							<div class="">
 								<div class="mb-1 ml-1 text-sm font-semibold">
@@ -953,7 +978,7 @@ watch(activeVariants, updateUrlParams, {
 										{{ t("MapsPage.selection.show-state-capitals") }}
 									</label>
 								</div>
-								<div class="flex w-64 space-x-2 self-center rounded border p-2">
+								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
 									<Checkbox id="showUrbanLocations" v-model="showUrbanLocations" />
 									<label
 										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -962,6 +987,13 @@ watch(activeVariants, updateUrlParams, {
 										{{ t("MapsPage.selection.show-urban-locations") }}
 									</label>
 								</div>
+								<BaseCombobox
+									v-if="filteredPoints?.length"
+									v-model="activeLocations"
+									multiple
+									:options="activeLocationOptions"
+									:placeholder="t('MapsPage.selection.locations')"
+								/>
 							</div>
 							<div
 								v-if="mappedColors && Object.values(mappedColors).length"
@@ -1235,10 +1267,6 @@ watch(activeVariants, updateUrlParams, {
 								<div
 									class="mt-5 space-x-4 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center relative"
 								>
-									<!-- <span
-										class="absolute right-0 bottom-full mb-2 mr-2 text-gray-600 font-medium text-xs"
-										>{{ `${index + 1}/${steps.length}` }}</span
-									> -->
 									<template v-if="!isFirst">
 										<button
 											class="inline-flex items-center justify-center rounded-md border border-transparent bg-yellow-100 px-4 py-2 font-medium text-yellow-700 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:text-sm"

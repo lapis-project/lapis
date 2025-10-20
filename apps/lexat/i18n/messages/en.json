@@ -313,7 +313,7 @@
 		"go-to-db": "Browse data",
 		"help": "Help",
 		"selection": {
-			"locations": "Choose locations",
+			"locations": "Enter locations",
 			"legend": "Legend",
 			"simplified-view": {
 				"label": "Simplified view",

@@ -47,7 +47,7 @@ import {
 	processUniqueVariants,
 } from "@/utils/variant-helper";
 
-import BaseCombobox, { type ComboboxOption } from "../../ui/components/base-combobox.vue";
+import type { ComboboxOption } from "../../ui/components/base-combobox.vue";
 import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
 
@@ -988,10 +988,9 @@ watch(activeVariants, updateUrlParams, {
 										{{ t("MapsPage.selection.show-urban-locations") }}
 									</label>
 								</div>
-								<BaseCombobox
+								<LocationSearch
 									v-if="filteredPoints?.length"
 									v-model="activeLocations"
-									multiple
 									:options="activeLocationOptions"
 									:placeholder="t('MapsPage.selection.locations')"
 								/>

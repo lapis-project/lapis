@@ -313,7 +313,7 @@
 		"go-to-db": "Belege ansehen",
 		"help": "Hilfe",
 		"selection": {
-			"locations": "Ortsnamen wählen",
+			"locations": "Ortsnamen eingeben",
 			"legend": "Legende",
 			"simplified-view": {
 				"label": "Simplifizierte Darstellung",

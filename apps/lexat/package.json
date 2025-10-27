@@ -68,7 +68,7 @@
 		"html2canvas-pro": "^1.5.12",
 		"lucide-vue-next": "^0.540.0",
 		"maplibre-gl": "^4.7.1",
-		"nuxt": "3.18.1",
+		"nuxt": "4.2.0",
 		"nuxt-svgo": "^4.2.4",
 		"pino-http": "^10.5.0",
 		"reka-ui": "^2.5.1",

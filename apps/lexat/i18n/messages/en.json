@@ -236,7 +236,7 @@
 			"title": "Error"
 		},
 		"title": "Something went wrong!",
-		"try-again": "Try again"
+		"go-to-home": "Return to homepage"
 	},
 	"General": {
 		"cancel": "Cancel",

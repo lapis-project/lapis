@@ -6,9 +6,9 @@ import { prettyJSON } from "hono/pretty-json";
 import { verifyRequestOrigin } from "lucia";
 
 import { lucia } from "@/auth/auth";
+import audio from "@/handler/audioHandler";
 import auth from "@/handler/authHandler";
 import statistics from "@/handler/statHandler";
-import audio from "@/handler/audioHandler";
 import user from "@/handler/userHandler";
 import type { Context } from "@/lib/context";
 
@@ -17,9 +17,6 @@ import articles from "./handler/articleHandler";
 import cms from "./handler/cmsHandler";
 import media from "./handler/mediaHandler";
 import questions from "./handler/questionHandler";
-import statistics from "./handler/statHandler";
-import user from "./handler/userHandler";
-import type { Context } from "./lib/context";
 
 const app: Hono<Context> = new Hono<Context>()
 

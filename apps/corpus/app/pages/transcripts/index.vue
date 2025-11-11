@@ -4,7 +4,6 @@ import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
 
-import { Sheet, SheetContent, SheetTrigger } from "../../../ui/components/ui/sheet/";
 import type { Transcript } from "./[id].vue";
 
 definePageMeta({

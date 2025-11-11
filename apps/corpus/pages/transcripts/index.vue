@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { BookmarkIcon, ChevronLeft, ChevronRight, Download, SearchIcon } from "lucide-vue-next";
+import { BookmarkIcon, ChevronLeft, ChevronRight, Download } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
 
+import { Sheet, SheetContent, SheetTrigger } from "../../../ui/components/ui/sheet/";
 import type { Transcript } from "./[id].vue";
 
 definePageMeta({
@@ -36,8 +37,6 @@ const gridColumns = computed(() => {
 		].join(" ");
 	}
 });
-
-const searchInput = ref("");
 
 const currentId = computed(() => {
 	return route.query.selection;
@@ -128,22 +127,17 @@ watch(
 			</div>
 
 			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
-				<form class="mb-4 pb-4 border-b flex gap-4 items-end flex-shrink-0">
-					<Label class="sr-only" for="search">Suche</Label>
-					<div class="relative w-64">
-						<Input
-							id="search"
-							v-model="searchInput"
-							class="pl-10"
-							placeholder="Suchbegriff eingeben"
-							type="text"
-						/>
-						<span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
-							<SearchIcon class="size-6 text-muted-foreground" />
-						</span>
-					</div>
-					<Button type="submit"> Suchen </Button>
-				</form>
+				<div class="flex relative items-center mb-4 pb-4 border-b gap-4">
+					<SearchBar />
+					<Separator orientation="vertical" />
+					<Sheet>
+						<SheetTrigger><Button variant="ghost"> Filter </Button></SheetTrigger>
+						<SheetContent class="h-[50vh] scroll-y-auto max-h-full" side="bottom">
+							<TagBuilderGroup />
+						</SheetContent>
+					</Sheet>
+				</div>
+
 				<p class="text-lg mb-3 flex-shrink-0"><b>122</b> Ergebnisse in <b>45</b> Events</p>
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
 					<div class="flex gap-4 items-center flex-shrink-0">

@@ -1,7 +1,5 @@
 import type { InferResponseType } from "hono/client";
 
-import { useApiClient } from "@/composables/use-api-client";
-
 export async function useQuestions() {
 	const env = useRuntimeConfig();
 	const { apiClient } = useApiClient();

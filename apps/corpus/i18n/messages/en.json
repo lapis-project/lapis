@@ -39,7 +39,7 @@
 			"title": "Error"
 		},
 		"title": "Something went wrong!",
-		"try-again": "Try again"
+		"go-to-home": "Return to homepage"
 	},
 	"HomePage": {
 		"meta": {

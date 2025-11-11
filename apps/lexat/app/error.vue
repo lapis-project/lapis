@@ -1,22 +1,16 @@
 <script lang="ts" setup>
-const props = defineProps<{
-	error:
-		| Error
-		| {
-				url: string;
-				statusCode: number;
-				statusMessage: string;
-				message: string;
-				description: string;
-		  };
-}>();
+import type { NuxtError } from "#app";
+
+const props = defineProps({
+	error: Object as () => NuxtError,
+});
 
 // const locale = useLocale();
 const t = useTranslations();
 const localePath = useLocalePath();
 
 const isNotFoundPage = computed(() => {
-	return "statusCode" in props.error && props.error.statusCode === 404;
+	return props.error?.statusCode === 404;
 });
 
 /** `error.vue` is *not* wrapped in default layout out of the box. */
@@ -35,7 +29,7 @@ useSeoMeta({
 	},
 });
 
-function onReset() {
+function goToHome() {
 	void clearError({ redirect: localePath("/") });
 }
 </script>
@@ -49,12 +43,13 @@ function onReset() {
 		<template v-else>
 			<PageTitle>{{ t("ErrorPage.title") }}</PageTitle>
 			<div class="flex items-center gap-4">
-				<span>{{ "statusCode" in props.error ? props.error.statusCode : 500 }}</span>
-				<span>{{ props.error.message }}</span>
-			</div>
-			<div>
-				<button @click="onReset">{{ t("ErrorPage.try-again") }}</button>
+				<span>{{ props.error?.statusCode ?? 500 }}</span>
+				<span>{{ props.error?.statusMessage }}</span>
 			</div>
 		</template>
+
+		<div>
+			<Button @click="goToHome">{{ t("ErrorPage.go-to-home") }}</Button>
+		</div>
 	</MainContent>
 </template>

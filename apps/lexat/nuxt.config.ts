@@ -2,13 +2,13 @@ import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
 
-import { defaultLocale, localesMap } from "./config/i18n.config";
+import { defaultLocale, localesMap } from "./app/config/i18n.config";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
 export default defineNuxtConfig({
 	alias: {
-		"@": fileURLToPath(new URL("./", import.meta.url)),
+		"@": fileURLToPath(new URL("./app", import.meta.url)),
 	},
 
 	app: {
@@ -76,7 +76,7 @@ export default defineNuxtConfig({
 	},
 
 	imports: {
-		dirs: ["./config/"],
+		dirs: ["./app/config/"],
 	},
 
 	modules: [

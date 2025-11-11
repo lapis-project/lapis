@@ -39,7 +39,7 @@
 			"title": "Fehler"
 		},
 		"title": "Etwas ist schief gelaufen!",
-		"try-again": "Erneut versuchen"
+		"go-to-home": "Zur Startseite"
 	},
 	"HomePage": {
 		"meta": {

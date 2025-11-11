@@ -66,3 +66,7 @@ playwright.config.ts
 *.config.ts
 *.d.ts
 *.log
+
+# persistent data for local development
+persistent/*
+*.ogg

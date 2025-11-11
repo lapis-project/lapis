@@ -6,16 +6,17 @@ import { prettyJSON } from "hono/pretty-json";
 import { verifyRequestOrigin } from "lucia";
 
 import { lucia } from "@/auth/auth";
+import audio from "@/handler/audioHandler";
+import auth from "@/handler/authHandler";
+import statistics from "@/handler/statHandler";
+import user from "@/handler/userHandler";
+import type { Context } from "@/lib/context";
 
 import { getUserById } from "./db/authRepository";
 import articles from "./handler/articleHandler";
-import auth from "./handler/authHandler";
 import cms from "./handler/cmsHandler";
 import media from "./handler/mediaHandler";
 import questions from "./handler/questionHandler";
-import statistics from "./handler/statHandler";
-import user from "./handler/userHandler";
-import type { Context } from "./lib/context";
 
 const app: Hono<Context> = new Hono<Context>()
 
@@ -35,10 +36,17 @@ const app: Hono<Context> = new Hono<Context>()
 			allowHeaders: [
 				"Content-Type",
 				"Authorization",
+				"Range", // TODO: refactor to use this in audiohandler ohly
 				"X-Custom-Header",
 				"Upgrade-Insecure-Requests",
 			],
-			exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
+			exposeHeaders: [
+				"Accept-Ranges", // TODO: refactor to use this in audiohandler ohly
+				"Content-Range", // TODO: refactor to use this in audiohandler ohly
+				"Content-Length", // TODO: refactor to use this in audiohandler ohly
+				"Content-Type", // TODO: refactor to use this in audiohandler ohly
+				"X-Kuma-Revision", // TODO: refactor to use this in audiohandler ohly
+			],
 			maxAge: 600,
 			credentials: true,
 		}),
@@ -101,7 +109,8 @@ const app: Hono<Context> = new Hono<Context>()
 	.route("/auth", auth)
 	.route("/user", user)
 	.route("/media", media)
-	.route("/stat", statistics);
+	.route("/stat", statistics)
+	.route("/audio", audio);
 
 export { app };
 

@@ -308,7 +308,7 @@ export async function getResultsByPhaen(
 				eb.ref("response.response_text").as("response"),
 				eb.ref("annotation.annotation_name").as("annotation"),
 				eb.ref("phenomenon.phenomenon_name").as("phenomenon"),
-				eb.fn.coalesce(eb.ref("variety.variety_name"), eb.val("Weitere Antwort")).as("variety"),
+				eb.fn.coalesce(eb.ref("variety.variety_name"), eb.val("weitere Bezeichnung")).as("variety"),
 				eb.ref("place.place_name").as("place"),
 				eb.ref("age_group.age_group_name").as("age"),
 				eb.ref("informant.comment").as("informant"),

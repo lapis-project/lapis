@@ -213,7 +213,7 @@
 			"items-per-page": "Einträge pro Seite",
 			"infid": "Informant",
 			"response": "Antwort",
-			"annotation": "Annotation",
+			"annotation": "Variante",
 			"variety": "Register",
 			"place": "Ort",
 			"age-group": "Alter"
@@ -336,7 +336,7 @@
 				"show-all": "Alle anzeigen"
 			},
 			"variants": {
-				"title": "Varianten wählen",
+				"title": "Varianten",
 				"placeholder": "Varianten",
 				"tooltip": "Normalisierte Antworttypen"
 			},

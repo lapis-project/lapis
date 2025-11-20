@@ -42,7 +42,6 @@ const resetSelection = () => {
 	selectedCategory.value = null;
 	selectedLanguage.value = null;
 	searchInput.value = "";
-	// applySearchParams(); Redundant because of newly implemented watchers
 };
 
 // const formatPublishDate = (publishedAt: string) => {
@@ -69,8 +68,6 @@ watch(selectedCategory, () => {
 watch(selectedLanguage, () => {
 	applySearchParams();
 });
-
-// applySearchParams(); Also redundant due to watchers
 
 usePageMetadata({
 	title: t("ArticlesPage.meta.title"),
@@ -121,12 +118,6 @@ usePageMetadata({
 					:placeholder="t('AdminPage.editor.language.placeholder')"
 				/>
 			</div>
-			<!--
-			Button not necessary for search and filter anymore
-			<Button class="mb-5 block w-64" type="submit" @click="applySearchParams">
-				{{ t("ArticlesPage.filters.apply") }}
-			</Button>
-			-->
 			<Button class="w-64 gap-2" variant="outline" @click="resetSelection"
 				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon class="size-4"
 			/></Button>

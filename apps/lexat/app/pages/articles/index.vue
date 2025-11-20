@@ -42,7 +42,6 @@ const resetSelection = () => {
 	selectedCategory.value = null;
 	selectedLanguage.value = null;
 	searchInput.value = "";
-	applySearchParams();
 };
 
 // const formatPublishDate = (publishedAt: string) => {
@@ -62,7 +61,13 @@ const applySearchParams = () => {
 	});
 };
 
-applySearchParams();
+watch(selectedCategory, () => {
+	applySearchParams();
+});
+
+watch(selectedLanguage, () => {
+	applySearchParams();
+});
 
 usePageMetadata({
 	title: t("ArticlesPage.meta.title"),
@@ -86,6 +91,7 @@ usePageMetadata({
 						class="pl-10"
 						:placeholder="t('ArticlesPage.filters.search.placeholder')"
 						type="text"
+						@keyup.enter="applySearchParams"
 					/>
 					<span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
 						<SearchIcon class="size-6 text-muted-foreground" />
@@ -112,9 +118,6 @@ usePageMetadata({
 					:placeholder="t('AdminPage.editor.language.placeholder')"
 				/>
 			</div>
-			<Button class="mb-5 block w-64" type="submit" @click="applySearchParams">
-				{{ t("ArticlesPage.filters.apply") }}
-			</Button>
 			<Button class="w-64 gap-2" variant="outline" @click="resetSelection"
 				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon class="size-4"
 			/></Button>

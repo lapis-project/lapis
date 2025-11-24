@@ -228,6 +228,14 @@
 		},
 		"skip-to-main-content": "Skip to main content"
 	},
+	"Disclaimer": {
+		"download": {
+			"title": "Consent required",
+			"text": "The present data is licensed as CC BY-NC 4.0. This means you may share and adapt the material, but only with proper attribution (see citation on the bottom left) and only for non-commercial purposes.",
+			"checkbox": "I have understood this.",
+			"action": "Download"
+		}
+	},
 	"ErrorBoundary": {
 		"error": "Error"
 	},

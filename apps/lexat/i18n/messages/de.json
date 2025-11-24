@@ -228,6 +228,14 @@
 		},
 		"skip-to-main-content": "Zum Hauptinhalt springen"
 	},
+	"Disclaimer": {
+		"download": {
+			"title": "Zustimmung erforderlich",
+			"text": "Die vorliegenden Daten stehen mit einer CC BY-NC 4.0 Lizenz zur Verfügung. Das bedeutet, du darfst diese Daten teilen und bearbeiten, sofern du die Quelle (siehe Zitation unten links) nennst und keine kommerzielle Nutzung erfolgt.",
+			"checkbox": "Ich habe diesen Hinweis zur Kenntnis genommen.",
+			"action": "Download"
+		}
+	},
 	"ErrorBoundary": {
 		"error": "Fehler"
 	},

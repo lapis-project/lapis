@@ -31,6 +31,8 @@ const dbTable = ref<HTMLDivElement | null>(null);
 const flash = ref(false);
 const flashStartTime = ref<number>(0);
 const removeTimeout = ref<NodeJS.Timeout | null>(null);
+const disclaimerConsentGiven = ref(false);
+const disclaimerOpen = ref(false);
 
 const sortedData = computed(() => {
 	if (!sortCriterion.value || props.serverSideSorting) {
@@ -74,7 +76,19 @@ const setSortCriterion = (column: TableColumn) => {
 	}
 };
 
+const handleDisclaimerReponse = (hasAgreed: boolean) => {
+	if (hasAgreed) {
+		disclaimerConsentGiven.value = hasAgreed;
+		handleDownload();
+	}
+	disclaimerOpen.value = false;
+};
+
 const handleDownload = () => {
+	if (!disclaimerConsentGiven.value) {
+		disclaimerOpen.value = true;
+		return;
+	}
 	if (props.serverSideSorting) {
 		emit("download-csv");
 	} else {
@@ -236,5 +250,6 @@ onBeforeUnmount(() => {
 			>
 			<slot name="right"></slot>
 		</div>
+		<Disclaimer :open="disclaimerOpen" @download="handleDisclaimerReponse"></Disclaimer>
 	</section>
 </template>

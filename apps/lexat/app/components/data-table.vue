@@ -31,7 +31,6 @@ const dbTable = ref<HTMLDivElement | null>(null);
 const flash = ref(false);
 const flashStartTime = ref<number>(0);
 const removeTimeout = ref<NodeJS.Timeout | null>(null);
-const disclaimerConsentGiven = ref(false);
 const disclaimerOpen = ref(false);
 
 const sortedData = computed(() => {
@@ -78,22 +77,17 @@ const setSortCriterion = (column: TableColumn) => {
 
 const handleDisclaimerReponse = (hasAgreed: boolean) => {
 	if (hasAgreed) {
-		disclaimerConsentGiven.value = hasAgreed;
-		handleDownload();
+		if (props.serverSideSorting) {
+			emit("download-csv");
+		} else {
+			downloadCSV(sortedData.value, props.columns);
+		}
 	}
 	disclaimerOpen.value = false;
 };
 
 const handleDownload = () => {
-	if (!disclaimerConsentGiven.value) {
-		disclaimerOpen.value = true;
-		return;
-	}
-	if (props.serverSideSorting) {
-		emit("download-csv");
-	} else {
-		downloadCSV(sortedData.value, props.columns);
-	}
+	disclaimerOpen.value = true;
 };
 
 // Yes, we have to do this explicitly so that tailwind picks up the full class names

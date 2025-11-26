@@ -10,6 +10,16 @@ const props = defineProps<{
 }>();
 
 const hasAgreed = ref(false);
+
+// reset checkbox whenever dialog opens
+watch(
+	() => props.open,
+	(open) => {
+		if (open) {
+			hasAgreed.value = false;
+		}
+	},
+);
 </script>
 
 <template>
@@ -20,7 +30,7 @@ const hasAgreed = ref(false);
 				<DialogDescription>
 					{{ t("Disclaimer.download.text") }}
 				</DialogDescription>
-				<div class="flex gap-2 items-center rounded border p-2 max-w-sm">
+				<div class="flex w-fit gap-2 items-center rounded border p-2">
 					<Checkbox id="disclaimer-consent" v-model="hasAgreed" />
 					<label
 						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

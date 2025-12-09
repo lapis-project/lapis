@@ -69,8 +69,8 @@ usePageMetadata({
 						</li>
 						<li>
 							die Möglichkeit
-							<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank">mitzumachen</a>
-							(Runde II) und damit den eigenen Wortschatz zu dokumentieren
+							<a href="https://ofb.dioe.at/index.php/59431?lang=de" target="_blank">mitzumachen</a>
+							(Runde III) und damit den eigenen Wortschatz zu dokumentieren
 						</li>
 					</template>
 					<template v-else>
@@ -95,10 +95,10 @@ usePageMetadata({
 						</li>
 						<li>
 							the possibility to document your own language use by
-							<a href="https://ofb.dioe.at/index.php/65681?lang=de" target="_blank"
+							<a href="https://ofb.dioe.at/index.php/59431?lang=de" target="_blank"
 								>participating</a
 							>
-							(round II) in the current survey
+							(round III) in the current survey
 						</li>
 					</template>
 				</ul>

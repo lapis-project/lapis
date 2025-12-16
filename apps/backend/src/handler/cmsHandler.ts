@@ -4,17 +4,17 @@ import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import { array, minLength, number, object, optional, pipe, string } from "valibot";
 
-import { getAllUserRoles, getAllUsers } from "@/db/userRepository";
-import { restrictedRoute } from "@/lib/authHelper";
-import type { Context } from "@/lib/context";
+import { getAllUserRoles, getAllUsers } from "@/db/userRepository.ts";
+import { restrictedRoute } from "@/lib/authHelper.ts";
+import type { AppEnv } from "@/lib/context.ts";
 import {
 	insertBibliography,
 	instanceOfAvailablelang,
 	instanceOfPoststatus,
-} from "@/lib/RepoHelper";
-import { generateSignedImageUrl } from "@/service/imageService";
-import { deleteFromS3 } from "@/service/storageService";
-import type { Article } from "@/types/apiTypes";
+} from "@/lib/RepoHelper.ts";
+import { generateSignedImageUrl } from "@/service/imageService.ts";
+import { deleteFromS3 } from "@/service/storageService.ts";
+import type { Article } from "@/types/apiTypes.ts";
 
 import {
 	createNewPost,
@@ -31,7 +31,7 @@ import {
 	linkAuthorsToPost,
 	linkProjectToPost,
 	updateArticleById,
-} from "./../db/cmsRepository";
+} from "./../db/cmsRepository.ts";
 
 const createNewArticleSchema = object({
 	title: pipe(string(), minLength(5)),
@@ -59,7 +59,7 @@ const searchArticleSchema = object({
 	category: optional(string()), // Does it allow as an enum? ARTICLE | BLOG | NEWS
 });
 
-const cms = new Hono<Context>()
+const cms = new Hono<AppEnv>()
 	/**
 	 * Delete the article with the provided id as queryparam
 	 * Returns code 200 when the article has been processed

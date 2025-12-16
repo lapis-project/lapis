@@ -5,20 +5,19 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { verifyRequestOrigin } from "lucia";
 
-import { lucia } from "@/auth/auth";
-import audio from "@/handler/audioHandler";
-import auth from "@/handler/authHandler";
-import statistics from "@/handler/statHandler";
-import user from "@/handler/userHandler";
-import type { Context } from "@/lib/context";
+import { lucia } from "@/auth/auth.ts";
+import { getUserById } from "@/db/authRepository.ts";
+import articles from "@/handler/articleHandler.ts";
+import audio from "@/handler/audioHandler.ts";
+import auth from "@/handler/authHandler.ts";
+import cms from "@/handler/cmsHandler.ts";
+import media from "@/handler/mediaHandler.ts";
+import questions from "@/handler/questionHandler.ts";
+import statistics from "@/handler/statHandler.ts";
+import user from "@/handler/userHandler.ts";
+import type { AppContext, AppEnv } from "@/lib/context.ts";
 
-import { getUserById } from "./db/authRepository";
-import articles from "./handler/articleHandler";
-import cms from "./handler/cmsHandler";
-import media from "./handler/mediaHandler";
-import questions from "./handler/questionHandler";
-
-const app: Hono<Context> = new Hono<Context>()
+const app = new Hono<AppEnv>()
 
 	.use(logger())
 	.use(prettyJSON())
@@ -51,7 +50,7 @@ const app: Hono<Context> = new Hono<Context>()
 			credentials: true,
 		}),
 	)
-	.use("*", async (c, next) => {
+	.use("*", async (c: AppContext, next) => {
 		if (c.req.method === "GET") {
 			return next();
 		}
@@ -74,7 +73,7 @@ const app: Hono<Context> = new Hono<Context>()
 		}
 		return next();
 	})
-	.use("*", async (c, next) => {
+	.use("*", async (c: AppContext, next) => {
 		const cookie = getCookie(c, "Set-Cookie");
 		const sessionId = lucia.readSessionCookie(cookie ?? "");
 		if (!sessionId) {
@@ -99,10 +98,10 @@ const app: Hono<Context> = new Hono<Context>()
 		c.set("user", user);
 		return next();
 	})
-	.get("/", (c) => {
+	.get("/", (c: AppContext) => {
 		return c.json("OK", 201);
 	})
-	.notFound((c) => c.json({ message: "Not Found", ok: false }, 404))
+	.notFound((c: AppContext) => c.json({ message: "Not Found", ok: false }, 404))
 	.route("/articles", articles)
 	.route("/questions", questions)
 	.route("/cms", cms)

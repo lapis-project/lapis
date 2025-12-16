@@ -1,7 +1,7 @@
 import { createMiddleware } from "hono/factory";
 
-import type { Context } from "@/lib/context";
-import type { Userroles } from "@/types/db";
+import type { AppEnv as Context } from "@/lib/context.ts";
+import type { Userroles } from "@/types/db.ts";
 
 export const restrictedRoute = createMiddleware<Context>(async (c, next) => {
 	const sessionCookie = c.get("session");

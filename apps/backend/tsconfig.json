@@ -2,15 +2,19 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "@acdh-oeaw/tsconfig",
 	"compilerOptions": {
-		/** @see https://github.com/egoist/tsup/issues/615 */
-		"incremental": false,
 		"jsx": "react-jsx",
 		"jsxImportSource": "hono/jsx",
 		"paths": {
 			"@/*": ["./src/*"]
 		},
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true
+		"allowSyntheticDefaultImports": true,
+		"allowImportingTsExtensions": true,
+		"composite": true /** @see https://github.com/honojs/hono/issues/3109#issuecomment-2222892161 */,
+		"noEmit": false,
+		"emitDeclarationOnly": false
 	},
 	"exclude": ["dist", "node_modules"]
 }

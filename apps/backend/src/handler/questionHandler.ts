@@ -4,7 +4,7 @@ import type { OrderByDirection } from "kysely";
 import { array, number, object, optional, safeParse, string } from "valibot";
 
 // import { restrictedRoute } from "@/lib/authHelper";
-import type { Context } from "@/lib/context";
+import type { AppEnv } from "@/lib/context.ts";
 
 import {
 	getAllPhenomenon,
@@ -13,7 +13,7 @@ import {
 	getAllSurveys,
 	getAnnotationsByPhaenAndProjectId,
 	getResultsByPhaen,
-} from "../db/questionRepository";
+} from "../db/questionRepository.ts";
 
 const saveMapSchema = object({
 	project: string(),
@@ -40,7 +40,7 @@ const searchResponseQuerySchema = object({
 // Enable in order to restrict the route only to signed in users
 // questions.use("*", restrictedRoute);
 
-const questions = new Hono<Context>()
+const questions = new Hono<AppEnv>()
 	.get("/survey/:project", async (c) => {
 		const projectId = c.req.param("project");
 		if (!projectId) {

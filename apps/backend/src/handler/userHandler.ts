@@ -14,23 +14,23 @@ import {
 	union,
 } from "valibot";
 
-import { argon2Config } from "@/config/config";
-import { getUserById } from "@/db/authRepository";
+import { argon2Config } from "@/config/config.ts";
+import { getUserById } from "@/db/authRepository.ts";
 import {
 	editUserData,
 	editUserPassword,
 	editUserRoleByUserId,
 	getUsersByRole,
 	setUserActiveState,
-} from "@/db/userRepository";
+} from "@/db/userRepository.ts";
 import {
 	checkIfPrivilegedForAdminOrHigher,
 	checkIfRoleIsAllowed,
 	isSuperadmin,
 	restrictedRoute,
-} from "@/lib/authHelper";
-import type { Context } from "@/lib/context";
-import { instanceOfUserRole } from "@/lib/RepoHelper";
+} from "@/lib/authHelper.ts";
+import type { AppEnv } from "@/lib/context.ts";
+import { instanceOfUserRole } from "@/lib/RepoHelper.ts";
 
 const editRoleSchema = object({
 	user_role: string(),
@@ -51,7 +51,7 @@ const editActiveTypeSchema = object({
 	active: union([literal("active"), literal("inactive")]),
 });
 
-const user = new Hono<Context>()
+const user = new Hono<AppEnv>()
 
 	/**
 	 * Gets all users by their role and returns them in an array with a status code of 200.

@@ -1,5 +1,5 @@
-import { db } from "@/db/connect";
-import type { Inactivetype, Userroles } from "@/types/db";
+import { db } from "@/db/connect.ts";
+import type { Inactivetype, Userroles } from "@/types/db.ts";
 
 export async function getUsersByRole(role_name: Userroles) {
 	return await db

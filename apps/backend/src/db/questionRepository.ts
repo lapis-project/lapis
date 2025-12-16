@@ -2,9 +2,9 @@ import { log } from "@acdh-oeaw/lib";
 import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
-import { jsonbBuildObject } from "@/lib/dbHelper";
+import { jsonbBuildObject } from "@/lib/dbHelper.ts";
 
-import { db } from "./connect";
+import { db } from "./connect.ts";
 
 export async function getAllPhenomenon(projectId: string) {
 	const projectIdParsed = parseInt(projectId);

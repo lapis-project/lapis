@@ -1,10 +1,10 @@
-import { availableLangConst, postStatusConst, userRolesConst } from "@/config/config";
+import { availableLangConst, postStatusConst, userRolesConst } from "@/config/config.ts";
 import {
 	checkBibliographyExists,
 	insertNewBibliography,
 	insertNewBibliographyPost,
-} from "@/db/cmsRepository";
-import type { Availablelang, Poststatus, Userroles } from "@/types/db";
+} from "@/db/cmsRepository.ts";
+import type { Availablelang, Poststatus, Userroles } from "@/types/db.ts";
 
 export function instanceOfPoststatus(object: unknown): object is Poststatus {
 	return typeof object === "string" && postStatusConst.includes(object as Poststatus);

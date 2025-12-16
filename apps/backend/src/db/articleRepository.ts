@@ -1,11 +1,11 @@
 import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
-import { db } from "@/db/connect";
-import { jsonbBuildObject } from "@/lib/dbHelper";
-import type { Availablelang, Poststatus } from "@/types/db";
+import { db } from "@/db/connect.ts";
+import { jsonbBuildObject } from "@/lib/dbHelper.ts";
+import type { Availablelang, Poststatus } from "@/types/db.ts";
 
-import type { PagedArticlesResult } from "../types/apiTypes";
+import type { PagedArticlesResult } from "../types/apiTypes.ts";
 
 export async function getArticleByAlias(alias: string) {
 	const query = db

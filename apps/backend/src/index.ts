@@ -1,7 +1,7 @@
 import { log } from "@acdh-oeaw/lib";
 import { serve } from "@hono/node-server";
 
-import { app } from "@/app";
+import { app } from "@/app.ts";
 
 // Starting the server
 const port = Number(process.env.BACKEND_PORT) || 3000;

@@ -4,6 +4,8 @@ apps/lexat/.output/**
 apps/lexat/.nuxt/**
 apps/corpus/.output/**
 apps/corpus/.nuxt/**
+apps/lexvad/.output/**
+apps/lexvad/.nuxt/**
 
 .gitignore
 

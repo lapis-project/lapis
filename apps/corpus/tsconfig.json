@@ -1,4 +1,6 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"extends": ["./.nuxt/tsconfig.json", "@acdh-oeaw/tsconfig"]
+	"extends": ["./.nuxt/tsconfig.json", "@acdh-oeaw/tsconfig"],
+	/** @see https://github.com/honojs/hono/issues/3109#issuecomment-2222892161 */
+	"references": [{ "path": "../backend" }]
 }

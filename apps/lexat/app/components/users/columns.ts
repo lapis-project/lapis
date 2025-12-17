@@ -1,10 +1,11 @@
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
 
-import UserItemActions from "@/components/users/user-item-actions.vue";
-import type { UserTableEntry } from "@/components/users/users";
+import type { AdminUser } from "@/pages/admin/user-management.vue";
 
-export const columns: Array<ColumnDef<UserTableEntry>> = [
+import UserItemActions from "../../components/users/user-item-actions.vue";
+
+export const columns: Array<ColumnDef<AdminUser>> = [
 	// {
 	// 	accessorKey: "id",
 	// 	header: () => h("div", { class: "text-left" }, "ID"),

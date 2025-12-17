@@ -5,8 +5,7 @@ import { CircleChevronUp, KeyRound } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 import * as z from "zod";
 
-import { useApiClient } from "@/composables/use-api-client";
-import type { UserRole } from "@/pages/admin/user-management.vue";
+import type { AdminUser, UserRole } from "@/pages/admin/user-management.vue";
 
 const env = useRuntimeConfig();
 const { apiClient } = useApiClient();
@@ -21,11 +20,7 @@ const userRoles: Array<UserRole> = [
 ];
 
 const props = defineProps<{
-	item: {
-		id: number;
-		username: string;
-		role_name: string;
-	};
+	item: AdminUser;
 	refresh: () => Promise<void>;
 }>();
 

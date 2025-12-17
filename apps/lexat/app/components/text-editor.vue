@@ -52,7 +52,7 @@ const urlInput = ref<string>("");
 const imageAnnotation = ref<string>("");
 const imageMapLink = ref<string>("");
 const imageAltText = ref<string>("");
-const selectedImage = ref(null);
+const selectedImage = ref<File | null>(null);
 const tableColumns = ref(3);
 const tableRows = ref(3);
 
@@ -291,10 +291,11 @@ const onHeadingClick = (index: Level) => {
 	toggleDropdown();
 };
 
-const handleFileChange = (event) => {
-	const file = event.target.files[0]; // Get the selected file
+const handleFileChange = (event: Event) => {
+	const target = event.target as HTMLInputElement;
+	const file = target.files?.[0];
 	if (file) {
-		selectedImage.value = file; // Store the file
+		selectedImage.value = file;
 	}
 };
 </script>

@@ -2,9 +2,7 @@
 import type { InferResponseType } from "hono/client";
 import { Plus } from "lucide-vue-next";
 
-import { columns } from "@/components/users/columns";
-import UserTable from "@/components/users/user-table.vue";
-import { useApiClient } from "@/composables/use-api-client";
+import { columns } from "../../components/users/columns";
 
 export type UserRole = APIAdminUsers["userRoles"][number];
 
@@ -24,6 +22,7 @@ usePageMetadata({
 const { apiClient } = useApiClient();
 const _getAdminUsers = apiClient.cms.users.all.$get;
 export type APIAdminUsers = InferResponseType<typeof _getAdminUsers, 200>;
+export type AdminUser = APIAdminUsers["users"][number];
 
 const { data, refresh } = useFetch<APIAdminUsers>("/cms/users/all", {
 	baseURL: env.public.apiBaseUrl,

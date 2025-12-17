@@ -9,7 +9,6 @@ import type {
 
 import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
-import { useQuestions } from "@/composables/use-questions";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();

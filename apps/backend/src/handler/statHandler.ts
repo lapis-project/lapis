@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 
-import { getAgeBuckets, getAllStatData } from "@/db/statRepository";
-import type { Context } from "@/lib/context";
+import { getAgeBuckets, getAllStatData } from "@/db/statRepository.ts";
+import type { AppEnv } from "@/lib/context.ts";
 
-const statistics = new Hono<Context>().get("/", async (c) => {
+const statistics = new Hono<AppEnv>().get("/", async (c) => {
 	const { projectId, buckets } = c.req.query();
 
 	let projectIdParsed = parseInt(projectId ?? "1");

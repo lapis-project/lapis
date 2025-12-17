@@ -1,10 +1,10 @@
 import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
-import { db } from "@/db/connect";
-import { jsonbBuildObject } from "@/lib/dbHelper";
-import type { Article } from "@/types/apiTypes";
-import type { Availablelang, Poststatus } from "@/types/db";
+import { db } from "@/db/connect.ts";
+import { jsonbBuildObject } from "@/lib/dbHelper.ts";
+import type { Article } from "@/types/apiTypes.ts";
+import type { Availablelang, Poststatus } from "@/types/db.ts";
 
 // export async function get
 export async function getAllUserPhenKat(project_id: string) {

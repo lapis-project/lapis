@@ -3,12 +3,6 @@
 import type { InferResponseType } from "hono/client";
 import { ArrowLeft, Database, MapPin } from "lucide-vue-next";
 
-import { useApiClient } from "@/composables/use-api-client";
-import { useCitationGenerator } from "@/composables/use-citation-generator";
-import { formatAuthors } from "@/utils/article-helper";
-import { addIdsToHeadings } from "@/utils/html-helpers";
-import { useFetch, useRoute } from "#app";
-
 const { bibliographyItems, getCitationItems, fetchBibliographyItems } = useCitationGenerator();
 
 const t = useTranslations();

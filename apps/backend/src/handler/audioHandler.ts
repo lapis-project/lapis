@@ -6,10 +6,9 @@ import { log } from "@acdh-oeaw/lib";
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
 
-import type { Context } from "@/lib/context";
+import type { AppEnv } from "@/lib/context.ts";
 
-const audio = new Hono<Context>().get("/stream/:filename", async (c) => {
-	console.log("hello from backend");
+const audio = new Hono<AppEnv>().get("/stream/:filename", async (c) => {
 	const filename = c.req.param("filename");
 	const persistentDir = path.join(process.cwd(), "persistent");
 	const base = path.basename(filename, path.extname(filename)); // sanitize and strip any ext
@@ -57,14 +56,14 @@ const audio = new Hono<Context>().get("/stream/:filename", async (c) => {
 
 		if (start > end || start < 0) {
 			c.status(416);
-			c.header("Content-Range", `bytes */${size}`);
+			c.header("Content-Range", `bytes */${String(size)}`);
 			return c.text("Requested Range Not Satisfiable", 416);
 		}
 
 		const chunkSize = end - start + 1;
 
 		c.status(206);
-		c.header("Content-Range", `bytes ${start}-${end}/${size}`);
+		c.header("Content-Range", `bytes ${String(start)}-${String(end)}/${String(size)}`);
 		c.header("Content-Length", String(chunkSize));
 
 		const fileNodeStream = fs.createReadStream(oggPath, { start, end });

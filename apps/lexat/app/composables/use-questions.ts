@@ -15,7 +15,7 @@ export async function useQuestions() {
 			method: "GET",
 			credentials: "include",
 		});
-		questionsState.value = data.value;
+		questionsState.value = data.value ?? null;
 	}
 
 	return { questions: questionsState };

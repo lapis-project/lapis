@@ -1,6 +1,6 @@
-import type { Userroles } from "@/types/db";
+import type { Userroles } from "@/types/db.ts";
 
-import { db } from "./connect";
+import { db } from "./connect.ts";
 
 export async function getUser(email: string) {
 	return await db

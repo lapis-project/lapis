@@ -1,11 +1,11 @@
 import { log } from "@acdh-oeaw/lib";
 import { Hono } from "hono";
 
-import { getCoverById, updateArticleCover } from "@/db/cmsRepository";
-import { restrictedRoute } from "@/lib/authHelper";
-import { generateSignedImageUrl } from "@/service/imageService";
+import { getCoverById, updateArticleCover } from "@/db/cmsRepository.ts";
+import { restrictedRoute } from "@/lib/authHelper.ts";
+import { generateSignedImageUrl } from "@/service/imageService.ts";
 
-import { deleteFromS3, uploadToS3 } from "../service/storageService";
+import { deleteFromS3, uploadToS3 } from "../service/storageService.ts";
 
 const media = new Hono()
 	.post("/upload/:id", async (c) => {

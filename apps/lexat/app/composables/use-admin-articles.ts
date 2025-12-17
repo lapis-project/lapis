@@ -1,8 +1,6 @@
 import type { InferResponseType } from "hono/client";
 import { computed } from "vue";
 
-import { useApiClient } from "@/composables/use-api-client";
-
 export function useAdminArticles() {
 	const env = useRuntimeConfig();
 	const { apiClient } = useApiClient();

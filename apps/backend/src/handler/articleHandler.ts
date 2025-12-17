@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { minLength, number, optional, pipe, safeParse, string } from "valibot";
 
-import type { Context } from "@/lib/context";
-import { generateSignedImageUrl } from "@/service/imageService";
-import type { Availablelang } from "@/types/db";
+import type { AppEnv } from "@/lib/context.ts";
+import { generateSignedImageUrl } from "@/service/imageService.ts";
+import type { Availablelang } from "@/types/db.ts";
 
-import { getAllArticlesByProject, getArticleByAlias } from "../db/articleRepository";
+import { getAllArticlesByProject, getArticleByAlias } from "../db/articleRepository.ts";
 
-const articles = new Hono<Context>()
+const articles = new Hono<AppEnv>()
 
 	/**
 	 * Fetches all articles by project id which have the status as published.

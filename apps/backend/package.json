@@ -9,21 +9,6 @@
 		"pnpm": ">=10.25"
 	},
 	"exports": {
-		"./cms": {
-			"types": "./src/handler/cmsHandler.ts"
-		},
-		"./article": {
-			"types": "./src/handler/articleHandler.ts"
-		},
-		"./auth": {
-			"types": "./src/handler/authHandler.ts"
-		},
-		"./question": {
-			"types": "./src/handler/questionHandler.ts"
-		},
-		"./user": {
-			"types": "./src/handler/userHandler.ts"
-		},
 		"./api": {
 			"types": "./src/app.ts"
 		}

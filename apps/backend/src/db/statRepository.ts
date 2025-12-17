@@ -1,8 +1,8 @@
 import { sql } from "kysely";
 
-import { jsonbBuildObject } from "@/lib/dbHelper";
+import { jsonbBuildObject } from "@/lib/dbHelper.ts";
 
-import { db } from "./connect";
+import { db } from "./connect.ts";
 
 export async function getAllInfByGender() {
 	return await db

@@ -1,4 +1,4 @@
-import type { Availablelang, Poststatus } from "@/types/db";
+import type { Availablelang, Poststatus } from "@/types/db.ts";
 
 export interface Category {
 	id: string;

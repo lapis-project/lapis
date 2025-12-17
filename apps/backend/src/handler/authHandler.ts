@@ -15,12 +15,12 @@ import {
 	trim,
 } from "valibot";
 
-import { lucia } from "@/auth/auth";
-import { argon2Config, userRolesConst } from "@/config/config";
-import { createUser, getUser, getUserById } from "@/db/authRepository";
-import { checkIfPrivilegedForAdminOrHigher } from "@/lib/authHelper";
-import type { Context } from "@/lib/context";
-import type { Userroles } from "@/types/db";
+import { lucia } from "@/auth/auth.ts";
+import { argon2Config, userRolesConst } from "@/config/config.ts";
+import { createUser, getUser, getUserById } from "@/db/authRepository.ts";
+import { checkIfPrivilegedForAdminOrHigher } from "@/lib/authHelper.ts";
+import type { AppEnv } from "@/lib/context.ts";
+import type { Userroles } from "@/types/db.ts";
 
 const loginSchema = object({
 	email: pipe(string(), toLowerCase()),
@@ -51,7 +51,7 @@ export interface SessionUserDTO {
 	role_name: "admin" | "editor" | "superadmin" | null;
 }
 
-const auth = new Hono<Context>()
+const auth = new Hono<AppEnv>()
 	.get("/session", async (c) => {
 		const session = c.get("session");
 		if (!session?.userId) {

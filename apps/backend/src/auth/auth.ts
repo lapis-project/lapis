@@ -1,8 +1,8 @@
 import { NodePostgresAdapter } from "@lucia-auth/adapter-postgresql";
 import { Lucia, TimeSpan } from "lucia";
 
-import { pool } from "@/db/connect";
-import type { UserAccount } from "@/types/db";
+import { pool } from "@/db/connect.ts";
+import type { UserAccount } from "@/types/db.ts";
 
 const dbAdapterAuth = new NodePostgresAdapter(pool, {
 	user: "user_account",

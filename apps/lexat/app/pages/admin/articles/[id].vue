@@ -3,7 +3,6 @@ import type { InferResponseType } from "hono/client";
 import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 
-import { useApiClient } from "@/composables/use-api-client";
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
 
@@ -61,13 +60,13 @@ const { data: informationList } = await useFetch<APIInformationList>("/cms/artic
 	credentials: "include",
 });
 
-const categoryOptions = ref([]);
-const mappedQuestions = ref([]);
+const categoryOptions = ref<Array<{ value: string; label: string }>>([]);
+const mappedQuestions = ref<Array<{ id: number; value: string | null; label: string | null }>>([]);
 const users = ref<Array<{ id: number; value: number; firstName: string; lastName: string }>>([]);
 
 if (informationList.value) {
 	categoryOptions.value = informationList.value.categories.map((c) => ({
-		value: c.name,
+		value: c.name!,
 		label: t(`AdminPage.editor.category.${c.name}`),
 	}));
 	mappedQuestions.value = informationList.value.phenomenon.map((c) => ({
@@ -348,7 +347,7 @@ usePageMetadata({
 								}}<span class="text-destructive"> (Try to keep image below 500kb for now)</span>
 							</div>
 							<label
-								class="flex aspect-16/9 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+								class="flex aspect-video w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-800"
 								for="dropzone-file"
 							>
 								<div v-if="!cover" class="flex flex-col items-center justify-center pb-6 pt-5">

@@ -42,6 +42,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cva": "1.0.0-beta.1",
+		"hono": "^4.10.7",
 		"lucide-vue-next": "^0.540.0",
 		"nuxt": "4.2.1",
 		"nuxt-svgo": "^4.2.6",

@@ -714,43 +714,43 @@ const steps = [
 	{
 		attachTo: { element: "#welcome" },
 		content: {
-			title: "Onboarding.welcome.title",
-			description: "Onboarding.welcome.description",
+			title: "Onboarding.Map-Onboarding.welcome.title",
+			description: "Onboarding.Map-Onboarding.welcome.description",
 		},
 	},
 	{
 		attachTo: { element: "#phenomenon" },
 		content: {
-			title: "Onboarding.phenomenon.title",
-			description: "Onboarding.phenomenon.description",
+			title: "Onboarding.Map-Onboarding.phenomenon.title",
+			description: "Onboarding.Map-Onboarding.phenomenon.description",
 		},
 	},
 	{
 		attachTo: { element: "#register" },
 		content: {
-			title: "Onboarding.register.title",
-			description: "Onboarding.register.description",
+			title: "Onboarding.Map-Onboarding.register.title",
+			description: "Onboarding.Map-Onboarding.register.description",
 		},
 	},
 	{
 		attachTo: { element: "#reset" },
 		content: {
-			title: "Onboarding.reset.title",
-			description: "Onboarding.reset.description",
+			title: "Onboarding.Map-Onboarding.reset.title",
+			description: "Onboarding.Map-Onboarding.reset.description",
 		},
 	},
 	{
 		attachTo: { element: "#advanced" },
 		content: {
-			title: "Onboarding.advanced.title",
-			description: "Onboarding.advanced.description",
+			title: "Onboarding.Map-Onboarding.advanced.title",
+			description: "Onboarding.Map-Onboarding.advanced.description",
 		},
 	},
 	{
 		attachTo: { element: "#about" },
 		content: {
-			title: "Onboarding.about.title",
-			description: "Onboarding.about.description",
+			title: "Onboarding.Map-Onboarding.about.title",
+			description: "Onboarding.Map-Onboarding.about.description",
 		},
 	},
 ];

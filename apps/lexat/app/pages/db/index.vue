@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
-import { InfoIcon, MapPin, Quote, RotateCcw } from "lucide-vue-next";
+import { CircleHelp, InfoIcon, MapPin, Quote, RotateCcw, XIcon } from "lucide-vue-next";
+import { useVOnboarding, VOnboardingStep, VOnboardingWrapper } from "v-onboarding";
 import type {
 	LocationQueryRaw,
 	LocationQueryValue,
@@ -11,6 +12,7 @@ import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-da
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
 
+const colorMode = useColorMode();
 const t = useTranslations();
 const router = useRouter();
 const route = useRoute();
@@ -366,6 +368,103 @@ watch(
 	{ immediate: true },
 );
 
+// ONBOARDING
+const wrapper = ref(null);
+const { start: startOnboarding, finish: finishOnboarding } = useVOnboarding(wrapper);
+const steps = [
+	{
+		attachTo: { element: "#welcome" },
+		content: {
+			title: "Onboarding.Db-Onboarding.welcome.title",
+			description: "Onboarding.Db-Onboarding.welcome.description",
+		},
+	},
+	{
+		attachTo: { element: "#phenomenon" },
+		content: {
+			title: "Onboarding.Db-Onboarding.phenomenon.title",
+			description: "Onboarding.Db-Onboarding.phenomenon.description",
+		},
+	},
+	{
+		attachTo: { element: "#advanced" },
+		content: {
+			title: "Onboarding.Db-Onboarding.advanced.title",
+			description: "Onboarding.Db-Onboarding.advanced.description",
+		},
+	},
+	{
+		attachTo: { element: "#reset" },
+		content: {
+			title: "Onboarding.Db-Onboarding.reset.title",
+			description: "Onboarding.Db-Onboarding.reset.description",
+		},
+	},
+	{
+		attachTo: { element: "#download" },
+		content: {
+			title: "Onboarding.Db-Onboarding.download.title",
+			description: "Onboarding.Db-Onboarding.download.description",
+		},
+	},
+	{
+		attachTo: { element: "#citation" },
+		content: {
+			title: "Onboarding.Db-Onboarding.citation.title",
+			description: "Onboarding.Db-Onboarding.citation.description",
+		},
+	},
+	{
+		attachTo: { element: "#about" },
+		content: {
+			title: "Onboarding.Db-Onboarding.about.title",
+			description: "Onboarding.Db-Onboarding.about.description",
+		},
+	},
+];
+const onboardingOptions = { overlay: { padding: 10, borderRadius: 10 } };
+
+const nextStepButton: Ref<HTMLButtonElement | null> = ref(null);
+
+const focusNextButton = (): void => {
+	nextTick(() => {
+		// 1. Wait for Vue's DOM update cycle
+		// 2. Add a minimal delay to hopefully run *after* the library's internal focus logic
+		setTimeout(() => {
+			if (nextStepButton.value) {
+				nextStepButton.value.focus();
+			}
+		}, 1);
+	});
+};
+
+const handleStepChange = (direction: () => void): void => {
+	direction(); // Execute the library's next/previous action
+	focusNextButton();
+};
+
+const onboardingFinished = () => {
+	const timestamp = new Date().toISOString();
+	localStorage.setItem("db-onboarding", JSON.stringify({ finishedAt: timestamp }));
+};
+
+onMounted(() => {
+	const onboardingData = localStorage.getItem("db-onboarding");
+
+	if (!onboardingData) {
+		startOnboarding();
+	} else {
+		const { finishedAt } = JSON.parse(onboardingData);
+		// eslint-disable-next-line no-console
+		console.info("Onboarding completed at:", finishedAt);
+	}
+});
+
+const resetOnboarding = () => {
+	localStorage.removeItem("db-onboarding");
+	startOnboarding();
+};
+
 await initializeFromUrl();
 await refresh(); // manually refetch using updated state
 </script>
@@ -373,10 +472,10 @@ await refresh(); // manually refetch using updated state
 <template>
 	<MainContent class="container grid content-start py-8 overflow-x-scroll sm:overflow-x-auto">
 		<MobileAlert />
-		<section class="flex gap-2">
+		<section id="welcome" class="flex gap-2">
 			<div class="grow rounded-lg border p-5 mb-4">
 				<div class="grid grid-cols-4 gap-5">
-					<div>
+					<div id="phenomenon" class="col-span-1">
 						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 							{{ t("MapsPage.selection.variable.title") }}
 							<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
@@ -391,55 +490,62 @@ await refresh(); // manually refetch using updated state
 							:placeholder="t('MapsPage.selection.variable.placeholder')"
 						/>
 					</div>
-					<div>
-						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-							{{ t("MapsPage.selection.register.title") }}
-							<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon>
-							</InfoTooltip>
-						</div>
-						<MultiSelect
-							v-model="activeRegisters"
-							data-testid="registers"
-							:options="registerOptions"
-							:placeholder="t('MapsPage.selection.register.placeholder')"
-						/>
-					</div>
-					<div>
-						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-							{{ t("MapsPage.selection.variants.title") }}
-							<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon>
-							</InfoTooltip>
-						</div>
-						<MultiSelect
-							v-model="activeVariants"
-							data-testid="variants"
-							:options="uniqueVariantsOptions"
-							:placeholder="t('MapsPage.selection.variants.placeholder')"
-							single-level
-						/>
-					</div>
-					<div>
-						<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
-							{{ t("MapsPage.selection.age.title") }}
-						</div>
-						<div class="max-w-64 pl-1">
-							<DualRangeSlider
-								accessibility-label="Age Group"
-								:label="(value: string) => value"
-								:max="100"
-								:min="0"
-								:step="5"
-								:value="activeAgeGroup"
-								@update:value="setAgeGroup"
+					<div id="advanced" class="col-span-3 grid grid-cols-3 gap-5">
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.register.title") }}
+								<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon>
+								</InfoTooltip>
+							</div>
+							<MultiSelect
+								v-model="activeRegisters"
+								data-testid="registers"
+								:options="registerOptions"
+								:placeholder="t('MapsPage.selection.register.placeholder')"
 							/>
+						</div>
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.variants.title") }}
+								<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon>
+								</InfoTooltip>
+							</div>
+							<MultiSelect
+								v-model="activeVariants"
+								data-testid="variants"
+								:options="uniqueVariantsOptions"
+								:placeholder="t('MapsPage.selection.variants.placeholder')"
+								single-level
+							/>
+						</div>
+						<div>
+							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.age.title") }}
+							</div>
+							<div class="max-w-64 pl-1">
+								<DualRangeSlider
+									accessibility-label="Age Group"
+									:label="(value: string) => value"
+									:max="100"
+									:min="0"
+									:step="5"
+									:value="activeAgeGroup"
+									@update:value="setAgeGroup"
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="flex flex-col gap-2">
-				<Button data-testid="reset" size="icon" variant="outline" @click="resetSelection()"
+				<Button
+					id="reset"
+					data-testid="reset"
+					size="icon"
+					variant="outline"
+					@click="resetSelection()"
 					><RotateCcw class="size-4"
 				/></Button>
 			</div>
@@ -472,10 +578,10 @@ await refresh(); // manually refetch using updated state
 			@update:sort-criterion="setSortOrder"
 		>
 			<template #left>
-				<div class="mr-auto">
+				<div class="mr-auto flex items-center gap-3">
 					<Popover>
 						<PopoverTrigger as-child>
-							<Button variant="outline"
+							<Button id="citation" variant="outline"
 								><Quote class="mr-2 size-4" />{{ t("DbPage.citation") }}</Button
 							></PopoverTrigger
 						>
@@ -484,6 +590,9 @@ await refresh(); // manually refetch using updated state
 							<CopyToClipboard :text="citation" />
 						</PopoverContent>
 					</Popover>
+					<Button id="resetOnboarding" variant="outline" @click="resetOnboarding">
+						<CircleHelp class="mr-2 size-5" /> {{ t("Help") }}</Button
+					>
 				</div>
 			</template>
 			<template #right>
@@ -498,5 +607,95 @@ await refresh(); // manually refetch using updated state
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
 		></PagePagination>
+		<VOnboardingWrapper
+			ref="wrapper"
+			:options="onboardingOptions"
+			:steps="steps"
+			@finish="onboardingFinished"
+		>
+			<template #default="{ previous, next, step, isFirst, isLast }">
+				<VOnboardingStep data-testid="onboardingStep">
+					<div class="bg-white relative shadow sm:rounded-lg mt-5">
+						<div class="px-4 py-5 sm:p-6">
+							<div class="flex items-center justify-between flex-col gap-5">
+								<div v-if="step.content">
+									<h3 v-if="step.content.title" class="text-lg font-medium leading-6 text-gray-900">
+										{{ t(step.content.title) }}
+									</h3>
+									<div v-if="step.content.description" class="mt-2 max-w-xl text-sm text-gray-500">
+										<p>{{ t(step.content.description) }}</p>
+									</div>
+								</div>
+								<div
+									class="mt-5 space-x-4 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center relative"
+								>
+									<template v-if="!isFirst">
+										<button
+											class="inline-flex items-center justify-center rounded-md border border-transparent bg-yellow-100 px-4 py-2 font-medium text-yellow-700 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:text-sm"
+											type="button"
+											@click="handleStepChange(previous)"
+										>
+											{{ t("Onboarding.previous") }}
+										</button>
+									</template>
+									<button
+										ref="nextStepButton"
+										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
+										type="button"
+										@click="handleStepChange(next)"
+									>
+										{{ isLast ? t("Onboarding.finish") : t("Onboarding.next") }}
+									</button>
+								</div>
+							</div>
+						</div>
+						<button
+							class="absolute top-3 right-3 cursor-pointer"
+							:class="{ 'text-background': colorMode.value === 'dark' }"
+							variant="button"
+							@click="finishOnboarding"
+						>
+							<XIcon class="size-5" />
+						</button>
+					</div>
+				</VOnboardingStep>
+			</template>
+		</VOnboardingWrapper>
 	</MainContent>
 </template>
+
+<style>
+[data-v-onboarding-wrapper] [data-popper-arrow]::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: -1;
+	width: var(--v-onboarding-step-arrow-size, 10px);
+	height: var(--v-onboarding-step-arrow-size, 10px);
+	margin-top: 20px;
+	background: var(--v-onboarding-step-arrow-background, hsl(0deg 0% 100%));
+	visibility: visible;
+	transition:
+		transform 0.2s ease-out,
+		visibility 0.2s ease-out;
+	transform: translateX(0) rotate(45deg);
+	transform-origin: center;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="top"] > [data-popper-arrow] {
+	bottom: 15px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="right"] > [data-popper-arrow] {
+	left: -4px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="bottom"] > [data-popper-arrow] {
+	top: -4px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="left"] > [data-popper-arrow] {
+	right: -4px;
+}
+</style>

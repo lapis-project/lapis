@@ -239,7 +239,7 @@ onBeforeUnmount(() => {
 		</div>
 		<div class="mt-3 justify-end flex gap-3">
 			<slot name="left"></slot>
-			<Button @click="handleDownload"
+			<Button id="download" @click="handleDownload"
 				><Download class="mr-2 size-4" />{{ t("DataTable.download") }}</Button
 			>
 			<slot name="right"></slot>

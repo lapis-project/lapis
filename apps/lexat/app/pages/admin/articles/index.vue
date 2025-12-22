@@ -61,10 +61,12 @@ usePageMetadata({
 		</div>
 
 		<ArticleTable
+			id="main-content"
 			class="mb-5"
 			:columns="columns"
 			:data="tableData"
 			:delete-article="deleteArticle"
+			:tabindex="-1"
 		></ArticleTable>
 		<PagePagination
 			:current-page="currentPage"

@@ -203,6 +203,7 @@
 		"download": "Als CSV herunterladen"
 	},
 	"DbPage": {
+		"help": "Hilfe",
 		"meta": {
 			"title": "Belegdatenbank",
 			"description": "Erhalten Sie Zugriff auf Original-Fragebogendaten: Entdecken Sie lautliche & grammatische Varianten via Schreibvarianten in der Belegdatenbank."

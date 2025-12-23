@@ -203,6 +203,7 @@
 		"download": "Download as CSV"
 	},
 	"DbPage": {
+		"help": "Help",
 		"meta": {
 			"title": "Browse data",
 			"description": "Get direct access to original survey data: explore phonetic & grammatical variation via written variants in our evidence database."

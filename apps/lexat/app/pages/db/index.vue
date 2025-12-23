@@ -564,7 +564,7 @@ await refresh(); // manually refetch using updated state
 						</PopoverContent>
 					</Popover>
 					<Button id="resetOnboarding" variant="outline" @click="resetOnboarding">
-						<CircleHelp class="mr-2 size-5" /> {{ t("Help") }}</Button
+						<CircleHelp class="mr-2 size-5" /> {{ t("DbPage.help") }}</Button
 					>
 				</div>
 			</template>

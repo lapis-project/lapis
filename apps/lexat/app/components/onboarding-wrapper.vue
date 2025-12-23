@@ -18,6 +18,10 @@ const props = defineProps<{
 	}>;
 }>();
 
+const emit = defineEmits<{
+	(e: "finished-onboarding"): void;
+}>();
+
 // ONBOARDING
 const wrapper = ref(null);
 const { start: startOnboarding, finish: finishOnboarding } = useVOnboarding(wrapper);
@@ -44,11 +48,6 @@ const focusNextButton = (): void => {
 		}, 1);
 	});
 };
-
-const onboardingFinished = () => {
-	const timestamp = new Date().toISOString();
-	localStorage.setItem("db-onboarding", JSON.stringify({ finishedAt: timestamp }));
-};
 </script>
 
 <template>
@@ -56,7 +55,7 @@ const onboardingFinished = () => {
 		ref="wrapper"
 		:options="onboardingOptions"
 		:steps="props.steps"
-		@finish="onboardingFinished"
+		@finish="emit('finished-onboarding')"
 	>
 		<template #default="{ previous, next, step, isFirst, isLast }">
 			<VOnboardingStep data-testid="onboardingStep">
@@ -107,3 +106,39 @@ const onboardingFinished = () => {
 		</template>
 	</VOnboardingWrapper>
 </template>
+
+<style>
+[data-v-onboarding-wrapper] [data-popper-arrow]::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: -1;
+	width: var(--v-onboarding-step-arrow-size, 10px);
+	height: var(--v-onboarding-step-arrow-size, 10px);
+	margin-top: 20px;
+	background: var(--v-onboarding-step-arrow-background, hsl(0deg 0% 100%));
+	visibility: visible;
+	transition:
+		transform 0.2s ease-out,
+		visibility 0.2s ease-out;
+	transform: translateX(0) rotate(45deg);
+	transform-origin: center;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="top"] > [data-popper-arrow] {
+	bottom: 15px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="right"] > [data-popper-arrow] {
+	left: -4px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="bottom"] > [data-popper-arrow] {
+	top: -4px;
+}
+
+[data-v-onboarding-wrapper] [data-popper-placement^="left"] > [data-popper-arrow] {
+	right: -4px;
+}
+</style>

@@ -9,7 +9,6 @@ import type {
 
 import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
-import OnboardingWrapper from "@/components/onboarding-wrapper.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();
@@ -84,7 +83,7 @@ const activeSortDirection = ref<SortOder | null>(null);
 
 const currentPage = ref(1);
 
-const onboardingWrapper = ref<InstanceType<typeof OnboardingWrapper> | null>(null);
+const onboardingWrapper = ref<{ startOnboarding: () => void } | null>(null);
 
 if (typeof route.query.q === "string") {
 	activeQuestion.value = route.query.q;
@@ -421,6 +420,11 @@ const steps = [
 	},
 ];
 
+const onOnboardingFinished = () => {
+	const timestamp = new Date().toISOString();
+	localStorage.setItem("db-onboarding", JSON.stringify({ finishedAt: timestamp }));
+};
+
 onMounted(() => {
 	const onboardingData = localStorage.getItem("db-onboarding");
 
@@ -580,42 +584,11 @@ await refresh(); // manually refetch using updated state
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
 		></PagePagination>
-		<OnboardingWrapper ref="onboardingWrapper" :steps="steps"> </OnboardingWrapper>
+		<OnboardingWrapper
+			ref="onboardingWrapper"
+			:steps="steps"
+			@finished-onboarding="onOnboardingFinished"
+		>
+		</OnboardingWrapper>
 	</MainContent>
 </template>
-
-<style>
-[data-v-onboarding-wrapper] [data-popper-arrow]::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: -1;
-	width: var(--v-onboarding-step-arrow-size, 10px);
-	height: var(--v-onboarding-step-arrow-size, 10px);
-	margin-top: 20px;
-	background: var(--v-onboarding-step-arrow-background, hsl(0deg 0% 100%));
-	visibility: visible;
-	transition:
-		transform 0.2s ease-out,
-		visibility 0.2s ease-out;
-	transform: translateX(0) rotate(45deg);
-	transform-origin: center;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="top"] > [data-popper-arrow] {
-	bottom: 15px;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="right"] > [data-popper-arrow] {
-	left: -4px;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="bottom"] > [data-popper-arrow] {
-	top: -4px;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="left"] > [data-popper-arrow] {
-	right: -4px;
-}
-</style>

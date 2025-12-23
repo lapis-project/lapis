@@ -22,7 +22,7 @@ const props = defineProps<{
 const wrapper = ref(null);
 const { start: startOnboarding, finish: finishOnboarding } = useVOnboarding(wrapper);
 
-defineExpose(startOnboarding);
+defineExpose({ startOnboarding });
 
 const onboardingOptions = { overlay: { padding: 10, borderRadius: 10 } };
 
@@ -72,7 +72,7 @@ const onboardingFinished = () => {
 								</div>
 							</div>
 							<div
-								class="mt-5 space-x-4 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center relative"
+								class="mt-5 space-x-4 sm:mt-0 sm:ml-6 sm:flex sm:shrink-0 sm:items-center relative"
 							>
 								<template v-if="!isFirst">
 									<button

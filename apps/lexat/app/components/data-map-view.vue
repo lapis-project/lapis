@@ -14,11 +14,9 @@ import {
 	Minimize2Icon,
 	RotateCcwIcon,
 	UserIcon,
-	XIcon,
 } from "lucide-vue-next";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
-import { useVOnboarding, VOnboardingStep, VOnboardingWrapper } from "v-onboarding";
 import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
 
 import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
@@ -63,6 +61,7 @@ const registerOptions = getRegisterOptions(t);
 const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyResponse> } | null>(
 	null,
 );
+const onboardingWrapper = ref<{ startOnboarding: () => void } | null>(null);
 
 const { colors, specialColors, resetColors } = useMapColors();
 
@@ -708,78 +707,56 @@ const goToDbPage = async (): Promise<void> => {
 };
 
 // ONBOARDING
-const wrapper = ref(null);
-const { start: startOnboarding, finish: finishOnboarding } = useVOnboarding(wrapper);
 const steps = [
 	{
 		attachTo: { element: "#welcome" },
 		content: {
-			title: "Onboarding.welcome.title",
-			description: "Onboarding.welcome.description",
+			title: "Onboarding.Map-Onboarding.welcome.title",
+			description: "Onboarding.Map-Onboarding.welcome.description",
 		},
 	},
 	{
 		attachTo: { element: "#phenomenon" },
 		content: {
-			title: "Onboarding.phenomenon.title",
-			description: "Onboarding.phenomenon.description",
+			title: "Onboarding.Map-Onboarding.phenomenon.title",
+			description: "Onboarding.Map-Onboarding.phenomenon.description",
 		},
 	},
 	{
 		attachTo: { element: "#register" },
 		content: {
-			title: "Onboarding.register.title",
-			description: "Onboarding.register.description",
+			title: "Onboarding.Map-Onboarding.register.title",
+			description: "Onboarding.Map-Onboarding.register.description",
 		},
 	},
 	{
 		attachTo: { element: "#reset" },
 		content: {
-			title: "Onboarding.reset.title",
-			description: "Onboarding.reset.description",
+			title: "Onboarding.Map-Onboarding.reset.title",
+			description: "Onboarding.Map-Onboarding.reset.description",
 		},
 	},
 	{
 		attachTo: { element: "#advanced" },
 		content: {
-			title: "Onboarding.advanced.title",
-			description: "Onboarding.advanced.description",
+			title: "Onboarding.Map-Onboarding.advanced.title",
+			description: "Onboarding.Map-Onboarding.advanced.description",
 		},
 	},
 	{
 		attachTo: { element: "#about" },
 		content: {
-			title: "Onboarding.about.title",
-			description: "Onboarding.about.description",
+			title: "Onboarding.Map-Onboarding.about.title",
+			description: "Onboarding.Map-Onboarding.about.description",
 		},
 	},
 ];
-const onboardingOptions = { overlay: { padding: 10, borderRadius: 10 } };
-
-const nextStepButton: Ref<HTMLButtonElement | null> = ref(null);
-
-const focusNextButton = (): void => {
-	nextTick(() => {
-		// 1. Wait for Vue's DOM update cycle
-		// 2. Add a minimal delay to hopefully run *after* the library's internal focus logic
-		setTimeout(() => {
-			if (nextStepButton.value) {
-				nextStepButton.value.focus();
-			}
-		}, 1);
-	});
-};
 
 const activeLocationOptions = computed(() => {
 	return points.value.map((p) => ({ value: p.place_name, label: p.place_name }));
 });
 
-const handleStepChange = (direction: () => void): void => {
-	direction(); // Execute the library's next/previous action
-	focusNextButton();
-};
-
-const onboardingFinished = () => {
+const onOnboardingFinished = () => {
 	const timestamp = new Date().toISOString();
 	localStorage.setItem("map-onboarding", JSON.stringify({ finishedAt: timestamp }));
 };
@@ -788,7 +765,7 @@ onMounted(() => {
 	const onboardingData = localStorage.getItem("map-onboarding");
 
 	if (!onboardingData) {
-		startOnboarding();
+		onboardingWrapper.value?.startOnboarding();
 	} else {
 		const { finishedAt } = JSON.parse(onboardingData);
 		// eslint-disable-next-line no-console
@@ -798,7 +775,7 @@ onMounted(() => {
 
 const resetOnboarding = () => {
 	localStorage.removeItem("map-onboarding");
-	startOnboarding();
+	onboardingWrapper.value?.startOnboarding();
 };
 
 watch(activeQuestion, async () => {
@@ -1214,7 +1191,7 @@ watch(activeVariants, updateUrlParams, {
 		<div class="flex w-full gap-8 justify-between">
 			<div class="flex w-full gap-3">
 				<p
-					class="break-words rounded-md border p-2 text-sm text-foreground/70"
+					class="wrap-break-word rounded-md border p-2 text-sm text-foreground/70"
 					data-testid="clipboard-url"
 				>
 					{{ fullRoute }}
@@ -1245,95 +1222,11 @@ watch(activeVariants, updateUrlParams, {
 			:data="tableDataForRegisters"
 			data-testid="variantTable"
 		></DataTable>
-		<VOnboardingWrapper
-			ref="wrapper"
-			:options="onboardingOptions"
+		<OnboardingWrapper
+			ref="onboardingWrapper"
 			:steps="steps"
-			@finish="onboardingFinished"
+			@finished-onboarding="onOnboardingFinished"
 		>
-			<template #default="{ previous, next, step, isFirst, isLast }">
-				<VOnboardingStep data-testid="onboardingStep">
-					<div class="bg-white relative shadow sm:rounded-lg mt-5">
-						<div class="px-4 py-5 sm:p-6">
-							<div class="flex items-center justify-between flex-col gap-5">
-								<div v-if="step.content">
-									<h3 v-if="step.content.title" class="text-lg font-medium leading-6 text-gray-900">
-										{{ t(step.content.title) }}
-									</h3>
-									<div v-if="step.content.description" class="mt-2 max-w-xl text-sm text-gray-500">
-										<p>{{ t(step.content.description) }}</p>
-									</div>
-								</div>
-								<div
-									class="mt-5 space-x-4 sm:mt-0 sm:ml-6 sm:flex sm:flex-shrink-0 sm:items-center relative"
-								>
-									<template v-if="!isFirst">
-										<button
-											class="inline-flex items-center justify-center rounded-md border border-transparent bg-yellow-100 px-4 py-2 font-medium text-yellow-700 hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 sm:text-sm"
-											type="button"
-											@click="handleStepChange(previous)"
-										>
-											{{ t("Onboarding.previous") }}
-										</button>
-									</template>
-									<button
-										ref="nextStepButton"
-										class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:text-sm"
-										type="button"
-										@click="handleStepChange(next)"
-									>
-										{{ isLast ? t("Onboarding.finish") : t("Onboarding.next") }}
-									</button>
-								</div>
-							</div>
-						</div>
-						<button
-							class="absolute top-3 right-3 cursor-pointer"
-							:class="{ 'text-background': colorMode.value === 'dark' }"
-							variant="button"
-							@click="finishOnboarding"
-						>
-							<XIcon class="size-5" />
-						</button>
-					</div>
-				</VOnboardingStep>
-			</template>
-		</VOnboardingWrapper>
+		</OnboardingWrapper>
 	</div>
 </template>
-
-<style>
-[data-v-onboarding-wrapper] [data-popper-arrow]::before {
-	content: "";
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: -1;
-	width: var(--v-onboarding-step-arrow-size, 10px);
-	height: var(--v-onboarding-step-arrow-size, 10px);
-	margin-top: 20px;
-	background: var(--v-onboarding-step-arrow-background, hsl(0deg 0% 100%));
-	visibility: visible;
-	transition:
-		transform 0.2s ease-out,
-		visibility 0.2s ease-out;
-	transform: translateX(0) rotate(45deg);
-	transform-origin: center;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="top"] > [data-popper-arrow] {
-	bottom: 15px;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="right"] > [data-popper-arrow] {
-	left: -4px;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="bottom"] > [data-popper-arrow] {
-	top: -4px;
-}
-
-[data-v-onboarding-wrapper] [data-popper-placement^="left"] > [data-popper-arrow] {
-	right: -4px;
-}
-</style>

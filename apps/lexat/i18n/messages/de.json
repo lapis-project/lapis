@@ -203,6 +203,7 @@
 		"download": "Als CSV herunterladen"
 	},
 	"DbPage": {
+		"help": "Hilfe",
 		"meta": {
 			"title": "Belegdatenbank",
 			"description": "Erhalten Sie Zugriff auf Original-Fragebogendaten: Entdecken Sie lautliche & grammatische Varianten via Schreibvarianten in der Belegdatenbank."
@@ -408,34 +409,67 @@
 		"title": "Seite nicht gefunden"
 	},
 	"Onboarding": {
-		"welcome": {
-			"title": "Hallo!",
-			"description": "Willkommen im Kartierungs-Tool von LexAT21."
+		"Map-Onboarding": {
+			"welcome": {
+				"title": "Hallo!",
+				"description": "Willkommen im Kartierungs-Tool von LexAT21."
+			},
+			"phenomenon": {
+				"title": "Phänomenauswahl",
+				"description": "Wähle das Phänomen, welches du auf der Karte visualisieren möchtest."
+			},
+			"register": {
+				"title": "Weitere Filter",
+				"description": "Mit den übrigen Filtern kannst du die Datenpunkte auf der Karte genauer eingrenzen."
+			},
+			"reset": {
+				"title": "Filter zurücksetzen",
+				"description": "Klicke hier, um die momentane Filterauswahl zurückzusetzen."
+			},
+			"advanced": {
+				"title": "Erweiterte Funktionen",
+				"description": "Klicke hier, um die erweiterten Einstellungen anzuzeigen."
+			},
+			"about": {
+				"title": "Mehr erfahren",
+				"description": "Hier findest du nähere Informationen zum Projekt."
+			}
 		},
-		"phenomenon": {
-			"title": "Phänomenauswahl",
-			"description": "Wähle das Phänomen, welches du auf der Karte visualisieren möchtest."
-		},
-		"register": {
-			"title": "Weitere Filter",
-			"description": "Mit den übrigen Filtern kannst du die Datenpunkte auf der Karte genauer eingrenzen."
-		},
-		"reset": {
-			"title": "Filter zurücksetzen",
-			"description": "Klicke hier, um die momentane Filterauswahl zurückzusetzen."
-		},
-		"advanced": {
-			"title": "Erweiterte Funktionen",
-			"description": "Klicke hier, um die erweiterten Einstellungen anzuzeigen."
-		},
-		"about": {
-			"title": "Mehr erfahren",
-			"description": "Hier finden Sie nähere Informationen zum Projekt."
+		"Db-Onboarding": {
+			"welcome": {
+				"title": "Hallo!",
+				"description": "Willkommen in der Belegdatenbank von LexAT21."
+			},
+			"phenomenon": {
+				"title": "Phänomenauswahl:",
+				"description": "Wähle hier das gewünschte Phänomen."
+			},
+			"advanced": {
+				"title": "Witere Filter:",
+				"description": "Mit den übrigen Filtern kannst du die Daten eingrenzen."
+			},
+			"reset": {
+				"title": "Filter zurücksetzen:",
+				"description": "Klicke hier zum Zurücksetzen der Filterauswahl."
+			},
+			"download": {
+				"title": "Herunterladen:",
+				"description": "Hier kannst du die aktuelle Auswahl herunterladen."
+			},
+			"citation": {
+				"title": "Zitieren:",
+				"description": "Hier findest du den Zitationsvorschlag zu deiner aktuellen Auswahl."
+			},
+			"about": {
+				"title": "Mehr erfahren:",
+				"description": "Hier findest du nähere Informationen zum Projekt."
+			}
 		},
 		"next": "Weiter",
 		"previous": "Zurück",
 		"finish": "Los gehts!"
 	},
+
 	"ProfilePage": {
 		"meta": {
 			"title": "Profileseite"

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
-import { InfoIcon, MapPin, Quote, RotateCcw } from "lucide-vue-next";
+import { CircleHelp, InfoIcon, MapPin, Quote, RotateCcw } from "lucide-vue-next";
 import type {
 	LocationQueryRaw,
 	LocationQueryValue,
@@ -82,6 +82,8 @@ const activeSortLabel = ref<string | null>(null);
 const activeSortDirection = ref<SortOder | null>(null);
 
 const currentPage = ref(1);
+
+const onboardingWrapper = ref<{ startOnboarding: () => void } | null>(null);
 
 if (typeof route.query.q === "string") {
 	activeQuestion.value = route.query.q;
@@ -366,6 +368,80 @@ watch(
 	{ immediate: true },
 );
 
+const steps = [
+	{
+		attachTo: { element: "#welcome" },
+		content: {
+			title: "Onboarding.Db-Onboarding.welcome.title",
+			description: "Onboarding.Db-Onboarding.welcome.description",
+		},
+	},
+	{
+		attachTo: { element: "#phenomenon" },
+		content: {
+			title: "Onboarding.Db-Onboarding.phenomenon.title",
+			description: "Onboarding.Db-Onboarding.phenomenon.description",
+		},
+	},
+	{
+		attachTo: { element: "#advanced" },
+		content: {
+			title: "Onboarding.Db-Onboarding.advanced.title",
+			description: "Onboarding.Db-Onboarding.advanced.description",
+		},
+	},
+	{
+		attachTo: { element: "#reset" },
+		content: {
+			title: "Onboarding.Db-Onboarding.reset.title",
+			description: "Onboarding.Db-Onboarding.reset.description",
+		},
+	},
+	{
+		attachTo: { element: "#download" },
+		content: {
+			title: "Onboarding.Db-Onboarding.download.title",
+			description: "Onboarding.Db-Onboarding.download.description",
+		},
+	},
+	{
+		attachTo: { element: "#citation" },
+		content: {
+			title: "Onboarding.Db-Onboarding.citation.title",
+			description: "Onboarding.Db-Onboarding.citation.description",
+		},
+	},
+	{
+		attachTo: { element: "#about" },
+		content: {
+			title: "Onboarding.Db-Onboarding.about.title",
+			description: "Onboarding.Db-Onboarding.about.description",
+		},
+	},
+];
+
+const onOnboardingFinished = () => {
+	const timestamp = new Date().toISOString();
+	localStorage.setItem("db-onboarding", JSON.stringify({ finishedAt: timestamp }));
+};
+
+onMounted(() => {
+	const onboardingData = localStorage.getItem("db-onboarding");
+
+	if (!onboardingData) {
+		onboardingWrapper.value?.startOnboarding();
+	} else {
+		const { finishedAt } = JSON.parse(onboardingData);
+		// eslint-disable-next-line no-console
+		console.info("Onboarding completed at:", finishedAt);
+	}
+});
+
+const resetOnboarding = () => {
+	localStorage.removeItem("db-onboarding");
+	onboardingWrapper.value?.startOnboarding();
+};
+
 await initializeFromUrl();
 await refresh(); // manually refetch using updated state
 </script>
@@ -373,10 +449,10 @@ await refresh(); // manually refetch using updated state
 <template>
 	<MainContent class="container grid content-start py-8 overflow-x-scroll sm:overflow-x-auto">
 		<MobileAlert />
-		<section class="flex gap-2">
+		<section id="welcome" class="flex gap-2">
 			<div class="grow rounded-lg border p-5 mb-4">
 				<div class="grid grid-cols-4 gap-5">
-					<div>
+					<div id="phenomenon" class="col-span-1">
 						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 							{{ t("MapsPage.selection.variable.title") }}
 							<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
@@ -391,55 +467,62 @@ await refresh(); // manually refetch using updated state
 							:placeholder="t('MapsPage.selection.variable.placeholder')"
 						/>
 					</div>
-					<div>
-						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-							{{ t("MapsPage.selection.register.title") }}
-							<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon>
-							</InfoTooltip>
-						</div>
-						<MultiSelect
-							v-model="activeRegisters"
-							data-testid="registers"
-							:options="registerOptions"
-							:placeholder="t('MapsPage.selection.register.placeholder')"
-						/>
-					</div>
-					<div>
-						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
-							{{ t("MapsPage.selection.variants.title") }}
-							<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon>
-							</InfoTooltip>
-						</div>
-						<MultiSelect
-							v-model="activeVariants"
-							data-testid="variants"
-							:options="uniqueVariantsOptions"
-							:placeholder="t('MapsPage.selection.variants.placeholder')"
-							single-level
-						/>
-					</div>
-					<div>
-						<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
-							{{ t("MapsPage.selection.age.title") }}
-						</div>
-						<div class="max-w-64 pl-1">
-							<DualRangeSlider
-								accessibility-label="Age Group"
-								:label="(value: string) => value"
-								:max="100"
-								:min="0"
-								:step="5"
-								:value="activeAgeGroup"
-								@update:value="setAgeGroup"
+					<div id="advanced" class="col-span-3 grid grid-cols-3 gap-5">
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.register.title") }}
+								<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon>
+								</InfoTooltip>
+							</div>
+							<MultiSelect
+								v-model="activeRegisters"
+								data-testid="registers"
+								:options="registerOptions"
+								:placeholder="t('MapsPage.selection.register.placeholder')"
 							/>
+						</div>
+						<div>
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.variants.title") }}
+								<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
+									<InfoIcon class="size-4"></InfoIcon>
+								</InfoTooltip>
+							</div>
+							<MultiSelect
+								v-model="activeVariants"
+								data-testid="variants"
+								:options="uniqueVariantsOptions"
+								:placeholder="t('MapsPage.selection.variants.placeholder')"
+								single-level
+							/>
+						</div>
+						<div>
+							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+								{{ t("MapsPage.selection.age.title") }}
+							</div>
+							<div class="max-w-64 pl-1">
+								<DualRangeSlider
+									accessibility-label="Age Group"
+									:label="(value: string) => value"
+									:max="100"
+									:min="0"
+									:step="5"
+									:value="activeAgeGroup"
+									@update:value="setAgeGroup"
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="flex flex-col gap-2">
-				<Button data-testid="reset" size="icon" variant="outline" @click="resetSelection()"
+				<Button
+					id="reset"
+					data-testid="reset"
+					size="icon"
+					variant="outline"
+					@click="resetSelection()"
 					><RotateCcw class="size-4"
 				/></Button>
 			</div>
@@ -472,10 +555,10 @@ await refresh(); // manually refetch using updated state
 			@update:sort-criterion="setSortOrder"
 		>
 			<template #left>
-				<div class="mr-auto">
+				<div class="mr-auto flex items-center gap-3">
 					<Popover>
 						<PopoverTrigger as-child>
-							<Button variant="outline"
+							<Button id="citation" variant="outline"
 								><Quote class="mr-2 size-4" />{{ t("DbPage.citation") }}</Button
 							></PopoverTrigger
 						>
@@ -484,6 +567,9 @@ await refresh(); // manually refetch using updated state
 							<CopyToClipboard :text="citation" />
 						</PopoverContent>
 					</Popover>
+					<Button id="resetOnboarding" variant="outline" @click="resetOnboarding">
+						<CircleHelp class="mr-2 size-5" /> {{ t("DbPage.help") }}</Button
+					>
 				</div>
 			</template>
 			<template #right>
@@ -498,5 +584,11 @@ await refresh(); // manually refetch using updated state
 			:total-pages="totalPages"
 			@update:page="setCurrentPage"
 		></PagePagination>
+		<OnboardingWrapper
+			ref="onboardingWrapper"
+			:steps="steps"
+			@finished-onboarding="onOnboardingFinished"
+		>
+		</OnboardingWrapper>
 	</MainContent>
 </template>

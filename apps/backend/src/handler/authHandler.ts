@@ -2,7 +2,6 @@ import { log } from "@acdh-oeaw/lib";
 import { vValidator } from "@hono/valibot-validator";
 import { hash, verify } from "@node-rs/argon2";
 import { Hono } from "hono";
-import { setCookie } from "hono/cookie";
 import {
 	check,
 	email,
@@ -15,7 +14,12 @@ import {
 	trim,
 } from "valibot";
 
-import { lucia } from "@/auth/auth.ts";
+import {
+	createSession,
+	deleteSessionTokenCookie,
+	invalidateSession,
+	setSessionTokenCookie,
+} from "@/auth/auth.ts";
 import { argon2Config, userRolesConst } from "@/config/config.ts";
 import { createUser, getUser, getUserById } from "@/db/authRepository.ts";
 import { checkIfPrivilegedForAdminOrHigher } from "@/lib/authHelper.ts";
@@ -57,7 +61,7 @@ const auth = new Hono<AppEnv>()
 		if (!session?.userId) {
 			return c.json("Unauthorized", 401);
 		}
-		const user = await getUserById(Number(session.userId));
+		const user = await getUserById(session.userId);
 		return c.json<SessionUserDTO>(user, 200);
 	})
 	.post("/login", vValidator("json", loginSchema), async (c) => {
@@ -79,12 +83,13 @@ const auth = new Hono<AppEnv>()
 			log.info(`Incorrect Username or password`);
 			return c.json("Unauthorized", 401);
 		}
-		const user_id: string = existingUser.id.toString();
-		const session = await lucia.createSession(user_id, {});
-		const session_id = session.id;
-		setCookie(c, "Set-Cookie", lucia.createSessionCookie(session_id).serialize());
+
+		const session = await createSession(existingUser.id);
+		setSessionTokenCookie(c, session.id, session.expiresAt);
+
 		c.header("Location", "/", { append: true });
 		log.info(`User ${existingUser.email} with username ${existingUser.username ?? ""} logged in`);
+
 		const { password: _, ...userObject } = existingUser;
 		return c.json(userObject, 200);
 	})
@@ -93,8 +98,10 @@ const auth = new Hono<AppEnv>()
 		if (!session) {
 			return c.json("Unauthorized", 401);
 		}
-		await lucia.invalidateSession(session.id);
-		c.header("Set-Cookie", lucia.createSessionCookie("").serialize(), { append: true });
+
+		await invalidateSession(session.id);
+		deleteSessionTokenCookie(c);
+
 		return c.json("OK", 201);
 	})
 	.post("/signup", vValidator("json", signupSchema), async (c) => {
@@ -121,9 +128,8 @@ const auth = new Hono<AppEnv>()
 		}
 		log.info(`User ${username} created`);
 
-		const session = await lucia.createSession(newUser.id.toString(), {});
-		const session_id = session.id;
-		setCookie(c, "Set-Cookie", lucia.createSessionCookie(session_id).serialize());
+		const session = await createSession(newUser.id);
+		setSessionTokenCookie(c, session.id, session.expiresAt);
 
 		const user = await getUserById(newUser.id);
 		return c.json(user, 200);

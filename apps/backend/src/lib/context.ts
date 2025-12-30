@@ -1,6 +1,6 @@
 import type { Context as HonoContext, Env } from "hono";
-import type { Session, User } from "lucia";
 
+import type { Session, User } from "@/auth/auth.ts";
 import type { Userroles } from "@/types/db.ts";
 
 // the ENV type for Hono generics

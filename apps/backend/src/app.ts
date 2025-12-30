@@ -1,11 +1,15 @@
 import { Hono } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
+import { getCookie } from "hono/cookie";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
-import { verifyRequestOrigin } from "lucia";
 
-import { lucia } from "@/auth/auth.ts";
+import {
+	deleteSessionTokenCookie,
+	setSessionTokenCookie,
+	validateSession,
+	verifyRequestOrigin,
+} from "@/auth/auth.ts";
 import { getUserById } from "@/db/authRepository.ts";
 import articles from "@/handler/articleHandler.ts";
 import audio from "@/handler/audioHandler.ts";
@@ -74,26 +78,32 @@ const app = new Hono<AppEnv>()
 		return next();
 	})
 	.use("*", async (c: AppContext, next) => {
-		const cookie = getCookie(c, "Set-Cookie");
-		const sessionId = lucia.readSessionCookie(cookie ?? "");
+		const sessionId = getCookie(c, "auth_session");
+
 		if (!sessionId) {
 			c.set("user", null);
 			c.set("session", null);
 			return next();
 		}
 
-		const { session, user } = await lucia.validateSession(sessionId);
+		const { session, user } = await validateSession(sessionId);
+
 		if (session?.fresh) {
-			setCookie(c, "Set-Cookie", lucia.createSessionCookie(session.id).serialize());
+			setSessionTokenCookie(c, session.id, session.expiresAt);
 		}
+
 		if (!session) {
-			setCookie(c, "Set-Cookie", lucia.createBlankSessionCookie().serialize());
+			deleteSessionTokenCookie(c);
+			c.set("user", null);
+			c.set("session", null);
+			return next();
 		}
 
 		if (user) {
-			const userObject = await getUserById(Number(user.id));
+			const userObject = await getUserById(user.id satisfies number);
 			c.set("role", userObject.role_name ?? "editor");
 		}
+
 		c.set("session", session);
 		c.set("user", user);
 		return next();

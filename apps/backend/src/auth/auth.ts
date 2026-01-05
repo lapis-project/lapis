@@ -18,18 +18,18 @@ export interface Session {
 
 export interface User {
 	id: number;
-	username: string;
+	username: string | null;
 }
 
 export async function createSession(userId: number): Promise<Session> {
 	const sessionId = crypto.randomBytes(20).toString("hex");
-	const expiresAt = new Date(Date.now() + SESSION_EXPIRATION_MS);
+	const now = new Date();
+	const expiresAt = new Date(now.getTime() + SESSION_EXPIRATION_MS);
 
-	await pool.query("INSERT INTO user_session (id, user_id, expires_at) VALUES ($1, $2, $3)", [
-		sessionId,
-		userId,
-		expiresAt,
-	]);
+	await pool.query(
+		"INSERT INTO user_session (id, user_id, expires_at, created_at) VALUES ($1, $2, $3, $4)",
+		[sessionId, userId, expiresAt, now],
+	);
 
 	return {
 		id: sessionId,

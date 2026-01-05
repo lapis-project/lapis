@@ -4,10 +4,10 @@ import type { AppEnv as Context } from "@/lib/context.ts";
 import type { Userroles } from "@/types/db.ts";
 
 export const restrictedRoute = createMiddleware<Context>(async (c, next) => {
-	const sessionCookie = c.get("session");
+	const session = c.get("session");
 	const userObject = c.get("user");
 
-	if (!sessionCookie || !userObject) {
+	if (!session || !userObject) {
 		return c.json("Forbidden", 403);
 	}
 
@@ -34,18 +34,25 @@ export const checkIfPrivilegedForsuperadmin = createMiddleware<Context>(async (c
 	return next();
 });
 
-export const checkIfRoleIsAllowed = (
-	editedUserRole: Userroles | null,
-	userRole: Userroles | null,
+/**
+ * Checks if a user is FORBIDDEN from modifying another user based on roles.
+ * Returns TRUE if the action is forbidden (should trigger a 403).
+ * Returns FALSE if the action is allowed.
+ * * Logic: Admins and Superadmins cannot be modified by regular users (or regular admins).
+ */
+export const isRoleModificationForbidden = (
+	targetUserRole: Userroles | null,
+	actorRole: Userroles | null,
 ) => {
+	// If the target is an Admin or Superadmin, the actor MUST be a Superadmin.
 	if (
-		(editedUserRole === "admin" || editedUserRole === "superadmin") &&
-		userRole !== "superadmin"
+		(targetUserRole === "admin" || targetUserRole === "superadmin") &&
+		actorRole !== "superadmin"
 	) {
-		return false;
+		return true; // -> access forbidden
 	}
 
-	return true;
+	return false; // -> access allowed
 };
 
 export const isSuperadmin = (userRole: Userroles | null) => {

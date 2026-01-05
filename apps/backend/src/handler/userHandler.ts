@@ -25,7 +25,7 @@ import {
 } from "@/db/userRepository.ts";
 import {
 	checkIfPrivilegedForAdminOrHigher,
-	checkIfRoleIsAllowed,
+	isRoleModificationForbidden,
 	isSuperadmin,
 	restrictedRoute,
 } from "@/lib/authHelper.ts";
@@ -51,8 +51,13 @@ const editActiveTypeSchema = object({
 	active: union([literal("active"), literal("inactive")]),
 });
 
-const user = new Hono<AppEnv>()
+const user = new Hono<AppEnv>();
 
+user.use("*", restrictedRoute);
+
+user.use("/roles/*", checkIfPrivilegedForAdminOrHigher);
+
+user
 	/**
 	 * Gets all users by their role and returns them in an array with a status code of 200.
 	 * Will return a status code of 400 if the role does not exist.
@@ -131,16 +136,14 @@ const user = new Hono<AppEnv>()
 	 * @returns status code 404 if the user with the provided id does not exist.
 	 */
 	.put("/data/:id", vValidator("json", editUserDataSchema), async (c) => {
-		const userId = c.req.param("id");
+		const userId = Number(c.req.param("id")); // Cast param to Number immediately
 		const { username, email, firstname, lastname } = c.req.valid("json");
 
-		// Check if userid is a number
-		if (Number.isNaN(Number(userId))) {
+		if (Number.isNaN(userId)) {
 			return c.json("Invalid user id provided", 400);
 		}
 
-		// Get the userobject of the user with the provided id
-		const userObject = await getUserById(Number(userId));
+		const userObject = await getUserById(userId);
 		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
@@ -150,11 +153,11 @@ const user = new Hono<AppEnv>()
 		const signedInUser = c.get("user");
 		const editedUserRole = userObject.role_name;
 
-		if (userId !== signedInUser?.id || checkIfRoleIsAllowed(editedUserRole, userRole)) {
+		if (userId !== signedInUser?.id || isRoleModificationForbidden(editedUserRole, userRole)) {
 			return c.json("Forbidden action", 403);
 		}
 
-		const users = await editUserData(Number(userId), { username, email, firstname, lastname });
+		const users = await editUserData(userId, { username, email, firstname, lastname });
 		return c.json(users, 200);
 	})
 
@@ -176,7 +179,6 @@ const user = new Hono<AppEnv>()
 		const { password } = c.req.valid("json");
 		const passwordHash = await hash(password, argon2Config);
 
-		// Check if userid is a number
 		if (Number.isNaN(userId)) {
 			return c.json("Invalid user id provided", 400);
 		}
@@ -194,7 +196,7 @@ const user = new Hono<AppEnv>()
 
 		if (
 			!isSuperadmin(userRole) &&
-			(userId !== Number(signedInUser?.id) || checkIfRoleIsAllowed(editedUserRole, userRole))
+			(userId !== signedInUser?.id || isRoleModificationForbidden(editedUserRole, userRole))
 		) {
 			return c.json("Forbidden action", 403);
 		}
@@ -215,14 +217,13 @@ const user = new Hono<AppEnv>()
 	 * @returns status code 404 if the user with the provided id does not exist.
 	 */
 	.get("/:id", async (c) => {
-		const userId = c.req.param("id");
+		const userId = Number(c.req.param("id"));
 
-		// Check if userid is a number
-		if (Number.isNaN(Number(userId))) {
+		if (Number.isNaN(userId)) {
 			return c.json("Invalid user id provided", 400);
 		}
 
-		const userObject = await getUserById(Number(userId));
+		const userObject = await getUserById(userId);
 		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
@@ -230,29 +231,22 @@ const user = new Hono<AppEnv>()
 		return c.json(userObject, 200);
 	})
 	.put("/active/:id", vValidator("json", editActiveTypeSchema), async (c) => {
-		const userId = c.req.param("id");
-
+		const userId = Number(c.req.param("id"));
 		const { active } = c.req.valid("json");
 
-		// Check if userid is a number
-		if (Number.isNaN(Number(userId))) {
+		if (Number.isNaN(userId)) {
 			return c.json("Invalid user id provided", 400);
 		}
 
-		const userObject = await getUserById(Number(userId));
+		const userObject = await getUserById(userId);
 		if (!userObject.id) {
 			return c.json("User not found", 404);
 		}
 
-		// Update the active type of the user
-		await setUserActiveState(Number(userId), active);
+		await setUserActiveState(userId, active);
 
 		return c.json("Ok", 200);
 	});
-
-user.use("*", restrictedRoute);
-
-user.use("/roles/*", checkIfPrivilegedForAdminOrHigher);
 
 export default user;
 

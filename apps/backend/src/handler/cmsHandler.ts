@@ -59,7 +59,11 @@ const searchArticleSchema = object({
 	category: optional(string()), // Does it allow as an enum? ARTICLE | BLOG | NEWS
 });
 
-const cms = new Hono<AppEnv>()
+const cms = new Hono<AppEnv>();
+
+cms.use("*", restrictedRoute);
+
+cms
 	/**
 	 * Delete the article with the provided id as queryparam
 	 * Returns code 200 when the article has been processed
@@ -142,7 +146,7 @@ const cms = new Hono<AppEnv>()
 			title: body.title,
 			alias: body.alias,
 			cover_alt: body.cover_alt ?? null,
-			creator_id: Number(creator.id),
+			creator_id: creator.id, // FIX: Removed Number(), it is already a number
 			abstract: body.abstract ?? null,
 			content: body.content ?? null,
 			post_type_id: postTypeId,
@@ -281,101 +285,101 @@ const cms = new Hono<AppEnv>()
 	 */
 	.post("/articles/create", async (c) => {
 		/*
-		removed this code since this handler now only creates a new article entry in the database and
-		returns the new id to the client
-		// get the body
-		const body = c.req.valid("json");
+    removed this code since this handler now only creates a new article entry in the database and
+    returns the new id to the client
+    // get the body
+    const body = c.req.valid("json");
 
-		// Check UserIds
-		const userIds = body.authors;
-		if (userIds && userIds.length >= 0) {
-			const userList = await getUsersByList(userIds);
+    // Check UserIds
+    const userIds = body.authors;
+    if (userIds && userIds.length >= 0) {
+      const userList = await getUsersByList(userIds);
 
-			if (userList.length !== userIds.length) {
-				return c.json("Not all authors found", 400);
-			}
-		}
-		// Check the post_type
-		const category = body.category;
-		if (!category) {
-			return c.json("No category provided", 400);
-		}
-		const postTypeId = await getPostTypeIdsByName(category);
+      if (userList.length !== userIds.length) {
+        return c.json("Not all authors found", 400);
+      }
+    }
+    // Check the post_type
+    const category = body.category;
+    if (!category) {
+      return c.json("No category provided", 400);
+    }
+    const postTypeId = await getPostTypeIdsByName(category);
 
-		if (!postTypeId) {
-			return c.json("No post type found", 400);
-		}
+    if (!postTypeId) {
+      return c.json("No post type found", 400);
+    }
 
-		// Check if the provided status is an element from the Poststatus enum
-		if (!instanceOfPoststatus(body.status)) {
-			return c.json("Invalid status provided", 400);
-		}
+    // Check if the provided status is an element from the Poststatus enum
+    if (!instanceOfPoststatus(body.status)) {
+      return c.json("Invalid status provided", 400);
+    }
 
-		// Same for Lang
-		if (!instanceOfAvailablelang(body.lang)) {
-			return c.json("Invalid language provided", 400);
-		}
+    // Same for Lang
+    if (!instanceOfAvailablelang(body.lang)) {
+      return c.json("Invalid language provided", 400);
+    }
+
+    const creator = c.get("user");
+    if (!creator) {
+      return c.json("Error while fetching data", 500);
+    }
+
+    // Create the new article
+    const articleId = await insertNewArticle(
+      body.title,
+      body.alias,
+      body.cover,
+      body.cover_alt,
+      body.abstract,
+      body.content,
+      postTypeId.id,
+      body.citation,
+      body.status,
+      body.lang,
+      Number(creator.id),
+    );
+
+    if (!articleId) {
+      return c.json("Error while creating article", 500);
+    }
+    if (userIds && userIds.length > 0) {
+      // Link the authors to the article
+      await linkAuthorsToPost(articleId.id, userIds);
+    }
+
+    // Check if bibliography is provided
+    if (body.bibliography && body.bibliography.length > 0) {
+      await insertBibliography(body.bibliography, articleId.id);
+    }
+
+    // Check if the project is provided and insert it if it is
+    if (body.projectId && body.projectId.length > 0) {
+      // Ask the DB if the article exists
+      const existingProjects = await getProjectByIds(body.projectId);
+      if (existingProjects.length !== body.projectId.length) {
+        return c.json("Article not found", 404);
+      }
+      // Link the project to the article
+      await linkProjectToPost(articleId.id, body.projectId);
+    }
+
+    // Check if a phenomenon is provided and insert it if it is
+    if (body.phenomenonId) {
+      try {
+        // Link the phenomenon to the article
+        await linkArticleToPhenomenon(articleId.id, [body.phenomenonId]);
+      } catch (e) {
+        return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
+      }
+    }*/
 
 		const creator = c.get("user");
 		if (!creator) {
 			return c.json("Error while fetching data", 500);
 		}
 
-		// Create the new article
-		const articleId = await insertNewArticle(
-			body.title,
-			body.alias,
-			body.cover,
-			body.cover_alt,
-			body.abstract,
-			body.content,
-			postTypeId.id,
-			body.citation,
-			body.status,
-			body.lang,
-			Number(creator.id),
-		);
-
-		if (!articleId) {
-			return c.json("Error while creating article", 500);
-		}
-		if (userIds && userIds.length > 0) {
-			// Link the authors to the article
-			await linkAuthorsToPost(articleId.id, userIds);
-		}
-
-		// Check if bibliography is provided
-		if (body.bibliography && body.bibliography.length > 0) {
-			await insertBibliography(body.bibliography, articleId.id);
-		}
-
-		// Check if the project is provided and insert it if it is
-		if (body.projectId && body.projectId.length > 0) {
-			// Ask the DB if the article exists
-			const existingProjects = await getProjectByIds(body.projectId);
-			if (existingProjects.length !== body.projectId.length) {
-				return c.json("Article not found", 404);
-			}
-			// Link the project to the article
-			await linkProjectToPost(articleId.id, body.projectId);
-		}
-
-		// Check if a phenomenon is provided and insert it if it is
-		if (body.phenomenonId) {
-			try {
-				// Link the phenomenon to the article
-				await linkArticleToPhenomenon(articleId.id, [body.phenomenonId]);
-			} catch (e) {
-				return c.json(`Error while linking phenomenon, ${String(e)}`, 500);
-			}
-		}*/
-
-		const creator = c.get("user");
-		if (!creator) {
-			return c.json("Error while fetching data", 500);
-		}
-
-		const articleId = await createNewPost(Number(creator.id));
+		const articleId = await createNewPost(creator.id);
 
 		await linkProjectToPost(articleId.id, [1]);
 
@@ -429,9 +433,6 @@ const cms = new Hono<AppEnv>()
 			200,
 		);
 	});
-
-// Enable in order to restrict the route only to signed in users
-cms.use("*", restrictedRoute);
 
 export default cms;
 export type CmsRoute = typeof cms;

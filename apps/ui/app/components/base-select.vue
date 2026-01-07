@@ -12,6 +12,7 @@ export interface Props {
 	placeholder?: string;
 	label?: string;
 	dataTestid?: string;
+	id?: string;
 	size?: "large" | "medium" | "small";
 }
 
@@ -40,7 +41,7 @@ const width = computed(() => {
 <template>
 	<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
 	<Select v-model="modelValue">
-		<SelectTrigger :class="width" :data-testid="props.dataTestid">
+		<SelectTrigger :id="props.id" :class="width" :data-testid="props.dataTestid">
 			<SelectValue>
 				<template v-if="modelValue">
 					<svg v-if="hasColor" class="size-3" viewBox="0 0 12 12">

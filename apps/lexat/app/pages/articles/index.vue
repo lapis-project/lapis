@@ -88,13 +88,21 @@ usePageMetadata({
 					<Input
 						id="search"
 						v-model="searchInput"
-						class="pl-10"
+						class="pr-10"
 						:placeholder="t('ArticlesPage.filters.search.placeholder')"
 						type="text"
 						@keyup.enter="applySearchParams"
 					/>
-					<span class="absolute inset-y-0 start-0 flex items-center justify-center px-2">
-						<SearchIcon class="size-6 text-muted-foreground" />
+					<span class="absolute inset-y-0 end-0 flex items-center justify-center px-2">
+						<Button
+							:aria-label="t('ArticlesPage.filters.search.label')"
+							class="size-7"
+							size="icon"
+							variant="ghost"
+							@click="applySearchParams"
+						>
+							<SearchIcon aria-hidden="true" class="size-4" />
+						</Button>
 					</span>
 				</div>
 			</div>
@@ -119,12 +127,18 @@ usePageMetadata({
 				/>
 			</div>
 			<Button class="w-64 gap-2" variant="outline" @click="resetSelection"
-				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon class="size-4"
+				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon aria-hidden="true" class="size-4"
 			/></Button>
 		</aside>
 		<div>
 			<section class="flex items-center justify-between mb-8">
-				<div class="text-3xl" data-testid="results">
+				<div
+					aria-atomic="true"
+					aria-live="polite"
+					class="text-3xl"
+					data-testid="results"
+					tabindex="0"
+				>
 					{{ totalResults }}
 					{{ totalResults === 1 ? t("ArticlesPage.result") : t("ArticlesPage.results") }}
 				</div>

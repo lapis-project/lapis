@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { RotateCcwIcon, SearchIcon } from "lucide-vue-next";
+import type { LocationQueryRaw } from "vue-router";
 
 import { formatAuthors } from "@/utils/article-helper";
 
@@ -44,6 +45,48 @@ const resetSelection = () => {
 	searchInput.value = "";
 };
 
+const router = useRouter();
+const route = useRoute();
+
+const updateUrlParams = async () => {
+	const queryObject: LocationQueryRaw = {};
+	Object.entries(route.query).forEach(([key, value]) => {
+		if (!["q", "c", "l", "p"].includes(key)) {
+			queryObject[key] = value;
+		}
+	});
+	if (searchInput.value) {
+		queryObject.q = searchInput.value;
+	}
+
+	if (selectedCategory.value) {
+		queryObject.c = selectedCategory.value;
+	}
+
+	if (selectedLanguage.value) {
+		queryObject.l = selectedLanguage.value;
+	}
+	await router.replace({ query: queryObject });
+};
+
+const initializeFromUrl = () => {
+	const querySearch = route.query.q;
+	if (querySearch && typeof querySearch === "string") {
+		searchInput.value = querySearch;
+	}
+
+	const queryCategory = route.query.c;
+	if (queryCategory && typeof queryCategory === "string") {
+		const isValidOption = categoryOptions.value.some((o) => o.value === queryCategory);
+		if (isValidOption) selectedCategory.value = queryCategory;
+	}
+
+	const queryLanguage = route.query.l;
+	if (queryLanguage && (queryLanguage === "de" || queryLanguage === "en")) {
+		selectedLanguage.value = queryLanguage;
+	}
+};
+
 // const formatPublishDate = (publishedAt: string) => {
 // 	const publishDate = new Date(publishedAt);
 // 	return publishDate.toLocaleDateString(undefined, {
@@ -59,6 +102,7 @@ const applySearchParams = () => {
 		language: selectedLanguage.value ?? undefined,
 		searchTerm: searchInput.value || undefined,
 	});
+	updateUrlParams();
 };
 
 watch(selectedCategory, () => {
@@ -66,6 +110,11 @@ watch(selectedCategory, () => {
 });
 
 watch(selectedLanguage, () => {
+	applySearchParams();
+});
+
+onMounted(() => {
+	initializeFromUrl();
 	applySearchParams();
 });
 

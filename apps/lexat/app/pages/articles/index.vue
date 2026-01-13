@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { RotateCcwIcon, SearchIcon } from "lucide-vue-next";
+import type { LocationQueryRaw } from "vue-router";
 
 import { formatAuthors } from "@/utils/article-helper";
 
 const t = useTranslations();
-
-const selectedCategory = ref<string | null>(null);
-
-const selectedLanguage = ref<"de" | "en" | null>(null);
+const router = useRouter();
+const route = useRoute();
 
 const {
 	articles,
@@ -18,9 +17,13 @@ const {
 	selectedSortingOption,
 	totalPages,
 	totalResults,
+	selectedCategory,
+	selectedLanguage,
+	currentSearchTerm,
 } = useArticles();
 
-const searchInput = ref("");
+// initialize the local input value from the composable (which read the URL)
+const searchInput = ref(currentSearchTerm.value || "");
 
 const categoryOptions = ref([
 	{ value: "commentary", label: t("Categories.commentary") },
@@ -39,9 +42,30 @@ const sortingOptions = [
 ];
 
 const resetSelection = () => {
-	selectedCategory.value = null;
-	selectedLanguage.value = null;
+	setSearchParams({ category: undefined, language: undefined, searchTerm: undefined });
 	searchInput.value = "";
+	updateUrlParams();
+};
+
+const updateUrlParams = async () => {
+	const queryObject: LocationQueryRaw = {};
+	Object.entries(route.query).forEach(([key, value]) => {
+		if (!["q", "c", "l", "p"].includes(key)) {
+			queryObject[key] = value;
+		}
+	});
+	if (searchInput.value) {
+		queryObject.q = searchInput.value;
+	}
+
+	if (selectedCategory.value) {
+		queryObject.c = selectedCategory.value;
+	}
+
+	if (selectedLanguage.value) {
+		queryObject.l = selectedLanguage.value;
+	}
+	await router.replace({ query: queryObject });
 };
 
 // const formatPublishDate = (publishedAt: string) => {
@@ -59,14 +83,19 @@ const applySearchParams = () => {
 		language: selectedLanguage.value ?? undefined,
 		searchTerm: searchInput.value || undefined,
 	});
+	updateUrlParams();
 };
 
 watch(selectedCategory, () => {
-	applySearchParams();
+	updateUrlParams();
 });
 
 watch(selectedLanguage, () => {
-	applySearchParams();
+	updateUrlParams();
+});
+
+watch(currentPage, () => {
+	updateUrlParams();
 });
 
 usePageMetadata({
@@ -160,10 +189,10 @@ usePageMetadata({
 					</div>
 					<div class="flex gap-4">
 						<NuxtLinkLocale
-							class="hidden sm:block w-1/4 aspect-16/9"
+							class="hidden sm:block w-1/4 aspect-video"
 							:to="`/articles/${article.alias}`"
 						>
-							<NuxtImg class="object-cover aspect-16/9" :src="article.cover"></NuxtImg>
+							<NuxtImg class="object-cover aspect-video" :src="article.cover"></NuxtImg>
 						</NuxtLinkLocale>
 
 						<div class="sm:w-3/4">

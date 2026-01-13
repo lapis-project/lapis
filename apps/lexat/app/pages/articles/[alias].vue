@@ -176,6 +176,9 @@ const formattedTitle = computed(
 				<h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold break-words">
 					{{ formattedTitle }}
 				</h1>
+				<div class="mb-4 mt-4">
+					<ShareButton :title="article?.title ?? ''" />
+				</div>
 				<p v-if="article.authors?.length" class="mb-1">
 					{{ t("ArticleDetailPage.authors") }}: {{ formatAuthors(article.authors) }}
 				</p>
@@ -188,7 +191,7 @@ const formattedTitle = computed(
 				<NuxtImg
 					v-if="article.cover"
 					:alt="article.cover_alt ?? 'Cover'"
-					class="object-cover aspect-16/9"
+					class="object-cover aspect-video"
 					:src="article.cover"
 				/>
 				<div v-if="article?.post_type_name !== 'short_description'" class="block sm:hidden">

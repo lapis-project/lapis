@@ -13,7 +13,7 @@
 		"dev": "nuxt dev"
 	},
 	"dependencies": {
-		"@acdh-oeaw/lib": "^0.3.7",
+		"@acdh-oeaw/lib": "^1.0.0",
 		"@fontsource-variable/inter": "^5.2.8",
 		"@tailwindcss/vite": "^4.1.18",
 		"@tanstack/vue-table": "^8.21.3",
@@ -36,24 +36,24 @@
 		"vue": "^3.5.26",
 		"vue-router": "^4.6.4",
 		"vue-sonner": "^2.0.9",
-		"zod": "^4.2.1"
+		"zod": "^4.3.5"
 	},
 	"devDependencies": {
-		"@acdh-oeaw/eslint-config": "^2.0.11",
-		"@acdh-oeaw/eslint-config-nuxt": "^2.0.17",
-		"@acdh-oeaw/eslint-config-vue": "^2.0.15",
+		"@acdh-oeaw/eslint-config": "^2.0.12",
+		"@acdh-oeaw/eslint-config-nuxt": "^2.0.18",
+		"@acdh-oeaw/eslint-config-vue": "^2.0.16",
 		"@acdh-oeaw/stylelint-config": "^2.3.2",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@nuxt/eslint": "^1.12.1",
-		"@types/node": "^25.0.3",
+		"@types/node": "^25.0.8",
 		"eslint": "^9.39.2",
 		"eslint-config-flat-gitignore": "^2.1.0",
 		"stylelint": "^16.26.1",
 		"tailwindcss": "^4.1.18",
 		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.50.1",
-		"vite": "^7.3.0",
-		"vue-tsc": "^3.2.1"
+		"typescript-eslint": "^8.53.0",
+		"vite": "^7.3.1",
+		"vue-tsc": "^3.2.2"
 	},
 	"browserslist": {
 		"development": [

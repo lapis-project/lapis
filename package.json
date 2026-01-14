@@ -34,12 +34,12 @@
 		"start:lexat": "cd apps/lexat && pnpm start",
 		"start:lexvad": "cd apps/lexvad && pnpm start"
 	},
-	"packageManager": "pnpm@10.25.0",
+	"packageManager": "pnpm@10.28.0",
 	"devDependencies": {
 		"@acdh-oeaw/commitlint-config": "^3.0.0",
 		"@acdh-oeaw/prettier-config": "^2.0.1",
-		"@commitlint/cli": "^20.2.0",
-		"@types/node": "^25.0.3",
+		"@commitlint/cli": "^20.3.1",
+		"@types/node": "^25.0.8",
 		"is-ci": "^4.1.0",
 		"lint-staged": "^16.2.7",
 		"npm-run-all2": "^8.0.4",

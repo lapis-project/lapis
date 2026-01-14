@@ -29,11 +29,11 @@ const width = computed(() => {
 	switch (props.size) {
 		default:
 		case "large":
-			return "w-64";
+			return "w-full sm:w-64";
 		case "medium":
-			return "w-48";
+			return "w-full sm:w-48";
 		case "small":
-			return "w-32";
+			return "w-full sm:w-32";
 	}
 });
 </script>

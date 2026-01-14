@@ -148,7 +148,14 @@
 		"published_at": "Veröffentlicht am",
 		"more_articles": "Ähnliche Beiträge",
 		"toc": "Inhaltsverzeichnis",
-		"updated_at": "Zuletzt aktualisiert"
+		"updated_at": "Zuletzt aktualisiert",
+		"share_buttons": {
+			"share_facebook": "Auf Facebook teilen",
+			"share_bluesky": "Auf Bluesky teilen",
+			"share_whatsapp": "Über Whatsapp teilen",
+			"share_email": "Über Email teilen",
+			"share_link": "In die Zwischenablage kopieren"
+		}
 	},
 	"Auth": {
 		"confirmPassword": "Passwort-Kontrolle",

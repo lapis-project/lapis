@@ -10,6 +10,8 @@ const t = useTranslations();
 const env = useRuntimeConfig();
 const isDialogOpen = ref(false);
 
+const headers = useRequestHeaders(["cookie"]);
+
 definePageMeta({
 	layout: "cms",
 	middleware: ["protected", "superadmin"],
@@ -28,6 +30,7 @@ const { data, refresh } = useFetch<APIAdminUsers>("/cms/users/all", {
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 	credentials: "include",
+	headers: headers,
 });
 
 const users = computed(() => {

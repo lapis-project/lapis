@@ -10,6 +10,7 @@ definePageMeta({
 	middleware: ["protected"],
 });
 
+const headers = useRequestHeaders(["cookie"]);
 const env = useRuntimeConfig();
 const route = useRoute();
 const { apiClient } = useApiClient();
@@ -58,6 +59,7 @@ const { data: informationList } = await useFetch<APIInformationList>("/cms/artic
 	baseURL: env.public.apiBaseUrl,
 	method: "GET",
 	credentials: "include",
+	headers: headers,
 });
 
 const categoryOptions = ref<Array<{ value: string; label: string }>>([]);
@@ -82,6 +84,7 @@ if (routeId && routeId !== "new") {
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
 		credentials: "include",
+		headers: headers,
 	});
 
 	if (error.value) {
@@ -185,6 +188,7 @@ const saveArticle = async () => {
 			method: "PUT",
 			body: article,
 			credentials: "include",
+			headers: headers,
 		});
 		if (response) {
 			toast.success(t("AdminPage.editor.saving_succeeded.title"));
@@ -247,6 +251,7 @@ const handleFileChange = async (event: Event) => {
 				credentials: "include",
 				body: formData,
 				method: "POST",
+				headers: headers,
 			});
 			// DEBUG
 			// const result = {

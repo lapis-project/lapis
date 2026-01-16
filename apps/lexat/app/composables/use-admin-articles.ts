@@ -4,6 +4,9 @@ import { computed } from "vue";
 export function useAdminArticles() {
 	const env = useRuntimeConfig();
 	const { apiClient } = useApiClient();
+
+	const headers = useRequestHeaders(["cookie"]);
+
 	const _getAdminArticles = apiClient.cms.articles.all[":project"].$get;
 	type APIAdminArticles = InferResponseType<typeof _getAdminArticles, 200>;
 	const _deleteArticle = apiClient.cms.articles[":id"].$delete;
@@ -16,6 +19,7 @@ export function useAdminArticles() {
 		baseURL: env.public.apiBaseUrl,
 		method: "GET",
 		credentials: "include",
+		headers: headers,
 	});
 
 	const articles = computed(() => data.value?.articles ?? []);

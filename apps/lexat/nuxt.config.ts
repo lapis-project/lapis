@@ -11,6 +11,11 @@ export default defineNuxtConfig({
 		"@": fileURLToPath(new URL("./app", import.meta.url)),
 	},
 
+	devServer: {
+		host: "0.0.0.0",
+		port: 3000,
+	},
+
 	app: {
 		layoutTransition: false,
 		pageTransition: false,
@@ -96,6 +101,12 @@ export default defineNuxtConfig({
 		// 	routes: ["/manifest.webmanifest", "/robots.txt", "/sitemap.xml"],
 		// 	concurrency: 1,
 		// },
+		devProxy: {
+			"/api": {
+				target: "http://localhost:5000",
+				changeOrigin: true,
+			},
+		},
 	},
 
 	runtimeConfig: {

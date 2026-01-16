@@ -87,7 +87,9 @@ const applySearchParams = () => {
 };
 
 const segmentTitle = (title: string) => {
-	return title.split("/").join(" / ");
+	// Matches a slash with any amount of whitespace (including none) around it
+	// and replaces it with exactly " / "
+	return title.replace(/\s*\/\s*/g, " / ");
 };
 
 watch(selectedCategory, () => {
@@ -201,7 +203,7 @@ usePageMetadata({
 
 						<div class="sm:w-3/4">
 							<NuxtLinkLocale :to="`/articles/${article.alias}`">
-								<h2 class="text-xl tracking-wide hover:underline break-all">
+								<h2 class="text-xl tracking-wide hover:underline">
 									{{ segmentTitle(article.title) }}
 								</h2>
 							</NuxtLinkLocale>

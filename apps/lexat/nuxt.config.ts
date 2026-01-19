@@ -103,7 +103,7 @@ export default defineNuxtConfig({
 		// },
 		devProxy: {
 			"/api": {
-				target: "http://localhost:5000",
+				target: process.env.NUXT_PUBLIC_API_BASE_URL,
 				changeOrigin: true,
 			},
 		},

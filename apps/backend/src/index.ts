@@ -10,5 +10,4 @@ log.success(`Server is running on port: ${String(port)}`);
 serve({
 	fetch: app.fetch,
 	port,
-	hostname: "0.0.0.0",
 });

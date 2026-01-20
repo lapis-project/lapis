@@ -86,6 +86,12 @@ const applySearchParams = () => {
 	updateUrlParams();
 };
 
+const segmentTitle = (title: string) => {
+	// Matches a slash with any amount of whitespace (including none) around it
+	// and replaces it with exactly " / "
+	return title.replace(/\s*\/\s*/g, " / ");
+};
+
 watch(selectedCategory, () => {
 	updateUrlParams();
 });
@@ -107,13 +113,13 @@ usePageMetadata({
 <template>
 	<MainContent class="container grid sm:grid-cols-[auto_1fr] gap-8 py-8">
 		<PageTitle class="sr-only">{{ t("ArticlesPage.title") }}</PageTitle>
-		<aside class="hidden sm:block rounded border p-5">
-			<div class="mb-6 uppercase">
+		<aside class="block sm:rounded sm:border sm:p-5">
+			<div class="mb-6 uppercase max-sm:hidden">
 				{{ t("ArticlesPage.filters.label") }}
 			</div>
 			<div class="mb-5 grid items-center gap-1.5">
 				<Label for="search">{{ t("ArticlesPage.filters.search.label") }}</Label>
-				<div class="relative w-64">
+				<div class="relative sm:w-64">
 					<Input
 						id="search"
 						v-model="searchInput"
@@ -135,7 +141,7 @@ usePageMetadata({
 					</span>
 				</div>
 			</div>
-			<div v-if="categoryOptions" class="mb-5 grid max-w-sm items-center gap-1.5">
+			<div v-if="categoryOptions" class="mb-5 grid items-center gap-1.5">
 				<Label for="category">{{ t("ArticlesPage.filters.category") }}</Label>
 				<BaseSelect
 					id="category"
@@ -155,7 +161,7 @@ usePageMetadata({
 					:placeholder="t('AdminPage.editor.language.placeholder')"
 				/>
 			</div>
-			<Button class="w-64 gap-2" variant="outline" @click="resetSelection"
+			<Button class="sm:w-64 w-full gap-2" variant="outline" @click="resetSelection"
 				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon aria-hidden="true" class="size-4"
 			/></Button>
 		</aside>
@@ -197,8 +203,8 @@ usePageMetadata({
 
 						<div class="sm:w-3/4">
 							<NuxtLinkLocale :to="`/articles/${article.alias}`">
-								<h2 class="text-xl tracking-wide hover:underline break-all">
-									{{ article.title }}
+								<h2 class="text-xl tracking-wide hover:underline">
+									{{ segmentTitle(article.title) }}
 								</h2>
 							</NuxtLinkLocale>
 							<p class="mb-1 tracking-wide">{{ formatAuthors(article.authors) }}</p>

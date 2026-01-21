@@ -1,8 +1,21 @@
 <script lang="ts" setup>
-import { RotateCcwIcon, SearchIcon } from "lucide-vue-next";
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
+import { RotateCcwIcon, SearchIcon, SlidersHorizontalIcon } from "lucide-vue-next";
 import type { LocationQueryRaw } from "vue-router";
 
 import { formatAuthors } from "@/utils/article-helper";
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isDesktop = breakpoints.greaterOrEqual("sm");
+
+const isOpen = ref(false);
+
+const effectiveOpen = computed({
+	get: () => isDesktop.value || isOpen.value,
+	set: (val) => {
+		isOpen.value = val;
+	},
+});
 
 const t = useTranslations();
 const router = useRouter();
@@ -117,82 +130,95 @@ usePageMetadata({
 			<div class="mb-6 uppercase max-sm:hidden">
 				{{ t("ArticlesPage.filters.label") }}
 			</div>
-			<div class="mb-5 grid items-center gap-1.5">
-				<Label for="search">{{ t("ArticlesPage.filters.search.label") }}</Label>
-				<div class="relative sm:w-64">
-					<Input
-						id="search"
-						v-model="searchInput"
-						class="pr-10"
-						:placeholder="t('ArticlesPage.filters.search.placeholder')"
-						type="text"
-						@keyup.enter="applySearchParams"
-					/>
-					<span class="absolute inset-y-0 end-0 flex items-center justify-center px-2">
-						<Button
-							:aria-label="t('ArticlesPage.filters.search.label')"
-							class="size-7"
-							size="icon"
-							variant="ghost"
-							@click="applySearchParams"
-						>
-							<SearchIcon aria-hidden="true" class="size-4" />
-						</Button>
-					</span>
+			<Collapsible v-model:open="effectiveOpen" class="flex flex-col gap-2">
+				<div class="mb-5 grid items-center gap-1.5">
+					<Label for="search">{{ t("ArticlesPage.filters.search.label") }}</Label>
+					<div class="flex gap-3 items-center justify-between">
+						<div class="relative w-full sm:w-64">
+							<Input
+								id="search"
+								v-model="searchInput"
+								class="pr-10"
+								:placeholder="t('ArticlesPage.filters.search.placeholder')"
+								type="text"
+								@keyup.enter="applySearchParams"
+							/>
+							<span class="absolute inset-y-0 end-0 flex items-center justify-center px-2">
+								<Button
+									:aria-label="t('ArticlesPage.filters.search.label')"
+									class="size-7"
+									size="icon"
+									variant="ghost"
+									@click="applySearchParams"
+								>
+									<SearchIcon aria-hidden="true" class="size-4" />
+								</Button>
+							</span>
+						</div>
+						<CollapsibleTrigger as-child class="sm:hidden">
+							<Button
+								:aria-label="t('ArticlesPage.filters.search.label')"
+								class="size-7"
+								size="icon"
+								variant="ghost"
+							>
+								<SlidersHorizontalIcon aria-hidden="true" class="size-6" />
+							</Button>
+						</CollapsibleTrigger>
+					</div>
 				</div>
-			</div>
-			<div v-if="categoryOptions" class="mb-5 grid items-center gap-1.5">
-				<Label for="category">{{ t("ArticlesPage.filters.category") }}</Label>
-				<BaseSelect
-					id="category"
-					v-model="selectedCategory"
-					data-testid="category"
-					:options="categoryOptions"
-					:placeholder="t('AdminPage.editor.category.placeholder')"
-				/>
-			</div>
-			<div v-if="languageOptions" class="mb-6 grid items-center gap-1.5">
-				<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-				<BaseSelect
-					id="language"
-					v-model="selectedLanguage"
-					data-testid="language"
-					:options="languageOptions"
-					:placeholder="t('AdminPage.editor.language.placeholder')"
-				/>
-			</div>
-			<Button class="sm:w-64 w-full gap-2" variant="outline" @click="resetSelection"
-				>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon aria-hidden="true" class="size-4"
-			/></Button>
+				<CollapsibleContent class="flex flex-col gap-2">
+					<div v-if="categoryOptions" class="mb-5 grid items-center gap-1.5">
+						<Label for="category">{{ t("ArticlesPage.filters.category") }}</Label>
+						<BaseSelect
+							id="category"
+							v-model="selectedCategory"
+							data-testid="category"
+							:options="categoryOptions"
+							:placeholder="t('AdminPage.editor.category.placeholder')"
+						/>
+					</div>
+					<div v-if="languageOptions" class="mb-6 grid items-center gap-1.5">
+						<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
+						<BaseSelect
+							id="language"
+							v-model="selectedLanguage"
+							data-testid="language"
+							:options="languageOptions"
+							:placeholder="t('AdminPage.editor.language.placeholder')"
+						/>
+					</div>
+				</CollapsibleContent>
+				<Button class="sm:w-64 w-full gap-2" variant="outline" @click="resetSelection"
+					>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon aria-hidden="true" class="size-4"
+				/></Button>
+			</Collapsible>
 		</aside>
 		<div>
-			<section class="flex items-center justify-between mb-8">
+			<section class="flex sm:items-center sm:justify-between max-sm:flex-col gap-2 sm:gap-0 mb-8">
 				<div
 					aria-atomic="true"
 					aria-live="polite"
-					class="text-3xl"
+					class="sm:text-3xl text-xl"
 					data-testid="results"
 					tabindex="0"
 				>
 					{{ totalResults }}
 					{{ totalResults === 1 ? t("ArticlesPage.result") : t("ArticlesPage.results") }}
 				</div>
-				<div class="flex items-center gap-2">
-					<Label for="rows-per-page">{{ t("ArticlesPage.sort.sort_by") }}:</Label>
+				<div class="flex items-center gap-2 justify-between">
+					<Label class="sm:text-base text-sm shrink-0" for="rows-per-page"
+						>{{ t("ArticlesPage.sort.sort_by") }}:</Label
+					>
 					<BaseSelect
 						v-model="selectedSortingOption"
 						:options="sortingOptions"
-						size="medium"
+						size="small"
 					></BaseSelect>
 				</div>
 			</section>
 			<ul class="flex flex-col gap-8" data-testid="articles">
 				<li v-for="article in articles" :key="article.alias" :class="{ 'opacity-40': isPending }">
-					<div
-						class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 text-sm font-light tracking-wider dark:text-primary-foreground"
-					>
-						{{ t(`AdminPage.editor.category.${article.post_type}`) }}
-					</div>
 					<div class="flex gap-4">
 						<NuxtLinkLocale
 							class="hidden sm:block w-1/4 aspect-video"
@@ -208,6 +234,11 @@ usePageMetadata({
 								</h2>
 							</NuxtLinkLocale>
 							<p class="mb-1 tracking-wide">{{ formatAuthors(article.authors) }}</p>
+							<div
+								class="mb-2 inline-block rounded-full bg-slate-200 px-2 py-0.5 text-xs font-light tracking-wider dark:text-primary-foreground"
+							>
+								{{ t(`AdminPage.editor.category.${article.post_type}`) }}
+							</div>
 							<!-- <div v-if="article.published_at" class="mb-2">
 								{{ t("ArticleDetailPage.published_at") }}:
 								{{ formatPublishDate(article.published_at) }}

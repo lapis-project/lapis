@@ -54,6 +54,10 @@ const sortingOptions = [
 	{ value: "variable", label: t("ArticlesPage.sort.variable") },
 ];
 
+const isFilterSelected = computed(() => {
+	return currentSearchTerm.value || selectedCategory.value || selectedLanguage.value;
+});
+
 const resetSelection = () => {
 	setSearchParams({ category: undefined, language: undefined, searchTerm: undefined });
 	searchInput.value = "";
@@ -189,7 +193,11 @@ usePageMetadata({
 						/>
 					</div>
 				</CollapsibleContent>
-				<Button class="sm:w-64 w-full gap-2" variant="outline" @click="resetSelection"
+				<Button
+					v-show="isFilterSelected"
+					class="sm:w-64 w-full gap-2"
+					variant="outline"
+					@click="resetSelection"
 					>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon aria-hidden="true" class="size-4"
 				/></Button>
 			</Collapsible>

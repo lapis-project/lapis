@@ -98,6 +98,51 @@ To completely shut down the db container and delete any associated volumes:
 - Run task "Reset DB"
 - OR `docker compose --env-file .env.localsetup down`
 
+## Setup for mobile testing (local)
+
+### Network Requirements
+
+Ensure both your development machine and your Android/iOS device are connected to the same Wi-Fi
+network.
+
+### Identify your local IP address
+
+Find your machine's local IP (e.g., `192.168.x.x`):
+
+- Windows: Run `ipconfig` in PowerShell/CMD (look for "IPv4 Address").
+
+- macOS/Linux: Run `ifconfig` or `hostname -I` in the terminal.
+
+### Environment Configuration
+
+Update your local environment files. Note: Ensure these changes are made in your .local files to
+avoid committing private network configurations to the repository.
+
+#### Backend
+
+In `apps/backend/.env.local` add your machine's network address to the allowed origins to permit
+cross-device requests:
+
+```bash
+ALLOWED_ORIGINS="http://localhost:3000,http://192.168.x.x:3000"
+```
+
+#### Frontend
+
+In `apps/lexat/.env.dev.local` update the base URLs to point to your machine's IP instead of
+localhost:
+
+```bash
+NUXT_PUBLIC_APP_BASE_URL="http://192.168.x.x:3000"
+NUXT_PUBLIC_API_BASE_URL="http://192.168.x.x:5000"
+```
+
+### Accessing the app
+
+Restart both the backend and frontend servers.
+
+On your mobile device, open a browser and navigate to: http://192.168.x.x:3000
+
 ## Dependencies
 
 ### Playwright

@@ -112,20 +112,22 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 			.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
 			.where("phenomenon.id", "=", phenomenonIdParsed)
 			.select(({ eb }) => [
-				"place.place_name",
-				"place.plz",
-				"place.lat",
-				"place.lon",
-				eb.fn.coalesce(
-					eb.fn.jsonAgg(
-						jsonbBuildObject({
-							age: eb.ref("age_group.age_group_name"),
-							gender: eb.ref("informant.gender"),
-							informant_id: eb.ref("informant.id"),
-							answers: eb.fn.coalesce(eb.ref("annotations"), sql`'[]'`),
-						}),
-					),
-				),
+				eb.ref("place.place_name").as("place_name"),
+				eb.ref("place.plz").as("plz"),
+				eb.ref("place.lat").as("lat"),
+				eb.ref("place.lon").as("lon"),
+				eb.fn
+					.coalesce(
+						eb.fn.jsonAgg(
+							jsonbBuildObject({
+								age: eb.ref("age_group.age_group_name"),
+								gender: eb.ref("informant.gender"),
+								informant_id: eb.ref("informant.id"),
+								answers: eb.fn.coalesce(eb.ref("annotations"), sql`'[]'`),
+							}),
+						),
+					)
+					.as("informants"),
 			])
 			.groupBy(["place.plz", "place.lat", "place.lon", "place.place_name"]);
 		return await dbQuery.execute();
@@ -148,15 +150,15 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 				.where("phenomenon.id", "=", phenomenonIdParsed)
 				.where("project_tagset.project_id", "=", projectIdParsed)
 				// eslint-disable-next-line @typescript-eslint/unbound-method
-				.select(({ fn, ref }) => [
+				.select(({ eb, fn, ref }) => [
 					"response.informant_id",
 					fn
 						.jsonAgg(
 							jsonBuildObject({
-								annotation: ref("annotation.annotation_name"),
-								response: ref("response.response_text"),
-								phenomenon: ref("phenomenon.phenomenon_name"),
-								variety: ref("variety.variety_name"),
+								annotation: eb.cast<string>(ref("annotation.annotation_name"), "text"),
+								response: eb.cast<string>(ref("response.response_text"), "text"),
+								phenomenon: eb.cast<string>(ref("phenomenon.phenomenon_name"), "text"),
+								variety: eb.cast<string>(ref("variety.variety_name"), "text"),
 							}),
 						)
 						.as("annotations"),
@@ -186,21 +188,24 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 		.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
 		.where("phenomenon.id", "=", phenomenonIdParsed)
 		.where("project_tagset.project_id", "=", projectIdParsed)
-		.select(({ fn, ref }) => [
-			"place.place_name",
-			"place.plz",
-			"place.lat",
-			"place.lon",
-			fn.coalesce(
-				fn.jsonAgg(
-					jsonbBuildObject({
-						age: ref("age_group.age_group_name"),
-						gender: ref("informant.gender"),
-						informant_id: ref("informant.id"),
-						answers: fn.coalesce(ref("annotations"), sql`'[]'`),
-					}),
-				),
-			),
+		.select(({ eb, fn }) => [
+			eb.ref("place.place_name").as("place_name"),
+			eb.ref("place.plz").as("plz"),
+			eb.ref("place.lat").as("lat"),
+			eb.ref("place.lon").as("lon"),
+			fn
+				.coalesce(
+					fn.jsonAgg(
+						jsonbBuildObject({
+							age: eb.ref("age_group.age_group_name"),
+							gender: eb.ref("informant.gender"),
+							informant_id: eb.ref("informant.id"),
+							answers: fn.coalesce(eb.ref("annotations"), sql`'[]'`),
+						}),
+					),
+					sql`'[]'`,
+				)
+				.as("informants"),
 		])
 		.groupBy(["place.plz", "place.lat", "place.lon", "place.place_name"]);
 

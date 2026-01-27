@@ -26,13 +26,13 @@ export async function getUsersByList(id: Array<number>) {
 		.innerJoin("user_has_role", "user_account.id", "user_has_role.user_id")
 		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
 		.where("user_account.id", "in", id)
-		.select([
-			"username",
-			"user_account.id",
-			"firstname",
-			"lastname",
-			"user_roles.role_name",
-			"email",
+		.select(({ eb }) => [
+			eb.ref("user_account.username").as("username"),
+			eb.ref("user_account.id").as("id"),
+			eb.ref("user_account.firstname").as("firstname"),
+			eb.ref("user_account.lastname").as("lastname"),
+			eb.ref("user_account.email").as("email"),
+			eb.ref("user_roles.role_name").as("role_name"),
 		])
 		.execute();
 }

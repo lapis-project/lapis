@@ -116,7 +116,10 @@ usePageMetadata({
 				<h3>{{ t("HomePage.team.head") }}</h3>
 				<p>Alexandra N. Lenz</p>
 				<h3>{{ t("HomePage.team.technical") }}</h3>
-				<p>Jakob Bal, Kilian Kukelka, Markus Pluschkovits, Daniel Schopper, Anja Wittibschlager</p>
+				<p>
+					Jakob Bal, Kilian Kukelka, Markus Pluschkovits, Marie Rohler, Daniel Schopper, Anja
+					Wittibschlager
+				</p>
 				<h3>{{ t("HomePage.team.authors") }}</h3>
 				<p>
 					Amelie Dorn, Jan Höll, Wolfgang Koppensteiner, Katharina Korecky-Kröll, Claudia Mattes,

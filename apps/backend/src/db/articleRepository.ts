@@ -5,7 +5,7 @@ import { db } from "@/db/connect.ts";
 import { jsonbBuildObject } from "@/lib/dbHelper.ts";
 import type { Availablelang, Poststatus } from "@/types/db.ts";
 
-import type { PagedArticlesResult } from "../types/apiTypes.ts";
+import type { ArticleDetail, PagedArticlesResult } from "../types/apiTypes.ts";
 
 export async function getArticleByAlias(alias: string) {
 	const query = db
@@ -97,7 +97,7 @@ export async function getArticleByAlias(alias: string) {
 				.as("authors"),
 		])
 		.groupBy(["post.id", "post_type.post_type_name", "user_account.id"]);
-	return await query.executeTakeFirst();
+	return (await query.executeTakeFirst()) as ArticleDetail;
 }
 
 export async function getAllArticlesByProject(

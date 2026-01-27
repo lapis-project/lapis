@@ -139,9 +139,9 @@ NUXT_PUBLIC_API_BASE_URL="http://192.168.x.x:5000"
 
 ### Accessing the app
 
-Restart both the backend and frontend servers.
+1. Restart both the backend and frontend servers.
 
-On your mobile device, open a browser and navigate to: http://192.168.x.x:3000
+2. On your mobile device, open a browser and navigate to: `http://192.168.x.x:3000`
 
 ## Dependencies
 

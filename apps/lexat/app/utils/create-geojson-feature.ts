@@ -47,10 +47,10 @@ export function createGeoJsonFeature(
 	entity: SurveyResponse,
 	mappedColors: Record<string, string>,
 ): GeoJsonFeature {
-	const uniqueOccurrenceCounts = countUniqueOccurrences(entity.coalesce);
+	const uniqueOccurrenceCounts = countUniqueOccurrences(entity.informants);
 	const sortedVariants = getSortedVariants(uniqueOccurrenceCounts);
 	const uniqueColorsArray = sortedVariants.map((k) => mappedColors[k.anno]).join("-");
-	const answerCount = entity.coalesce.reduce((count, obj) => {
+	const answerCount = entity.informants.reduce((count, obj) => {
 		return count + obj.answers.length;
 	}, 0);
 	return {

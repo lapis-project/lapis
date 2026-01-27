@@ -4,7 +4,7 @@ export const countUniqueVariants = (points: Array<SurveyResponse>) => {
 	const annoCounts = new Map<string, number>();
 
 	points.forEach((p) => {
-		p.coalesce.forEach((property) => {
+		p.informants.forEach((property) => {
 			property.answers.forEach((answer) => {
 				const anno = answer.annotation;
 				if (annoCounts.has(anno)) {

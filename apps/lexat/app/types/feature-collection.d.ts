@@ -24,7 +24,7 @@ export interface SurveyResponse {
 	plz: number;
 	lat: number;
 	lon: number;
-	coalesce: Array<Coalesce>;
+	informants: Array<Coalesce>;
 	properties?: Array<SurveyResponseProperty>;
 }
 

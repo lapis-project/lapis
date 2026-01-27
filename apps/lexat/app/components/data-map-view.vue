@@ -121,14 +121,14 @@ const points = computed(() => {
 	let features = questionData.value ?? [];
 
 	features.forEach((f) => {
-		if (Array.isArray(f.coalesce)) {
+		if (Array.isArray(f.informants)) {
 			// Filter out "Keine Angabe" answers in each coalesce entry
-			f.coalesce.forEach((entry) => {
+			f.informants.forEach((entry) => {
 				entry.answers = entry.answers.filter((answer) => answer.annotation !== "Keine Angabe");
 			});
 
 			// Remove coalesce entries whose answers array is now empty
-			f.coalesce = f.coalesce.filter((entry) => entry.answers.length > 0);
+			f.informants = f.informants.filter((entry) => entry.answers.length > 0);
 		}
 		f.id = `${f.plz.toString()}-${f.place_name}`;
 	});
@@ -145,7 +145,7 @@ const points = computed(() => {
 
 		features = features
 			.map((feature) => {
-				const filteredProperties = feature.coalesce
+				const filteredProperties = feature.informants
 					.map((property) => {
 						const filteredAnswers = property.answers.filter((answer) =>
 							activeRegisterLabels.includes(answer.variety),
@@ -154,9 +154,9 @@ const points = computed(() => {
 					})
 					.filter((property) => property.answers.length > 0);
 
-				return { ...feature, coalesce: filteredProperties };
+				return { ...feature, informants: filteredProperties };
 			})
-			.filter((feature) => feature.coalesce.length > 0);
+			.filter((feature) => feature.informants.length > 0);
 	}
 
 	return features;
@@ -205,7 +205,7 @@ const filteredPoints = computed(() => {
 	if (activeVariants.value.length && !activeVariants.value.includes("all")) {
 		filteredPoints = filteredPoints
 			.map((entry) => {
-				const filteredCoalesce = entry.coalesce // Make sure this is referring to 'coalesce'
+				const filteredCoalesce = entry.informants // Make sure this is referring to 'coalesce'
 					.map((property) => {
 						const filteredAnswers = property.answers.filter((answer) =>
 							activeVariants.value.includes(answer.annotation),
@@ -214,14 +214,14 @@ const filteredPoints = computed(() => {
 					})
 					.filter((property) => property.answers.length > 0);
 
-				return { ...entry, coalesce: filteredCoalesce }; // Properly assign the filtered coalesce here
+				return { ...entry, informants: filteredCoalesce }; // Properly assign the filtered coalesce here
 			})
-			.filter((entry) => entry.coalesce.length > 0); // Filter out entries with no remaining coalesce properties
+			.filter((entry) => entry.informants.length > 0); // Filter out entries with no remaining coalesce properties
 	}
 
 	filteredPoints = filteredPoints
 		.map((item) => {
-			const filteredProperties = item.coalesce.filter((prop) => {
+			const filteredProperties = item.informants.filter((prop) => {
 				const ageBounds = prop.age.split("-");
 				return (
 					parseInt(ageBounds[0]!) >= (debouncedActiveAgeGroup.value[0] ?? 0) &&
@@ -231,10 +231,10 @@ const filteredPoints = computed(() => {
 
 			return {
 				...item,
-				coalesce: filteredProperties,
+				informants: filteredProperties,
 			};
 		})
-		.filter((item) => item.coalesce.length > 0);
+		.filter((item) => item.informants.length > 0);
 
 	let visibleLocationPoints = structuredClone(filteredPoints);
 	if (!showStateCapitals.value) {
@@ -441,7 +441,7 @@ const countOccurrences = (properties: Array<SurveyResponseProperty>): Occurrence
 };
 
 const getEntityOccurrences = (entity: SurveyResponse) => {
-	return countOccurrences(entity.coalesce ?? []);
+	return countOccurrences(entity.informants ?? []);
 };
 
 const getEntityTotal = (entity: SurveyResponse) => {
@@ -451,7 +451,7 @@ const getEntityTotal = (entity: SurveyResponse) => {
 
 const numberOfInformants = computed(() => {
 	return filteredPoints.value.reduce((count, obj) => {
-		return count + obj.coalesce.length;
+		return count + obj.informants.length;
 	}, 0);
 });
 
@@ -462,7 +462,7 @@ const tableData = computed(() => {
 	filteredPoints.value.forEach((feature) => {
 		const location = feature.place_name;
 
-		feature.coalesce.forEach((property) => {
+		feature.informants.forEach((property) => {
 			property.answers.forEach((answer) => {
 				const reg = answer.variety;
 				const anno = answer.annotation;
@@ -494,7 +494,7 @@ const tableDataForRegisters = computed(() => {
 	const variantMap: Record<string, TableEntry> = {};
 
 	filteredPoints.value.forEach((feature) => {
-		feature.coalesce.forEach((property) => {
+		feature.informants.forEach((property) => {
 			property.answers.forEach((answer) => {
 				const variant = answer.annotation;
 				if (!variantMap[variant]) {

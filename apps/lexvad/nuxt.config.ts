@@ -2,7 +2,7 @@ import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
 
-import { defaultLocale, localesMap } from "./app/config/i18n.config";
+import { defaultLocale, files } from "./app/config/i18n.config";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
@@ -60,17 +60,15 @@ export default defineNuxtConfig({
 
 	i18n: {
 		baseUrl,
-		/** @see https://github.com/nuxt-modules/i18n/issues/3238#issuecomment-2672492536 */
-		bundle: {
-			optimizeTranslationDirective: false,
-		},
 		defaultLocale,
 		detectBrowserLanguage: {
 			redirectOn: "root",
 		},
+		experimental: {
+			typedOptionsAndMessages: "default",
+		},
 		langDir: "./messages",
-		lazy: true,
-		locales: Object.values(localesMap),
+		locales: files,
 		strategy: "prefix",
 		vueI18n: "./i18n.config.ts",
 	},

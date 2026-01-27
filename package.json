@@ -12,6 +12,7 @@
 		"build:corpus": "cd apps/corpus && pnpm build",
 		"build:lexat": "cd apps/lexat && pnpm build",
 		"build:lexvad": "cd apps/lexvad && pnpm build",
+		"build:lioe": "cd apps/lioe && pnpm build",
 		"build:ui": "cd apps/ui && pnpm build",
 		"clean:workspace": "node ./scripts/clean-workspace.mjs",
 		"clean:workspace:dry": "node ./scripts/clean-workspace.mjs --dry-run",
@@ -19,10 +20,12 @@
 		"dev:corpus": "cd apps/corpus && pnpm dev",
 		"dev:lexat": "cd apps/lexat && pnpm dev",
 		"dev:lexvad": "cd apps/lexvad && pnpm dev",
+		"dev:lioe": "cd apps/lioe && pnpm dev",
 		"dev-test:backend": "cd apps/backend && pnpm dev-test",
 		"dev-local:corpus": "cd apps/corpus && pnpm dev-local",
 		"dev-local:lexat": "cd apps/lexat && pnpm dev-local",
 		"dev-local:lexvad": "cd apps/lexvad && pnpm dev-local",
+		"dev-local:lioe": "cd apps/lioe && pnpm dev-local",
 		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
 		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
 		"lint:code:check": "eslint . --cache",
@@ -32,7 +35,8 @@
 		"start:backend": "cd apps/backend && pnpm start",
 		"start:corpus": "cd apps/corpus && pnpm start",
 		"start:lexat": "cd apps/lexat && pnpm start",
-		"start:lexvad": "cd apps/lexvad && pnpm start"
+		"start:lexvad": "cd apps/lexvad && pnpm start",
+		"start:lioe": "cd apps/lioe && pnpm start"
 	},
 	"packageManager": "pnpm@10.28.0",
 	"devDependencies": {

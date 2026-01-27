@@ -23,6 +23,7 @@
 	"eslint.workingDirectories": [
 		{ "directory": "./apps/lexat", "changeProcessCWD": true },
 		{ "directory": "./apps/lexvad", "changeProcessCWD": true },
+		{ "directory": "./apps/lioe", "changeProcessCWD": true },
 		{ "directory": "./apps/corpus", "changeProcessCWD": true },
 		{ "directory": "./apps/backend", "changeProcessCWD": true }
 	],

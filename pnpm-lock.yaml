@@ -682,6 +682,148 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(typescript@5.9.3)
 
+  apps/lioe:
+    dependencies:
+      '@acdh-oeaw/lib':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@fontsource-variable/inter':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@nuxt/image':
+        specifier: ^2.0.0
+        version: 2.0.0(db0@0.3.4)(ioredis@5.9.1)(magicast@0.5.1)
+      '@nuxtjs/color-mode':
+        specifier: ^4.0.0
+        version: 4.0.0(magicast@0.5.1)
+      '@nuxtjs/i18n':
+        specifier: ^10.2.1
+        version: 10.2.1(@vue/compiler-dom@3.5.26)(db0@0.3.4)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.1)(magicast@0.5.1)(rollup@4.55.1)(vue@3.5.26(typescript@5.9.3))
+      '@tailwindcss/vite':
+        specifier: ^4.1.18
+        version: 4.1.18(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+      '@vue/devtools-api':
+        specifier: ^8.0.5
+        version: 8.0.5
+      '@vueuse/core':
+        specifier: ^14.1.0
+        version: 14.1.0(vue@3.5.26(typescript@5.9.3))
+      '@vueuse/nuxt':
+        specifier: ^14.1.0
+        version: 14.1.0(magicast@0.5.1)(nuxt@4.2.2(@parcel/watcher@2.5.4)(@types/node@25.0.8)(@vue/compiler-sfc@3.5.26)(cac@6.7.14)(db0@0.3.4)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.1)(lightningcss@1.30.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(stylelint@16.26.1(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      cva:
+        specifier: 1.0.0-beta.1
+        version: 1.0.0-beta.1(typescript@5.9.3)
+      hono:
+        specifier: ^4.11.4
+        version: 4.11.4
+      lucide-vue-next:
+        specifier: ^0.562.0
+        version: 0.562.0(vue@3.5.26(typescript@5.9.3))
+      nuxt:
+        specifier: 4.2.2
+        version: 4.2.2(@parcel/watcher@2.5.4)(@types/node@25.0.8)(@vue/compiler-sfc@3.5.26)(cac@6.7.14)(db0@0.3.4)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.1)(lightningcss@1.30.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(stylelint@16.26.1(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2)
+      nuxt-svgo:
+        specifier: ^4.2.6
+        version: 4.2.6(magicast@0.5.1)(vue@3.5.26(typescript@5.9.3))
+      reka-ui:
+        specifier: ^2.7.0
+        version: 2.7.0(typescript@5.9.3)(vue@3.5.26(typescript@5.9.3))
+      tailwind-merge:
+        specifier: ^3.4.0
+        version: 3.4.0
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@4.1.18)
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
+      vee-validate:
+        specifier: ^4.15.1
+        version: 4.15.1(vue@3.5.26(typescript@5.9.3))
+      vue:
+        specifier: ^3.5.26
+        version: 3.5.26(typescript@5.9.3)
+      vue-i18n:
+        specifier: ^11.2.8
+        version: 11.2.8(vue@3.5.26(typescript@5.9.3))
+      vue-i18n-routing:
+        specifier: ^1.2.0
+        version: 1.2.0(vue-i18n@11.2.8(vue@3.5.26(typescript@5.9.3)))(vue-router@4.6.4(vue@3.5.26(typescript@5.9.3)))(vue@3.5.26(typescript@5.9.3))
+      vue-router:
+        specifier: ^4.6.4
+        version: 4.6.4(vue@3.5.26(typescript@5.9.3))
+      vue-sonner:
+        specifier: ^2.0.9
+        version: 2.0.9(@nuxt/kit@4.2.2(magicast@0.5.1))(@nuxt/schema@4.2.2)(nuxt@4.2.2(@parcel/watcher@2.5.4)(@types/node@25.0.8)(@vue/compiler-sfc@3.5.26)(cac@6.7.14)(db0@0.3.4)(eslint@9.39.2(jiti@2.6.1))(ioredis@5.9.1)(lightningcss@1.30.2)(magicast@0.5.1)(meow@13.2.0)(optionator@0.9.4)(rolldown@1.0.0-beta.60)(rollup@4.55.1)(stylelint@16.26.1(typescript@5.9.3))(terser@5.44.1)(tsx@4.21.0)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2))
+    devDependencies:
+      '@acdh-oeaw/eslint-config':
+        specifier: ^2.0.12
+        version: 2.0.12(@eslint/config-helpers@0.4.2)(@typescript-eslint/utils@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(globals@16.5.0)(typescript@5.9.3)
+      '@acdh-oeaw/eslint-config-nuxt':
+        specifier: ^2.0.18
+        version: 2.0.18(@acdh-oeaw/eslint-config-vue@2.0.16(@acdh-oeaw/eslint-config@2.0.12(@eslint/config-helpers@0.4.2)(@typescript-eslint/utils@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(globals@16.5.0)(typescript@5.9.3))(@stylistic/eslint-plugin@5.7.0(eslint@9.39.2(jiti@2.6.1)))(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1)))(@acdh-oeaw/eslint-config@2.0.12(@eslint/config-helpers@0.4.2)(@typescript-eslint/utils@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(globals@16.5.0)(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      '@acdh-oeaw/eslint-config-playwright':
+        specifier: ^2.0.14
+        version: 2.0.14(@acdh-oeaw/eslint-config@2.0.12(@eslint/config-helpers@0.4.2)(@typescript-eslint/utils@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(globals@16.5.0)(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))
+      '@acdh-oeaw/eslint-config-vue':
+        specifier: ^2.0.16
+        version: 2.0.16(@acdh-oeaw/eslint-config@2.0.12(@eslint/config-helpers@0.4.2)(@typescript-eslint/utils@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(globals@16.5.0)(typescript@5.9.3))(@stylistic/eslint-plugin@5.7.0(eslint@9.39.2(jiti@2.6.1)))(@typescript-eslint/parser@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))
+      '@acdh-oeaw/stylelint-config':
+        specifier: ^2.3.2
+        version: 2.3.2(postcss-html@1.8.0)(stylelint-order@7.0.1(stylelint@16.26.1(typescript@5.9.3)))(stylelint@16.26.1(typescript@5.9.3))
+      '@acdh-oeaw/tsconfig':
+        specifier: ^1.5.1
+        version: 1.5.1(typescript@5.9.3)
+      '@nuxt/devtools':
+        specifier: ^3.1.1
+        version: 3.1.1(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
+      '@nuxt/eslint':
+        specifier: ^1.12.1
+        version: 1.12.1(@typescript-eslint/utils@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.26)(eslint@9.39.2(jiti@2.6.1))(magicast@0.5.1)(typescript@5.9.3)(vite@7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+      '@types/node':
+        specifier: ^25.0.8
+        version: 25.0.8
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
+      dotenv-expand:
+        specifier: ^12.0.3
+        version: 12.0.3
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      eslint-config-flat-gitignore:
+        specifier: ^2.1.0
+        version: 2.1.0(eslint@9.39.2(jiti@2.6.1))
+      schema-dts:
+        specifier: ^1.1.5
+        version: 1.1.5
+      stylelint:
+        specifier: ^16.26.1
+        version: 16.26.1(typescript@5.9.3)
+      tailwindcss:
+        specifier: ^4.1.18
+        version: 4.1.18
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.53.0
+        version: 8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      vite:
+        specifier: ^7.3.1
+        version: 7.3.1(@types/node@25.0.8)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+      vue-tsc:
+        specifier: ^3.2.2
+        version: 3.2.2(typescript@5.9.3)
+
   apps/ui:
     dependencies:
       '@acdh-oeaw/lib':

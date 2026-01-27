@@ -1,0 +1,81 @@
+{
+	"AppHeader": {
+		"links": {
+			"home": "Home"
+		},
+		"navigation-main": "Main"
+	},
+	"Clipboard": {
+		"copy": "Copy",
+		"copied": "Copied",
+		"copy-success": "Copied to clipboard",
+		"copy-fail": "Cant save to clipboard"
+	},
+	"ColorSchemeSwitcher": {
+		"change-color-scheme": "Change color scheme",
+		"color-schemes": {
+			"dark": "Dark",
+			"light": "Light",
+			"system": "System"
+		}
+	},
+	"Combobox": {
+		"button": "Select {placeholder}...",
+		"empty": "No {placeholder} found",
+		"search": "Search {placeholder}..."
+	},
+	"DefaultLayout": {
+		"meta": {
+			"description": "Sample description",
+			"title": "LIÖ"
+		},
+		"skip-to-main-content": "Skip to main content"
+	},
+	"ErrorBoundary": {
+		"error": "Error"
+	},
+	"ErrorPage": {
+		"meta": {
+			"title": "Error"
+		},
+		"title": "Something went wrong!",
+		"go-to-home": "Return to homepage"
+	},
+	"HomePage": {
+		"meta": {
+			"title": "Homepage"
+		}
+	},
+	"LocaleSwitcher": {
+		"current-locale": "Current language: {locale}",
+		"switch-locale": "Switch to {locale}",
+		"german": "German",
+		"english": "English"
+	},
+	"Manifest": {
+		"name": "LIÖ",
+		"short-name": "LIÖ",
+		"description": "Sample description"
+	},
+	"MobileAlert": {
+		"title": "Please note",
+		"text": "This area of the website is not designed for use on smartphones."
+	},
+	"NotFoundPage": {
+		"meta": {
+			"title": "Page not found"
+		},
+		"title": "Page not found"
+	},
+	"TagsCombobox": {
+		"button": "{placeholder}...",
+		"empty": "No results found"
+	},
+	"UserPanel": {
+		"admin": "Admin",
+		"login": "Log in",
+		"logout": "Log out",
+		"profile": "Profile",
+		"settings": "Settings"
+	}
+}

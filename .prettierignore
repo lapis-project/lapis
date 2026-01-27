@@ -6,6 +6,8 @@ apps/corpus/.output/**
 apps/corpus/.nuxt/**
 apps/lexvad/.output/**
 apps/lexvad/.nuxt/**
+apps/lioe/.output/**
+apps/lioe/.nuxt/**
 
 .gitignore
 

@@ -111,8 +111,9 @@ Find your machine's local IP (e.g., `192.168.x.x`):
 
 - Windows: Run `ipconfig` in PowerShell/CMD (look for "IPv4 Address").
 
-- macOS/Linux: Run `ipconfig getifaddr en0` or `ifconfig | grep "inet " | grep -v 127.0.0.1` in the
-  terminal.
+- macOS: Run `ipconfig getifaddr en0` in the terminal.
+
+- Linux: Run `ip -4 addr show wlan0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'` in the console.
 
 ### Environment Configuration
 

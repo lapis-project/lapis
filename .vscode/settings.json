@@ -7,7 +7,7 @@
 		"**/node_modules": true,
 		"pnpm-lock.yaml": true
 	},
-	"editor.defaultFormatter": "prettier.prettier-vscode",
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"editor.formatOnSaveMode": "file", // required to format on save
 	"editor.formatOnSave": true,
 	"editor.inlayHints.enabled": "offUnlessPressed",

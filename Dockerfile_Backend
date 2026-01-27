@@ -48,4 +48,4 @@ ENV BACKEND_PORT=3000
 USER node
 EXPOSE $BACKEND_PORT
 
-CMD ["node", "./apps/backend/dist/index.js"]
+CMD ["node", "./apps/backend/dist/index.mjs"]

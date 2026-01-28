@@ -1,45 +1,43 @@
 <script lang="ts" setup>
-import { LaptopIcon, MoonIcon, SunIcon } from "lucide-vue-next";
-
 const t = useTranslations();
-
 const colorMode = useColorMode();
 
-const colorSchemes = [
-	{ name: "system", icon: LaptopIcon },
-	{ name: "light", icon: SunIcon },
-	{ name: "dark", icon: MoonIcon },
-];
+const items = computed(() => [
+	[
+		{
+			label: t("ColorSchemeSwitcher.color-schemes.system"),
+			icon: "i-lucide-laptop",
+			onSelect() {
+				colorMode.preference = "system";
+			},
+		},
+		{
+			label: t("ColorSchemeSwitcher.color-schemes.light"),
+			icon: "i-lucide-sun",
+			onSelect() {
+				colorMode.preference = "light";
+			},
+		},
+		{
+			label: t("ColorSchemeSwitcher.color-schemes.dark"),
+			icon: "i-lucide-moon",
+			onSelect() {
+				colorMode.preference = "dark";
+			},
+		},
+	],
+]);
+
+const currentIcon = computed(() => (colorMode.value === "dark" ? "i-lucide-moon" : "i-lucide-sun"));
 </script>
 
 <template>
-	<DropdownMenu>
-		<DropdownMenuTrigger as-child>
-			<Button class="gap-2" size="icon" variant="ghost">
-				<ClientOnly>
-					<Component
-						:is="colorMode.value === 'dark' ? MoonIcon : SunIcon"
-						aria-hidden="true"
-						class="size-5 shrink-0"
-					/>
-					<span class="sr-only">{{ t("ColorSchemeSwitcher.change-color-scheme") }}</span>
-				</ClientOnly>
-			</Button>
-		</DropdownMenuTrigger>
-		<DropdownMenuContent>
-			<DropdownMenuItem
-				v-for="colorScheme of colorSchemes"
-				:key="colorScheme.name"
-				class="flex cursor-pointer items-center gap-4"
-				@click="
-					() => {
-						colorMode.preference = colorScheme.name;
-					}
-				"
-			>
-				<Component :is="colorScheme.icon" class="size-4" />
-				{{ t(`ColorSchemeSwitcher.color-schemes.${colorScheme.name}`) }}
-			</DropdownMenuItem>
-		</DropdownMenuContent>
-	</DropdownMenu>
+	<UDropdownMenu :items="items" :popper="{ placement: 'bottom-end' }">
+		<UButton
+			:aria-label="t('ColorSchemeSwitcher.change-color-scheme')"
+			class="gap-2"
+			:icon="currentIcon"
+			variant="ghost"
+		/>
+	</UDropdownMenu>
 </template>

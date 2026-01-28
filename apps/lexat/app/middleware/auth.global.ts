@@ -31,11 +31,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 			user.value = data;
 		}
 	} catch (error: unknown) {
-		// TODO remove after session debugging
-		if (import.meta.server) {
-			console.error("SSR Auth Fetch Failed:", error);
-		}
-
 		if (error instanceof FetchError && error.response?.status === 401) {
 			user.value = null;
 		}

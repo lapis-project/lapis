@@ -2,14 +2,15 @@ import type { InferResponseType } from "hono/client";
 import { FetchError } from "ofetch";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-	// 1. Skip if we’re navigating on the same page and only the query/hash changed
-	//    (don’t do this on the very first load when `from` is still undefined).
-	if (import.meta.client && from.path === to.path) {
+	const user = useUser();
+
+	// Skip if client-side, navigating to same route, AND WE ALREADY HAVE A USER.
+	// If user is null, we should try to fetch again (in case SSR failed).
+	if (import.meta.client && from.path === to.path && user.value) {
 		return;
 	}
 
 	const env = useRuntimeConfig();
-	const user = useUser();
 	const { apiClient } = useApiClient();
 
 	// Grab the incoming Cookie header (works in SSR and client)
@@ -30,6 +31,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 			user.value = data;
 		}
 	} catch (error: unknown) {
+		// TODO remove after session debugging
+		if (import.meta.server) {
+			console.error("SSR Auth Fetch Failed:", error);
+		}
+
 		if (error instanceof FetchError && error.response?.status === 401) {
 			user.value = null;
 		}

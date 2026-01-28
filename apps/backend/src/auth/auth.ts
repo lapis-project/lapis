@@ -102,6 +102,7 @@ export function setSessionTokenCookie(c: Context, token: string, expiresAt: Date
 		sameSite: "Lax",
 		path: "/",
 		expires: expiresAt,
+		domain: process.env.NODE_ENV === "production" ? ".lapis-online.at" : undefined,
 	});
 }
 

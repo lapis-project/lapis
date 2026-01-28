@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { Menu, XIcon } from "lucide-vue-next";
-
 import type { NuxtLinkProps } from "#app";
 
 const t = useTranslations();
@@ -28,9 +26,10 @@ const mobileLinks = computed(() => {
 			<Drawer v-model:open="drawerOpen">
 				<DrawerTrigger class="lg:hidden">
 					<ClientOnly>
-						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline"
-							><component :is="drawerOpen ? XIcon : Menu" class="size-4"
-						/></Button>
+						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline">
+							<UIcon v-if="drawerOpen" class="size-4" name="i-lucide-x" />
+							<UIcon v-else class="size-4" name="i-lucide-menu" />
+						</Button>
 					</ClientOnly>
 				</DrawerTrigger>
 				<DrawerContent>
@@ -81,7 +80,7 @@ const mobileLinks = computed(() => {
 
 			<div class="relative flex items-center gap-4">
 				<ColorSchemeSwitcher />
-				<LocaleSwitcher />
+				<!-- <LocaleSwitcher /> -->
 			</div>
 		</div>
 	</header>

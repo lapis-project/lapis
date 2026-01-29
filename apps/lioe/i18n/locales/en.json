@@ -1,7 +1,8 @@
 {
 	"AppHeader": {
 		"links": {
-			"home": "Home"
+			"home": "Home",
+			"about": "About the Project"
 		},
 		"navigation-main": "Main"
 	},
@@ -77,5 +78,28 @@
 		"logout": "Log out",
 		"profile": "Profile",
 		"settings": "Settings"
+	},
+	"LandingPage": {
+		"title": "Lexical Information System Austria (LIÖ)",
+		"description": "The Lexical Information System Austria (LIÖ) focuses on lexical variation in Austria, both past and present. This means you will find information here regarding the vocabulary used in Austria.",
+		"links-title": "Currently, LIÖ provides access to information, data, and results from three research projects:"
+	},
+	"LinkCards": {
+		"action": "Visit Page",
+		"wboe": {
+			"title": "WBÖ",
+			"description": "Dictionary of historical Bavarian Dialects in Austria",
+			"content": "Dialect materials and dictionary entries concerning the historical Bavarian dialects of Austria, South Tyrol, and other 'language islands' (primarily 20th century)."
+		},
+		"lexvad": {
+			"title": "LexVAD20",
+			"description": "Lexical Variation of Austrian Dialects in the 20th Century",
+			"content": "Dialect data and linguistic maps based on the Austrian questionnaires from the 'Deutscher Wortatlas' (FWF 10.55776/PAT1412824)."
+		},
+		"lexat": {
+			"title": "LexAT21",
+			"description": "Atlas of Lexical Variation in Austria in the 21st Century",
+			"content": "Data and linguistic maps of contemporary vocabulary in Austria (ranging from standard language to dialects)."
+		}
 	}
 }

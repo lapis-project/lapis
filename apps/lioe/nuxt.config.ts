@@ -2,8 +2,6 @@ import { fileURLToPath } from "node:url";
 
 import tailwindcss from "@tailwindcss/vite";
 
-import { defaultLocale, files } from "./app/config/i18n.config";
-
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
 export default defineNuxtConfig({
@@ -60,17 +58,26 @@ export default defineNuxtConfig({
 
 	i18n: {
 		baseUrl,
-		defaultLocale,
+		defaultLocale: "de",
 		detectBrowserLanguage: {
 			redirectOn: "root",
 		},
 		experimental: {
 			typedOptionsAndMessages: "default",
 		},
-		langDir: "./messages",
-		locales: files,
-		strategy: "prefix",
-		vueI18n: "./i18n.config.ts",
+		locales: [
+			{
+				code: "en",
+				name: "Englisch",
+				file: "en.json",
+			},
+			{
+				code: "de",
+				name: "Deutsch",
+				file: "de.json",
+			},
+		],
+		strategy: "no_prefix",
 	},
 
 	imports: {

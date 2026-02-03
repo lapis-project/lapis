@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { NuxtLinkProps } from "#app";
+import LocaleSwitcher from "@/components/locale-switcher.vue";
 
 const t = useTranslations();
 
@@ -80,7 +81,7 @@ const mobileLinks = computed(() => {
 
 			<div class="relative flex items-center gap-4">
 				<ColorSchemeSwitcher />
-				<!-- <LocaleSwitcher /> -->
+				<LocaleSwitcher />
 			</div>
 		</div>
 	</header>

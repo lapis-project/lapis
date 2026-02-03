@@ -1,4 +1,4 @@
-import type { Locale, Schema } from "@/app/config/i18n.config";
+import type { Locale, Schema } from "@/config/i18n.config";
 
 export type TranslateFn = ReturnType<typeof useTranslations>;
 

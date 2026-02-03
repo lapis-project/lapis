@@ -89,17 +89,20 @@
 		"wboe": {
 			"title": "WBÖ",
 			"description": "Dictionary of historical Bavarian Dialects in Austria",
-			"content": "Dialect materials and dictionary entries concerning the historical Bavarian dialects of Austria, South Tyrol, and other 'language islands' (primarily 20th century)."
+			"content": "Dialect materials and dictionary entries concerning the historical Bavarian dialects of Austria, South Tyrol, and other 'language islands' (primarily 20th century).",
+			"link": "https://lioe.dioe.at/articles"
 		},
 		"lexvad": {
 			"title": "LexVAD20",
 			"description": "Lexical Variation of Austrian Dialects in the 20th Century",
-			"content": "Dialect data and linguistic maps based on the Austrian questionnaires from the 'Deutscher Wortatlas' (FWF 10.55776/PAT1412824)."
+			"content": "Dialect data and linguistic maps based on the Austrian questionnaires from the 'Deutscher Wortatlas' (FWF 10.55776/PAT1412824).",
+			"link": "https://www.oeaw.ac.at/acdh/research/linguistics/research/language-dynamics/lexvad20"
 		},
 		"lexat": {
 			"title": "LexAT21",
 			"description": "Atlas of Lexical Variation in Austria in the 21st Century",
-			"content": "Data and linguistic maps of contemporary vocabulary in Austria (ranging from standard language to dialects)."
+			"content": "Data and linguistic maps of contemporary vocabulary in Austria (ranging from standard language to dialects).",
+			"link": "https://lexat21.lapis-online.at/en"
 		}
 	}
 }

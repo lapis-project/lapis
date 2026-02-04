@@ -90,10 +90,10 @@
 		"zod": "^4.3.6"
 	},
 	"devDependencies": {
-		"@acdh-oeaw/eslint-config": "^2.0.12",
-		"@acdh-oeaw/eslint-config-nuxt": "^2.0.18",
-		"@acdh-oeaw/eslint-config-playwright": "^2.0.14",
-		"@acdh-oeaw/eslint-config-vue": "^2.0.16",
+		"@acdh-oeaw/eslint-config": "^2.0.13",
+		"@acdh-oeaw/eslint-config-nuxt": "^2.0.19",
+		"@acdh-oeaw/eslint-config-playwright": "^2.0.15",
+		"@acdh-oeaw/eslint-config-vue": "^2.0.17",
 		"@acdh-oeaw/stylelint-config": "^3.0.3",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@nuxt/devtools": "^3.1.1",

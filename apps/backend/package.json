@@ -39,8 +39,8 @@
 		"valibot": "^0.42.1"
 	},
 	"devDependencies": {
-		"@acdh-oeaw/eslint-config": "^2.0.12",
-		"@acdh-oeaw/eslint-config-node": "^2.0.12",
+		"@acdh-oeaw/eslint-config": "^2.0.13",
+		"@acdh-oeaw/eslint-config-node": "^2.0.13",
 		"@acdh-oeaw/prettier-config": "^2.0.1",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@types/node": "^25.2.0",

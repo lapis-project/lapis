@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import type { NuxtLinkProps } from "#app";
 import LocaleSwitcher from "@/components/locale-switcher.vue";
+import type { NuxtLinkProps } from "#app";
 
 const t = useTranslations();
 
@@ -24,21 +24,19 @@ const mobileLinks = computed(() => {
 <template>
 	<header class="container border-b">
 		<div class="flex h-16 items-center justify-between gap-4 py-4">
-			<Drawer v-model:open="drawerOpen">
-				<DrawerTrigger class="lg:hidden">
-					<ClientOnly>
-						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline">
-							<UIcon v-if="drawerOpen" class="size-4" name="i-lucide-x" />
-							<UIcon v-else class="size-4" name="i-lucide-menu" />
-						</Button>
-					</ClientOnly>
-				</DrawerTrigger>
-				<DrawerContent>
-					<DrawerHeader>
-						<DrawerTitle>Navigation</DrawerTitle>
-					</DrawerHeader>
-					<DrawerFooter>
-						<DrawerClose>
+			<div>
+				<UButton
+					id="mobile-menu"
+					class="lg:hidden"
+					variant="outline"
+					@click="drawerOpen = !drawerOpen"
+				>
+					<UIcon class="size-4" :name="drawerOpen ? 'i-lucide-x' : 'i-lucide-menu'" />
+				</UButton>
+				<UDrawer v-model:open="drawerOpen">
+					<template #content>
+						<div class="p-4">
+							<h3 class="font-semibold mb-4">Navigation</h3>
 							<nav :aria-label="t('AppHeader.navigation-main')" class="pb-12">
 								<ul class="flex flex-col" role="list">
 									<li
@@ -46,35 +44,35 @@ const mobileLinks = computed(() => {
 										:key="key"
 										class="border-b p-3 last:border-none"
 									>
-										<NuxtLinkLocale
+										<ULink
 											class="uppercase"
 											exact-active-class="underline underline-offset-2"
 											:to="link.to"
 										>
 											{{ link.label }}
-										</NuxtLinkLocale>
+										</ULink>
 									</li>
 								</ul>
 							</nav>
-						</DrawerClose>
-					</DrawerFooter>
-				</DrawerContent>
-			</Drawer>
+						</div>
+					</template>
+				</UDrawer>
+			</div>
 
-			<NuxtLinkLocale class="hidden lg:block" to="/">
+			<ULink class="hidden lg:block" to="/">
 				<!-- TODO: insert LIÖ Logo -->
-			</NuxtLinkLocale>
+			</ULink>
 			<!-- <img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" /> -->
 			<nav :aria-label="t('AppHeader.navigation-main')" class="hidden lg:block">
 				<ul class="flex items-center gap-4" role="list">
 					<li v-for="(link, key) of links" :key="key">
-						<NuxtLinkLocale
+						<ULink
 							class="uppercase"
 							exact-active-class="underline underline-offset-2"
 							:to="link.to"
 						>
 							{{ link.label }}
-						</NuxtLinkLocale>
+						</ULink>
 					</li>
 				</ul>
 			</nav>

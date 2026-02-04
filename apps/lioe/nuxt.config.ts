@@ -80,10 +80,6 @@ export default defineNuxtConfig({
 		strategy: "no_prefix",
 	},
 
-	imports: {
-		dirs: ["./app/config/"],
-	},
-
 	modules: [
 		"nuxt-svgo",
 		"@nuxt/eslint",

@@ -1,7 +1,8 @@
 {
 	"AppHeader": {
 		"links": {
-			"home": "Startseite"
+			"home": "Startseite",
+			"about": "Über das Projekt"
 		},
 		"navigation-main": "Hauptnavigation"
 	},
@@ -77,5 +78,36 @@
 		"logout": "Ausloggen",
 		"profile": "Profil",
 		"settings": "Einstellungen"
+	},
+	"LinkButtons": {
+		"wboe": "WBÖ",
+		"lexvad": "LexVAD20",
+		"lexat": "LexAT21"
+	},
+	"LandingPage": {
+		"title": "Lexikalisches Informationssystem Österreich (LIÖ)",
+		"description": "Im Zentrum des Lexikalischen Informationssystems Österreich (LIÖ) steht die lexikalische Variation in Österreich gestern und heute. Das heißt, Sie finden hier Informationen rund um den Wortschatz in Österreich.",
+		"links-title": "Aktuell werden über LIÖ Informationen, Daten bzw. Ergebnisse von drei Forschungsprojekten zugänglich gemacht:"
+	},
+	"LinkCards": {
+		"action": "Seite Besuchen",
+		"wboe": {
+			"title": "WBÖ",
+			"description": "Wörterbuch der historischen bairischen Mundarten in Österreich",
+			"content": "Dialektmaterialien und Wörterbuchartikel rund um die historischen bairischen Dialekte Österreichs, Südtirol und anderer 'Sprachinseln' (v.a. 20. Jahrhundert).",
+			"link": "https://lioe.dioe.at/articles"
+		},
+		"lexvad": {
+			"title": "LexVAD20",
+			"description": "Lexikalische Variation österreichischer Dialekte im 20. Jahrhundert",
+			"content": "Dialektdaten und Sprachkarten auf Basis der österreichischen Fragebögen aus dem 'Deutschen Wortatlas' (FWF 10.55776/PAT1412824).",
+			"link": "https://www.oeaw.ac.at/de/acdh/forschung/sprachwissenschaft/forschung/sprachdynamik/lexvad20"
+		},
+		"lexat": {
+			"title": "LexAT21",
+			"description": "Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert",
+			"content": "Daten und Sprachkarten zum gegenwartssprachlichen Wortschatz in Österreich (von Standartsprache bis hin zu Dialekten).",
+			"link": "https://lexat21.lapis-online.at/de"
+		}
 	}
 }

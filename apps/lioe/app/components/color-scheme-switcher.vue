@@ -32,7 +32,7 @@ const currentIcon = computed(() => (colorMode.value === "dark" ? "i-lucide-moon"
 </script>
 
 <template>
-	<UDropdownMenu :items="items" :popper="{ placement: 'bottom-end' }">
+	<UDropdownMenu :items="items" :modal="false" :popper="{ placement: 'bottom-end' }">
 		<UButton
 			:aria-label="t('ColorSchemeSwitcher.change-color-scheme')"
 			class="gap-2"

@@ -27,26 +27,28 @@ const projects = [
 </script>
 
 <template>
-	<MainContent class="container py-16">
-		<UPage>
-			<div>
-				<UPageHeader
-					class="p-2"
-					:description="t('LandingPage.description')"
-					:title="t('LandingPage.title')"
-				/>
-			</div>
-			<div class="p-2 my-4">
-				<p>{{ t("LandingPage.links-title") }}</p>
-			</div>
-			<div class="flex justify-between items-start gap-4">
-				<LinkCard
-					v-for="project in projects"
-					:key="project.title"
-					v-bind="project"
-					class="w-1/3"
-				></LinkCard>
-			</div>
-		</UPage>
+	<MainContent class="container py-8 sm:py-16">
+		<section class="pb-16 article-content">
+			<UPage>
+				<div class="mx-auto max-w-4xl">
+					<UPageHeader
+						:description="t('LandingPage.description')"
+						:title="t('LandingPage.title')"
+					/>
+
+					<div class="my-6">
+						<p>{{ t("LandingPage.links-title") }}</p>
+					</div>
+					<div class="flex justify-between flex-col sm:flex-row gap-4">
+						<LinkCard
+							v-for="project in projects"
+							:key="project.title"
+							v-bind="project"
+							class="w-full sm:w-1/3"
+						></LinkCard>
+					</div>
+				</div>
+			</UPage>
+		</section>
 	</MainContent>
 </template>

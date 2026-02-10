@@ -10,5 +10,6 @@ const t = useTranslations();
 		<ErrorBoundary>
 			<slot />
 		</ErrorBoundary>
+		<AppFooter />
 	</div>
 </template>

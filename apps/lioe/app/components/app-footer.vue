@@ -49,7 +49,7 @@ const links = computed(() => {
 					title="Wörterbuchs der historischen bairischen Mundarten in Österreich und Südtirol"
 					to="https://lioe.dioe.at/articles"
 				>
-					<LazySvgoWboe class="h-16" />
+					<LazySvgoWboe class="h-13" />
 				</NuxtLinkLocale>
 				<NuxtLinkLocale
 					target="_blank"

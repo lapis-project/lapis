@@ -23,9 +23,9 @@ const mobileLinks = computed(() => {
 
 <template>
 	<header class="border-b z-40">
-		<div class="container mx-auto">
+		<div class="container Cmx-auto">
 			<div class="flex h-16 items-center justify-between gap-4 py-4">
-				<div>
+				<div class="block lg:hidden">
 					<UButton
 						id="mobile-menu"
 						class="lg:hidden"
@@ -60,9 +60,9 @@ const mobileLinks = computed(() => {
 					</UDrawer>
 				</div>
 
-				<ULink class="hidden lg:block" to="/">
-					<!-- TODO: insert LIÖ Logo -->
-				</ULink>
+				<NuxtLinkLocale class="hidden lg:block" to="/">
+					<LazySvgoLioe class="h-10" />
+				</NuxtLinkLocale>
 				<!-- <img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" /> -->
 				<nav :aria-label="t('AppHeader.navigation-main')" class="hidden lg:block">
 					<ul class="flex items-center gap-4" role="list">

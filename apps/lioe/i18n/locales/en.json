@@ -6,6 +6,12 @@
 		},
 		"navigation-main": "Main"
 	},
+	"AppFooter": {
+		"links": {
+			"imprint": "Imprint"
+		},
+		"navigation-secondary": "Secondary"
+	},
 	"Clipboard": {
 		"copy": "Copy",
 		"copied": "Copied",

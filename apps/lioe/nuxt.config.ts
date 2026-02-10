@@ -51,11 +51,6 @@ export default defineNuxtConfig({
 		},
 	},
 
-	features: {
-		/** @see https://github.com/nuxt/nuxt/issues/21821 */
-		inlineStyles: false,
-	},
-
 	i18n: {
 		baseUrl,
 		defaultLocale: "de",
@@ -82,6 +77,7 @@ export default defineNuxtConfig({
 
 	modules: [
 		"nuxt-svgo",
+		"@nuxt/content",
 		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxtjs/color-mode",

@@ -227,44 +227,54 @@ export abstract class MapGeneratorBase {
 			});
 		});
 
+		const waitIf = (condition: boolean, callback: () => void) => {
+			if (condition) {
+				renderMap.once("idle", callback);
+			} else {
+				callback();
+			}
+		};
+
 		// Render map
 		let renderMap = this.getRenderedMap(container, style);
 
 		this.addLegend(renderMap, includeLegend, "variantLegend", "bottom-right-append", 40).then(
 			() => {
-				renderMap.once("idle", () => {
+				waitIf(includeLegend, () => {
 					this.addLegend(renderMap, includeLegend, "regionLegend", "bottom-left", 8).then(() => {
-						renderMap.once("idle", () => {
+						waitIf(includeLegend, () => {
 							this.addLegend(renderMap, includeLegend, "dataLegend", "bottom-left-append", 40).then(
 								() => {
-									renderMap.once("idle", () => {
-										const isAttributionAdded = this.addAttributions(renderMap);
-										if (isAttributionAdded) {
-											renderMap.once("idle", () => {
+									waitIf(includeLegend, () => {
+										renderMap.once("idle", () => {
+											const isAttributionAdded = this.addAttributions(renderMap);
+											if (isAttributionAdded) {
+												renderMap.once("idle", () => {
+													renderMap = this.renderMapPost(renderMap);
+													const markers = this.getMarkers();
+													if (markers.length === 0) {
+														this.exportImage(renderMap, hidden, actualPixelRatio);
+													} else {
+														renderMap = this.renderMarkers(renderMap);
+														renderMap.once("idle", () => {
+															this.exportImage(renderMap, hidden, actualPixelRatio);
+														});
+													}
+												});
+											} else {
 												renderMap = this.renderMapPost(renderMap);
 												const markers = this.getMarkers();
 												if (markers.length === 0) {
 													this.exportImage(renderMap, hidden, actualPixelRatio);
 												} else {
 													renderMap = this.renderMarkers(renderMap);
+
 													renderMap.once("idle", () => {
 														this.exportImage(renderMap, hidden, actualPixelRatio);
 													});
 												}
-											});
-										} else {
-											renderMap = this.renderMapPost(renderMap);
-											const markers = this.getMarkers();
-											if (markers.length === 0) {
-												this.exportImage(renderMap, hidden, actualPixelRatio);
-											} else {
-												renderMap = this.renderMarkers(renderMap);
-
-												renderMap.once("idle", () => {
-													this.exportImage(renderMap, hidden, actualPixelRatio);
-												});
 											}
-										}
+										});
 									});
 								},
 							);

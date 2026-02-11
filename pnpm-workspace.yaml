@@ -1,4 +1,15 @@
 packages:
-  # all packages in sub dirs of packages/ and apps/
-  # - "packages/**"
-  - "apps/**"
+  - apps/**
+
+ignoredBuiltDependencies:
+  - "@intlify/vue-i18n-bridge"
+  - "@intlify/vue-router-bridge"
+  - "@parcel/watcher"
+  - esbuild
+  - sharp
+  - simple-git-hooks
+  - unrs-resolver
+  - vue-demi
+
+onlyBuiltDependencies:
+  - better-sqlite3

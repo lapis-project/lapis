@@ -14,10 +14,10 @@ const handleLocaleChange = (value: string) => {
 		:model-value="locale"
 		name="Sprache"
 		size="xl"
-		@update:model-value="handleLocaleChange($event)"
 		:ui="{
 			leading: 'hidden',
 			base: 'pl-4 w-32',
 		}"
+		@update:model-value="handleLocaleChange($event)"
 	/>
 </template>

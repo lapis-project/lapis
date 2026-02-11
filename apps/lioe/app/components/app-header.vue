@@ -75,7 +75,9 @@ const mobileLinks = computed(() => {
 				</nav>
 
 				<div class="relative flex items-center gap-4">
-					<ColorSchemeSwitcher />
+					<ClientOnly>
+						<ColorSchemeSwitcher />
+					</ClientOnly>
 					<LocaleSwitcher />
 				</div>
 			</div>

@@ -1,6 +1,20 @@
 <script lang="ts" setup>
-const t = useTranslations();
+import type { Collections } from "@nuxt/content";
 
+const { locale } = useI18n();
+
+const { data: page } = await useAsyncData(
+	`landing`,
+	async () => {
+		const collectionName = `content_${locale.value}` as keyof Collections;
+		const result = await queryCollection(collectionName).first();
+
+		return result;
+	},
+	{
+		watch: [locale],
+	},
+);
 const projects = [
 	{
 		title: "LinkCards.wboe.title",
@@ -28,24 +42,22 @@ const projects = [
 
 <template>
 	<MainContent class="container py-8 sm:py-16">
-		<section class="pb-16 article-content">
+		<section v-if="page" class="pb-16 article-content">
 			<UPage>
 				<div class="mx-auto max-w-4xl">
-					<UPageHeader
-						:description="t('LandingPage.description')"
-						:title="t('LandingPage.title')"
-					/>
+					<UPageHeader :description="page.description" :title="page.title" />
 
 					<div class="my-6">
-						<p>{{ t("LandingPage.links-title") }}</p>
+						<p>{{ page.linksTitle }}</p>
 					</div>
+
 					<div class="flex justify-between flex-col sm:flex-row gap-4">
 						<LinkCard
 							v-for="project in projects"
 							:key="project.title"
 							v-bind="project"
 							class="w-full sm:w-1/3"
-						></LinkCard>
+						/>
 					</div>
 				</div>
 			</UPage>

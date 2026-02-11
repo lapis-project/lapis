@@ -51,11 +51,6 @@ export default defineNuxtConfig({
 		},
 	},
 
-	features: {
-		/** @see https://github.com/nuxt/nuxt/issues/21821 */
-		inlineStyles: false,
-	},
-
 	i18n: {
 		baseUrl,
 		defaultLocale: "de",
@@ -77,17 +72,19 @@ export default defineNuxtConfig({
 				file: "de.json",
 			},
 		],
-		strategy: "no_prefix",
+		strategy: "prefix",
 	},
 
 	modules: [
 		"nuxt-svgo",
+		"@nuxt/content",
 		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
 		"@nuxt/ui",
+		"nuxt-studio",
 	],
 
 	nitro: {
@@ -128,5 +125,5 @@ export default defineNuxtConfig({
 		plugins: [tailwindcss()],
 	},
 
-	compatibilityDate: "2025-01-14",
+	compatibilityDate: "2026-02-11",
 });

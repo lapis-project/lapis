@@ -72,7 +72,7 @@ export default defineNuxtConfig({
 				file: "de.json",
 			},
 		],
-		strategy: "no_prefix",
+		strategy: "prefix",
 	},
 
 	modules: [

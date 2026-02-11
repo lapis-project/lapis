@@ -1,15 +1,13 @@
 <script lang="ts" setup>
 import type { Collections } from "@nuxt/content";
 
-const route = useRoute();
 const { locale } = useI18n();
 
 const { data: page } = await useAsyncData(
-	`page-${route.params.slug}-${locale.value}`,
+	`landing`,
 	async () => {
-		const collection = `content_${locale.value}` as keyof Collections;
-
-		const result = await queryCollection(collection).path(route.params.slug).first();
+		const collectionName = `content_${locale.value}` as keyof Collections;
+		const result = await queryCollection(collectionName).first();
 
 		return result;
 	},
@@ -17,7 +15,6 @@ const { data: page } = await useAsyncData(
 		watch: [locale],
 	},
 );
-
 const projects = [
 	{
 		title: "LinkCards.wboe.title",

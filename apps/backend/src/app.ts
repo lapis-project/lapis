@@ -15,6 +15,7 @@ import articles from "@/handler/articleHandler.ts";
 import audio from "@/handler/audioHandler.ts";
 import auth from "@/handler/authHandler.ts";
 import cms from "@/handler/cmsHandler.ts";
+import corpus from "@/handler/corpusHandler.ts";
 import media from "@/handler/mediaHandler.ts";
 import questions from "@/handler/questionHandler.ts";
 import statistics from "@/handler/statHandler.ts";
@@ -119,7 +120,8 @@ const app = new Hono<AppEnv>()
 	.route("/user", user)
 	.route("/media", media)
 	.route("/stat", statistics)
-	.route("/audio", audio);
+	.route("/audio", audio)
+	.route("/corpus", corpus);
 
 export { app };
 

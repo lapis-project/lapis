@@ -11,3 +11,5 @@ export const postStatusConst = ["Draft", "Published", "ReadyToPublish", "Unpubli
 export const availableLangConst = ["de", "en"];
 
 export const userRolesConst = ["admin", "editor", "superadmin"];
+
+export const DATA_DIR = process.env.TRANSCRIPT_DIR ?? "/app/data/transcripts";

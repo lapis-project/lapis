@@ -1,0 +1,62 @@
+# syntax=docker/dockerfile:1
+
+# using alpine base image to avoid `sharp` memory leaks.
+# @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
+
+# ---- Build Stage ----
+FROM node:24.11-alpine AS build
+
+# Enable pnpm via Corepack, Node's built-in package manager handler
+RUN corepack enable
+
+# Create and set up a non-root user and working directory for security
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+USER node
+
+# Copy dependency definition files as the non-root 'node' user.
+# This separation allows Docker to cache the installed dependencies effectively.
+COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy the package.json for all workspaces in the monorepo.
+COPY --chown=node:node apps/backend/package.json ./apps/backend/
+COPY --chown=node:node apps/corpus/package.json ./apps/corpus/
+COPY --chown=node:node apps/lexat/package.json ./apps/lexat/
+COPY --chown=node:node apps/lioe/package.json ./apps/lioe/
+COPY --chown=node:node apps/ui/package.json ./apps/ui/
+
+# Install all dependencies for the entire workspace.
+# This is critical to ensure that layers (`ui`) and other dependencies are available when building the `lexat` app.
+# The --mount flag uses Docker's build cache to speed up subsequent builds, targeting the pnpm store location for the 'node' user.
+RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm install --frozen-lockfile
+
+# Now, copy the rest of the source code
+COPY --chown=node:node . .
+
+# Build the UI Nuxt layer
+RUN pnpm run build:ui
+
+# Pass build-time arguments for Nuxt's runtime config
+ARG NUXT_PUBLIC_APP_BASE_URL
+ARG NUXT_PUBLIC_BOTS
+ARG NUXT_PUBLIC_REDMINE_ID
+
+# Build the target application. This script is defined in your root package.json.
+RUN pnpm run build:lioe
+
+# ---- Serve Stage ----
+# This is the final, minimal image that will run in production.
+FROM node:24.11-alpine AS serve
+
+# Create and set up the same non-root user and working directory
+RUN mkdir /app && chown -R node:node /app
+WORKDIR /app
+USER node
+
+# Copy the self-contained Nuxt build output from the 'build' stage
+COPY --from=build --chown=node:node /app/apps/lioe/.output ./
+
+ENV NODE_ENV=production
+
+# The command to start the production server
+CMD ["node", "./server/index.mjs"]

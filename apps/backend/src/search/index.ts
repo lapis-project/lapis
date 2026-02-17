@@ -6,6 +6,7 @@ export const searchRequest = async (query: string, from: string, path: string) =
 		q: `q${query}`,
 		format: "json",
 		viewmode: "kwic",
+		from: from || "0",
 	});
 	const response = await fetch(`${NOSKE_URL}${path}?${params.toString()}`);
 	return response;

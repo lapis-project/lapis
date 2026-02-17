@@ -109,7 +109,6 @@ export default defineNuxtConfig({
 			owner: "lapis-project",
 			repo: "lapis",
 		},
-		route: "/admin",
 	},
 
 	svgo: {

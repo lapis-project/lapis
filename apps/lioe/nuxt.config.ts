@@ -102,6 +102,16 @@ export default defineNuxtConfig({
 		},
 	},
 
+	studio: {
+		repository: {
+			provider: "github",
+			rootDir: "apps/lioe",
+			owner: "lapis-project",
+			repo: "lapis",
+		},
+		route: "/admin",
+	},
+
 	svgo: {
 		defaultImport: "component",
 	},

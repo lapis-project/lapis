@@ -2,6 +2,13 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "Build UI Layer",
+			"type": "shell",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm build:ui'",
+			"problemMatcher": [],
+			"isBackground": false
+		},
+		{
 			"label": "Start DB Container",
 			"type": "shell",
 			"command": "docker compose --env-file .env.localsetup up -d",
@@ -40,6 +47,20 @@
 			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:corpus'",
 			"problemMatcher": [],
 			"group": "build",
+			"isBackground": true
+		},
+		{
+			"label": "Start LexVAD20",
+			"type": "shell",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:lexvad'",
+			"problemMatcher": [],
+			"isBackground": true
+		},
+		{
+			"label": "Start LIÖ",
+			"type": "shell",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:lioe'",
+			"problemMatcher": [],
 			"isBackground": true
 		},
 		{

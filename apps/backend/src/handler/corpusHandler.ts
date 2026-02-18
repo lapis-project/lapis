@@ -6,6 +6,7 @@ import { stream } from "hono/streaming";
 import { literal, object, optional, safeParse, string, union } from "valibot";
 
 import { DATA_DIR } from "@/config/config.ts";
+import { getAllTranscripts } from "@/db/corpusRepository.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
@@ -91,7 +92,7 @@ corpus
 		}
 	})
 	.get("/transcript/:id/:format", (c) => {
-		const id = c.req.param("id");
+		const id = c.req.param("id"); // Pass the id of the transcript as the param
 		const format = c.req.param("format"); // 'xml' or 'json'
 
 		// 1. Sanitize Path (Security Critical)
@@ -107,11 +108,9 @@ corpus
 		}
 
 		// 3. Stream File
-		// This pipes the file directly to the response without loading it all into RAM
 		c.header("Content-Type", format === "json" ? "application/json" : "application/xml");
 
 		return stream(c, async (stream) => {
-			// We use a try/catch here to ensure the stream closes properly on error
 			try {
 				const fileStream = createReadStream(filePath);
 
@@ -123,6 +122,20 @@ corpus
 				console.error("Streaming error:", err);
 			}
 		});
+	})
+	.get("/corpus/:id", async (c) => {
+		const id = c.req.param("id");
+		if (!id) {
+			return c.json("Project Id is required", 400);
+		}
+
+		const parsedId = Number(id);
+		if (Number.isNaN(parsedId)) {
+			return c.json("Invalid project id", 400);
+		}
+		const response = await getAllTranscripts(parsedId);
+
+		return c.json(response, 200);
 	});
 
 export default corpus;

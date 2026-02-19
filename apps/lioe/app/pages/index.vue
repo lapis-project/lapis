@@ -41,26 +41,27 @@ const projects = [
 </script>
 
 <template>
-	<MainContent class="container py-8 sm:py-16">
-		<section v-if="page" class="pb-16 article-content">
-			<UPage>
-				<div class="mx-auto max-w-4xl">
-					<UPageHeader :description="page.description" :title="page.title" />
+	<UPage
+		v-if="page"
+		:ui="{
+			root: 'py-14 lg:py-16 container',
+		}"
+	>
+		<div class="max-w-4xl mx-auto">
+			<UPageHeader :description="page.description" :title="page.title" />
 
-					<div class="my-6">
-						<p>{{ page.linksTitle }}</p>
-					</div>
+			<div class="my-6">
+				<p>{{ page.linksTitle }}</p>
+			</div>
 
-					<div class="flex justify-between flex-col sm:flex-row gap-4">
-						<LinkCard
-							v-for="project in projects"
-							:key="project.title"
-							v-bind="project"
-							class="w-full sm:w-1/3"
-						/>
-					</div>
-				</div>
-			</UPage>
-		</section>
-	</MainContent>
+			<div class="flex justify-between flex-col sm:flex-row gap-4">
+				<LinkCard
+					v-for="project in projects"
+					:key="project.title"
+					v-bind="project"
+					class="w-full sm:w-1/3"
+				/>
+			</div>
+		</div>
+	</UPage>
 </template>

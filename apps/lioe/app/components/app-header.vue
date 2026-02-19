@@ -21,14 +21,14 @@ const t = useTranslations();
 </script>
 
 <template>
-	<UHeader mode="drawer" toggle-side="left">
-		<template #title>
+	<UHeader toggle-side="left">
+		<template #left>
 			<ULink class="hidden lg:block" to="/">
 				<LazySvgoLioe class="h-10" />
 			</ULink>
 		</template>
 
-		<UNavigationMenu class="max-sm:hidden" :items="items" />
+		<UNavigationMenu :items="items" />
 
 		<template #right>
 			<ClientOnly>

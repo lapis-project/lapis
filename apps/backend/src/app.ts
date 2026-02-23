@@ -62,6 +62,9 @@ const app = new Hono<AppEnv>()
 		const originHeader = c.req.header("Origin") ?? null;
 		const hostHeader = c.req.header("Host") ?? null;
 
+
+console.log(process.env.ALLOWED_ORIGINS);
+
 		if (
 			!originHeader ||
 			!hostHeader ||
@@ -112,7 +115,6 @@ const app = new Hono<AppEnv>()
 	.get("/", (c: AppContext) => {
 		return c.json("OK", 201);
 	})
-	.notFound((c: AppContext) => c.json({ message: "Not Found", ok: false }, 404))
 	.route("/articles", articles)
 	.route("/questions", questions)
 	.route("/cms", cms)
@@ -121,7 +123,8 @@ const app = new Hono<AppEnv>()
 	.route("/media", media)
 	.route("/stat", statistics)
 	.route("/audio", audio)
-	.route("/corpus", corpus);
+	.route("/corpus", corpus)
+	.notFound((c: AppContext) => c.json({ message: "Not Found", ok: false }, 404));
 
 export { app };
 

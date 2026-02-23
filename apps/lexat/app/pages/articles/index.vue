@@ -3,7 +3,7 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 import { RotateCcwIcon, SearchIcon, SlidersHorizontalIcon } from "lucide-vue-next";
 import type { LocationQueryRaw } from "vue-router";
 
-import { formatAuthors } from "@/utils/article-helper";
+import { formatAuthors } from "#imports";
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isDesktop = breakpoints.greaterOrEqual("sm");
@@ -128,7 +128,7 @@ usePageMetadata({
 </script>
 
 <template>
-	<MainContent class="container grid sm:grid-cols-[auto_1fr] gap-8 py-8">
+	<MainContent class="container grid sm:grid-cols-[auto_minmax(0,1fr)] gap-8 py-8">
 		<PageTitle class="sr-only">{{ t("ArticlesPage.title") }}</PageTitle>
 		<aside class="block sm:rounded sm:border sm:p-5">
 			<div class="mb-6 uppercase max-sm:hidden">
@@ -235,7 +235,7 @@ usePageMetadata({
 							<NuxtImg class="object-cover aspect-video" :src="article.cover"></NuxtImg>
 						</NuxtLinkLocale>
 
-						<div class="sm:w-3/4">
+						<div class="sm:w-3/4 overflow-hidden">
 							<NuxtLinkLocale :to="`/articles/${article.alias}`">
 								<h2 class="text-xl tracking-wide hover:underline">
 									{{ segmentTitle(article.title) }}

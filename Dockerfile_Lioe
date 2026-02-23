@@ -41,6 +41,14 @@ ARG NUXT_PUBLIC_APP_BASE_URL
 ARG NUXT_PUBLIC_BOTS
 ARG NUXT_PUBLIC_REDMINE_ID
 
+# Accept the Client ID at build time (safe, as it's a public identifier)
+ARG STUDIO_GITHUB_CLIENT_ID
+ENV STUDIO_GITHUB_CLIENT_ID=$STUDIO_GITHUB_CLIENT_ID
+
+# Provide a dummy value for the secret so the module registers the auth API routes
+# (The real secret will be securely injected by Kubernetes at runtime)
+ENV STUDIO_GITHUB_CLIENT_SECRET="build_dummy_secret"
+
 # Build the target application. This script is defined in your root package.json.
 RUN pnpm run build:lioe
 

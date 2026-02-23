@@ -123,6 +123,7 @@ jobs:
             "NUXT_PUBLIC_APP_BASE_URL=${{ needs.generate_workflow_vars.outputs.public_url }}"
             "NUXT_PUBLIC_REDMINE_ID=${{ vars.SERVICE_ID }}"
             "NUXT_PUBLIC_ZOTERO_BASE_URL=${{ vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}"
+            "STUDIO_GITHUB_CLIENT_ID=${{ vars.K8S_SECRET_STUDIO_GITHUB_CLIENT_ID }}"
           cache-from: type=gha
           cache-to: "type=gha,mode=max"
   deploy:

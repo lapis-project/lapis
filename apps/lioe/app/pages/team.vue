@@ -81,23 +81,25 @@ const members = ref([
 </script>
 
 <template>
-	<MainContent class="container">
-		<UPage>
-			<div class="mx-auto max-w-4xl pb-12">
-				<UPageHeader
-					description="A tribute to all who have worked on the LAPIS projects for the past years."
-					title="The Team behind the Projects"
-				>
-				</UPageHeader>
+	<UPage
+		:ui="{
+			root: 'py-14 lg:py-16 container',
+		}"
+	>
+		<div class="mx-auto max-w-4xl">
+			<UPageHeader
+				description="A tribute to all who have worked on the LAPIS projects for the past years."
+				title="The Team behind the Projects"
+			>
+			</UPageHeader>
 
-				<UPageList>
-					<UPageCard v-for="(member, index) in members" :key="index" variant="ghost">
-						<template #body>
-							<UUser :avatar="member.avatar" :name="member.name" size="3xl"></UUser>
-						</template>
-					</UPageCard>
-				</UPageList>
-			</div>
-		</UPage>
-	</MainContent>
+			<UPageList>
+				<UPageCard v-for="(member, index) in members" :key="index" variant="ghost">
+					<template #body>
+						<UUser :avatar="member.avatar" :name="member.name" size="3xl"></UUser>
+					</template>
+				</UPageCard>
+			</UPageList>
+		</div>
+	</UPage>
 </template>

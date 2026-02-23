@@ -50,7 +50,7 @@ ENV STUDIO_GITHUB_CLIENT_ID=$STUDIO_GITHUB_CLIENT_ID
 ENV STUDIO_GITHUB_CLIENT_SECRET="build_dummy_secret"
 
 # Build the target application. This script is defined in your root package.json.
-RUN pnpm run build:lioe
+RUN echo "Cache Bust V1" && pnpm run build:lioe
 
 # ---- Serve Stage ----
 # This is the final, minimal image that will run in production.

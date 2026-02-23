@@ -81,6 +81,7 @@ jobs:
       PUBLIC_URL: "${{ steps.generate_public_url.outputs.public_url }}"
   build-and-push-image:
     name: Build and push docker image
+    environment: "${{ needs.setup_workflow_env.outputs.environment }}"
     needs:
       - setup_workflow_env
       - generate_workflow_vars
@@ -122,7 +123,6 @@ jobs:
           build-args: |
             "NUXT_PUBLIC_APP_BASE_URL=${{ needs.generate_workflow_vars.outputs.public_url }}"
             "NUXT_PUBLIC_REDMINE_ID=${{ vars.SERVICE_ID }}"
-            "NUXT_PUBLIC_ZOTERO_BASE_URL=${{ vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}"
             "STUDIO_GITHUB_CLIENT_ID=${{ vars.K8S_SECRET_STUDIO_GITHUB_CLIENT_ID }}"
           cache-from: type=gha
           cache-to: "type=gha,mode=max"

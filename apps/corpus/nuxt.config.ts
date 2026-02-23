@@ -5,6 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { defaultLocale, files } from "./app/config/i18n.config";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
+console.log("Using nuxt.config.ts from:", __filename);
 
 export default defineNuxtConfig({
 	alias: {

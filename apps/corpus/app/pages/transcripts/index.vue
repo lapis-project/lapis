@@ -13,6 +13,13 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 
+const { response, isPending, refreshTranscripts } = useTranscripts(2);
+
+const transcripts = computed(() => {
+	console.log("corpus data: ", response);
+	return response.value;
+});
+
 const searchResults = ref<Array<Transcript>>(initialData.transcripts);
 const showFirstColumn = ref(true);
 const showThirdColumn = ref(true);

@@ -16,6 +16,13 @@ definePageMeta({
 	layout: "tool",
 });
 
+const { response, isPending, refreshTranscripts } = useTranscript(161, "json");
+
+const transcript1 = computed(() => {
+	console.log("transcript id: ", response);
+	return response.value;
+});
+
 interface Token {
 	id: number;
 	ortho: { text: string; tags: Array<string> };

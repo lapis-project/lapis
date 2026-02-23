@@ -27,14 +27,10 @@ const SearchQuerySchema = object({
 	from: optional(string(), "0"),
 });
 
-const corpus = new Hono<AppEnv>();
-
-corpus.use("*", restrictedRoute);
-
 type RunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
 
-corpus
+const corpus = new Hono<AppEnv>()
 	.get("/search/kwic", async (c) => {
 		const rawQuery = c.req.query();
 
@@ -137,6 +133,8 @@ corpus
 
 		return c.json(response, 200);
 	});
+
+corpus.use("*", restrictedRoute);
 
 export default corpus;
 

@@ -21,11 +21,7 @@ export default defineNuxtConfig({
 
 	components: [{ path: "@/components", extensions: [".vue"], pathPrefix: false }],
 
-	css: [
-		"@fontsource-variable/inter/standard.css",
-		"@fontsource-variable/inter/standard-italic.css",
-		"@/assets/css/lioe.css",
-	],
+	css: ["@/assets/css/lioe.css"],
 
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
@@ -40,17 +36,6 @@ export default defineNuxtConfig({
 
 	extends: ["../ui"],
 
-	experimental: {
-		defaults: {
-			useAsyncData: {
-				deep: false,
-			},
-			useFetch: {
-				timeout: 250,
-			},
-		},
-	},
-
 	i18n: {
 		baseUrl,
 		defaultLocale: "de",
@@ -60,6 +45,7 @@ export default defineNuxtConfig({
 		experimental: {
 			typedOptionsAndMessages: "default",
 		},
+		langDir: "locales/",
 		locales: [
 			{
 				code: "en",

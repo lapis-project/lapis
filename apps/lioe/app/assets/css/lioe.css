@@ -10,13 +10,6 @@
 		scroll-behavior: smooth;
 	}
 
-	:root,
-	body,
-	#__nuxt {
-		block-size: 100%;
-		isolation: isolate;
-	}
-
 	.container {
 		width: 100%;
 		margin-right: auto;

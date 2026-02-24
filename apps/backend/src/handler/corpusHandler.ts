@@ -1,12 +1,13 @@
 import { createReadStream, existsSync } from "node:fs";
 import { join } from "node:path";
 
+import { vValidator } from "@hono/valibot-validator";
 import { Hono, type TypedResponse } from "hono";
 import { stream } from "hono/streaming";
 import { literal, object, optional, safeParse, string, union } from "valibot";
 
 import { DATA_DIR } from "@/config/config.ts";
-import { getAllTranscripts } from "@/db/corpusRepository.ts";
+import { getAllTranscripts, transcriptDetailView } from "@/db/corpusRepository.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
@@ -28,28 +29,30 @@ const SearchQuerySchema = object({
 });
 
 export interface TranscriptJsonFormat {
-	token_id: number;
-	transcript_id_id: number;
-	ID_Inf_id: number;
-	start_time: string;
-	end_time: string;
-	token_reihung: number;
-	ortho: string;
-	phon: string;
-	text_in_ortho: string;
-	sppos: string;
-	sptag: string;
-	splemma: string;
-	spdep: string;
-	spenttype: string;
-	tags: Array<{
-		tag_reihung: Array<number>;
-		tag_name: string;
-		tag_id: Array<number>;
-		tag: Array<string>;
-		tag_gene: Array<number>;
+	transcript_data: Array<{
+		token_id: number;
+		transcript_id_id: number;
+		ID_Inf_id: number;
+		start_time: string;
+		end_time: string;
+		token_reihung: number;
+		ortho: string;
+		phon: string;
+		text_in_ortho: string;
+		sppos: string;
+		sptag: string;
+		splemma: string;
+		spdep: string;
+		spenttype: string;
+		tags: Array<{
+			tag_reihung: Array<number>;
+			tag_name: string;
+			tag_id: Array<number>;
+			tag: Array<string>;
+			tag_gene: Array<number>;
+		}>;
+		tokenset_ids: Array<number>;
 	}>;
-	tokenset_ids: Array<number>;
 }
 
 type RunCgiResponse =
@@ -157,10 +160,36 @@ const corpus = new Hono<AppEnv>()
 		const response = await getAllTranscripts(parsedId);
 
 		return c.json(response, 200);
-	});
+	})
+	.get(
+		"/preview/:id",
+		vValidator(
+			"param",
+			object({
+				id: string(),
+			}),
+		),
+		async (c) => {
+			const id = c.req.param("id");
+			const parsedId = Number(id);
+			if (Number.isNaN(parsedId)) {
+				return c.json("Invalid transcript id", 400);
+			}
+			return c.json(await transcriptDetailView(parsedId));
+		},
+	);
 
 corpus.use("*", restrictedRoute);
 
 export default corpus;
 
 export type CorpusType = typeof corpus;
+/**
+ * Transkript preview view
+ * => mit transkript :id
+ * ORt wo es durchgeführt wurde
+ * Setting vom Interview
+ * Sprecher:innen
+ * Anzahl der Events
+ * paged events
+ */

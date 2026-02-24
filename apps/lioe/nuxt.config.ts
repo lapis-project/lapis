@@ -21,6 +21,10 @@ export default defineNuxtConfig({
 
 	components: [{ path: "@/components", extensions: [".vue"], pathPrefix: false }],
 
+	content: {
+		experimental: { sqliteConnector: "native" },
+	},
+
 	css: ["@/assets/css/lioe.css"],
 
 	devtools: {
@@ -72,10 +76,6 @@ export default defineNuxtConfig({
 		"@nuxt/ui",
 		"nuxt-studio",
 	],
-
-	nitro: {
-		compressPublicAssets: true,
-	},
 
 	runtimeConfig: {
 		NODE_ENV: process.env.NODE_ENV,

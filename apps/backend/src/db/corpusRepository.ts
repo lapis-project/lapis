@@ -56,3 +56,49 @@ export async function getAllTranscripts(project_id: number) {
 		])
 		.execute();
 }
+
+export async function transcriptDetailView(transcript_id: number) {
+	return await db
+		.selectFrom("survey_conducted")
+		.innerJoin(
+			"place_survey_conducted",
+			"survey_conducted.id",
+			"place_survey_conducted.survey_conducted_id",
+		)
+		.innerJoin("place", "place.id", "place_survey_conducted.place_id")
+		.innerJoin("survey", "survey.id", "survey_conducted.survey_id")
+		.innerJoin("survey_type", "survey_type.id", "survey.survey_type_id")
+		.innerJoin("informant", "informant.survey_id", "survey_conducted.id")
+		.innerJoin("age_group", "age_group.id", "informant.age_group_id")
+		.where("survey_conducted.instance_id", "=", transcript_id)
+		.select(({ eb, fn }) => [
+			"survey_conducted.conducted_on",
+			eb.ref("survey_conducted.instance_id").as("transcript_id"),
+			"place.place_name",
+			"place.plz",
+			"place.lat",
+			"place.lon",
+			"survey.survey_name",
+			"survey_type.survey_type_name",
+			fn
+				.jsonAgg(
+					jsonBuildObject({
+						gender: eb.ref("informant.gender"),
+						sigle: eb.ref("informant.comment"),
+						age: eb.ref("age_group.age_group_name"),
+					}),
+				)
+				.as("informants"),
+		])
+		.groupBy([
+			"survey_conducted.instance_id",
+			"survey_conducted.conducted_on",
+			"place.place_name",
+			"place.lat",
+			"place.lon",
+			"place.plz",
+			"survey.survey_name",
+			"survey_type.survey_type_name",
+		])
+		.execute();
+}

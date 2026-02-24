@@ -5,6 +5,7 @@ import { toast } from "vue-sonner";
 import initialData from "@/assets/data/transcripts-demo.json";
 
 import type { Transcript } from "./[id].vue";
+import type { APITranscriptsWithBookmark } from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
@@ -65,33 +66,29 @@ function handleSelection(id: string) {
 
 function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 	const id = transcript.transcript_id;
-  	if (!id) return;
+	if (!id) return;
 
-  if (transcript.bookmarked) {
+	if (transcript.bookmarked) {
+		bookmarkedIds.value = bookmarkedIds.value.filter((i) => i !== String(id));
+		transcript.bookmarked = false;
+		toast.info("Das Transcript wurde aus Ihrer Bibliothek entfernt!");
+	} else {
+		bookmarkedIds.value.push(String(id));
+		transcript.bookmarked = true;
+		toast.info("Das Transcript wurde zu Ihrer Bibliothek hinzugefügt!");
+	}
 
-    bookmarkedIds.value = bookmarkedIds.value.filter(i => i !== String(id));
-    transcript.bookmarked = false;
-    toast.info("Das Transcript wurde aus Ihrer Bibliothek entfernt!");
-  } else {
-
-    bookmarkedIds.value.push(String(id));
-    transcript.bookmarked = true;
-    toast.info("Das Transcript wurde zu Ihrer Bibliothek hinzugefügt!");
-  }
-
-  // Save updated array to localStorage
-  localStorage.setItem("transcript-bookmarks", JSON.stringify(bookmarkedIds.value));
+	// Save updated array to localStorage
+	localStorage.setItem("transcript-bookmarks", JSON.stringify(bookmarkedIds.value));
 }
 
-	
 onMounted(async () => {
 	await nextTick();
-  const saved = localStorage.getItem("transcript-bookmarks");
-    if (saved) {
-     bookmarkedIds.value = saved ? JSON.parse(saved) as Array<string> : [];
-  }
+	const saved = localStorage.getItem("transcript-bookmarks");
+	if (saved) {
+		bookmarkedIds.value = saved ? (JSON.parse(saved) as Array<string>) : [];
+	}
 });
-
 
 watch(
 	() => {
@@ -104,7 +101,6 @@ watch(
 	},
 	{ immediate: true },
 );
-
 </script>
 
 <template>
@@ -154,7 +150,9 @@ watch(
 					</Sheet>
 				</div>
 
-				<p class="text-lg mb-3 flex-shrink-0">Ergebnisse <span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span></p>
+				<p class="text-lg mb-3 flex-shrink-0">
+					Ergebnisse <span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
+				</p>
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
 					<div class="flex gap-4 items-center flex-shrink-0">
 						<TabsList class="w-full">

@@ -1,11 +1,12 @@
+import type { APITranscript } from "@/types/api";
 import type { InferResponseType } from "hono/client";
-import { computed,ref } from "vue";
+import { computed, ref } from "vue";
 
 export function useTranscript(id: number, format: string) {
 	const env = useRuntimeConfig();
     const { apiClient } = useApiClient();
-    const _getTranscripts = apiClient.corpus.transcript[":id"][":format"].$get;
-    type APITranscript = InferResponseType<typeof _getTranscripts, 200>;
+    const _getTranscript = apiClient.corpus.transcript[":id"][":format"].$get;
+    type APITranscript = InferResponseType<typeof _getTranscript, 200>;
 
 	const response = ref<APITranscript | null>(null);
 	const status = ref<"pending" | "success" | "error">("pending");

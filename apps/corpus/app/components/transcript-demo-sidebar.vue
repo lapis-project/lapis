@@ -1,121 +1,59 @@
 <script lang="ts" setup>
+import type { APITranscriptsWithBookmark } from "@/types/api";
 import { DownloadIcon, EyeIcon, XIcon } from "lucide-vue-next";
 
 const route = useRoute();
 const router = useRouter();
 
 const props = defineProps<{
-	transcripts: APITranscripts;
+	transcripts: APITranscriptsWithBookmark;
 }>();
 
-const currentSelectionIds = computed(() => {
-	const sel = route.query.selection;
-	if (!sel) return [];
-	return Array.isArray(sel) ? (sel as Array<string>) : [sel];
-});
-
 const currentId = ref<string | null>(null);
-const currentTranscripts = ref<Array<any> | null>(null);
 
-function removeSelection(id: number) {
-	if (currentTranscripts.value == null) return;
+function removeSelection() {
+	const query = { ...route.query };
+	delete query.selection;
 
-	if (currentSelectionIds.value.length === 1) {
-		removeAllSelections();
-		return;
-	}
-
-	const updatedSelection = currentSelectionIds.value.filter((s) => String(s) !== String(id));
-
-	void router.push({ query: { ...route.query, selection: updatedSelection } });
-
-	// Also update your reactive data if needed
-	currentTranscripts.value = props.transcripts.filter(
-		(item) => String(item.transcript_id) !== String(id),
-	);
+	void router.push({ ...route.query });
 }
 
-const speakerTexts = computed(() => {
-	if (!currentTranscripts.value || !currentId.value) return [];
-
-	const current = currentTranscripts.value.find((t) => String(t.id) === currentId.value);
-	if (!current) return [];
-
-	return current.events.map((event) => {
-		const speakers = event.speakers
-			.map((speaker) => {
-				const tokens = speaker.tokens.map((token) => token.ortho?.text ?? "").filter(Boolean);
-
-				if (tokens.length === 0) return null;
-
-				return {
-					name: speaker.name,
-					text: tokens.join(" "),
-				};
-			})
-			.filter(Boolean); // Remove nulls from empty-token speakers
-
-		return {
-			event: event.event,
-			speakers,
-		};
-	});
+const selectedTranscript = computed(() => {
+  return props.transcripts.find(t => String(t.transcript_id) === currentId.value) ?? null;
 });
 
-function removeAllSelections() {
-	const newQuery = { ...route.query };
-	delete newQuery.selection;
-	void router.push({ query: { ...newQuery } });
-	currentTranscripts.value = null;
-}
-
-function toggleActiveTab(id: string) {
-	currentId.value = id;
-}
-
-const previousSelection: Array<string> = [];
+onMounted(() => {
+  const val = route.query.selection;
+  currentId.value = Array.isArray(val) ? val[0] as string : val as string ?? currentId.value;
+});
 
 watch(
-	currentSelectionIds,
-	(selection) => {
-		const newAdded: string | undefined = selection.find((id) => !previousSelection.includes(id));
-		currentId.value = newAdded ?? null;
-
-		currentTranscripts.value = transcripts.transcripts.filter((item) =>
-			selection.some((id) => String(item.id) === id),
-		);
-
-		if (newAdded) {
-			previousSelection.push(newAdded);
-		}
-	},
-	{ immediate: true },
+  () => route.query.selection,
+  (val) => {
+    currentId.value = Array.isArray(val) ? val[0] as string : val as string ?? null;
+  }
 );
+
 </script>
 
 <template>
 	<div class="mb-5 pb-3 border-b flex gap-2 items-end flex-shrink-0 overflow-x-auto">
-		<div v-for="item in currentTranscripts" :key="item.id">
+		<div v-for="item in props.transcripts" :key="item.transcript_id">
 			<div
 				:class="
-					String(item.id) === currentId
+					String(item.transcript_id) === currentId
 						? `py-1.5 px-3 flex items-center rounded bg-neutral-900 text-white border-none gap-2 text-sm`
 						: `py-1.5 px-3 flex items-center rounded bg-secondary border gap-2 text-sm`
 				"
 			>
-				<Button
-					class="h-full m-0 size-fit cursor-pointer"
-					size="icon"
-					variant="transparent"
-					@click="toggleActiveTab(String(item.id))"
-				>
-					{{ item.name }}
+				<Button class="h-full m-0 size-fit cursor-pointer" size="icon" variant="transparent">
+					Transcript {{ item.transcript_id }}
 				</Button>
 				<Button
 					class="h-full m-0 size-fit cursor-pointer"
 					size="icon"
 					variant="transparent"
-					@click="removeSelection(item.id)"
+					@click="removeSelection()"
 				>
 					<XIcon class="size-4" />
 				</Button>
@@ -142,48 +80,52 @@ watch(
 			<Button class="shrink-0" size="icon" variant="ghost"><DownloadIcon class="size-4" /></Button>
 		</div>
 		<TabsContent class="p-4 text-sm text-muted-foreground space-y-2" value="info">
-			<div v-if="currentTranscripts && currentId">
+			<div v-if="selectedTranscript != null">
 				<div
-					v-for="transcript in currentTranscripts.filter((t) => String(t.id) === currentId)"
-					:key="transcript.id"
 					class="space-y-2"
 				>
-					<h2 class="text-lg font-semibold text-foreground">{{ transcript.name }}</h2>
+					<h2 class="text-lg font-semibold text-foreground">
+						Transcript {{ selectedTranscript.transcript_id }}
+					</h2>
 					<ul class="space-y-3">
 						<li>
 							<span class="font-medium text-foreground">Ort:</span>
-							<span class="pl-1">{{ transcript.location }}</span>
+							<span class="pl-1">{{ selectedTranscript.place_name }}</span>
 						</li>
 						<li>
 							<span class="font-medium text-foreground">Setting:</span>
-							<span class="pl-1">{{ transcript.setting }}</span>
+							<span class="pl-1">{{ selectedTranscript.survey_type_name }}</span>
 						</li>
 
 						<li>
 							<span class="font-medium text-foreground">Sprecher:innen:</span>
 							<span
-								v-for="(speaker, index) in transcript.speakers"
-								:key="speaker"
+								v-for="(speaker, index) in selectedTranscript.informants"
+								:key="index"
 								class="pl-1 inline-flex"
 							>
-								<SpeakerButton :current-id="currentId" :speaker-name="speaker ?? ''" />
-								<span v-if="index < transcript.speakers.length - 1">, </span>
+								<SpeakerButton :current-id="currentId ?? ''" :speaker="speaker" />
+								<span v-if="index < selectedTranscript.informants.length - 1" class="-ml-1">, </span>
 							</span>
 						</li>
+						<!-- needs review 
 						<li>
 							<span class="font-medium text-foreground">Anzahl der Events:</span>
-							<span class="pl-1">{{ transcript.events.length }}</span>
-						</li>
+							<span class="pl-1">{{ transcript..length }}</span>
+						</li> 
+						-->
 					</ul>
 				</div>
-			</div>
+				</div>
 		</TabsContent>
+		<!-- needs review
 		<TabsContent
 			v-if="currentId != null"
 			class="flex-grow w-full overflow-auto min-h-0"
 			value="plain"
 		>
-			<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
+			
+		<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
 			<div class="divide-y w-full divide-gray-200">
 				<div v-for="(hit, index) in speakerTexts" :key="index" class="px-1 py-3 text-sm">
 					<div v-for="(speaker, speakerIndex) in hit.speakers" :key="speakerIndex" class="flex">
@@ -202,7 +144,8 @@ watch(
 					</div>
 				</div>
 			</div>
-		</TabsContent>
+		</TabsContent> -->
+		<TabsContent value="plain"> Sample content </TabsContent>
 		<TabsContent value="kwic"> Sample content </TabsContent>
 		<TabsContent value="xml"> Sample content </TabsContent>
 	</Tabs>

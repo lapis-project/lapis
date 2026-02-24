@@ -237,7 +237,7 @@ usePageMetadata({
 
 						<div class="sm:w-3/4 overflow-hidden">
 							<NuxtLinkLocale :to="`/articles/${article.alias}`">
-								<h2 class="text-xl tracking-wide hover:underline">
+								<h2 class="text-xl tracking-wide hover:underline break-normal">
 									{{ segmentTitle(article.title) }}
 								</h2>
 							</NuxtLinkLocale>
@@ -251,7 +251,9 @@ usePageMetadata({
 								{{ t("ArticleDetailPage.published_at") }}:
 								{{ formatPublishDate(article.published_at) }}
 							</div> -->
-							<p class="line-clamp-3 font-light">{{ article.abstract }}</p>
+							<p class="line-clamp-3 font-light wrap-anywhere sm:wrap-normal">
+								{{ article.abstract }}
+							</p>
 						</div>
 					</div>
 				</li>

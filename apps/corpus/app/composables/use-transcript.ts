@@ -3,16 +3,13 @@ import { computed,ref } from "vue";
 
 export function useTranscript(id: number, format: string) {
 	const env = useRuntimeConfig();
-	const { apiClient } = useApiClient();
+    const { apiClient } = useApiClient();
+    const _getTranscripts = apiClient.corpus.transcript[":id"][":format"].$get;
+    type APITranscript = InferResponseType<typeof _getTranscripts, 200>;
 
-	const _getTranscripts = apiClient.corpus.transcript[":id"][":format"].$get;
-	type APITranscript = InferResponseType<typeof _getTranscripts, 200>;
-
-	// State
 	const response = ref<APITranscript | null>(null);
 	const status = ref<"pending" | "success" | "error">("pending");
 
-	// Load function
 	const load = async () => {
 		status.value = "pending";
 		try {
@@ -30,7 +27,7 @@ export function useTranscript(id: number, format: string) {
 			}
 
 			console.log("backend, transcript id: ", data.value);
-			response.value = data.value;
+			response.value = data.value ?? {};
 			status.value = "success";
 		} catch (err) {
 			console.error(err);
@@ -38,7 +35,6 @@ export function useTranscript(id: number, format: string) {
 		}
 	};
 
-	// Immediately load on composable creation
 	load();
 
 	const isPending = computed(() => status.value === "pending");

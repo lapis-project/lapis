@@ -2,17 +2,18 @@ import type { InferResponseType } from "hono/client";
 import { computed,ref } from "vue";
 
 export function useTranscripts(projectId: number) {
-	const env = useRuntimeConfig();
-	const { apiClient } = useApiClient();
+  const env = useRuntimeConfig();
 
-	const _getTranscripts = apiClient.corpus.corpus[":id"].$get;
-	type APITranscripts = InferResponseType<typeof _getTranscripts, 200>;
+  const { apiClient } = useApiClient();
+  const _getTranscripts = apiClient.corpus.corpus[":id"].$get;
 
-	// State
-	const response = ref<APITranscripts | null>(null);
+  type APITranscripts = InferResponseType<typeof _getTranscripts, 200>;
+
+  type APITranscriptsWithBookmark = 
+  (APITranscripts[number] & { bookmarked: boolean })[];
+	const response = ref<APITranscriptsWithBookmark | null>(null);
 	const status = ref<"pending" | "success" | "error">("pending");
 
-	// Load function
 	const load = async () => {
 		status.value = "pending";
 		try {
@@ -29,7 +30,12 @@ export function useTranscripts(projectId: number) {
 			}
 
 			console.log("endpoint, corpus: ", data.value);
-			response.value = data.value;
+
+      response.value = (data.value ?? []).map(item => ({
+        ...item,
+      bookmarked: false,
+      }));
+
 			status.value = "success";
 		} catch (err) {
 			console.error(err);
@@ -37,7 +43,6 @@ export function useTranscripts(projectId: number) {
 		}
 	};
 
-	// Immediately load on composable creation
 	load();
 
 	const isPending = computed(() => status.value === "pending");

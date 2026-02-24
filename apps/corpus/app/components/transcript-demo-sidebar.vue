@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { DownloadIcon, EyeIcon, XIcon } from "lucide-vue-next";
 
-import transcripts from "@/assets/data/transcripts-demo.json";
-import type { Transcript } from "@/pages/transcripts/[id].vue";
-
 const route = useRoute();
 const router = useRouter();
+
+const props = defineProps<{
+	transcripts: APITranscripts;
+}>();
 
 const currentSelectionIds = computed(() => {
 	const sel = route.query.selection;
@@ -14,7 +15,7 @@ const currentSelectionIds = computed(() => {
 });
 
 const currentId = ref<string | null>(null);
-const currentTranscripts = ref<Array<Transcript> | null>(null);
+const currentTranscripts = ref<Array<any> | null>(null);
 
 function removeSelection(id: number) {
 	if (currentTranscripts.value == null) return;
@@ -29,8 +30,8 @@ function removeSelection(id: number) {
 	void router.push({ query: { ...route.query, selection: updatedSelection } });
 
 	// Also update your reactive data if needed
-	currentTranscripts.value = currentTranscripts.value?.filter(
-		(item) => String(item.id) !== String(id),
+	currentTranscripts.value = props.transcripts.filter(
+		(item) => String(item.transcript_id) !== String(id),
 	);
 }
 

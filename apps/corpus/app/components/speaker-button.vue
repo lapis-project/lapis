@@ -1,31 +1,17 @@
 <script setup lang="ts">
-import { EyeIcon } from "lucide-vue-next";
-
-import speakerInfo from "@/assets/data/speaker-info.json";
 
 export interface Speaker {
-	id: number;
-	name: string;
-	age: string;
-	sex: string;
-	occupation: string;
-	transcripts: Array<number>;
+	gender: string | null;
+	sigle: string | null;
+	age: string | null;
 }
 
 const props = defineProps<{
-	speakerName: string;
+	speaker: Speaker;
 	currentId: string;
 }>();
 
 const currentSpeaker = ref<Speaker | null | undefined>(null);
-
-function getSpeakerInfo(name: string) {
-	const speaker = speakerInfo.speakers.find((speaker) => {
-		return speaker.name === name;
-	});
-
-	currentSpeaker.value = speaker;
-}
 </script>
 
 <template>
@@ -33,34 +19,32 @@ function getSpeakerInfo(name: string) {
 		<span class="font-semibold pr-1">
 			<Dialog>
 				<DialogTrigger as-child class="p-0 m-0">
-					<Button
-						class="p-0.5 h-full"
-						variant="ghost"
-						@click="getSpeakerInfo(props.speakerName ?? '')"
-					>
-						{{ props.speakerName }}</Button
-					>
+					<Button class="p-0.5 h-full"
+						variant="ghost">
+						{{ props.speaker.sigle }}
+					</Button>
 				</DialogTrigger>
 				<DialogContent class="flex flex-col gap-1">
 					<h1>
 						<span>Sprecher:in</span>
-						<span class="pl-1 text-lg font-semibold">{{ currentSpeaker?.name }}</span>
+						<span class="pl-1 text-lg font-semibold">{{ props.speaker.sigle }}</span>
 					</h1>
 					<div class="grid w-full gap-1.5 border-b" />
 					<ul class="space-y-1 text-sm text-muted-foreground pt-3">
 						<li>
 							<span class="font-medium text-foreground">Alter:</span>
-							{{ currentSpeaker?.age }}
+							{{ props.speaker.age }}
 						</li>
 						<li>
 							<span class="font-medium text-foreground">Geschlecht:</span>
-							{{ currentSpeaker?.sex }}
+							{{ props.speaker.gender }}
 						</li>
+						<!-- needs review
 						<li>
 							<span class="font-medium text-foreground">Beruf:</span>
 							{{ currentSpeaker?.occupation }}
-						</li>
-						<li>
+						</li> -->
+						<!-- <li>
 							<span class="font-medium text-foreground">Transkripte:</span>
 							<ul class="list-disc list-inside ml-4">
 								<li v-for="id in currentSpeaker?.transcripts" :key="id">
@@ -78,7 +62,7 @@ function getSpeakerInfo(name: string) {
 									</span>
 								</li>
 							</ul>
-						</li>
+						</li> -->
 					</ul>
 				</DialogContent>
 			</Dialog>

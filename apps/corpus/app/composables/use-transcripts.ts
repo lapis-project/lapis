@@ -1,16 +1,9 @@
-import type { InferResponseType } from "hono/client";
-import { computed,ref } from "vue";
+import type { APITranscriptsWithBookmark, APITranscripts } from "@/types/api";
+import { computed, ref } from "vue";
 
 export function useTranscripts(projectId: number) {
-  const env = useRuntimeConfig();
+	const env = useRuntimeConfig();
 
-  const { apiClient } = useApiClient();
-  const _getTranscripts = apiClient.corpus.corpus[":id"].$get;
-
-  type APITranscripts = InferResponseType<typeof _getTranscripts, 200>;
-
-  type APITranscriptsWithBookmark = 
-  (APITranscripts[number] & { bookmarked: boolean })[];
 	const response = ref<APITranscriptsWithBookmark | null>(null);
 	const status = ref<"pending" | "success" | "error">("pending");
 
@@ -31,10 +24,10 @@ export function useTranscripts(projectId: number) {
 
 			console.log("endpoint, corpus: ", data.value);
 
-      response.value = (data.value ?? []).map(item => ({
-        ...item,
-      bookmarked: false,
-      }));
+			response.value = (data.value ?? []).map((item) => ({
+				...item,
+				bookmarked: false,
+			}));
 
 			status.value = "success";
 		} catch (err) {

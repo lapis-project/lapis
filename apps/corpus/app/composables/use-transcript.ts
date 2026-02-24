@@ -1,12 +1,9 @@
 import type { APITranscript } from "@/types/api";
-import type { InferResponseType } from "hono/client";
+
 import { computed, ref } from "vue";
 
 export function useTranscript(id: number, format: string) {
 	const env = useRuntimeConfig();
-    const { apiClient } = useApiClient();
-    const _getTranscript = apiClient.corpus.transcript[":id"][":format"].$get;
-    type APITranscript = InferResponseType<typeof _getTranscript, 200>;
 
 	const response = ref<APITranscript | null>(null);
 	const status = ref<"pending" | "success" | "error">("pending");
@@ -14,7 +11,7 @@ export function useTranscript(id: number, format: string) {
 	const load = async () => {
 		status.value = "pending";
 		try {
-			const { data, error } = await useFetch<APITranscript>(`/corpus/transcript/${id}/${format}`, {
+			const { data, error } = await useFetch<Array<APITranscript>>(`/corpus/transcript/${id}/${format}`, {
 				baseURL: env.public.apiBaseUrl,
 				method: "GET",
 				credentials: "include",
@@ -28,7 +25,7 @@ export function useTranscript(id: number, format: string) {
 			}
 
 			console.log("backend, transcript id: ", data.value);
-			response.value = data.value ?? {};
+			response.value = data.value as Array<APITranscript>;
 			status.value = "success";
 		} catch (err) {
 			console.error(err);

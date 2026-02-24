@@ -5,4 +5,8 @@ import type { ApiClient } from "@/composables/use-api-client";
 export type APITranscripts = InferResponseType<ApiClient["corpus"]["corpus"][":id"]["$get"], 200>;
 export type APITranscriptsWithBookmark = (APITranscripts[number] & { bookmarked: boolean })[];
 
-export type APITranscript = InferResponseType<ApiClient["corpus"]["transcript"][":id"][":format"]["$get"], 200>;
+type ExcludeStrings<T> = T extends string ? never : T;
+
+export type APITranscript = ExcludeStrings<
+  InferResponseType<ApiClient["corpus"]["transcript"][":id"][":format"]["$get"], 200>
+>;

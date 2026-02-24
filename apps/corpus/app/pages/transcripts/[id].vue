@@ -9,7 +9,6 @@ import {
 	SquareIcon,
 } from "lucide-vue-next";
 
-import data from "@/assets/data/transcripts-demo.json";
 import { useAudioController } from "@/composables/use-audio-controller";
 
 definePageMeta({
@@ -18,8 +17,8 @@ definePageMeta({
 
 const { response, isPending, refreshTranscripts } = useTranscript(161, "json");
 
-const transcript1 = computed(() => {
-	console.log("transcript id: ", response);
+const transcript = computed(() => {
+	console.log("transcript: ", response.value)
 	return response.value;
 });
 
@@ -74,8 +73,6 @@ interface Event {
 }
 const env = useRuntimeConfig();
 
-const transcripts = data as { transcripts: Array<Transcript> };
-
 const showLu = ref(false);
 const showPhon = ref(false);
 
@@ -85,12 +82,6 @@ const { audioRef, bind } = useAudioController();
 
 const id = computed(() => {
 	return Number(route.params.id as string);
-});
-
-const transcript = computed(() => {
-	if (id.value != null) {
-		return transcripts.transcripts.find((t) => t.id === id.value);
-	} else return null;
 });
 
 const showFirstColumn = ref(true);
@@ -309,6 +300,7 @@ onScopeDispose(() => {
 </script>
 
 <template>
+	{{ transcript }}
 	<main class="max-w-full container py-8 pt-4 flex flex-col !overflow-y-hidden">
 		<div class="w-fit">
 			<Button
@@ -331,10 +323,10 @@ onScopeDispose(() => {
 				<div class="p-3">
 					<div class="text-normal text-sm items-center mb-1 inline-flex gap-2">
 						<FileText class="size-4" />
-						Transcript
+						Transkript
 					</div>
 					<h1 class="text-lg font-bold">
-						{{ transcript?.name }}
+						{{ transcript?.transcript_id_id }}
 					</h1>
 					<div class="flex flex-wrap py-2">
 						<TooltipProvider>

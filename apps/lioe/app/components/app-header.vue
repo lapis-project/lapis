@@ -11,9 +11,9 @@ const items = computed<Array<NavigationMenuItem>>(() => [
 		class: "lg:hidden",
 	},
 	{
-		label: t("AppHeader.links.about"),
-		to: "/about",
-		active: route.path.startsWith("/about"),
+		label: t("AppHeader.links.team"),
+		to: "/team",
+		active: route.path.startsWith("/team"),
 	},
 ]);
 

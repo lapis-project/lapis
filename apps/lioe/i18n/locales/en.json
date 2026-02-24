@@ -2,7 +2,7 @@
 	"AppHeader": {
 		"links": {
 			"home": "Home",
-			"about": "About the Project"
+			"team": "The Team"
 		},
 		"navigation-main": "Main"
 	},

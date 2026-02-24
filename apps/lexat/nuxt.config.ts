@@ -11,10 +11,10 @@ export default defineNuxtConfig({
 		"@": fileURLToPath(new URL("./app", import.meta.url)),
 	},
 
-	// devServer: {
-	// 	host: "0.0.0.0",
-	// 	port: 3000,
-	// },
+	devServer: {
+		host: "0.0.0.0",
+		port: 3000,
+	},
 
 	app: {
 		layoutTransition: false,

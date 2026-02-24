@@ -1,7 +1,7 @@
 import { createReadStream, existsSync } from "node:fs";
 import { join } from "node:path";
 
-import { Hono } from "hono";
+import { Hono, type TypedResponse } from "hono";
 import { stream } from "hono/streaming";
 import { literal, object, optional, safeParse, string, union } from "valibot";
 
@@ -26,6 +26,31 @@ const SearchQuerySchema = object({
 
 	from: optional(string(), "0"),
 });
+
+export interface TranscriptJsonFormat {
+	token_id: number;
+	transcript_id_id: number;
+	ID_Inf_id: number;
+	start_time: string;
+	end_time: string;
+	token_reihung: number;
+	ortho: string;
+	phon: string;
+	text_in_ortho: string;
+	sppos: string;
+	sptag: string;
+	splemma: string;
+	spdep: string;
+	spenttype: string;
+	tags: Array<{
+		tag_reihung: Array<number>;
+		tag_name: string;
+		tag_id: Array<number>;
+		tag: Array<string>;
+		tag_gene: Array<number>;
+	}>;
+	tokenset_ids: Array<number>;
+}
 
 type RunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
@@ -117,7 +142,7 @@ const corpus = new Hono<AppEnv>()
 			} catch (err) {
 				console.error("Streaming error:", err);
 			}
-		});
+		}) as unknown as TypedResponse<TranscriptJsonFormat | string>;
 	})
 	.get("/corpus/:id", async (c) => {
 		const id = c.req.param("id");

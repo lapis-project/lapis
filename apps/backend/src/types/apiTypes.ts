@@ -101,3 +101,30 @@ export interface PagedArticlesResult {
 	articles: Array<ArticleTeaserAPI> | null; // json_agg can return null
 	total: number;
 }
+
+export interface Token {
+	token_id: number;
+	token_reihung: number;
+	ortho: string;
+	phon: string;
+	text_in_ortho: string;
+	pos: string;
+	token_type: string;
+}
+
+export interface Events {
+	event_id: number;
+	start_time: string;
+	end_time: string;
+	tokens: Array<Token>;
+}
+
+export interface DataEvent {
+	informant: number;
+	events: Array<Events>;
+}
+
+export interface EventTranscript {
+	name: string;
+	data: Array<DataEvent>;
+}

@@ -78,7 +78,7 @@ jobs:
         run: pnpm --filter ./apps/lexat test
 
       - name: Build UI Nuxt Layer
-        run: pnpm --filter ./apps/ui build
+        run: pnpm --filter ./apps/shadcn build
 
       - name: Run db
         run: docker compose --env-file .env.localsetup up -d

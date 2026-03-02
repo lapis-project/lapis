@@ -45,7 +45,7 @@ import {
 	processUniqueVariants,
 } from "@/utils/variant-helper";
 
-import type { ComboboxOption } from "../../ui/components/base-combobox.vue";
+import type { ComboboxOption } from "../../shadcn/components/base-combobox.vue";
 import CopyToClipboard from "./copy-to-clipboard.vue";
 import MultiSelect from "./multi-select.vue";
 

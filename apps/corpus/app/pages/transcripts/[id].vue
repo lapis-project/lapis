@@ -21,17 +21,22 @@ const route = useRoute();
 
 const currentId = ref<number | null>(null);
 
+const visibleChunks = ref(0);
+const visibleMaxChunks = ref(10);
+
 const containerElementWidth = ref(0);
 const SPEAKER_COL_WIDTH = 160;
 const GRID_COL_GAP = 8; // .grid without an explicit gap`
 const SAFETY_PADDING = 2; // for sub-pixel rounding / scroll-bars
+const CHUNK_SIZE = 200;
 
 const windowWidth = ref(0);
 const hiddenSpeakers = ref<Set<number>>(new Set());
-const eventMinWidth = 200
+const eventMinWidth = 200;
+
+const eventContainer = ref<HTMLElement | null>(null);
 
 const maxEventsPerRow = computed(() => {
-	console.log("MAXEVENTS: ", containerElementWidth.value)
 	if (containerElementWidth.value <= 0) return 0;
 	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
 	const slotWidth = eventMinWidth + GRID_COL_GAP;
@@ -47,8 +52,7 @@ const {
 } = useTranscriptPreview(currentId);
 
 const transcript = computed(() => {
-	console.log("hello response: ", response.value);
-	return response.value?.transcript_data.slice(0, 200);
+	return response.value?.transcript_data;
 });
 
 onMounted(() => {
@@ -135,7 +139,23 @@ const gridColumns = computed(() => {
 	return [showFirstColumn.value ? "340px" : "0px", "1fr"].join(" ");
 });
 
-function buildEvents(tokenList: APIToken | null, speakers: Array<number> | undefined): TranscriptEvent[] {
+const loadedChunks = ref<TranscriptEvent[][]>([]);
+
+function handleScroll() {
+	if (!eventContainer.value) return;
+
+	const { scrollTop, clientHeight, scrollHeight } = eventContainer.value;
+	if (scrollTop === 0) return; // just y-scrolling
+
+	if (scrollTop + clientHeight >= scrollHeight * 0.8) {
+		loadNextChunk();
+	}
+}
+
+function buildEvents(
+	tokenList: APIToken | null,
+	speakers: Array<number> | undefined,
+): TranscriptEvent[] {
 	if (!tokenList) return [];
 
 	const events: TranscriptEvent[] = [];
@@ -184,33 +204,67 @@ function buildEvents(tokenList: APIToken | null, speakers: Array<number> | undef
 	return events;
 }
 
-
 const speakers = computed(() => {
 	return transcriptPreview.value?.informants ?? [];
 });
 
 const speakerIds = computed(() => {
 	return response.value?.unique_informant_ids;
-})
+});
+
+const loadedTokens = ref(0);
+
+function loadNextChunk() {
+	if (!transcript.value) return;
+
+	if (loadedTokens.value >= transcript.value.length) return;
+
+	const chunkTokens = transcript.value.slice(loadedTokens.value, loadedTokens.value + CHUNK_SIZE);
+
+	loadedTokens.value += chunkTokens.length;
+
+	const events = buildEvents(chunkTokens, speakerIds.value);
+
+	const maxPerRow = maxEventsPerRow.value || 10;
+	for (let i = 0; i < events.length; i += maxPerRow) {
+		loadedChunks.value.push(events.slice(i, i + maxPerRow));
+	}
+}
+
+const maxEventsInBlock = (block: Record<number, Event[]>) => {
+	return Math.max(
+		...speakerIds.value
+			.filter((sp) => !hiddenSpeakers.value.has(sp))
+			.map((sp) => block[sp]?.length || 0),
+	);
+};
+const initalContainerHeight = ref(0);
+
+async function loadChunksToFillScreen() {
+	if (!eventContainer.value || !transcript.value) return;
+
+	let scrollHeight = eventContainer.value.scrollHeight;
+
+	while (
+		scrollHeight <= initalContainerHeight.value &&
+		loadedChunks.value.length * CHUNK_SIZE < transcript.value.length
+	) {
+		loadNextChunk();
+		await nextTick();
+		scrollHeight = eventContainer.value.scrollHeight;
+	}
+}
 
 const chunkedSpeakerEvents = computed(() => {
-	if (!transcript.value || (speakerIds.value != null && !speakerIds.value.length) || maxEventsPerRow.value === 0) return [];
+	if (!loadedChunks.value.length || !speakerIds.value?.length || maxEventsPerRow.value === 0)
+		return [];
 
-	const events = buildEvents(transcript.value, speakerIds.value);
-	const chunks: TranscriptEvent[][] = [];
-	const maxPerRow = maxEventsPerRow.value;
-
-	for (let i = 0; i < events.length; i += maxPerRow) {
-		chunks.push(events.slice(i, i + maxPerRow));
-	}
-
-	return chunks.map((rowEvents) => {
+	return loadedChunks.value.map((rowEvents) => {
 		const rowMap: Record<number, Event[]> = {};
-
 		speakerIds.value?.forEach((sp) => (rowMap[sp] = []));
 
 		for (const ev of rowEvents) {
-			for (const sp of speakerIds?.value) {
+			for (const sp of speakerIds.value ?? []) {
 				const speakerEntry = ev.speakers.find((s) => s.name === sp);
 				const tokens = speakerEntry?.tokens ?? [];
 
@@ -231,21 +285,12 @@ const chunkedSpeakerEvents = computed(() => {
 	});
 });
 
-const maxEventsInBlock = (block: Record<number, Event[]>) => {
-	return Math.max(...speakerIds?.value.filter(sp => !hiddenSpeakers.value.has(sp)).map(sp => (block[sp]?.length || 0)));
-}
-  
-
 function handleResize() {
-	console.log("HELLOOO", document.getElementById("eventViewContainer"));
-	const element = document.getElementById("eventViewContainer");
-	if (element != null) {
-		containerElementWidth.value = element.getBoundingClientRect().width;
+	if (eventContainer.value != null) {
+		containerElementWidth.value = eventContainer.value.getBoundingClientRect().width;
 	}
 	windowWidth.value = window.innerWidth;
 }
-
-
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -333,12 +378,14 @@ const audioSrc = computed(() => {
 	return new URL(`/audio/stream/${name}`, base).toString();
 });
 
-onMounted(async() => {
-	await nextTick();
-	handleResize();
-	 window.addEventListener("resize", handleResize, { passive: true });
-});
+onMounted(async () => {
+	loadNextChunk();
 
+	await nextTick();
+
+	handleResize();
+	window.addEventListener("resize", handleResize, { passive: true });
+});
 
 onUnmounted(() => {
 	window.removeEventListener("resize", handleResize);
@@ -354,21 +401,32 @@ onScopeDispose(() => {
 });
 
 watch(
-  () => isPending.value,
-  (newVal, oldVal) => {
-    if (oldVal != newVal) {
-      nextTick(() => {
-        handleResize();
-      });
-    }
-  },
-  { immediate: true }
+	() => isPending.value,
+	(newVal, oldVal) => {
+		if (oldVal != newVal) {
+			if (loadedChunks.value.length === 0) {
+				loadNextChunk();
+
+				nextTick(() => {
+					eventContainer.value = document.getElementById("eventViewContainer");
+					initalContainerHeight.value = eventContainer.value?.getBoundingClientRect().height ?? 0;
+
+					loadChunksToFillScreen();
+					handleResize();
+				});
+			}
+		}
+	},
+	{ immediate: true },
 );
 </script>
 
 <template>
 	<main class="max-w-full flex flex-col container py-8 pt-4 flex flex-col !overflow-y-hidden">
-		<div v-if="isPending || previewIsPending || chunkedSpeakerEvents == null" class="item-center m-auto">
+		<div
+			v-if="isPending || previewIsPending || chunkedSpeakerEvents == null"
+			class="item-center m-auto"
+		>
 			<Spinner />
 		</div>
 		<div v-else class="flex flex-1 min-h-0">
@@ -509,10 +567,12 @@ watch(
 					</div>
 				</div>
 
-				<div id="eventViewContainer" class="relative overflow-y-auto min-h-0 max-h-full grid grid-rows-[1fr_auto]">
+				<div class="relative overflow-y-auto min-h-0 max-h-full grid grid-rows-[1fr_auto]">
 					<div
+						id="eventViewContainer"
 						v-if="chunkedSpeakerEvents && speakerIds && speakerIds.length > 0"
 						class="overflow-y-auto flex flex-col min-h-0 gap-4 border border-foreground/20 rounded-lg bg-muted"
+						@scroll="handleScroll()"
 					>
 						<ClientOnly>
 							<audio
@@ -525,13 +585,17 @@ watch(
 								<track kind="captions" />
 							</audio>
 						</ClientOnly>
-						<div v-for="(block, blockIndex) in chunkedSpeakerEvents" :key="blockIndex" id="chunk" class="w-full">
+						<div
+							v-for="(block, blockIndex) in chunkedSpeakerEvents"
+							:key="blockIndex"
+							id="chunk"
+							class="w-full"
+						>
 							<div
 								class="grid"
 								:style="{
-									gridTemplateColumns:
-										'160px repeat(' + maxEventsInBlock(block) + ', max-content)',
-									gridTemplateRows: 'auto repeat(' + speakerIds.length + ', minmax(64px, auto))'
+									gridTemplateColumns: '160px repeat(' + maxEventsInBlock(block) + ', max-content)',
+									gridTemplateRows: 'auto repeat(' + speakerIds.length + ', minmax(64px, auto))',
 								}"
 							>
 								<div class="pl-2 text-white bg-black font-bold text-sm rounded-tl">Zeitleiste</div>
@@ -758,7 +822,7 @@ watch(
 							</div>
 						</div>
 					</section>
-				</div> 
+				</div>
 			</div>
 		</div>
 	</main>

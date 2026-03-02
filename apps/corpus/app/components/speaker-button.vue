@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 export interface Speaker {
 	gender: string | null;
 	sigle: string | null;
@@ -19,8 +18,7 @@ const currentSpeaker = ref<Speaker | null | undefined>(null);
 		<span class="font-semibold pr-1">
 			<Dialog>
 				<DialogTrigger as-child class="p-0 m-0">
-					<Button class="p-0.5 h-full"
-						variant="ghost">
+					<Button class="p-0.5 h-full" variant="ghost">
 						{{ props.speaker.sigle }}
 					</Button>
 				</DialogTrigger>

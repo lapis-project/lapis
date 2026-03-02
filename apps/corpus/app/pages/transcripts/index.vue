@@ -6,6 +6,7 @@ import initialData from "@/assets/data/transcripts-demo.json";
 
 import type { Transcript } from "./[id].vue";
 import type { APITranscriptsWithBookmark } from "@/types/api";
+import Spinner from "../../../../ui/app/components/ui/spinner/Spinner.vue";
 
 definePageMeta({
 	layout: "tool",
@@ -166,27 +167,32 @@ watch(
 					</div>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						<div v-for="result in transcripts" :key="result.transcript_id">
-							<div
-								class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
-							>
-								<Button
-									class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
-									hover:no-underline
-									variant="transparent"
-									@click="handleSelection(String(result.transcript_id))"
+						<div v-if="isPending" class="item-center m-auto">
+							<Spinner />
+						</div>
+						<div v-else>
+							<div v-for="result in transcripts" :key="result.transcript_id">
+								<div
+									class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
 								>
-									<span class="sr-only"> Open Sidebar Demo </span>
-									Transcript {{ result.transcript_id }}
-								</Button>
-								<div class="w-full flex justify-end">
 									<Button
-										class="p-0 w-fit self-end"
+										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
+										hover:no-underline
 										variant="transparent"
-										@click="handleBookmark(result)"
+										@click="handleSelection(String(result.transcript_id))"
 									>
-										<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+										<span class="sr-only"> Open Sidebar Demo </span>
+										Transcript {{ result.transcript_id }}
 									</Button>
+									<div class="w-full flex justify-end">
+										<Button
+											class="p-0 w-fit self-end"
+											variant="transparent"
+											@click="handleBookmark(result)"
+										>
+											<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+										</Button>
+									</div>
 								</div>
 							</div>
 						</div>

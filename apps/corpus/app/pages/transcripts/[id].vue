@@ -10,16 +10,45 @@ import {
 } from "lucide-vue-next";
 
 import { useAudioController } from "@/composables/use-audio-controller";
+import Spinner from "../../../../ui/app/components/ui/spinner/Spinner.vue";
 
 definePageMeta({
 	layout: "tool",
 });
 
-const { response, isPending, refreshTranscripts } = useTranscript(161, "json");
+const route = useRoute();
+
+const currentId = ref<number | null>(null);
+
+const { response, isPending, refreshTranscripts } = useTranscript(currentId, "json");
+
+const {
+	response: previewResponse,
+	isPending: previewIsPending,
+	refreshTranscripts: refreshPreview,
+} = useTranscriptPreview(currentId);
 
 const transcript = computed(() => {
-	console.log("transcript: ", response.value)
+	console.log("transcript token data: ", response.value);
 	return response.value;
+});
+
+onMounted(() => {
+	const val = route.params.id;
+	const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? currentId.value);
+	currentId.value = isNaN(selection) ? null : selection;
+});
+
+watch(
+	() => route.params.id,
+	(val) => {
+		const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? null);
+		currentId.value = isNaN(selection) ? null : selection;
+	},
+);
+
+const transcriptPreview = computed(() => {
+	return previewResponse.value?.[0];
 });
 
 interface Token {
@@ -75,8 +104,6 @@ const env = useRuntimeConfig();
 
 const showLu = ref(false);
 const showPhon = ref(false);
-
-const route = useRoute();
 
 const { audioRef, bind } = useAudioController();
 
@@ -300,390 +327,401 @@ onScopeDispose(() => {
 </script>
 
 <template>
-	{{ transcript }}
 	<main class="max-w-full container py-8 pt-4 flex flex-col !overflow-y-hidden">
-		<div class="w-fit">
-			<Button
-				class="fixed z-10 flex items-center border rounded-none rounded-br-md rounded-tr-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
-				:class="showFirstColumn ? 'left-[371px]' : 'left-0'"
-				variant="ghost"
-				@click="toggleFirstColumn"
-			>
-				<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
-			</Button>
+		<div v-if="isPending || previewIsPending" class="item-center m-auto">
+			<Spinner />
 		</div>
-		<div
-			class="relative gap-8 !overflow-hidden flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
-			:style="{ gridTemplateColumns: gridColumns }"
-		>
-			<div
-				class="h-full border border-foreground/20 rounded overflow-y-auto"
-				:class="{ 'opacity-0 pointer-events-none transition-all': !showFirstColumn }"
-			>
-				<div class="p-3">
-					<div class="text-normal text-sm items-center mb-1 inline-flex gap-2">
-						<FileText class="size-4" />
-						Transkript
-					</div>
-					<h1 class="text-lg font-bold">
-						{{ transcript?.transcript_id_id }}
-					</h1>
-					<div class="flex flex-wrap py-2">
-						<TooltipProvider>
-							<Tooltip>
-								<TooltipTrigger>
-									<span
-										v-if="transcript?.location"
-										class="border text-xs mr-2 px-2.5 py-0.5 rounded hover:bg-gray-50"
-									>
-										{{ transcript.location }}
-									</span>
-								</TooltipTrigger>
-								<TooltipContent> Ort </TooltipContent>
-							</Tooltip>
-						</TooltipProvider>
-
-						<TooltipProvider>
-							<Tooltip>
-								<TooltipTrigger>
-									<span
-										v-if="transcript?.setting"
-										class="border text-xs mr-2 px-2.5 py-0.5 rounded hover:bg-gray-50"
-									>
-										{{ transcript.setting }}
-									</span>
-								</TooltipTrigger>
-								<TooltipContent> Setting </TooltipContent>
-							</Tooltip>
-						</TooltipProvider>
-					</div>
-
-					<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="info">
-						<TabsList class="w-full flex-shrink-0">
-							<TabsTrigger value="info"> Info </TabsTrigger>
-							<TabsTrigger value="filter"> Filter </TabsTrigger>
-							<TabsTrigger value="search"> Suche </TabsTrigger>
-						</TabsList>
-						<TabsContent class="flex-grow overflow-y-auto min-h-0" value="info">
-							<div class="hyphens-auto">
-								Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
-								tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero
-								eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea
-								takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet,
-								consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et
-								dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo
-								dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem
-								ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed
-								diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
-								voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd
-								gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel
-								eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum
-								dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim
-								qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla
-								facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy
-								nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
-							</div>
-						</TabsContent>
-						<TabsContent class="flex-grow overflow-y-auto min-h-0 p-2" value="filter">
-							<div class="flex flex-col gap-2 text-sm">
-								<p class="text-xs text-gray-500">Spuren:</p>
-								<label class="flex items-center gap-2">
-									<input v-model="showLu" type="checkbox" />
-									Lautorientierte Transkription (lu)
-								</label>
-								<label class="flex items-center gap-2">
-									<input v-model="showPhon" type="checkbox" />
-									Phonetische Transkription (phon)
-								</label>
-							</div>
-							<hr class="my-2 border-foreground/10" />
-							<p class="text-xs text-gray-500 pb-2">Sprecher ausblenden:</p>
-							<div class="flex flex-col gap-1 pl-1">
-								<label
-									v-for="speaker in transcript?.speakers"
-									:key="speaker"
-									class="flex items-center gap-2"
-								>
-									<input
-										:checked="hiddenSpeakers.has(speaker)"
-										type="checkbox"
-										:value="speaker"
-										@change="
-											(e) => {
-												if (e.target?.checked) hiddenSpeakers.add(speaker);
-												else hiddenSpeakers.delete(speaker);
-											}
-										"
-									/>
-									{{ speaker }}
-								</label>
-							</div>
-						</TabsContent>
-						<TabsContent class="flex-grow overflow-y-auto min-h-0" value="search">
-							<div class="p-4 w-full flex flex-col overflow-hidden">
-								<form class="flex gap-4 items-end flex-shrink-0">
-									<Label class="sr-only" for="search">Suche</Label>
-									<div class="relative w-64">
-										<Input
-											id="search"
-											v-model="searchInput"
-											placeholder="Suchbegriff eingeben"
-											type="text"
-										/>
-									</div>
-
-									<Button type="submit"> Suchen </Button>
-								</form>
-							</div>
-						</TabsContent>
-					</Tabs>
-				</div>
-			</div>
-
-			<div class="relative overflow-y-hidden grid grid-rows-[1fr_auto]">
-				<div
-					v-if="transcript?.events && transcript.speakers"
-					id="eventViewContainer"
-					class="overflow-y-auto flex flex-col gap-4 border border-foreground/20 rounded-lg bg-muted"
+		<div v-else>
+			<div class="w-fit">
+				<Button
+					class="fixed z-10 flex items-center border rounded-none rounded-br-md rounded-tr-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
+					:class="showFirstColumn ? 'left-[371px]' : 'left-0'"
+					variant="ghost"
+					@click="toggleFirstColumn"
 				>
-					<ClientOnly>
-						<audio
-							:ref="(el) => bind(el as HTMLAudioElement)"
-							preload="metadata"
-							:src="audioSrc"
-							@loadedmetadata="updateMetadata"
-							@timeupdate="updateProgress"
-						>
-							<track kind="captions" />
-						</audio>
-					</ClientOnly>
-					<div v-for="(block, blockIndex) in chunkedSpeakerEvents" :key="blockIndex" class="w-full">
-						<div
-							class="grid"
-							:style="{
-								gridTemplateColumns:
-									'160px repeat(' + block[transcript.speakers[0]].length + ', max-content)',
-							}"
-						>
-							<div class="pl-2 text-white bg-black font-bold text-sm rounded-tl">Zeitleiste</div>
-							<div
-								v-for="(event, idx) in block[transcript.speakers[0]]"
-								:key="'header-' + idx"
-								class="text-xs text-start py-1 text-white bg-black"
-							>
-								<div class="relative z-10 px-2">{{ event.start }} – {{ event.end }}</div>
+					<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
+				</Button>
+			</div>
+			<div
+				class="relative gap-8 !overflow-hidden flex-grow grid min-h-0 duration-250 delay-150 transition-[grid-template-columns] ease-in-out"
+				:style="{ gridTemplateColumns: gridColumns }"
+			>
+				<div
+					class="h-full border border-foreground/20 rounded overflow-y-auto"
+					:class="{ 'opacity-0 pointer-events-none transition-all': !showFirstColumn }"
+				>
+					<div class="p-3">
+						<div class="text-normal text-sm items-center mb-1 inline-flex gap-2">
+							<FileText class="size-4" />
+							Transkript
+						</div>
+						<h1 class="text-lg font-bold">Transkript {{ transcriptPreview?.transcript_id }}</h1>
+						<div class="flex flex-wrap py-2">
+							<TooltipProvider>
+								<Tooltip>
+									<TooltipTrigger>
+										<span
+											v-if="transcriptPreview?.place_name"
+											class="border text-xs mr-2 px-2.5 py-0.5 rounded hover:bg-gray-50"
+										>
+											{{ transcriptPreview.place_name }}
+										</span>
+									</TooltipTrigger>
+									<TooltipContent> Ort </TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
 
-								<div
-									class="bg-accent-foreground z-20 h-full"
-									:style="{
-										width: (() => {
-											const total = transcript.events.length; // total events in all rows
-											const globalIndex = blockIndex * maxEventsPerRow + idx;
+							<TooltipProvider>
+								<Tooltip>
+									<TooltipTrigger>
+										<span
+											v-if="transcriptPreview?.survey_type_name"
+											class="border text-xs mr-2 px-2.5 py-0.5 rounded hover:bg-gray-50"
+										>
+											{{ transcriptPreview.survey_type_name }}
+										</span>
+									</TooltipTrigger>
+									<TooltipContent> Setting </TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
+						</div>
 
-											const fullFillThreshold = (globalIndex + 1) / total;
-											const prevFillThreshold = globalIndex / total;
-
-											if (progressFraction >= fullFillThreshold) return '100%';
-											else if (progressFraction <= prevFillThreshold) return '0%';
-											else {
-												const partial = (progressFraction - prevFillThreshold) * total;
-												return (partial * 100).toFixed(2) + '%';
-											}
-										})(),
-									}"
-								></div>
-							</div>
-
-							<template
-								v-for="speaker in transcript.speakers.filter((s) => !hiddenSpeakers.has(s))"
-								:key="speaker"
-							>
-								<div
-									class="text-sm font-semibold p-2 bg-gray-200 border-foreground/20 border min-h-[64px]"
-								>
-									<div class="flex flex-row justify-between">
+						<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="info">
+							<TabsList class="w-full flex-shrink-0">
+								<TabsTrigger value="info"> Info </TabsTrigger>
+								<TabsTrigger value="filter"> Filter </TabsTrigger>
+								<TabsTrigger value="search"> Suche </TabsTrigger>
+							</TabsList>
+							<TabsContent class="flex-grow overflow-y-auto min-h-0" value="info">
+								<div class="hyphens-auto">
+									Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod
+									tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At
+									vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,
+									no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit
+									amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
+									labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et
+									justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus
+									est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing
+									elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
+									erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.
+									Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+									Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie
+									consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et
+									iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore
+									te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing
+									elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+									volutpat.
+								</div>
+							</TabsContent>
+							<TabsContent class="flex-grow overflow-y-auto min-h-0 p-2" value="filter">
+								<div class="flex flex-col gap-2 text-sm">
+									<p class="text-xs text-gray-500">Spuren:</p>
+									<label class="flex items-center gap-2">
+										<input v-model="showLu" type="checkbox" />
+										Lautorientierte Transkription (lu)
+									</label>
+									<label class="flex items-center gap-2">
+										<input v-model="showPhon" type="checkbox" />
+										Phonetische Transkription (phon)
+									</label>
+								</div>
+								<hr class="my-2 border-foreground/10" />
+								<p class="text-xs text-gray-500 pb-2">Sprecher ausblenden:</p>
+								<div class="flex flex-col gap-1 pl-1">
+									<label
+										v-for="speaker in transcriptPreview?.speakers"
+										:key="speaker"
+										class="flex items-center gap-2"
+									>
+										<input
+											:checked="hiddenSpeakers.has(speaker)"
+											type="checkbox"
+											:value="speaker"
+											@change="
+												(e) => {
+													if (e.target?.checked) hiddenSpeakers.add(speaker);
+													else hiddenSpeakers.delete(speaker);
+												}
+											"
+										/>
 										{{ speaker }}
-										<div class="text-sm font-normal text-right pr-3 text-gray-500 h-full">
+									</label>
+								</div>
+							</TabsContent>
+							<TabsContent class="flex-grow overflow-y-auto min-h-0" value="search">
+								<div class="p-4 w-full flex flex-col overflow-hidden">
+									<form class="flex gap-4 items-end flex-shrink-0">
+										<Label class="sr-only" for="search">Suche</Label>
+										<div class="relative w-64">
+											<Input
+												id="search"
+												v-model="searchInput"
+												placeholder="Suchbegriff eingeben"
+												type="text"
+											/>
+										</div>
+
+										<Button type="submit"> Suchen </Button>
+									</form>
+								</div>
+							</TabsContent>
+						</Tabs>
+					</div>
+				</div>
+
+				<div class="relative overflow-y-hidden grid grid-rows-[1fr_auto]">
+					<div
+						v-if="transcript?.events && transcript.speakers"
+						id="eventViewContainer"
+						class="overflow-y-auto flex flex-col gap-4 border border-foreground/20 rounded-lg bg-muted"
+					>
+						<ClientOnly>
+							<audio
+								:ref="(el) => bind(el as HTMLAudioElement)"
+								preload="metadata"
+								:src="audioSrc"
+								@loadedmetadata="updateMetadata"
+								@timeupdate="updateProgress"
+							>
+								<track kind="captions" />
+							</audio>
+						</ClientOnly>
+						<div
+							v-for="(block, blockIndex) in chunkedSpeakerEvents"
+							:key="blockIndex"
+							class="w-full"
+						>
+							<div
+								class="grid"
+								:style="{
+									gridTemplateColumns:
+										'160px repeat(' + block[transcript.speakers[0]].length + ', max-content)',
+								}"
+							>
+								<div class="pl-2 text-white bg-black font-bold text-sm rounded-tl">Zeitleiste</div>
+								<div
+									v-for="(event, idx) in block[transcript.speakers[0]]"
+									:key="'header-' + idx"
+									class="text-xs text-start py-1 text-white bg-black"
+								>
+									<div class="relative z-10 px-2">{{ event.start }} – {{ event.end }}</div>
+
+									<div
+										class="bg-accent-foreground z-20 h-full"
+										:style="{
+											width: (() => {
+												const total = transcript.events.length; // total events in all rows
+												const globalIndex = blockIndex * maxEventsPerRow + idx;
+
+												const fullFillThreshold = (globalIndex + 1) / total;
+												const prevFillThreshold = globalIndex / total;
+
+												if (progressFraction >= fullFillThreshold) return '100%';
+												else if (progressFraction <= prevFillThreshold) return '0%';
+												else {
+													const partial = (progressFraction - prevFillThreshold) * total;
+													return (partial * 100).toFixed(2) + '%';
+												}
+											})(),
+										}"
+									></div>
+								</div>
+
+								<template
+									v-for="speaker in transcript.speakers.filter((s) => !hiddenSpeakers.has(s))"
+									:key="speaker"
+								>
+									<div
+										class="text-sm font-semibold p-2 bg-gray-200 border-foreground/20 border min-h-[64px]"
+									>
+										<div class="flex flex-row justify-between">
+											{{ speaker }}
+											<div class="text-sm font-normal text-right pr-3 text-gray-500 h-full">
+												<TooltipProvider>
+													<Tooltip>
+														<TooltipTrigger> o </TooltipTrigger>
+														<TooltipContent> Standardorthografische Transkription </TooltipContent>
+													</Tooltip>
+												</TooltipProvider>
+											</div>
+										</div>
+										<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
 											<TooltipProvider>
 												<Tooltip>
-													<TooltipTrigger> o </TooltipTrigger>
-													<TooltipContent> Standardorthografische Transkription </TooltipContent>
+													<TooltipTrigger> lu </TooltipTrigger>
+													<TooltipContent> Lautorientierte Transkription </TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										</div>
+										<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
+											<TooltipProvider>
+												<Tooltip>
+													<TooltipTrigger> phon </TooltipTrigger>
+													<TooltipContent> Phonetische Transkription </TooltipContent>
 												</Tooltip>
 											</TooltipProvider>
 										</div>
 									</div>
-									<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
-										<TooltipProvider>
-											<Tooltip>
-												<TooltipTrigger> lu </TooltipTrigger>
-												<TooltipContent> Lautorientierte Transkription </TooltipContent>
-											</Tooltip>
-										</TooltipProvider>
-									</div>
-									<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
-										<TooltipProvider>
-											<Tooltip>
-												<TooltipTrigger> phon </TooltipTrigger>
-												<TooltipContent> Phonetische Transkription </TooltipContent>
-											</Tooltip>
-										</TooltipProvider>
-									</div>
-								</div>
 
-								<div
-									v-for="(e, idx) in block[speaker]"
-									:key="speaker + '-event-' + idx"
-									class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
-								>
-									<Dialog>
-										<DialogTrigger as-child class="h-full">
-											<div
-												class="grid gap-1 h-full"
-												:style="{
-													gridTemplateColumns: 'repeat(' + e.ortho.length + ', minmax(0, auto))',
-												}"
-											>
+									<div
+										v-for="(e, idx) in block[speaker]"
+										:key="speaker + '-event-' + idx"
+										class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
+									>
+										<Dialog>
+											<DialogTrigger as-child class="h-full">
 												<div
-													v-for="(token, index) in e.ortho"
-													:key="'token-group-' + index"
-													class="grid grid-rows-[auto_1fr] items-end group hover:cursor-pointer h-full hover:bg-gray-100"
+													class="grid gap-1 h-full"
+													:style="{
+														gridTemplateColumns: 'repeat(' + e.ortho.length + ', minmax(0, auto))',
+													}"
 												>
 													<div
-														class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
-														:class="token.hasTags ? 'text-accent-foreground font-semibold' : ''"
+														v-for="(token, index) in e.ortho"
+														:key="'token-group-' + index"
+														class="grid grid-rows-[auto_1fr] items-end group hover:cursor-pointer h-full hover:bg-gray-100"
 													>
-														{{ token.text }}
-													</div>
-													<div
-														v-if="showLu"
-														class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
-														:class="
-															e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
-														"
-													>
-														{{ e.lu[index]?.text }}
-													</div>
+														<div
+															class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
+															:class="token.hasTags ? 'text-accent-foreground font-semibold' : ''"
+														>
+															{{ token.text }}
+														</div>
+														<div
+															v-if="showLu"
+															class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
+															:class="
+																e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
+															"
+														>
+															{{ e.lu[index]?.text }}
+														</div>
 
-													<div
-														v-if="showPhon"
-														class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
-														:class="
-															e.phon[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
-														"
-													>
-														{{ e.phon[index]?.text }}
-													</div>
+														<div
+															v-if="showPhon"
+															class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
+															:class="
+																e.phon[index]?.hasTags
+																	? 'text-accent-foreground  font-semibold'
+																	: ''
+															"
+														>
+															{{ e.phon[index]?.text }}
+														</div>
 
-													<div
-														class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
-													></div>
+														<div
+															class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
+														></div>
+													</div>
 												</div>
-											</div>
-										</DialogTrigger>
-										<DialogContent class="sm:max-w-[425px]">
-											<DialogHeader>
-												<DialogTitle>Details</DialogTitle>
-												<DialogDescription>
-													Hier finden Sie weitere Informationen
-												</DialogDescription>
-											</DialogHeader>
-											<div>
+											</DialogTrigger>
+											<DialogContent class="sm:max-w-[425px]">
+												<DialogHeader>
+													<DialogTitle>Details</DialogTitle>
+													<DialogDescription>
+														Hier finden Sie weitere Informationen
+													</DialogDescription>
+												</DialogHeader>
 												<div>
-													<span class="font-semibold mr-1">Sprecher:</span>
-													<span class="text-xs">{{ speaker }}</span>
+													<div>
+														<span class="font-semibold mr-1">Sprecher:</span>
+														<span class="text-xs">{{ speaker }}</span>
+													</div>
+
+													<div class="border border-b w-full mt-2"></div>
+
+													<p class="font-semibold mt-2">Tokens:</p>
+													<p v-if="e.lu" class="italic text-sm mt-2">
+														Standardorthografische Transkription:
+													</p>
+													<p>
+														<span v-for="(token, i) in e.ortho" :key="i" class="mr-1 text-xs">
+															{{ token.text }}
+														</span>
+													</p>
+
+													<p v-if="e.lu" class="italic text-sm mt-2">
+														Lautorientierte Transkription:
+													</p>
+													<p v-if="e.lu">
+														<span v-for="(token, i) in e.lu" :key="i" class="mr-1 text-xs">
+															{{ token.text }}
+														</span>
+													</p>
+
+													<p v-if="e.phon" class="italic text-sm mt-2">
+														Phonetische Transkription:
+													</p>
+													<p v-if="e.phon">
+														<span v-for="(token, i) in e.phon" :key="i" class="mr-1 text-xs">
+															{{ token.text }}
+														</span>
+													</p>
+													<div class="border border-b w-full mt-2"></div>
+
+													<p class="font-semibold mt-2">Annotationen:</p>
+													<div class="mr-1 text-xs">loremipsum</div>
+
+													<div class="border border-b w-full mt-2"></div>
 												</div>
-
-												<div class="border border-b w-full mt-2"></div>
-
-												<p class="font-semibold mt-2">Tokens:</p>
-												<p v-if="e.lu" class="italic text-sm mt-2">
-													Standardorthografische Transkription:
-												</p>
-												<p>
-													<span v-for="(token, i) in e.ortho" :key="i" class="mr-1 text-xs">
-														{{ token.text }}
-													</span>
-												</p>
-
-												<p v-if="e.lu" class="italic text-sm mt-2">
-													Lautorientierte Transkription:
-												</p>
-												<p v-if="e.lu">
-													<span v-for="(token, i) in e.lu" :key="i" class="mr-1 text-xs">
-														{{ token.text }}
-													</span>
-												</p>
-
-												<p v-if="e.phon" class="italic text-sm mt-2">Phonetische Transkription:</p>
-												<p v-if="e.phon">
-													<span v-for="(token, i) in e.phon" :key="i" class="mr-1 text-xs">
-														{{ token.text }}
-													</span>
-												</p>
-												<div class="border border-b w-full mt-2"></div>
-
-												<p class="font-semibold mt-2">Annotationen:</p>
-												<div class="mr-1 text-xs">loremipsum</div>
-
-												<div class="border border-b w-full mt-2"></div>
-											</div>
-										</DialogContent>
-									</Dialog>
-								</div>
-							</template>
+											</DialogContent>
+										</Dialog>
+									</div>
+								</template>
+							</div>
 						</div>
 					</div>
-				</div>
-				<section
-					class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
-				>
-					<div class="relative p-4 w-full rounded overflow-hidden">
-						<AudioWaveform
-							:audio="audioRef"
-							class="absolute inset-0 w-full h-full z-0 bg-black"
-							:class="{ 'opacity-0 transition-opacity': !audioIsPlaying || !waveformReady }"
-							:is-playing="audioIsPlaying"
-							:is-scrubbing="isScrubbing"
-							:is-stopped="audioIsStopped"
-							:scrub="scrub"
-							@commit-scrub="commitScrub"
-							@ready="
-								waveformReady = true;
-								isLoading = false;
-								togglePlayback();
-							"
-							@update:scrub="updateScrub"
-						/>
-
-						<div
-							class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-none transition-all"
-							:class="{ 'bg-white/80 hover:bg-white': audioIsPlaying }"
-						>
-							<Button variant="ghost" @click="togglePlayback">
-								<PlayIcon v-if="!audioIsPlaying && !isLoading" :size="16" />
-								<div v-if="isLoading" class="w-full h-full z-0 pt-1">
-									<div
-										class="w-4 h-4 border-2 border-foreground/20 border-t-transparent rounded-full animate-spin"
-									></div>
-								</div>
-								<PauseIcon v-if="audioIsPlaying" :size="16" />
-							</Button>
-							<Button
-								variant="ghost"
-								@click="
-									stopPlayback();
+					<section
+						class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
+					>
+						<div class="relative p-4 w-full rounded overflow-hidden">
+							<AudioWaveform
+								:audio="audioRef"
+								class="absolute inset-0 w-full h-full z-0 bg-black"
+								:class="{ 'opacity-0 transition-opacity': !audioIsPlaying || !waveformReady }"
+								:is-playing="audioIsPlaying"
+								:is-scrubbing="isScrubbing"
+								:is-stopped="audioIsStopped"
+								:scrub="scrub"
+								@commit-scrub="commitScrub"
+								@ready="
+									waveformReady = true;
 									isLoading = false;
+									togglePlayback();
 								"
+								@update:scrub="updateScrub"
+							/>
+
+							<div
+								class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-none transition-all"
+								:class="{ 'bg-white/80 hover:bg-white': audioIsPlaying }"
 							>
-								<SquareIcon :size="16" />
-							</Button>
-							<span :class="audioIsPlaying ? `text-black/50` : `text-foreground/20`">|</span>
-							<Button variant="ghost">
-								<DownloadIcon :size="16" />
-							</Button>
+								<Button variant="ghost" @click="togglePlayback">
+									<PlayIcon v-if="!audioIsPlaying && !isLoading" :size="16" />
+									<div v-if="isLoading" class="w-full h-full z-0 pt-1">
+										<div
+											class="w-4 h-4 border-2 border-foreground/20 border-t-transparent rounded-full animate-spin"
+										></div>
+									</div>
+									<PauseIcon v-if="audioIsPlaying" :size="16" />
+								</Button>
+								<Button
+									variant="ghost"
+									@click="
+										stopPlayback();
+										isLoading = false;
+									"
+								>
+									<SquareIcon :size="16" />
+								</Button>
+								<span :class="audioIsPlaying ? `text-black/50` : `text-foreground/20`">|</span>
+								<Button variant="ghost">
+									<DownloadIcon :size="16" />
+								</Button>
+							</div>
 						</div>
-					</div>
-				</section>
+					</section>
+				</div>
 			</div>
 		</div>
 	</main>

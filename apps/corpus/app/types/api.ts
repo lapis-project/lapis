@@ -8,5 +8,10 @@ export type APITranscriptsWithBookmark = (APITranscripts[number] & { bookmarked:
 type ExcludeStrings<T> = T extends string ? never : T;
 
 export type APITranscript = ExcludeStrings<
-  InferResponseType<ApiClient["corpus"]["transcript"][":id"][":format"]["$get"], 200>
+	InferResponseType<ApiClient["corpus"]["transcript"][":id"][":format"]["$get"], 200>
+>;
+
+export type APITranscriptPreview = InferResponseType<
+	ApiClient["corpus"]["preview"][":id"]["$get"],
+	200
 >;

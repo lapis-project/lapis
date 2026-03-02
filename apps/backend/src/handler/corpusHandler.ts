@@ -53,6 +53,7 @@ export interface TranscriptJsonFormat {
 		}>;
 		tokenset_ids: Array<number>;
 	}>;
+	unique_informant_ids: Array<number>;
 }
 
 type RunCgiResponse =

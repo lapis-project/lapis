@@ -32,6 +32,8 @@ export function useTranscript(id: Ref<number | null>, format: string) {
 				return;
 			}
 
+			console.log("backend transcript json", data.value);
+
 			response.value = data.value as APITranscript;
 			status.value = "success";
 		} catch (err) {

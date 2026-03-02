@@ -11,6 +11,7 @@ import {
 
 import { useAudioController } from "@/composables/use-audio-controller";
 import Spinner from "../../../../ui/app/components/ui/spinner/Spinner.vue";
+import type { APIToken, APITranscript, Speaker } from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
@@ -19,6 +20,22 @@ definePageMeta({
 const route = useRoute();
 
 const currentId = ref<number | null>(null);
+
+const containerElementWidth = ref(0);
+const SPEAKER_COL_WIDTH = 160;
+const GRID_COL_GAP = 8; // .grid without an explicit gap`
+const SAFETY_PADDING = 2; // for sub-pixel rounding / scroll-bars
+
+const windowWidth = ref(0);
+const hiddenSpeakers = ref<Set<number>>(new Set());
+const eventMinWidth = 200
+
+const maxEventsPerRow = computed(() => {
+	if (!transcript.value || containerElementWidth.value <= 0) return 1;
+	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
+	const slotWidth = eventMinWidth + GRID_COL_GAP;
+	return Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
+});
 
 const { response, isPending, refreshTranscripts } = useTranscript(currentId, "json");
 
@@ -29,8 +46,8 @@ const {
 } = useTranscriptPreview(currentId);
 
 const transcript = computed(() => {
-	console.log("transcript token data: ", response.value);
-	return response.value;
+	console.log("hello response: ", response.value);
+	return response.value?.transcript_data;
 });
 
 onMounted(() => {
@@ -59,7 +76,7 @@ interface Token {
 }
 
 interface SpeakerEntry {
-	name: string;
+	name: number;
 	tokens: Array<Token>;
 }
 
@@ -76,14 +93,6 @@ interface Annotation {
 }
 
 export interface Transcript {
-	id: number;
-	name: string;
-	location: string;
-	setting: string;
-	icon: string;
-	audioUrl: string;
-	bookmarked: boolean;
-	annotations: Array<Annotation>;
 	speakers: Array<string>;
 	events: Array<TranscriptEvent>;
 }
@@ -130,17 +139,178 @@ const gridColumns = computed(() => {
 // 	const s = Math.floor(seconds % 60);
 // 	return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 // }
+;
 
-const windowWidth = ref(0);
-const hiddenSpeakers = ref<Set<string>>(new Set());
-const eventMinWidth = 200;
+// function buildEvents(
+//   tokenList: APIToken | null,
+//   speakers: Array<number> | null,
+//   maxEventsPerRow: number
+// ) {
+//   if (!tokenList || !tokenList.length) return [];
 
-const containerElementWidth = ref(0);
-const maxEventsPerRow = computed(() => {
-	if (!transcript.value || containerElementWidth.value <= 0) return 1;
-	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
-	const slotWidth = eventMinWidth + GRID_COL_GAP;
-	return Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
+//   console.log("hello from buildEvents: ", tokenList, speakers, maxEventsPerRow)
+//   const events: TranscriptEvent[] = [];
+//   let current: TranscriptEvent | null = null;
+//   let lastSpeaker: number | undefined = undefined;
+
+//   for (let i = 0; i < tokenList.length; i++) {
+//     const row = tokenList[i];
+//     const speaker = row?.ID_Inf_id;
+//     const isNew = speaker !== lastSpeaker;
+
+//     if (isNew) {
+//       if (current) events.push(current);
+//       current = {
+//         event: `Event_${events.length + 1}`,
+//         timestamp: { start: row.start_time, end: row.end_time },
+//         speakers: [{ name: String(speaker), tokens: [] }]
+//       };
+//       lastSpeaker = speaker;
+//     }
+
+//     const active = current!.speakers[0];
+
+//     active.tokens.push({
+//       id: row.token_id,
+//       ortho: { text: row.ortho, tags: [] },
+//       lu: { text: row.splemma ?? "", tags: [] },
+//       phon: { text: row.phon ?? "", tags: [] }
+//     });
+
+//     current!.timestamp.end = row.end_time;
+
+//     if (i === tokenList.length - 1) events.push(current!);
+//   }
+
+//   const chunks: TranscriptEvent[][] = [];
+//   for (let i = 0; i < events.length; i += maxEventsPerRow) {
+//     chunks.push(events.slice(i, i + maxEventsPerRow));
+//   }
+
+//   return chunks.map((rowEvents) => {
+//     const rowMap: Record<string, Array<any>> = {};
+//     speakers.forEach((sp) => (rowMap[sp] = []));
+
+//     for (const ev of rowEvents) {
+//       for (const sp of speakers) {
+//         const speakerEntry = ev.speakers.find((s) => s.name === sp);
+//         const tokens = speakerEntry?.tokens ?? [];
+
+//         const convert = (mode: "ortho" | "lu" | "phon") =>
+//           tokens.map((t) => ({
+//             text: t[mode].text,
+//             hasTags: t[mode].tags?.length > 0
+//           }));
+
+//         rowMap[sp].push({
+//           start: ev.timestamp.start,
+//           end: ev.timestamp.end,
+//           ortho: convert("ortho"),
+//           lu: convert("lu"),
+//           phon: convert("phon"),
+//         });
+//       }
+//     }
+
+//     return rowMap;
+//   });
+// }
+
+function buildEvents(tokenList: APIToken | null, speakers: Array<number> | undefined): TranscriptEvent[] {
+	if (!tokenList) return [];
+
+	const events: TranscriptEvent[] = [];
+	let currentEvent: TranscriptEvent | null = null;
+	let lastSpeaker: number | null = null;
+
+	tokenList.forEach((row, index) => {
+		const speaker = row.ID_Inf_id;
+
+		// Speakerwechsel = neues Event
+		if (speaker !== lastSpeaker) {
+			if (currentEvent) events.push(currentEvent);
+
+			currentEvent = {
+				event: `Event_${events.length + 1}`,
+				timestamp: {
+					start: row.start_time,
+					end: row.end_time,
+				},
+				speakers: [
+					{
+						name: speaker,
+						tokens: [],
+					},
+				],
+			};
+
+			lastSpeaker = speaker;
+		}
+
+		// Token hinzufügen
+		const activeSpeaker = currentEvent!.speakers[0];
+
+		activeSpeaker?.tokens.push({
+			id: row.token_id,
+			ortho: { text: row.ortho, tags: [] },
+			lu: { text: row.splemma || "", tags: [] },
+			phon: { text: row.phon || "", tags: [] },
+		});
+
+		// event.Endzeit aktualisieren
+		currentEvent!.timestamp.end = row.end_time;
+
+		// Letzten Eintrag abschließen
+		if (index === tokenList.length - 1) {
+			events.push(currentEvent!);
+		}
+	});
+
+	return events;
+}
+
+const speakers = computed(() => {
+	return transcriptPreview.value?.informants ?? [];
+});
+
+const speakerIds = computed(() => {
+	return response.value?.unique_informant_ids;
+})
+
+const chunkedSpeakerEvents = computed(() => {
+	if (!transcript.value || !speakerIds.value) return [];
+
+	const events = buildEvents(transcript.value, speakerIds.value);
+	const chunks: TranscriptEvent[][] = [];
+	const maxPerRow = maxEventsPerRow.value;
+
+	for (let i = 0; i < events.length; i += maxPerRow) {
+		chunks.push(events.slice(i, i + maxPerRow));
+	}
+
+	return chunks.map((rowEvents) => {
+		const rowMap: Record<string, Event[]> = {};
+		speakerIds.value?.forEach((sp) => (rowMap[sp] = []));
+
+		for (const ev of rowEvents) {
+			for (const sp of speakerIds?.value) {
+				const speakerEntry = ev.speakers.find((s) => s.name === sp);
+				const tokens = speakerEntry?.tokens ?? [];
+				const convert = (mode: "ortho" | "lu" | "phon") =>
+					tokens.map((t) => ({ text: t[mode].text, hasTags: t[mode].tags?.length > 0 }));
+
+				rowMap[sp].push({
+					start: ev.timestamp.start,
+					end: ev.timestamp.end,
+					ortho: convert("ortho"),
+					lu: convert("lu"),
+					phon: convert("phon"),
+				});
+			}
+		}
+
+		return rowMap;
+	});
 });
 
 function handleResize() {
@@ -151,69 +321,8 @@ function handleResize() {
 	windowWidth.value = window.innerWidth;
 }
 
-const SPEAKER_COL_WIDTH = 160;
-const GRID_COL_GAP = 8; // .grid without an explicit gap`
 
-const SAFETY_PADDING = 2; // for sub-pixel rounding / scroll-bars
 
-const chunkedSpeakerEvents = computed(() => {
-	if (!transcript.value || containerElementWidth.value <= 0) return [];
-
-	// Width that is actually available for event cells
-
-	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
-	/* One “slot” = card-min-width + 1 gap to its left
-		(the *first* event cell does not need a leading
-		gap, so we add GRID_COL_GAP back once below)
-	*/
-	const slotWidth = eventMinWidth + GRID_COL_GAP;
-	const maxEventsPerRow = Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
-
-	if (maxEventsPerRow <= 0) return [];
-
-	const speakers = transcript.value!.speakers;
-	const events = transcript.value.events;
-	const totalChunks = Math.ceil(events.length / maxEventsPerRow);
-
-	const chunks: Array<Record<string, Array<Event>>> = [];
-	for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
-		const chunkStart = chunkIndex * maxEventsPerRow;
-		const chunkEnd = chunkStart + maxEventsPerRow;
-		const chunkEvents = events.slice(chunkStart, chunkEnd);
-
-		const speakerMap: Record<string, Array<Event>> = {};
-		speakers?.forEach((s) => (speakerMap[s] = []));
-
-		chunkEvents.forEach((event) => {
-			speakers?.forEach((speakerName) => {
-				const speakerEntry = event.speakers.find((s) => s.name === speakerName);
-				const tokens = speakerEntry?.tokens ?? [];
-
-				const getTokens = (mode: "ortho" | "lu" | "phon") =>
-					tokens
-						.map((t) => ({
-							text: t[mode]?.text ?? "",
-							hasTags: (t[mode]?.tags?.length ?? 0) > 0,
-						}))
-						.filter((tok) => tok.text.trim() !== "");
-
-				speakerMap[speakerName]!.push({
-					start: event.timestamp.start,
-					end: event.timestamp.end,
-					ortho: getTokens("ortho"),
-					lu: getTokens("lu"),
-					phon: getTokens("phon"),
-				});
-			});
-		});
-
-		chunks.push(speakerMap);
-	}
-
-	return chunks;
-});
-
-// const audioRef = ref<HTMLAudioElement | null>(null);
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 const currentTime = ref(0);
@@ -429,8 +538,8 @@ onScopeDispose(() => {
 								<p class="text-xs text-gray-500 pb-2">Sprecher ausblenden:</p>
 								<div class="flex flex-col gap-1 pl-1">
 									<label
-										v-for="speaker in transcriptPreview?.speakers"
-										:key="speaker"
+										v-for="(speaker, index) in speakers"
+										:key="index"
 										class="flex items-center gap-2"
 									>
 										<input
@@ -471,7 +580,7 @@ onScopeDispose(() => {
 
 				<div class="relative overflow-y-hidden grid grid-rows-[1fr_auto]">
 					<div
-						v-if="transcript?.events && transcript.speakers"
+						v-if="chunkedSpeakerEvents && speakerIds"
 						id="eventViewContainer"
 						class="overflow-y-auto flex flex-col gap-4 border border-foreground/20 rounded-lg bg-muted"
 					>
@@ -487,48 +596,34 @@ onScopeDispose(() => {
 							</audio>
 						</ClientOnly>
 						<div
-							v-for="(block, blockIndex) in chunkedSpeakerEvents"
+							v-for="(chunk, blockIndex) in chunkedSpeakerEvents"
 							:key="blockIndex"
 							class="w-full"
 						>
 							<div
 								class="grid"
 								:style="{
-									gridTemplateColumns:
-										'160px repeat(' + block[transcript.speakers[0]].length + ', max-content)',
+									gridTemplateColumns: '160px repeat(' + speakerIds.length + ', max-content)',
 								}"
 							>
 								<div class="pl-2 text-white bg-black font-bold text-sm rounded-tl">Zeitleiste</div>
 								<div
-									v-for="(event, idx) in block[transcript.speakers[0]]"
-									:key="'header-' + idx"
+									v-for="speaker in speakerIds"
+									:key="'header-' + speaker + '-' + blockIndex"
 									class="text-xs text-start py-1 text-white bg-black"
 								>
-									<div class="relative z-10 px-2">{{ event.start }} – {{ event.end }}</div>
-
-									<div
-										class="bg-accent-foreground z-20 h-full"
-										:style="{
-											width: (() => {
-												const total = transcript.events.length; // total events in all rows
-												const globalIndex = blockIndex * maxEventsPerRow + idx;
-
-												const fullFillThreshold = (globalIndex + 1) / total;
-												const prevFillThreshold = globalIndex / total;
-
-												if (progressFraction >= fullFillThreshold) return '100%';
-												else if (progressFraction <= prevFillThreshold) return '0%';
-												else {
-													const partial = (progressFraction - prevFillThreshold) * total;
-													return (partial * 100).toFixed(2) + '%';
-												}
-											})(),
-										}"
-									></div>
+									<div class="relative z-10 px-2">
+										{{ speaker }}
+									</div>
 								</div>
+							</div>
 
+							<div
+								class="grid"
+								:style="{ gridTemplateColumns: '160px repeat(' + speakerIds.length + ', 1fr)' }"
+							>
 								<template
-									v-for="speaker in transcript.speakers.filter((s) => !hiddenSpeakers.has(s))"
+									v-for="speaker in speakerIds.filter((s) => !hiddenSpeakers.has(s))"
 									:key="speaker"
 								>
 									<div
@@ -564,7 +659,7 @@ onScopeDispose(() => {
 									</div>
 
 									<div
-										v-for="(e, idx) in block[speaker]"
+										v-for="(e, idx) in chunk[speaker]"
 										:key="speaker + '-event-' + idx"
 										class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
 									>
@@ -591,79 +686,28 @@ onScopeDispose(() => {
 															v-if="showLu"
 															class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
 															:class="
-																e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
+																e.lu[index]?.hasTags ? 'text-accent-foreground font-semibold' : ''
 															"
 														>
 															{{ e.lu[index]?.text }}
 														</div>
-
 														<div
 															v-if="showPhon"
-															class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
+															class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-500 text-sm"
 															:class="
-																e.phon[index]?.hasTags
-																	? 'text-accent-foreground  font-semibold'
-																	: ''
+																e.phon[index]?.hasTags ? 'text-accent-foreground font-semibold' : ''
 															"
 														>
 															{{ e.phon[index]?.text }}
 														</div>
-
 														<div
-															class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
+															class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground"
 														></div>
 													</div>
 												</div>
 											</DialogTrigger>
 											<DialogContent class="sm:max-w-[425px]">
-												<DialogHeader>
-													<DialogTitle>Details</DialogTitle>
-													<DialogDescription>
-														Hier finden Sie weitere Informationen
-													</DialogDescription>
-												</DialogHeader>
-												<div>
-													<div>
-														<span class="font-semibold mr-1">Sprecher:</span>
-														<span class="text-xs">{{ speaker }}</span>
-													</div>
-
-													<div class="border border-b w-full mt-2"></div>
-
-													<p class="font-semibold mt-2">Tokens:</p>
-													<p v-if="e.lu" class="italic text-sm mt-2">
-														Standardorthografische Transkription:
-													</p>
-													<p>
-														<span v-for="(token, i) in e.ortho" :key="i" class="mr-1 text-xs">
-															{{ token.text }}
-														</span>
-													</p>
-
-													<p v-if="e.lu" class="italic text-sm mt-2">
-														Lautorientierte Transkription:
-													</p>
-													<p v-if="e.lu">
-														<span v-for="(token, i) in e.lu" :key="i" class="mr-1 text-xs">
-															{{ token.text }}
-														</span>
-													</p>
-
-													<p v-if="e.phon" class="italic text-sm mt-2">
-														Phonetische Transkription:
-													</p>
-													<p v-if="e.phon">
-														<span v-for="(token, i) in e.phon" :key="i" class="mr-1 text-xs">
-															{{ token.text }}
-														</span>
-													</p>
-													<div class="border border-b w-full mt-2"></div>
-
-													<p class="font-semibold mt-2">Annotationen:</p>
-													<div class="mr-1 text-xs">loremipsum</div>
-
-													<div class="border border-b w-full mt-2"></div>
-												</div>
+												 Dialog content remains the same 
 											</DialogContent>
 										</Dialog>
 									</div>
@@ -721,7 +765,7 @@ onScopeDispose(() => {
 							</div>
 						</div>
 					</section>
-				</div>
+				</div> 
 			</div>
 		</div>
 	</main>

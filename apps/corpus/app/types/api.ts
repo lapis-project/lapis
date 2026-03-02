@@ -11,7 +11,15 @@ export type APITranscript = ExcludeStrings<
 	InferResponseType<ApiClient["corpus"]["transcript"][":id"][":format"]["$get"], 200>
 >;
 
+export type APIToken = APITranscript["transcript_data"];
+
 export type APITranscriptPreview = InferResponseType<
 	ApiClient["corpus"]["preview"][":id"]["$get"],
 	200
 >;
+
+export type Speaker = {
+	gender: string | null;
+	sigle: string | null;
+	age: string | null;
+};

@@ -1,11 +1,11 @@
-import type { APITranscript } from "@/types/api";
+import type { APITranscriptPreview } from "@/types/api";
 
 import { computed, ref } from "vue";
 
-export function useTranscript(id: Ref<number | null>, format: string) {
+export function useTranscriptPreview(id: Ref<number | null>) {
 	const env = useRuntimeConfig();
 
-	const response = ref<APITranscript | null>(null);
+	const response = ref<APITranscriptPreview | null>(null);
 	const status = ref<"pending" | "success" | "error">("pending");
 
 	const load = async () => {
@@ -16,15 +16,12 @@ export function useTranscript(id: Ref<number | null>, format: string) {
 		}
 		status.value = "pending";
 		try {
-			const { data, error } = await useFetch<APITranscript>(
-				`/corpus/transcript/${id.value}/${format}`,
-				{
-					baseURL: env.public.apiBaseUrl,
-					method: "GET",
-					credentials: "include",
-					responseType: "json",
-				},
-			);
+			const { data, error } = await useFetch<APITranscriptPreview>(`/corpus/preview/${id.value}`, {
+				baseURL: env.public.apiBaseUrl,
+				method: "GET",
+				credentials: "include",
+				responseType: "json",
+			});
 
 			if (error.value) {
 				status.value = "error";
@@ -32,7 +29,8 @@ export function useTranscript(id: Ref<number | null>, format: string) {
 				return;
 			}
 
-			response.value = data.value as APITranscript;
+			console.log("backend, transcript id: ", data.value);
+			response.value = data.value as APITranscriptPreview;
 			status.value = "success";
 		} catch (err) {
 			console.error(err);

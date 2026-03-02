@@ -102,3 +102,5 @@ export async function transcriptDetailView(transcript_id: number) {
 		])
 		.execute();
 }
+
+export type TranscriptMetadata = Awaited<ReturnType<typeof transcriptDetailView>>;

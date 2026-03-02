@@ -13,7 +13,7 @@
 		"build:lexat": "cd apps/lexat && pnpm build",
 		"build:lexvad": "cd apps/lexvad && pnpm build",
 		"build:lioe": "cd apps/lioe && pnpm build",
-		"build:ui": "cd apps/ui && pnpm build",
+		"build:shadcn": "cd apps/shadcn && pnpm build",
 		"clean:workspace": "node ./scripts/clean-workspace.mjs",
 		"clean:workspace:dry": "node ./scripts/clean-workspace.mjs --dry-run",
 		"dev:backend": "cd apps/backend && pnpm dev",

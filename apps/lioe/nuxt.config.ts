@@ -38,7 +38,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	extends: ["../ui"],
+	extends: ["../shadcn"],
 
 	i18n: {
 		baseUrl,

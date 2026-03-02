@@ -22,10 +22,10 @@ COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY --chown=node:node apps/backend/package.json ./apps/backend/
 COPY --chown=node:node apps/corpus/package.json ./apps/corpus/
 COPY --chown=node:node apps/lexat/package.json ./apps/lexat/
-COPY --chown=node:node apps/ui/package.json ./apps/ui/
+COPY --chown=node:node apps/shadcn/package.json ./apps/shadcn/
 
 # Install all dependencies for the entire workspace.
-# This is critical to ensure that layers (`ui`) and other dependencies are available when building the `lexat` app.
+# This is critical to ensure that layers (`shadcn`) and other dependencies are available when building the `lexat` app.
 # The --mount flag uses Docker's build cache to speed up subsequent builds, targeting the pnpm store location for the 'node' user.
 RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm install --frozen-lockfile
 
@@ -33,7 +33,7 @@ RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm in
 COPY --chown=node:node . .
 
 # Build the UI Nuxt layer
-RUN pnpm run build:ui
+RUN pnpm run build:shadcn
 
 # Pass build-time arguments for Nuxt's runtime config
 ARG NUXT_PUBLIC_APP_BASE_URL

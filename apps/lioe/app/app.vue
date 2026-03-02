@@ -7,13 +7,13 @@ const t = useTranslations();
 
 <template>
 	<NuxtRouteAnnouncer />
-	<UApp :locale="locales[locale]">
+	<UApp class="flex flex-col h-screen overflow-hidden" :locale="locales[locale]">
 		<SkipLink target-id="main-content">{{ t("DefaultLayout.skip-to-main-content") }}</SkipLink>
 		<NuxtLoadingIndicator />
 		<AppHeader class="fixed top-0 left-0 right-0" />
-		<UMain id="main-content" :tabindex="-1">
+		<UMain id="main-content" :tabindex="-1" :ui="{ base: 'flex-1 min-h-0 overflow-y-auto' }">
 			<NuxtPage />
 		</UMain>
-		<AppFooter />
+		<AppFooter class="flex-none" />
 	</UApp>
 </template>

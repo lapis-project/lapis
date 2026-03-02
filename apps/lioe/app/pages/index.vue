@@ -44,7 +44,7 @@ const projects = [
 	<UPage
 		v-if="page"
 		:ui="{
-			root: 'pt-14 lg:pt-16',
+			root: 'h-full flex items-center justify-center py-16',
 		}"
 	>
 		<div class="max-w-4xl mx-auto">

@@ -103,5 +103,8 @@ export default defineAppConfig({
 				size: "md",
 			},
 		},
+		main: {
+			base: "min-h-0 flex-1 flex flex-col",
+		},
 	},
 });

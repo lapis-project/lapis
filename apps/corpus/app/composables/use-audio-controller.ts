@@ -44,7 +44,7 @@ export function useAudioController() {
 
 	const src = computed(() => {
 		// backend is on another origin; URL is absolute and extensionless
-		return `${env.public.apiBaseUrl.replace(/\/$/, "")}/audio/${basename.value}`;
+		return `${env.public.apiBaseUrl.replace(/\/$/, "")}/audio/stream/${basename.value}`;
 	});
 
 	function bind(el: HTMLAudioElement | null) {

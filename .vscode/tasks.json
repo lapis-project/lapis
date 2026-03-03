@@ -2,9 +2,9 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Build shadcn-vue Layer",
+			"label": "Build Nuxt Layers",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm build:shadcn'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm build:shadcn && pnpm build:ui'",
 			"problemMatcher": [],
 			"isBackground": false
 		},

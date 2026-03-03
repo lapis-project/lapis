@@ -83,6 +83,7 @@ export default defineNuxtConfig({
 		"@nuxt/image",
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
+		"shadcn-nuxt",
 		"@vueuse/nuxt",
 	],
 

@@ -25,7 +25,9 @@
 		{ "directory": "./apps/lexvad", "changeProcessCWD": true },
 		{ "directory": "./apps/lioe", "changeProcessCWD": true },
 		{ "directory": "./apps/corpus", "changeProcessCWD": true },
-		{ "directory": "./apps/backend", "changeProcessCWD": true }
+		{ "directory": "./apps/backend", "changeProcessCWD": true },
+		{ "directory": "./apps/shadcn", "changeProcessCWD": true },
+		{ "directory": "./apps/ui", "changeProcessCWD": true }
 	],
 	"files.associations": {
 		"*.css": "tailwindcss"
@@ -47,6 +49,7 @@
 	"stylelint.validate": ["css", "postcss", "tailwindcss", "vue"],
 	"tailwindCSS.validate": true,
 	"tailwindCSS.experimental.classRegex": ["class:\\s*?[\"'`]([^\"'`]*).*?,"], // https://tiptap.dev/docs/editor/getting-started/style-editor
+	"tailwindCSS.classAttributes": ["active-class", "inactive-class"],
 	"terminal.integrated.enablePersistentSessions": false,
 	"typescript.enablePromptUseWorkspaceTsdk": true,
 	"typescript.inlayHints.parameterNames.enabled": "all",

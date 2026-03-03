@@ -45,7 +45,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	extends: ["../shadcn"],
+	extends: ["../shadcn", "../ui"],
 
 	experimental: {
 		defaults: {

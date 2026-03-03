@@ -38,7 +38,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	extends: ["../shadcn"],
+	extends: ["../ui"],
 
 	i18n: {
 		baseUrl,
@@ -70,7 +70,6 @@ export default defineNuxtConfig({
 		"@nuxt/content",
 		"@nuxt/eslint",
 		"@nuxt/image",
-		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
 		"@nuxt/ui",

@@ -130,3 +130,31 @@ export interface EventTranscript {
 	name: string;
 	data: Array<DataEvent>;
 }
+
+export interface TranscriptJsonFormat {
+	transcript_data: Array<{
+		token_id: number;
+		transcript_id_id: number;
+		ID_Inf_id: number;
+		start_time: string;
+		end_time: string;
+		token_reihung: number;
+		ortho: string;
+		phon: string;
+		text_in_ortho: string;
+		sppos: string;
+		sptag: string;
+		splemma: string;
+		spdep: string;
+		spenttype: string;
+		tags: Array<{
+			tag_reihung: Array<number>;
+			tag_name: string;
+			tag_id: Array<number>;
+			tag: Array<string>;
+			tag_gene: Array<number>;
+		}>;
+		tokenset_ids: Array<number>;
+	}>;
+	unique_informant_ids: Array<number>;
+}

@@ -9,8 +9,12 @@ const currentId = ref<number | null>(null);
 
 const { response, isPending, refreshTranscripts } = useTranscriptPreview(currentId);
 
-const transcript = computed(() => {
-	return response.value;
+const transcriptMetadata = computed(() => {
+	return response.value?.metadata;
+});
+
+const transcriptFileData = computed(() => {
+	return response.value?.fileData;
 });
 
 function removeSelection() {
@@ -41,7 +45,7 @@ watch(
 	</div>
 	<div v-else>
 		<div class="mb-5 pb-3 border-b flex gap-2 items-end flex-shrink-0 overflow-x-auto">
-			<div v-for="item in transcript" :key="item">
+			<div v-for="item in transcriptMetadata" :key="item">
 				<div
 					:class="
 						currentId
@@ -85,8 +89,8 @@ watch(
 				/></Button>
 			</div>
 			<TabsContent class="p-4 text-sm text-muted-foreground space-y-2" value="info">
-				<div v-if="transcript != null">
-					<div class="space-y-2" v-for="item in transcript" :key="item">
+				<div v-if="transcriptMetadata != null">
+					<div class="space-y-2" v-for="item in transcriptMetadata" :key="item">
 						<h2 class="text-lg font-semibold text-foreground">
 							Transcript {{ item.transcript_id }}
 						</h2>

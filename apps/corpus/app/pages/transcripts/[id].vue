@@ -11,7 +11,6 @@ import {
 
 import { useAudioController } from "@/composables/use-audio-controller";
 import Spinner from "../../../../ui/app/components/ui/spinner/Spinner.vue";
-import type { APIToken, APITranscript, Speaker } from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
@@ -21,29 +20,7 @@ const route = useRoute();
 
 const currentId = ref<number | null>(null);
 
-const visibleChunks = ref(0);
-const visibleMaxChunks = ref(10);
-
-const containerElementWidth = ref(0);
-const SPEAKER_COL_WIDTH = 160;
-const GRID_COL_GAP = 8; // .grid without an explicit gap`
-const SAFETY_PADDING = 2; // for sub-pixel rounding / scroll-bars
-const CHUNK_SIZE = 200;
-
-const windowWidth = ref(0);
-const hiddenSpeakers = ref<Set<number>>(new Set());
-const eventMinWidth = 200;
-
-const eventContainer = ref<HTMLElement | null>(null);
-
-const maxEventsPerRow = computed(() => {
-	if (containerElementWidth.value <= 0) return 0;
-	const availableWidth = containerElementWidth.value - SPEAKER_COL_WIDTH - SAFETY_PADDING;
-	const slotWidth = eventMinWidth + GRID_COL_GAP;
-	return Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
-});
-
-const { response, isPending, refreshTranscripts } = useTranscript(currentId, "json");
+// const { response, isPending, refreshTranscripts } = useTranscript(currentId, "json");
 
 const {
 	response: previewResponse,
@@ -51,79 +28,27 @@ const {
 	refreshTranscripts: refreshPreview,
 } = useTranscriptPreview(currentId);
 
-const transcript = computed(() => {
-	return response.value?.transcript_data;
+const speakerIds = computed(() => {
+	return transcriptFileData.value?.map((sp) => sp.informant) ?? [];
 });
 
-onMounted(() => {
-	const val = route.params.id;
-	const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? currentId.value);
-	currentId.value = isNaN(selection) ? null : selection;
+const transcriptMetadata = computed(() => {
+	return previewResponse.value?.metadata[0];
 });
 
-watch(
-	() => route.params.id,
-	(val) => {
-		const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? null);
-		currentId.value = isNaN(selection) ? null : selection;
-	},
-);
-
-const transcriptPreview = computed(() => {
-	return previewResponse.value?.[0];
+const transcriptFileData = computed(() => {
+	console.log(previewResponse.value?.fileData.data);
+	return previewResponse.value?.fileData.data;
 });
 
-interface Token {
-	id: number;
-	ortho: { text: string; tags: Array<string> };
-	lu: { text: string; tags: Array<string> };
-	phon: { text: string; tags: Array<string> };
-}
-
-interface SpeakerEntry {
-	name: number;
-	tokens: Array<Token>;
-}
-
-interface TranscriptEvent {
-	event: string;
-	timestamp: { start: string; end: string };
-	speakers: Array<SpeakerEntry>;
-}
-
-interface Annotation {
-	id: number;
-	eventIds: Array<number>;
-	annoType: string;
-}
-
-export interface Transcript {
-	speakers: Array<string>;
-	events: Array<TranscriptEvent>;
-}
-
-interface EventToken {
-	text: string;
-	hasTags: boolean;
-}
-
-interface Event {
-	start: string;
-	end: string;
-	ortho: Array<EventToken>;
-	lu: Array<EventToken>;
-	phon: Array<EventToken>;
-}
 const env = useRuntimeConfig();
+
+const hiddenSpeakers = ref<Set<number>>(new Set());
 
 const showLu = ref(false);
 const showPhon = ref(false);
 
 const { audioRef, bind } = useAudioController();
-
-const id = computed(() => {
-	return Number(route.params.id as string);
-});
 
 const showFirstColumn = ref(true);
 
@@ -138,159 +63,6 @@ const isLoading = ref(false);
 const gridColumns = computed(() => {
 	return [showFirstColumn.value ? "340px" : "0px", "1fr"].join(" ");
 });
-
-const loadedChunks = ref<TranscriptEvent[][]>([]);
-
-function handleScroll() {
-	if (!eventContainer.value) return;
-
-	const { scrollTop, clientHeight, scrollHeight } = eventContainer.value;
-	if (scrollTop === 0) return; // just y-scrolling
-
-	if (scrollTop + clientHeight >= scrollHeight * 0.8) {
-		loadNextChunk();
-	}
-}
-
-function buildEvents(
-	tokenList: APIToken | null,
-	speakers: Array<number> | undefined,
-): TranscriptEvent[] {
-	if (!tokenList) return [];
-
-	const events: TranscriptEvent[] = [];
-	let currentEvent: TranscriptEvent | null = null;
-	let lastSpeaker: number | null = null;
-
-	tokenList.forEach((row, index) => {
-		const speaker = row.ID_Inf_id;
-
-		if (speaker !== lastSpeaker) {
-			if (currentEvent) events.push(currentEvent);
-
-			currentEvent = {
-				event: `Event_${events.length + 1}`,
-				timestamp: {
-					start: row.start_time,
-					end: row.end_time,
-				},
-				speakers: [
-					{
-						name: speaker,
-						tokens: [],
-					},
-				],
-			};
-
-			lastSpeaker = speaker;
-		}
-
-		const activeSpeaker = currentEvent!.speakers[0];
-
-		activeSpeaker?.tokens.push({
-			id: row.token_id,
-			ortho: { text: row.ortho, tags: [] },
-			lu: { text: row.splemma || "", tags: [] },
-			phon: { text: row.phon || "", tags: [] },
-		});
-
-		currentEvent!.timestamp.end = row.end_time;
-
-		if (index === tokenList.length - 1) {
-			events.push(currentEvent!);
-		}
-	});
-
-	return events;
-}
-
-const speakers = computed(() => {
-	return transcriptPreview.value?.informants ?? [];
-});
-
-const speakerIds = computed(() => {
-	return response.value?.unique_informant_ids;
-});
-
-const loadedTokens = ref(0);
-
-function loadNextChunk() {
-	if (!transcript.value) return;
-
-	if (loadedTokens.value >= transcript.value.length) return;
-
-	const chunkTokens = transcript.value.slice(loadedTokens.value, loadedTokens.value + CHUNK_SIZE);
-
-	loadedTokens.value += chunkTokens.length;
-
-	const events = buildEvents(chunkTokens, speakerIds.value);
-
-	const maxPerRow = maxEventsPerRow.value || 10;
-	for (let i = 0; i < events.length; i += maxPerRow) {
-		loadedChunks.value.push(events.slice(i, i + maxPerRow));
-	}
-}
-
-const maxEventsInBlock = (block: Record<number, Event[]>) => {
-	return Math.max(
-		...speakerIds.value
-			.filter((sp) => !hiddenSpeakers.value.has(sp))
-			.map((sp) => block[sp]?.length || 0),
-	);
-};
-const initalContainerHeight = ref(0);
-
-async function loadChunksToFillScreen() {
-	if (!eventContainer.value || !transcript.value) return;
-
-	let scrollHeight = eventContainer.value.scrollHeight;
-
-	while (
-		scrollHeight <= initalContainerHeight.value &&
-		loadedChunks.value.length * CHUNK_SIZE < transcript.value.length
-	) {
-		loadNextChunk();
-		await nextTick();
-		scrollHeight = eventContainer.value.scrollHeight;
-	}
-}
-
-const chunkedSpeakerEvents = computed(() => {
-	if (!loadedChunks.value.length || !speakerIds.value?.length || maxEventsPerRow.value === 0)
-		return [];
-
-	return loadedChunks.value.map((rowEvents) => {
-		const rowMap: Record<number, Event[]> = {};
-		speakerIds.value?.forEach((sp) => (rowMap[sp] = []));
-
-		for (const ev of rowEvents) {
-			for (const sp of speakerIds.value ?? []) {
-				const speakerEntry = ev.speakers.find((s) => s.name === sp);
-				const tokens = speakerEntry?.tokens ?? [];
-
-				const convert = (mode: "ortho" | "lu" | "phon") =>
-					tokens.map((t) => ({ text: t[mode].text, hasTags: t[mode].tags?.length > 0 }));
-
-				rowMap[sp]?.push({
-					start: ev.timestamp.start,
-					end: ev.timestamp.end,
-					ortho: convert("ortho"),
-					lu: convert("lu"),
-					phon: convert("phon"),
-				});
-			}
-		}
-
-		return rowMap;
-	});
-});
-
-function handleResize() {
-	if (eventContainer.value != null) {
-		containerElementWidth.value = eventContainer.value.getBoundingClientRect().width;
-	}
-	windowWidth.value = window.innerWidth;
-}
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -362,11 +134,6 @@ function stopPlayback() {
 	}, 300);
 }
 
-const progressFraction = computed(() => {
-	if (!duration.value) return 0;
-	return currentTime.value / duration.value;
-});
-
 function resetAudio() {
 	audioIsPlaying.value = false;
 	currentTime.value = 0;
@@ -378,17 +145,13 @@ const audioSrc = computed(() => {
 	return new URL(`/audio/stream/${name}`, base).toString();
 });
 
-onMounted(async () => {
-	loadNextChunk();
-
-	await nextTick();
-
-	handleResize();
-	window.addEventListener("resize", handleResize, { passive: true });
+onMounted(() => {
+	const val = route.params.id;
+	const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? currentId.value);
+	currentId.value = isNaN(selection) ? null : selection;
 });
 
 onUnmounted(() => {
-	window.removeEventListener("resize", handleResize);
 	if (audioRef.value) {
 		audioRef.value.removeEventListener("ended", resetAudio);
 	}
@@ -401,32 +164,17 @@ onScopeDispose(() => {
 });
 
 watch(
-	() => isPending.value,
-	(newVal, oldVal) => {
-		if (oldVal != newVal) {
-			if (loadedChunks.value.length === 0) {
-				loadNextChunk();
-
-				nextTick(() => {
-					eventContainer.value = document.getElementById("eventViewContainer");
-					initalContainerHeight.value = eventContainer.value?.getBoundingClientRect().height ?? 0;
-
-					loadChunksToFillScreen();
-					handleResize();
-				});
-			}
-		}
+	() => route.params.id,
+	(val) => {
+		const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? null);
+		currentId.value = isNaN(selection) ? null : selection;
 	},
-	{ immediate: true },
 );
 </script>
 
 <template>
 	<main class="max-w-full flex flex-col container py-8 pt-4 flex flex-col !overflow-y-hidden">
-		<div
-			v-if="isPending || previewIsPending || chunkedSpeakerEvents == null"
-			class="item-center m-auto"
-		>
+		<div v-if="previewIsPending" class="item-center m-auto">
 			<Spinner />
 		</div>
 		<div v-else class="flex flex-1 min-h-0">
@@ -453,16 +201,16 @@ watch(
 							<FileText class="size-4" />
 							Transkript
 						</div>
-						<h1 class="text-lg font-bold">Transkript {{ transcriptPreview?.transcript_id }}</h1>
+						<h1 class="text-lg font-bold">Transkript {{ transcriptMetadata?.transcript_id }}</h1>
 						<div class="flex flex-wrap py-2">
 							<TooltipProvider>
 								<Tooltip>
 									<TooltipTrigger>
 										<span
-											v-if="transcriptPreview?.place_name"
+											v-if="transcriptMetadata?.place_name"
 											class="border text-xs mr-2 px-2.5 py-0.5 rounded hover:bg-gray-50"
 										>
-											{{ transcriptPreview.place_name }}
+											{{ transcriptMetadata.place_name }}
 										</span>
 									</TooltipTrigger>
 									<TooltipContent> Ort </TooltipContent>
@@ -473,10 +221,10 @@ watch(
 								<Tooltip>
 									<TooltipTrigger>
 										<span
-											v-if="transcriptPreview?.survey_type_name"
+											v-if="transcriptMetadata?.survey_type_name"
 											class="border text-xs mr-2 px-2.5 py-0.5 rounded hover:bg-gray-50"
 										>
-											{{ transcriptPreview.survey_type_name }}
+											{{ transcriptMetadata.survey_type_name }}
 										</span>
 									</TooltipTrigger>
 									<TooltipContent> Setting </TooltipContent>
@@ -566,13 +314,18 @@ watch(
 						</Tabs>
 					</div>
 				</div>
-
-				<div class="relative overflow-y-auto min-h-0 max-h-full grid grid-rows-[1fr_auto]">
-					<div
-						id="eventViewContainer"
-						v-if="chunkedSpeakerEvents && speakerIds && speakerIds.length > 0"
-						class="overflow-y-auto flex flex-col min-h-0 gap-4 border border-foreground/20 rounded-lg bg-muted"
-						@scroll="handleScroll()"
+				<div id="transcriptContainer" class="min-h-0 h-full grid grid-rows-[1fr_auto]">
+					<TranscriptViewer
+						id="transcriptViewer"
+						:file-data="transcriptFileData"
+						:speaker-ids="speakerIds"
+						:hidden-speakers="hiddenSpeakers"
+						:show-lu="showLu"
+						:showPhon="showPhon"
+					/>
+					<section
+						id="audioPlayer"
+						class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
 					>
 						<ClientOnly>
 							<audio
@@ -585,196 +338,6 @@ watch(
 								<track kind="captions" />
 							</audio>
 						</ClientOnly>
-						<div
-							v-for="(block, blockIndex) in chunkedSpeakerEvents"
-							:key="blockIndex"
-							id="chunk"
-							class="w-full"
-						>
-							<div
-								class="grid"
-								:style="{
-									gridTemplateColumns: '160px repeat(' + maxEventsInBlock(block) + ', max-content)',
-									gridTemplateRows: 'auto repeat(' + speakerIds.length + ', minmax(64px, auto))',
-								}"
-							>
-								<div class="pl-2 text-white bg-black font-bold text-sm rounded-tl">Zeitleiste</div>
-								<div
-									v-for="(event, idx) in block[speakerIds[0] ?? 0]"
-									:key="'header-' + idx"
-									id="block"
-									class="text-xs text-start py-1 text-white bg-black"
-								>
-									<div class="relative z-10 px-2">{{ event.start }} – {{ event.end }}</div>
-
-									<div
-										class="bg-accent-foreground z-20 h-full"
-										:style="{
-											width: (() => {
-												const total = chunkedSpeakerEvents.length; // total events in all rows
-												const globalIndex = blockIndex * maxEventsPerRow + idx;
-
-												const fullFillThreshold = (globalIndex + 1) / total;
-												const prevFillThreshold = globalIndex / total;
-
-												if (progressFraction >= fullFillThreshold) return '100%';
-												else if (progressFraction <= prevFillThreshold) return '0%';
-												else {
-													const partial = (progressFraction - prevFillThreshold) * total;
-													return (partial * 100).toFixed(2) + '%';
-												}
-											})(),
-										}"
-									></div>
-								</div>
-
-								<template
-									v-for="speaker in speakerIds.filter((s) => !hiddenSpeakers.has(s))"
-									:key="speaker"
-								>
-									<div
-										class="text-sm font-semibold p-2 bg-gray-200 border-foreground/20 border min-h-[64px]"
-									>
-										<div class="flex flex-row justify-between">
-											{{ speaker }}
-											<div class="text-sm font-normal text-right pr-3 text-gray-500 h-full">
-												<TooltipProvider>
-													<Tooltip>
-														<TooltipTrigger> o </TooltipTrigger>
-														<TooltipContent> Standardorthografische Transkription </TooltipContent>
-													</Tooltip>
-												</TooltipProvider>
-											</div>
-										</div>
-										<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
-											<TooltipProvider>
-												<Tooltip>
-													<TooltipTrigger> lu </TooltipTrigger>
-													<TooltipContent> Lautorientierte Transkription </TooltipContent>
-												</Tooltip>
-											</TooltipProvider>
-										</div>
-										<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
-											<TooltipProvider>
-												<Tooltip>
-													<TooltipTrigger> phon </TooltipTrigger>
-													<TooltipContent> Phonetische Transkription </TooltipContent>
-												</Tooltip>
-											</TooltipProvider>
-										</div>
-									</div>
-
-									<div
-										v-for="(e, idx) in block[speaker]"
-										:key="speaker + '-event-' + idx"
-										class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
-									>
-										<Dialog>
-											<DialogTrigger as-child class="h-full">
-												<div
-													class="grid gap-1 h-full"
-													:style="{
-														gridTemplateColumns: 'repeat(' + e.ortho.length + ', minmax(0, auto))',
-													}"
-												>
-													<div
-														v-for="(token, index) in e.ortho"
-														:key="'token-group-' + index"
-														class="grid grid-rows-[auto_1fr] items-end group hover:cursor-pointer h-full hover:bg-gray-100"
-													>
-														<div
-															class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
-															:class="token.hasTags ? 'text-accent-foreground font-semibold' : ''"
-														>
-															{{ token.text }}
-														</div>
-														<div
-															v-if="showLu"
-															class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
-															:class="
-																e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''
-															"
-														>
-															{{ e.lu[index]?.text }}
-														</div>
-
-														<div
-															v-if="showPhon"
-															class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
-															:class="
-																e.phon[index]?.hasTags
-																	? 'text-accent-foreground  font-semibold'
-																	: ''
-															"
-														>
-															{{ e.phon[index]?.text }}
-														</div>
-
-														<div
-															class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
-														></div>
-													</div>
-												</div>
-											</DialogTrigger>
-											<DialogContent class="sm:max-w-[425px]">
-												<DialogHeader>
-													<DialogTitle>Details</DialogTitle>
-													<DialogDescription>
-														Hier finden Sie weitere Informationen
-													</DialogDescription>
-												</DialogHeader>
-												<div>
-													<div>
-														<span class="font-semibold mr-1">Sprecher:</span>
-														<span class="text-xs">{{ speaker }}</span>
-													</div>
-
-													<div class="border border-b w-full mt-2"></div>
-
-													<p class="font-semibold mt-2">Tokens:</p>
-													<p v-if="e.lu" class="italic text-sm mt-2">
-														Standardorthografische Transkription:
-													</p>
-													<p>
-														<span v-for="(token, i) in e.ortho" :key="i" class="mr-1 text-xs">
-															{{ token.text }}
-														</span>
-													</p>
-
-													<p v-if="e.lu" class="italic text-sm mt-2">
-														Lautorientierte Transkription:
-													</p>
-													<p v-if="e.lu">
-														<span v-for="(token, i) in e.lu" :key="i" class="mr-1 text-xs">
-															{{ token.text }}
-														</span>
-													</p>
-
-													<p v-if="e.phon" class="italic text-sm mt-2">
-														Phonetische Transkription:
-													</p>
-													<p v-if="e.phon">
-														<span v-for="(token, i) in e.phon" :key="i" class="mr-1 text-xs">
-															{{ token.text }}
-														</span>
-													</p>
-													<div class="border border-b w-full mt-2"></div>
-
-													<p class="font-semibold mt-2">Annotationen:</p>
-													<div class="mr-1 text-xs">loremipsum</div>
-
-													<div class="border border-b w-full mt-2"></div>
-												</div>
-											</DialogContent>
-										</Dialog>
-									</div>
-								</template>
-							</div>
-						</div>
-					</div>
-					<section
-						class="bottom-0 border border-foreground/20 rounded w-full flex justify-center m-auto mt-6"
-					>
 						<div class="relative p-4 w-full rounded overflow-hidden">
 							<AudioWaveform
 								:audio="audioRef"

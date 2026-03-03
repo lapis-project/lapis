@@ -21,9 +21,11 @@ const items = computed<Array<NavigationMenuItem>>(() => [
 <template>
 	<UHeader toggle-side="left">
 		<template #left>
-			<ULink class="hidden lg:block" to="/">
-				<LazySvgoLioe class="h-10" />
-			</ULink>
+			<LapisBrandWrapper class="hidden lg:block">
+				<ULink raw to="/">
+					<LazySvgoLioe class="h-10" />
+				</ULink>
+			</LapisBrandWrapper>
 		</template>
 
 		<UNavigationMenu :items="items" />

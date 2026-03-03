@@ -13,7 +13,7 @@ const links = computed(() => {
 </script>
 
 <template>
-	<UFooter class="border-t">
+	<UFooter class="border-t border-default">
 		<template #left>
 			<nav :aria-label="$t('AppFooter.navigation-secondary')">
 				<ul class="flex items-center gap-4" role="list">

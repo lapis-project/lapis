@@ -94,7 +94,7 @@ const members = ref([
 <template>
 	<UPage
 		:ui="{
-			root: 'py-14 lg:py-16 container',
+			root: 'py-12 lg:py-14 container',
 		}"
 	>
 		<div class="mx-auto max-w-4xl">

@@ -4,6 +4,14 @@ export default defineAppConfig({
 			primary: "teal",
 			neutral: "neutral",
 		},
+		header: {
+			slots: {
+				root: "bg-default/75 backdrop-blur border-b border-default h-(--ui-header-height) sticky top-0 z-50",
+			},
+		},
+		main: {
+			base: "min-h-[calc(100vh-var(--ui-header-height))]",
+		},
 		pageGrid: {
 			base: "relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8",
 		},
@@ -106,9 +114,6 @@ export default defineAppConfig({
 			defaultVariants: {
 				size: "md",
 			},
-		},
-		main: {
-			base: "min-h-0 flex-1 flex flex-col",
 		},
 	},
 });

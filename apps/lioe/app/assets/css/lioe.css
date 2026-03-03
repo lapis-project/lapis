@@ -3,6 +3,7 @@
 
 @theme {
 	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+	--ui-header-height: 63px;
 }
 
 @layer base {

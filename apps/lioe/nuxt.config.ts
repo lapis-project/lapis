@@ -1,31 +1,16 @@
-import { fileURLToPath } from "node:url";
-
-import tailwindcss from "@tailwindcss/vite";
-
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
 export default defineNuxtConfig({
-	alias: {
-		"@": fileURLToPath(new URL("./app", import.meta.url)),
-	},
-
 	app: {
 		layoutTransition: false,
 		pageTransition: false,
 	},
 
-	colorMode: {
-		classSuffix: "",
-		dataValue: "ui-color-scheme",
-	},
-
-	components: [{ path: "@/components", extensions: [".vue"], pathPrefix: false }],
-
 	content: {
 		experimental: { sqliteConnector: "native" },
 	},
 
-	css: ["@/assets/css/lioe.css"],
+	css: ["~/assets/css/lioe.css"],
 
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
@@ -99,25 +84,12 @@ export default defineNuxtConfig({
 	svgo: {
 		defaultImport: "component",
 	},
-
-	typescript: {
-		shim: false,
-		strict: true,
-		// https://github.com/nuxt/nuxt/issues/14816#issuecomment-1484918081
-		tsConfig: {
-			compilerOptions: {
-				baseUrl: ".",
-				paths: {
-					"@": ["."],
-					"@/*": ["./*"],
-				},
+	vite: {
+		server: {
+			watch: {
+				usePolling: true,
 			},
 		},
 	},
-
-	vite: {
-		plugins: [tailwindcss()],
-	},
-
-	compatibilityDate: "2026-02-11",
+	compatibilityDate: "2026-03-03",
 });

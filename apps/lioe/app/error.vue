@@ -9,17 +9,15 @@ const props = defineProps<{
 	error: NuxtError;
 }>();
 
-const t = useTranslations();
-
 /** `error.vue` is *not* wrapped in default layout out of the box. */
 useHead({
 	titleTemplate: computed(() => {
-		return ["%s", t("DefaultLayout.meta.title")].join(" | ");
+		return ["%s", $t("DefaultLayout.meta.title")].join(" | ");
 	}),
 	title: computed(() => {
 		return props.error?.statusCode === 404
-			? t("NotFoundPage.meta.title")
-			: t("ErrorPage.meta.title");
+			? $t("NotFoundPage.meta.title")
+			: $t("ErrorPage.meta.title");
 	}),
 });
 

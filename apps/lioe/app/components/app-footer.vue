@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import type { NuxtLinkProps } from "#app";
 
-const t = useTranslations();
-
 const links = computed(() => {
 	return {
 		imprint: {
 			to: { path: "https://www.oeaw.ac.at/oeaw/impressum/" },
-			label: t("AppFooter.links.imprint"),
+			label: $t("AppFooter.links.imprint"),
 			target: "_blank",
 		},
 	} satisfies Record<string, { to: NuxtLinkProps["to"]; label: string; target: string }>;
@@ -17,7 +15,7 @@ const links = computed(() => {
 <template>
 	<UFooter class="border-t">
 		<template #left>
-			<nav :aria-label="t('AppFooter.navigation-secondary')">
+			<nav :aria-label="$t('AppFooter.navigation-secondary')">
 				<ul class="flex items-center gap-4" role="list">
 					<li v-for="(link, key) of links" :key="key">
 						<NuxtLink :target="link.target" :to="link.to.path">

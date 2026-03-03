@@ -6,22 +6,20 @@ const props = defineProps<{
 	action: string;
 	link: string;
 }>();
-
-const t = useTranslations();
 </script>
 
 <template>
 	<UCard class="flex items-center flex-col" variant="outline">
 		<template #header>
-			<h3 class="text-lg font-medium">{{ t(props.title) }}</h3>
-			<p class="text-sm h-14">{{ t(props.description) }}</p>
+			<h3 class="text-lg font-medium">{{ $t(props.title) }}</h3>
+			<p class="text-sm h-14">{{ $t(props.description) }}</p>
 		</template>
 
-		<p class="text-sm h-28">{{ t(props.content) }}</p>
+		<p class="text-sm h-28">{{ $t(props.content) }}</p>
 
 		<template #footer>
-			<UButton id="follow-link" target="_blank" :to="t(props.link)" variant="outline">
-				{{ t(props.action) }}
+			<UButton id="follow-link" target="_blank" :to="$t(props.link)" variant="outline">
+				{{ $t(props.action) }}
 			</UButton>
 		</template>
 	</UCard>

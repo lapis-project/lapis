@@ -5,19 +5,17 @@ const route = useRoute();
 
 const items = computed<Array<NavigationMenuItem>>(() => [
 	{
-		label: t("AppHeader.links.home"),
+		label: $t("AppHeader.links.home"),
 		to: "/",
 		active: route.path.startsWith("/"),
 		class: "lg:hidden",
 	},
 	{
-		label: t("AppHeader.links.team"),
+		label: $t("AppHeader.links.team"),
 		to: "/team",
-		active: route.path.startsWith("/team"),
+		active: route.path.includes("/team"),
 	},
 ]);
-
-const t = useTranslations();
 </script>
 
 <template>

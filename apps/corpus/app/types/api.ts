@@ -18,8 +18,30 @@ export type APITranscriptPreview = InferResponseType<
 	200
 >;
 
+export type APITranscriptFileData = APITranscriptPreview["fileData"]["data"][0];
+
+export type APIEvent = APITranscriptFileData["events"][0];
+
 export type Speaker = {
 	gender: string | null;
 	sigle: string | null;
 	age: string | null;
 };
+
+export interface Event {
+	start: string;
+	end: string;
+	ortho: Array<EventToken>;
+	lu: Array<EventToken>;
+	phon: Array<EventToken>;
+}
+
+export type TimestampEvent = {
+	timestamps: string[];
+	speakerEvents: Record<number, Event[]>;
+};
+
+export interface EventToken {
+	text: string;
+	hasTags: boolean;
+}

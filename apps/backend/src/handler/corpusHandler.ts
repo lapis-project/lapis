@@ -211,12 +211,3 @@ corpus.use("*", restrictedRoute);
 export default corpus;
 
 export type CorpusType = typeof corpus;
-/**
- * Transkript preview view
- * => mit transkript :id
- * ORt wo es durchgeführt wurde
- * Setting vom Interview
- * Sprecher:innen
- * Anzahl der Events
- * paged events
- */

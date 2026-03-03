@@ -116,11 +116,13 @@ export interface Events {
 	event_id: number;
 	start_time: string;
 	end_time: string;
+	token_count: string;
 	tokens: Array<Token>;
 }
 
 export interface DataEvent {
 	informant: number;
+	event_count: number;
 	events: Array<Events>;
 }
 

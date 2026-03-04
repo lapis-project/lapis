@@ -6,21 +6,19 @@ For details on the project's architecture, see [Architecture](architecture.md).
 
 ## Requirements
 
-- Node >=22.18
-- `pnpm` package manager (can be enabled through
-  [corepack](https://pnpm.io/installation#using-corepack) via `corepack enable pnpm`)
-- [docker](https://docs.docker.com/engine/install/ubuntu/) installed on your system (for local
-  development)
+- `Node` >=24.11
+- `pnpm` >=10.25 (can be enabled through [corepack](https://pnpm.io/installation#using-corepack) via
+  `corepack enable pnpm`)
+- [docker](https://docs.docker.com/engine/install/ubuntu/) (for local development)
 - Optional: [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) for node
   version management
 
 ## Quick start for LexAT21
 
 1. Clone the repository
-2. Install dependencies from the project root via `pnpm i`
-3. Run `pnpm dev:lexat` to start the LexAT application on port `3000` (Note: authentication between
-   localhost and production is currently not supported -> follow `Setup for local development` to
-   setup a full-stack environment)
+2. Install dependencies in the project root via `pnpm i`
+3. Build all shared nuxt layers via `Tasks: Run Task` > `Build Nuxt Layers`
+4. Setup & run local dev environment via `Tasks: Run Task` > `Full Local Setup - LexAT21`
 
 ## Setup for local development
 
@@ -41,10 +39,10 @@ For details on the project's architecture, see [Architecture](architecture.md).
 1. Navigate to `/apps/corpus` and create a `.env.dev.local` file
 2. TODO
 
-### Build UI Layer
+### Build Nuxt Layers
 
-1. In the project's root run `pnpm build` to generate the `.nuxt` folder (this is neccessary for
-   extending Nuxt's default `tsconfig`)
+1. `Tasks: Run Task` > `Build Nuxt Layers` (this is needed to provide the `./.nuxt/tsconfig.json"`
+   file extended in `tsconfig.ts`)
 
 ### Option 1: Run setup via VSCode task
 
@@ -91,12 +89,24 @@ docker run -it \
 
 2. The GUI should now be running on port `8080`
 
+## Troubleshooting
+
 ### Reset local DB
 
 To completely shut down the db container and delete any associated volumes:
 
 - Run task "Reset DB"
 - OR `docker compose --env-file .env.localsetup down`
+
+### Reset repository
+
+This is **the** go-to recipe when facing strange errors in your application
+
+1. `Tasks: Run Task` > `Clean workspace (node_modules + caches)`
+2. `pnpm i`
+3. `Tasks: Run Task` > `Build Nuxt Layers`
+
+You're welcome ✌🏻
 
 ## Setup for mobile testing (local)
 

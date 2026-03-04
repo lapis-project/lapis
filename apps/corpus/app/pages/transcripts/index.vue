@@ -4,9 +4,7 @@ import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
 
-import type { Transcript } from "./[id].vue";
 import type { APITranscriptsWithBookmark } from "@/types/api";
-import Spinner from "../../../../ui/app/components/ui/spinner/Spinner.vue";
 
 definePageMeta({
 	layout: "tool",

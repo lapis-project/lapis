@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { DownloadIcon, EyeIcon, XIcon } from "lucide-vue-next";
-import Spinner from "../../../ui/app/components/ui/spinner/Spinner.vue";
 
 const route = useRoute();
 const router = useRouter();

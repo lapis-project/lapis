@@ -10,7 +10,6 @@ import {
 } from "lucide-vue-next";
 
 import { useAudioController } from "@/composables/use-audio-controller";
-import Spinner from "../../../../ui/app/components/ui/spinner/Spinner.vue";
 
 definePageMeta({
 	layout: "tool",
@@ -232,7 +231,7 @@ watch(
 							</TooltipProvider>
 						</div>
 
-						<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="info">
+						<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="filter">
 							<TabsList class="w-full flex-shrink-0">
 								<TabsTrigger value="info"> Info </TabsTrigger>
 								<TabsTrigger value="filter"> Filter </TabsTrigger>

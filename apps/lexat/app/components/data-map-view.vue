@@ -778,9 +778,13 @@ const resetOnboarding = () => {
 	onboardingWrapper.value?.startOnboarding();
 };
 
-watch(activeQuestion, async () => {
-	await resetSelection(["question"]);
-	resetColors();
+watch(activeQuestion, async (newVal, oldVal) => {
+	// Only trigger the reset if a previous value existed
+	// (meaning a genuine user interaction occurred, not initial hydration)
+	if (oldVal !== null && oldVal !== undefined) {
+		await resetSelection(["question"]);
+		resetColors();
+	}
 });
 
 watch(

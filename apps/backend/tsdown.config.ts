@@ -7,7 +7,6 @@ export default defineConfig({
 	format: ["esm"],
 	platform: "node",
 	minify: false,
-	splitting: false,
 	sourcemap: false,
 	treeshake: true,
 	skipNodeModulesBundle: true,

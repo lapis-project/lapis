@@ -16,12 +16,13 @@
 	"scripts": {
 		"dev": "tsx watch --env-file .env.local src/index.ts",
 		"dev-test": "tsx watch src/index.ts",
-		"generate-types-kysely": "kysely-codegen --include-pattern='public.*' --out-file src/types/db.d.ts",
+		"generate-types-kysely": "kysely-codegen --default-schema=lapis_dev --include-pattern='lapis_dev.*' --env-file .env.local --dialect postgres --out-file src/types/db.d.ts",
 		"test:cms-handler": "vitest cmsHandler",
 		"test:article-handler": "vitest articleHandler",
 		"test:user-handler": "vitest userHandler",
 		"start": "node --env-file .env.local ./dist/index.js",
-		"build": "tsdown --dts",
+		"build": "tsdown --dts && cp -r src/db/migrations dist/migrations",
+		"migrate:latest": "NODE_OPTIONS='--import tsx' kysely migrate:latest -e local",
 		"generate:noske": "openapi-typescript ./specs/openapi.yaml -o ./src/types/noske.d.ts"
 	},
 	"dependencies": {
@@ -51,6 +52,7 @@
 		"eslint": "^9.39.2",
 		"eslint-config-flat-gitignore": "^2.1.0",
 		"kysely-codegen": "^0.20.0",
+		"kysely-ctl": "^0.20.0",
 		"openapi-typescript": "^7.13.0",
 		"prettier": "^3.8.1",
 		"tsdown": "0.20.3",

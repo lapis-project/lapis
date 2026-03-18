@@ -114,6 +114,9 @@ importers:
       kysely-codegen:
         specifier: ^0.20.0
         version: 0.20.0(better-sqlite3@12.6.2)(kysely@0.28.11)(pg@8.19.0)(typescript@5.9.3)
+      kysely-ctl:
+        specifier: ^0.20.0
+        version: 0.20.0(kysely@0.28.11)(magicast@0.5.2)(typescript@5.9.3)
       openapi-typescript:
         specifier: ^7.13.0
         version: 7.13.0(typescript@5.9.3)
@@ -7183,6 +7186,23 @@ packages:
       tarn:
         optional: true
       tedious:
+        optional: true
+
+  kysely-ctl@0.20.0:
+    resolution: {integrity: sha512-JoUBvW0uaEvM7BbR/JKaePvjQqZ8sHGOgy1VSESCjCIh5tIjP6pCuSz/u35hWpZnWrqeonqTjndW7xC7UNzqPA==}
+    engines: {node: '>=20'}
+    hasBin: true
+    peerDependencies:
+      kysely: '>=0.18.1 <0.29.0'
+      kysely-neon: ^2
+      kysely-postgres-js: ^2 || ^3
+      kysely-prisma-postgres: ^0.1
+    peerDependenciesMeta:
+      kysely-neon:
+        optional: true
+      kysely-postgres-js:
+        optional: true
+      kysely-prisma-postgres:
         optional: true
 
   kysely@0.28.11:
@@ -17523,6 +17543,24 @@ snapshots:
       better-sqlite3: 12.6.2
       pg: 8.19.0
     transitivePeerDependencies:
+      - typescript
+
+  kysely-ctl@0.20.0(kysely@0.28.11)(magicast@0.5.2)(typescript@5.9.3):
+    dependencies:
+      c12: 3.3.3(magicast@0.5.2)
+      citty: 0.1.6
+      confbox: 0.2.4
+      consola: 3.4.2
+      jiti: 2.6.1
+      kysely: 0.28.11
+      nypm: 0.6.5
+      ofetch: 1.5.1
+      pathe: 2.0.3
+      pkg-types: 2.3.0
+      std-env: 3.10.0
+      tsconfck: 3.1.6(typescript@5.9.3)
+    transitivePeerDependencies:
+      - magicast
       - typescript
 
   kysely@0.28.11: {}

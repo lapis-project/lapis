@@ -4,7 +4,7 @@ import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
 
-import type { Transcript } from "./[id].vue";
+import type { APITranscriptsWithBookmark } from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
@@ -12,6 +12,14 @@ definePageMeta({
 
 const route = useRoute();
 const router = useRouter();
+
+const bookmarkedIds = ref<Array<string>>([]);
+
+const { response, isPending, refreshTranscripts } = useTranscripts(2);
+
+const transcripts = computed(() => {
+	return response.value;
+});
 
 const searchResults = ref<Array<Transcript>>(initialData.transcripts);
 const showFirstColumn = ref(true);
@@ -55,25 +63,29 @@ function handleSelection(id: string) {
 	router.push({ query: { ...route.query, selection: [...current, id] } });
 }
 
-function handleBookmark(transcript: Transcript) {
-	transcript.bookmarked = !transcript.bookmarked;
-	localStorage.setItem("transcripts-demo", JSON.stringify(searchResults.value));
+function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
+	const id = transcript.transcript_id;
+	if (!id) return;
 
 	if (transcript.bookmarked) {
-		toast.info("Das Transcript wurde zu Ihrer Bibliothek hinzugefügt!");
-	} else {
+		bookmarkedIds.value = bookmarkedIds.value.filter((i) => i !== String(id));
+		transcript.bookmarked = false;
 		toast.info("Das Transcript wurde aus Ihrer Bibliothek entfernt!");
+	} else {
+		bookmarkedIds.value.push(String(id));
+		transcript.bookmarked = true;
+		toast.info("Das Transcript wurde zu Ihrer Bibliothek hinzugefügt!");
 	}
+
+	// Save updated array to localStorage
+	localStorage.setItem("transcript-bookmarks", JSON.stringify(bookmarkedIds.value));
 }
 
 onMounted(async () => {
-	localStorage.setItem("transcripts-demo", JSON.stringify(searchResults.value));
-
-	const saved = localStorage.getItem("transcripts-demo");
+	await nextTick();
+	const saved = localStorage.getItem("transcript-bookmarks");
 	if (saved) {
-		searchResults.value = JSON.parse(saved);
-	} else {
-		localStorage.setItem("transcripts-demo", JSON.stringify(initialData));
+		bookmarkedIds.value = saved ? (JSON.parse(saved) as Array<string>) : [];
 	}
 });
 
@@ -137,7 +149,9 @@ watch(
 					</Sheet>
 				</div>
 
-				<p class="text-lg mb-3 flex-shrink-0"><b>122</b> Ergebnisse in <b>45</b> Events</p>
+				<p class="text-lg mb-3 flex-shrink-0">
+					Ergebnisse <span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
+				</p>
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
 					<div class="flex gap-4 items-center flex-shrink-0">
 						<TabsList class="w-full">
@@ -151,27 +165,32 @@ watch(
 					</div>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						<div v-for="result in searchResults" :key="result.id">
-							<div
-								class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
-							>
-								<Button
-									class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
-									hover:no-underline
-									variant="transparent"
-									@click="handleSelection(String(result.id))"
+						<div v-if="isPending" class="item-center m-auto">
+							<Spinner />
+						</div>
+						<div v-else>
+							<div v-for="result in transcripts" :key="result.transcript_id">
+								<div
+									class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
 								>
-									<span class="sr-only"> Open Sidebar Demo </span>
-									{{ result.name }}
-								</Button>
-								<div class="w-full flex justify-end">
 									<Button
-										class="p-0 w-fit self-end"
+										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
+										hover:no-underline
 										variant="transparent"
-										@click="handleBookmark(result)"
+										@click="handleSelection(String(result.transcript_id))"
 									>
-										<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+										<span class="sr-only"> Open Sidebar Demo </span>
+										Transcript {{ result.transcript_id }}
 									</Button>
+									<div class="w-full flex justify-end">
+										<Button
+											class="p-0 w-fit self-end"
+											variant="transparent"
+											@click="handleBookmark(result)"
+										>
+											<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+										</Button>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -190,7 +209,7 @@ watch(
 				class="transition p-4 border border-foreground/20 rounded-b-lg rounded-tr-lg flex flex-col overflow-hidden"
 				:class="{ 'opacity-0 pointer-events-none transition-all': !showThirdColumn }"
 			>
-				<TranscriptDemoSidebar />
+				<TranscriptDemoSidebar :transcripts="transcripts ?? []" />
 			</div>
 		</div>
 	</main>

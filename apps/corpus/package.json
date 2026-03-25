@@ -11,7 +11,7 @@
 	"scripts": {
 		"analyze": "nuxt analyze",
 		"build": "NODE_OPTIONS=--max_old_space_size=8192 nuxt build --dotenv ./.env.local",
-		"dev": "nuxt dev --dotenv ./.env.dev.local",
+		"dev": "nuxt dev --dotenv ./.env.local",
 		"dev-local": "nuxt dev --dotenv ./.env.dev.local",
 		"postinstall": "nuxt prepare",
 		"preinstall": "npx only-allow pnpm",
@@ -35,6 +35,7 @@
 		"@nuxtjs/color-mode": "^4.0.0",
 		"@nuxtjs/i18n": "^10.2.3",
 		"@tailwindcss/vite": "^4.2.1",
+		"@tanstack/vue-virtual": "^3.13.19",
 		"@vue/devtools-api": "^8.0.7",
 		"@vueuse/core": "^14.2.1",
 		"@vueuse/nuxt": "^14.2.1",
@@ -57,6 +58,7 @@
 		"vue-i18n-routing": "^1.2.0",
 		"vue-router": "^5.0.3",
 		"vue-sonner": "^2.0.9",
+		"vue-virtual-scroller": "^1.1.2",
 		"vuedraggable": "^4.1.0",
 		"wavesurfer.js": "^7.12.1"
 	},

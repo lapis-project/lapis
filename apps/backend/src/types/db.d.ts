@@ -14,6 +14,18 @@ export type Generated<T> =
 
 export type Inactivetype = "active" | "inactive";
 
+export type Json = JsonValue;
+
+export type JsonArray = Array<JsonValue>;
+
+export interface JsonObject {
+	[x: string]: JsonValue | undefined;
+}
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
 export type Poststatus = "Draft" | "Published" | "ReadyToPublish" | "Unpublished";
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
@@ -70,8 +82,10 @@ export interface AnnotationToken {
 
 export interface Bibliography {
 	comment: string | null;
+	data: Generated<Json | null>;
 	id: Generated<number>;
 	name_bibliography: string | null;
+	title: string | null;
 }
 
 export interface BibliographyPhenomenon {

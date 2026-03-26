@@ -3,6 +3,7 @@ import { serve } from "@hono/node-server";
 
 import { app } from "@/app.ts";
 import { migrator } from "@/db/provider.ts";
+import { setupZoteroSync } from "@/service/zoteroSyncService.ts";
 
 /*
 // Starting the server
@@ -52,6 +53,7 @@ async function bootstrap() {
 // Initialize the application
 try {
 	await bootstrap();
+	setupZoteroSync();
 } catch (err) {
 	log.error(`Fatal startup error:`, err);
 	throw err;

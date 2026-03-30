@@ -14,6 +14,7 @@ import { getUserById } from "@/db/authRepository.ts";
 import articles from "@/handler/articleHandler.ts";
 import audio from "@/handler/audioHandler.ts";
 import auth from "@/handler/authHandler.ts";
+import bibliography from "@/handler/bibHandler.ts";
 import cms from "@/handler/cmsHandler.ts";
 import corpus from "@/handler/corpusHandler.ts";
 import media from "@/handler/mediaHandler.ts";
@@ -62,8 +63,7 @@ const app = new Hono<AppEnv>()
 		const originHeader = c.req.header("Origin") ?? null;
 		const hostHeader = c.req.header("Host") ?? null;
 
-
-console.log(process.env.ALLOWED_ORIGINS);
+		console.log(process.env.ALLOWED_ORIGINS);
 
 		if (
 			!originHeader ||
@@ -115,6 +115,7 @@ console.log(process.env.ALLOWED_ORIGINS);
 	.get("/", (c: AppContext) => {
 		return c.json("OK", 201);
 	})
+	.notFound((c: AppContext) => c.json({ message: "Not Found", ok: false }, 404))
 	.route("/articles", articles)
 	.route("/questions", questions)
 	.route("/cms", cms)
@@ -124,7 +125,7 @@ console.log(process.env.ALLOWED_ORIGINS);
 	.route("/stat", statistics)
 	.route("/audio", audio)
 	.route("/corpus", corpus)
-	.notFound((c: AppContext) => c.json({ message: "Not Found", ok: false }, 404));
+	.route("/bib", bibliography);
 
 export { app };
 

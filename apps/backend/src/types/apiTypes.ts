@@ -158,3 +158,75 @@ export interface TranscriptJsonFormat {
 	}>;
 	unique_informant_ids: Array<number>;
 }
+
+export interface Tag {
+	tag: string;
+	type: number;
+}
+
+export interface ZoteroCollectionData {
+	key: string;
+	version: number;
+	itemType: string;
+	title: string;
+	creators: Array<{
+		creatorType: string;
+		firstName: string;
+		lastName: string;
+	}>;
+	abstractNote: string;
+	note: string;
+	publicationTitle: string;
+	publisher: string;
+	place: string;
+	date: string;
+	volume: string;
+	issue: string;
+	section: string;
+	partNumber: string;
+	partTitle: string;
+	pages: string;
+	series: string;
+	seriesTitle: string;
+	seriesText: string;
+	journalAbbreviation: string;
+	DOI: string;
+	citationKey: string;
+	url: string;
+	accessDate: string;
+	PMID: string;
+	PMCID: string;
+	ISSN: string;
+	archive: string;
+	archiveLocation: string;
+	shortTitle: string;
+	language: string;
+	libraryCatalog: string;
+	callNumber: string;
+	rights: string;
+	extra: string;
+	tags: Array<Tag>;
+	collections: Array<string>;
+	dateAdded: string; // ISO 8601 string
+	dateModified: string; // ISO 8601 string
+}
+
+export interface ZoteroCollection {
+	key: string;
+	version: number;
+	library: {
+		type: string;
+		id: number;
+		name: string;
+	};
+	meta: {
+		createdByUser: {
+			id: number;
+			username: string;
+			name: string;
+		};
+		creatorSummary: string;
+		parsedDate: string;
+		data: ZoteroCollectionData;
+	};
+}

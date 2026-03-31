@@ -94,4 +94,11 @@ export default defineNuxtConfig({
 	},
 
 	compatibilityDate: "2026-03-03",
+
+	components: [
+		{
+			path: "~/components",
+			global: true,
+		},
+	],
 });

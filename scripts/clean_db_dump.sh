@@ -1,54 +1,48 @@
 #!/bin/bash
 
-# Target file inside the db folder
-SQL_FILE="db/lapis_dump.sql"
-
-# Argon2 hash for dev instances (default password 'test')
+# Define the argon2 hash for the default development password 'test'
 PW_HASH='$argon2id$v=19$m=16,t=2,p=1$RG1EbDBCOTV3Y012cXFmVg$Yb47uU3Gy+L4DRh7tec78g'
 
-# Check if the file exists before processing
-if [ ! -f "$SQL_FILE" ]; then
-    echo "Error: $SQL_FILE not found."
+# Check if an input file was provided as an argument
+if [ -z "$1" ]; then
+    echo "Usage: $0 <sql_file>" >&2
     exit 1
 fi
 
-echo "Processing $SQL_FILE: Anonymizing users, setting dev passwords, and clearing sessions..."
+INPUT_FILE="$1"
 
-# Temporary file for processing
-TEMP_FILE=$(mktemp)
+# Verify the file exists before attempting to process it
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: File $INPUT_FILE not found." >&2
+    exit 1
+fi
 
-# Use awk to process the file with a state machine
-awk -F'\t' -v pw="$PW_HASH" '
-BEGIN { 
-    OFS="\t"; 
-    user_n=1; 
-    state="DEFAULT"; 
+# Process the SQL dump using awk and output the result to stdout
+awk -v pw="$PW_HASH" '
+BEGIN {
+    FS="\t";
+    OFS="\t";
+    user_n=1;
+    state="DEFAULT";
 }
 
-# --- State: DEFAULT ---
 state == "DEFAULT" {
-    if ($0 ~ /^COPY lapis_dev.user_account/) {
-        print $0;
-        state = "USER_ACCOUNT";
-        next;
-    }
-    if ($0 ~ /^COPY lapis_dev.user_session/) {
-        print $0;
-        state = "USER_SESSION";
-        next;
-    }
     print $0;
+    if ($0 ~ /^COPY lapis_dev\.user_account/) {
+        state = "USER_ACCOUNT";
+    } else if ($0 ~ /^COPY lapis_dev\.user_session/) {
+        state = "USER_SESSION";
+    }
+    next;
 }
 
-# --- State: USER_ACCOUNT (Sanitize data & Set Password) ---
 state == "USER_ACCOUNT" {
     if ($0 ~ /^\\\./) {
         print $0;
         state = "DEFAULT";
         next;
     }
-    # Anonymize columns: 
-    # $2: email, $3: firstname, $4: lastname, $5: username, $6: password
+    # Anonymize: email, firstname, lastname, username, password
     $2 = "test.user" user_n "@oeaw.ac.at";
     $3 = "Test";
     $4 = "User" user_n;
@@ -58,16 +52,11 @@ state == "USER_ACCOUNT" {
     user_n++;
 }
 
-# --- State: USER_SESSION (Delete all entries) ---
 state == "USER_SESSION" {
     if ($0 ~ /^\\\./) {
         print $0;
         state = "DEFAULT";
     }
-    # Do nothing for lines inside this block (effectively deleting them)
+    # Entries inside the COPY block are skipped to clear sessions
 }
-' "$SQL_FILE" > "$TEMP_FILE"
-
-mv "$TEMP_FILE" "$SQL_FILE"
-
-echo "Done. User data sanitized and passwords updated to dev default."
+' "$INPUT_FILE"

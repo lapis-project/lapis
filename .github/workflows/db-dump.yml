@@ -1,0 +1,48 @@
+name: Fetch and Clean Database Dump for Lapis DB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-db-dump:
+    runs-on: ubuntu-latest
+    environment: production-backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
+          chmod 600 ${HOME}/.kube/config
+
+      - name: Fetch Database Dump via port-forwarding
+        env:
+          DB_PASS: ${{ secrets.K8S_SECRET_PGPASSWORD }}
+        run: |
+          kubectl port-forward pod/pg-proxy 5432:5432 -n db-access &
+          PF_PID=$!
+
+          sleep 5
+
+          docker run --rm --network host -e PGPASSWORD=$DB_PASS postgres:18-alpine pg_dump -h 127.0.0.1 -p 5432 -U lapis_dev -d lapis_dev -F p > raw_dump.sql 2> /dev/null
+
+          kill $PF_PID
+
+      - name: Process and Clean Dump
+        run: |
+          chmod +x ./scripts/clean_db_dump.sh
+          ./scripts/clean_db_dump.sh raw_dump.sql > db/lapis_dump.sql
+
+      - name: Securely Erase Raw Dump
+        run: |
+          shred -u raw_dump.sql
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add db/lapis_dump.sql
+          git commit -m "chore(db): update sanitized database dump" || exit 0
+          git push

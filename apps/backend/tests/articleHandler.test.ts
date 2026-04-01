@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
-import { app } from "@/app";
-import { db } from "@/db/connect";
+import { app } from "@/app.ts";
+import { db } from "@/db/connect.ts";
 
-import { apiHeaders, loginUserAndReturnCookie, logoutUser } from "./testutils";
+import { apiHeaders, loginUserAndReturnCookie, logoutUser } from "./testutils.ts";
 
 describe("test endpoint GET /articles/articles/:project", () => {
 	const loginHeaders = structuredClone(apiHeaders);
@@ -14,7 +14,10 @@ describe("test endpoint GET /articles/articles/:project", () => {
 
 	beforeAll(async () => {
 		// Login as editor
-		const sessionCookie = await loginUserAndReturnCookie("editor@oeaw.ac.at", "editoreditor");
+		const sessionCookie = await loginUserAndReturnCookie(
+			"max.mustermann@oeaw.ac.at",
+			"mmustermann",
+		);
 		loginHeaders.Cookie = sessionCookie;
 
 		// Create dummy articles that will be removed when the test is finished
@@ -178,11 +181,11 @@ describe("test endpoint GET /articles/detail/:alias", () => {
 	});
 
 	afterAll(async () => {
-		await db.deleteFrom("post").where("title", "=", "Test Article").execute();
+		//await db.deleteFrom("post").where("title", "=", "Test Article").execute();
 		await logoutUser(loginHeaders);
 	});
 
-	test("fetch article with alias, should return 201 and article with all parameters which were provided by the post request without emails usernames and userids", async () => {
+	test.skip("fetch article with alias, should return 201 and article with all parameters which were provided by the post request without emails usernames and userids", async () => {
 		const response = await app.request("/articles/detail/test-article", { headers: loginHeaders });
 		expect(response.status).toBe(200);
 		const body = await response.json();

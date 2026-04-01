@@ -4,6 +4,7 @@ import { Readable } from "node:stream";
 
 import { log } from "@acdh-oeaw/lib";
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 import { stream } from "hono/streaming";
 
 import type { AppEnv } from "@/lib/context.ts";
@@ -36,7 +37,6 @@ const audio = new Hono<AppEnv>().get("/stream/:filename", async (c) => {
 
 	if (range) {
 		// Parse "bytes=start-end"
-		console.log(range);
 		const m = /^bytes=(\d*)-(\d*)$/.exec(range);
 		if (!m) {
 			return c.text("Invalid Range header", 400);
@@ -81,6 +81,36 @@ const audio = new Hono<AppEnv>().get("/stream/:filename", async (c) => {
 		await s.pipe(Readable.toWeb(fileNodeStream) as unknown as ReadableStream);
 	});
 });
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+	? process.env.ALLOWED_ORIGINS.trim()
+			.split(",")
+			.map((el) => el.trim())
+	: [];
+
+audio.use(
+	"*",
+	cors({
+		origin: allowedOrigins,
+		allowMethods: ["GET", "POST", "PUT", "DELETE"],
+		allowHeaders: [
+			"Content-Type",
+			"Authorization",
+			"Range",
+			"X-Custom-Header",
+			"Upgrade-Insecure-Requests",
+		],
+		exposeHeaders: [
+			"Accept-Ranges",
+			"Content-Range",
+			"Content-Length",
+			"Content-Type",
+			"X-Kuma-Revision",
+		],
+		maxAge: 600,
+		credentials: true,
+	}),
+);
 
 export default audio;
 

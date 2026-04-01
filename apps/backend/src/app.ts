@@ -41,17 +41,10 @@ const app = new Hono<AppEnv>()
 			allowHeaders: [
 				"Content-Type",
 				"Authorization",
-				"Range", // TODO: refactor to use this in audiohandler ohly
 				"X-Custom-Header",
 				"Upgrade-Insecure-Requests",
 			],
-			exposeHeaders: [
-				"Accept-Ranges", // TODO: refactor to use this in audiohandler ohly
-				"Content-Range", // TODO: refactor to use this in audiohandler ohly
-				"Content-Length", // TODO: refactor to use this in audiohandler ohly
-				"Content-Type", // TODO: refactor to use this in audiohandler ohly
-				"X-Kuma-Revision", // TODO: refactor to use this in audiohandler ohly
-			],
+			exposeHeaders: [],
 			maxAge: 600,
 			credentials: true,
 		}),

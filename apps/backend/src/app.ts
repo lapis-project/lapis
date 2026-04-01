@@ -63,8 +63,6 @@ const app = new Hono<AppEnv>()
 		const originHeader = c.req.header("Origin") ?? null;
 		const hostHeader = c.req.header("Host") ?? null;
 
-		console.log(process.env.ALLOWED_ORIGINS);
-
 		if (
 			!originHeader ||
 			!hostHeader ||

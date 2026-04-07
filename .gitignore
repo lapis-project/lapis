@@ -4,3 +4,5 @@ node_modules
 *.heapsnapshot
 
 backup-data
+
+.DS_Store

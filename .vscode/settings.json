@@ -27,7 +27,8 @@
 		{ "directory": "./apps/corpus", "changeProcessCWD": true },
 		{ "directory": "./apps/backend", "changeProcessCWD": true },
 		{ "directory": "./apps/shadcn", "changeProcessCWD": true },
-		{ "directory": "./apps/ui", "changeProcessCWD": true }
+		{ "directory": "./apps/ui", "changeProcessCWD": true },
+		{ "directory": "./apps/wboe", "changeProcessCWD": true }
 	],
 	"files.associations": {
 		"*.css": "tailwindcss"

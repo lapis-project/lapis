@@ -64,6 +64,13 @@
 			"isBackground": true
 		},
 		{
+			"label": "Start WBÖ",
+			"type": "shell",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:wboe'",
+			"problemMatcher": [],
+			"isBackground": true
+		},
+		{
 			"label": "Full Local Setup - LexAT21",
 			"dependsOn": ["Start DB Container", "Seed DB", "Start Backend", "Start LexAT21"],
 			"problemMatcher": [],

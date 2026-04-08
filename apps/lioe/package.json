@@ -28,23 +28,23 @@
 		"validate": "run-p format:check lint:check types:check test test:e2e"
 	},
 	"dependencies": {
-		"@acdh-oeaw/lib": "^1.0.5",
-		"@iconify-json/lucide": "^1.2.95",
+		"@acdh-oeaw/lib": "^1.0.6",
+		"@iconify-json/lucide": "^1.2.101",
 		"@nuxt/content": "^3.12.0",
 		"@nuxt/image": "^2.0.0",
-		"@nuxt/ui": "^4.5.1",
+		"@nuxt/ui": "^4.6.1",
 		"@nuxtjs/color-mode": "^4.0.0",
-		"@nuxtjs/i18n": "^10.2.3",
-		"@vue/devtools-api": "^8.0.7",
+		"@nuxtjs/i18n": "^10.2.4",
+		"@vue/devtools-api": "^8.1.1",
 		"@vueuse/core": "^14.2.1",
 		"@vueuse/nuxt": "^14.2.1",
-		"better-sqlite3": "^12.6.2",
-		"nuxt": "4.3.1",
-		"nuxt-studio": "1.4.0",
+		"better-sqlite3": "^12.8.0",
+		"nuxt": "4.4.2",
+		"nuxt-studio": "1.5.1",
 		"nuxt-svgo": "^4.2.6",
-		"tailwindcss": "^4.2.1",
+		"tailwindcss": "^4.2.2",
 		"tailwindcss-animate": "^1.0.7",
-		"vue": "^3.5.29"
+		"vue": "^3.5.32"
 	},
 	"devDependencies": {
 		"@acdh-oeaw/eslint-config": "^2.0.13",
@@ -54,16 +54,16 @@
 		"@acdh-oeaw/stylelint-config": "^3.0.3",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@nuxt/eslint": "^1.15.2",
-		"@types/node": "^25.3.3",
-		"dotenv": "^17.3.1",
+		"@types/node": "^25.5.2",
+		"dotenv": "^17.4.1",
 		"dotenv-expand": "^12.0.3",
-		"eslint": "^10.0.2",
-		"eslint-config-flat-gitignore": "^2.2.1",
-		"schema-dts": "^1.1.5",
-		"stylelint": "^17.4.0",
+		"eslint": "^9.39.2",
+		"eslint-config-flat-gitignore": "^2.3.0",
+		"schema-dts": "^2.0.0",
+		"stylelint": "^17.6.0",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.56.1",
-		"vue-tsc": "^3.2.5"
+		"vue-tsc": "^3.2.6"
 	},
 	"browserslist": {
 		"development": [

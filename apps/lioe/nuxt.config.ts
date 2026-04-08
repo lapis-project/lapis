@@ -31,9 +31,6 @@ export default defineNuxtConfig({
 		detectBrowserLanguage: {
 			redirectOn: "root",
 		},
-		experimental: {
-			typedOptionsAndMessages: "default",
-		},
 		langDir: "locales/",
 		locales: [
 			{
@@ -90,6 +87,9 @@ export default defineNuxtConfig({
 			watch: {
 				usePolling: true,
 			},
+		},
+		optimizeDeps: {
+			include: [],
 		},
 	},
 

@@ -31,6 +31,7 @@
 		"@acdh-oeaw/lib": "^1.0.6",
 		"@iconify-json/lucide": "^1.2.101",
 		"@nuxt/content": "^3.12.0",
+		"@nuxt/icon": "^2.2.1",
 		"@nuxt/image": "^2.0.0",
 		"@nuxt/ui": "^4.6.1",
 		"@nuxtjs/color-mode": "^4.0.0",
@@ -60,7 +61,7 @@
 		"eslint-config-flat-gitignore": "^2.3.0",
 		"schema-dts": "^2.0.0",
 		"stylelint": "^17.6.0",
-		"typescript": "^5.9.3",
+		"typescript": "^6.0.2",
 		"typescript-eslint": "^8.56.1",
 		"vue-tsc": "^3.2.6"
 	},

@@ -48,13 +48,13 @@
 		"@acdh-oeaw/commitlint-config": "^3.0.0",
 		"@acdh-oeaw/prettier-config": "^2.0.1",
 		"@commitlint/cli": "^20.5.0",
-		"@types/node": "^25.5.2",
+		"@types/node": "^25.6.0",
 		"is-ci": "^4.1.0",
 		"lint-staged": "^16.4.0",
 		"npm-run-all2": "^8.0.4",
 		"prettier": "^3.8.1",
 		"simple-git-hooks": "^2.13.1",
-		"typescript": "^5.9.3"
+		"typescript": "^6.0.2"
 	},
 	"browserslist": {
 		"development": [

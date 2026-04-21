@@ -85,7 +85,7 @@
 		{
 			"label": "Reset DB",
 			"type": "shell",
-			"command": "docker compose --env-file .env.localsetup down",
+			"command": "docker compose --env-file .env.localsetup down -v",
 			"problemMatcher": [],
 			"isBackground": true
 		},

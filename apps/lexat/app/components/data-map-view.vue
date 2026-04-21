@@ -621,10 +621,20 @@ const initializeFromUrl = () => {
 	if (ageParams.length > 0 && ageParams[0]) {
 		activeAgeGroup.value = ageParams[0].split(",").map(Number);
 	}
+
 	const questionParam = route.query.q;
-	if (typeof questionParam === "string") {
+	if (typeof questionParam === "string" && questionParam !== "") {
 		activeQuestion.value = questionParam;
+	} else if (mappedQuestions.value && mappedQuestions.value.length > 0) {
+		// Pick a random question if none is specified in the URL
+		const randomIndex = Math.floor(Math.random() * mappedQuestions.value.length);
+		const randomQuestion = mappedQuestions.value[randomIndex];
+
+		if (randomQuestion) {
+			activeQuestion.value = randomQuestion.value;
+		}
 	}
+
 	const registerParams = getQueryArray(route, "r");
 	if (registerParams.length > 0) {
 		activeRegisters.value = registerParams.map(String);
@@ -651,7 +661,7 @@ const initializeFromUrl = () => {
 					} else if (key === "s") {
 						specialColors.value.sonstige = hexCode;
 					} else {
-						colors.value[index] = hexCode;
+						colors.value[Number(index)] = hexCode;
 					}
 					changedColors.value[index] = `${index}-${hexCode}${key ? `-${key}` : ""}`;
 				}

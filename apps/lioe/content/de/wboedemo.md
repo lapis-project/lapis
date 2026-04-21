@@ -1,10 +1,6 @@
 ---
-title: Wboedemo
-description: |-
-  Das WBÖ beschäftigt sich mit der lexikalischen Variation des Bairischen innerhalb Österreichs und
-  Südtirols zu Beginn des 20. Jahrhunderts. Darüber hinaus wird das zugrundeliegende Datenmaterial zur
-  Verfügung gestellt, das auch historische Quellen und Informationen aus angrenzenden Gebieten sowie
-  Sprachinseln des Bairischen abdeckt. Im wesentlichen beinhalten die Seite folgende Aspekte:
+title: WBÖ Demo Page
+description: Das WBÖ beschäftigt sich mit der lexikalischen Variation des Bairischen innerhalb Österreichs und Südtirols zu Beginn des 20. Jahrhunderts.
 ---
 
 # Wörterbuch der bairischen Mundarten in Österreich (WBÖ)

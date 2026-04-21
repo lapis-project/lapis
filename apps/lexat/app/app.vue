@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import "vue-sonner/style.css"; // https://github.com/unovue/shadcn-vue/issues/1258#issuecomment-2901073646
 
-import { createUrl, isNonEmptyString } from "@acdh-oeaw/lib";
+import { createUrl } from "@acdh-oeaw/lib";
 import type { WebSite, WithContext } from "schema-dts";
 
 const env = useRuntimeConfig();
@@ -62,28 +62,7 @@ useHead({
 			description: t("DefaultLayout.meta.description"),
 		};
 
-		const scripts: Array<{ type?: string; innerHTML: string }> = [
-			{ type: "application/ld+json", innerHTML: JSON.stringify(jsonLd, safeJsonLdReplacer) },
-		];
-
-		if (
-			process.env.NODE_ENV === "production" &&
-			isNonEmptyString(env.public.matomoBaseUrl) &&
-			(isNonEmptyString(env.public.matomoId) ||
-				/** Nuxt tries to cast env vars o_O. @see https://github.com/nuxt/nuxt/issues/24812 */
-				typeof env.public.matomoId === "number")
-		) {
-			const baseUrl = env.public.matomoBaseUrl;
-
-			scripts.push({
-				innerHTML: createAnalyticsScript(
-					baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`,
-					env.public.matomoId,
-				),
-			});
-		}
-
-		return scripts;
+		return [{ type: "application/ld+json", innerHTML: JSON.stringify(jsonLd, safeJsonLdReplacer) }];
 	}),
 });
 </script>

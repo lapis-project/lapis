@@ -81,6 +81,7 @@ export default defineNuxtConfig({
 		"nuxt-svgo",
 		"@nuxt/eslint",
 		"@nuxt/image",
+		"@nuxt/scripts",
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",

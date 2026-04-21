@@ -75,6 +75,7 @@ export default defineNuxtConfig({
 			rootDir: "apps/lioe",
 			owner: "lapis-project",
 			repo: "lapis",
+			branch: "main",
 		},
 	},
 

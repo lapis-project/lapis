@@ -52,7 +52,7 @@ import MultiSelect from "./multi-select.vue";
 
 const colorMode = useColorMode();
 const t = useTranslations();
-const { locale } = useI18n();
+const locale = useLocale();
 const router = useRouter();
 const route = useRoute();
 const env = useRuntimeConfig();
@@ -1016,9 +1016,7 @@ watch(activeVariants, updateUrlParams, {
 										@update:model-value="handleColorUpdate(index, $event)"
 									/>
 								</div>
-								<div v-if="locale === 'en'" class="mt-4">
-									{{ t("MapsPage.selection.participate.label") }}
-								</div>
+								<div v-if="locale === 'en'" class="mt-4"></div>
 								<div v-else class="mt-2">
 									<Button class="w-64 flex items-center gap-2" @click="goToSurvey">
 										<ExternalLinkIcon class="mr-2 size-4" />

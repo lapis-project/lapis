@@ -29,36 +29,5 @@ export default defineContentConfig({
 				description: z.string(),
 			}),
 		}),
-		content_nav_de: defineCollection({
-			type: "data",
-			source: "de/**/wboenav.md",
-			schema: z.object({
-				navHome: z.string(),
-				homeIcon: z.string().editor({
-					input: "icon",
-					iconLibraries: ["lucide"],
-				}),
-				navArticles: z.string(),
-				articlesIcon: z.string().editor({
-					input: "icon",
-					iconLibraries: ["lucide"],
-				}),
-				navDatabase: z.string(),
-				databaseIcon: z.string().editor({
-					input: "icon",
-					iconLibraries: ["lucide"],
-				}),
-				navMapping: z.string(),
-				mappingIcon: z.string().editor({
-					input: "icon",
-					iconLibraries: ["lucide"],
-				}),
-				navInformation: z.string(),
-				infoIcon: z.string().editor({
-					input: "icon",
-					iconLibraries: ["lucide"],
-				}),
-			}),
-		}),
 	},
 });

@@ -335,6 +335,10 @@
 				"label": "Simplifizierte Darstellung",
 				"tooltip": "Bei einer Überlagerung zweier Ortspunkte wird der kleinere Ortspunkt automatisch ausgeblendet."
 			},
+			"participate": {
+				"label": "Jetzt mitmachen",
+				"link": "https://ofb.dioe.at/index.php/59431?lang=de."
+			},
 			"show-region-names": "Dialektregionennamen",
 			"show-regions": "Dialektregionen anzeigen",
 			"show-state-capitals": "Landeshauptstädte",

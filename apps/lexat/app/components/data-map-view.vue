@@ -7,6 +7,7 @@ import {
 	ChevronDownIcon,
 	CircleHelp,
 	Database,
+	ExternalLinkIcon,
 	FileText,
 	InfoIcon,
 	MapPinIcon,
@@ -51,6 +52,7 @@ import MultiSelect from "./multi-select.vue";
 
 const colorMode = useColorMode();
 const t = useTranslations();
+const locale = useLocale();
 const router = useRouter();
 const route = useRoute();
 const env = useRuntimeConfig();
@@ -716,6 +718,13 @@ const goToDbPage = async (): Promise<void> => {
 	});
 };
 
+const goToSurvey = () => {
+	const surveyUrl = t("MapsPage.selection.participate.link");
+	if (typeof surveyUrl === "string" && surveyUrl.startsWith("https")) {
+		window.open(surveyUrl, "_blank");
+	}
+};
+
 // ONBOARDING
 const steps = [
 	{
@@ -1006,6 +1015,13 @@ watch(activeVariants, updateUrlParams, {
 										:model-value="Object.values(mappedColors)[index]"
 										@update:model-value="handleColorUpdate(index, $event)"
 									/>
+								</div>
+								<div v-if="locale === 'en'" class="mt-4"></div>
+								<div v-else class="mt-2">
+									<Button class="w-64 flex items-center gap-2" @click="goToSurvey">
+										<ExternalLinkIcon class="mr-2 size-4" />
+										{{ t("MapsPage.selection.participate.label") }}
+									</Button>
 								</div>
 							</div>
 						</div>

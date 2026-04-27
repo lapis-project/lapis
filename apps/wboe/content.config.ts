@@ -20,5 +20,23 @@ export default defineContentConfig({
 				linksTitle: z.string(),
 			}),
 		}),
+		resources_de: defineCollection({
+			type: "page",
+			source: "de/**/resources.md",
+			schema: z.object({
+				title: z.string(),
+				description: z.string(),
+				linksTitle: z.string(),
+			}),
+		}),
+		resources_en: defineCollection({
+			type: "page",
+			source: "en/**/resources.md",
+			schema: z.object({
+				title: z.string(),
+				description: z.string(),
+				linksTitle: z.string(),
+			}),
+		}),
 	},
 });

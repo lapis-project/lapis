@@ -1,52 +1,38 @@
 <script lang="ts" setup>
-import type { Collections } from "@nuxt/content";
 import type { NavigationMenuItem } from "@nuxt/ui";
 
-const { locale } = useI18n();
+interface Props {
+	items?: Array<NavigationMenuItem>;
+}
 
-const { data: nav } = await useAsyncData(
-	`navigation`,
-	async () => {
-		const collectionName = `content_nav_${locale.value}` as keyof Collections;
-		const result = await queryCollection(collectionName).first();
-
-		return result;
-	},
-	{
-		watch: [locale],
-	},
-);
-
-const items = computed<Array<NavigationMenuItem>>(() => {
-	if (!nav.value) return [];
-
-	return [
+const props = withDefaults(defineProps<Props>(), {
+	items: () => [
 		{
-			label: nav.value.navHome,
-			icon: nav.value.homeIcon,
+			label: "HOME",
+			icon: "i-lucide-house",
 			to: "/",
 		},
 		{
-			label: nav.value.navArticles,
-			icon: nav.value.articlesIcon,
+			label: "WBÖ-ARTIKEL",
+			icon: "i-lucide-newspaper",
 			to: "/",
 		},
 		{
-			label: nav.value.navDatabase,
-			icon: nav.value.databaseIcon,
+			label: "BELEGDATENBANK",
+			icon: "i-lucide-database",
 			to: "/",
 		},
 		{
-			label: nav.value.navMapping,
-			icon: nav.value.mappingIcon,
+			label: "KARTIERUNG",
+			icon: "i-lucide-map",
 			to: "/",
 		},
 		{
-			label: nav.value.navInformation,
-			icon: nav.value.infoIcon,
+			label: "INFORMATIONEN",
+			icon: "i-lucide.info",
 			to: "/",
 		},
-	];
+	],
 });
 </script>
 
@@ -55,7 +41,7 @@ const items = computed<Array<NavigationMenuItem>>(() => {
 		<UNavigationMenu
 			class="bg-muted/80 backdrop-blur-sm rounded-full px-2 sm:px-4 border border-muted/50 shadow-lg shadow-neutral-950/5"
 			color="neutral"
-			:items="items"
+			:items="props.items"
 			:ui="{
 				link: 'px-3 py-1',
 			}"

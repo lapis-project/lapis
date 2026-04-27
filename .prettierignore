@@ -8,6 +8,7 @@ apps/lexvad/.output/**
 apps/lexvad/.nuxt/**
 apps/lioe/.output/**
 apps/lioe/.nuxt/**
+apps/wboe/content/**
 
 .gitignore
 

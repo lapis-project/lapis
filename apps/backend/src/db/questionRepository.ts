@@ -50,96 +50,25 @@ export async function getAllPhenomenon(projectId: string) {
 		.execute();
 }
 
-export async function getAllPhenomenonById(projectId: string, phenomenonId: string) {
-	const projectIdParsed = parseInt(projectId);
-	log.info(`Using following project: ${projectIdParsed.toString()}`);
-	const phenomenonIdParsed = parseInt(phenomenonId);
-	if (Number.isNaN(phenomenonIdParsed) || phenomenonIdParsed < 0) {
+export async function getAllPhenomenonById(
+	projectId: number,
+	phenomenonId: number,
+	surveyId: number,
+) {
+	log.info(`Using following project: ${projectId.toString()}`);
+	if (phenomenonId < 0) {
 		return [];
 	}
 
-	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
-		const dbQuery = db
-			.with("annotation_data", (query) =>
-				query
-					.selectFrom("response")
-					.innerJoin("annotation_response", "response.id", "annotation_response.response_id")
-					.innerJoin("annotation", "annotation_response.annotation_id", "annotation.id")
-					.innerJoin("task", "response.task_id", "task.id")
-					.innerJoin("phenomenon_task", "task.id", "phenomenon_task.task_id")
-					.innerJoin("phenomenon", "phenomenon_task.phenomenon_id", "phenomenon.id")
-					.innerJoin("task_variety", "task.id", "task_variety.task_id")
-					.innerJoin("variety", "task_variety.variety_id", "variety.id")
-					.where("phenomenon.id", "=", phenomenonIdParsed)
-					.select(({ eb }) => [
-						"response.informant_id",
-						eb.fn
-							.jsonAgg(
-								jsonBuildObject({
-									annotation: eb.ref("annotation.annotation_name"),
-									response: eb.ref("response.response_text"),
-									phenomenon: eb.ref("phenomenon.phenomenon_name"),
-									variety: eb.ref("variety.variety_name"),
-								}),
-							)
-							.as("annotations"),
-					])
-					.groupBy(["response.informant_id"]),
-			)
-			.selectFrom("phenomenon")
-			.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
-			.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
-			.innerJoin("annotation_tagset", "tagset.id", "annotation_tagset.tagset_id")
-			.innerJoin("annotation", "annotation_tagset.annotation_id", "annotation.id")
-			.innerJoin("annotation_response", "annotation.id", "annotation_response.annotation_id")
-			.innerJoin("response", "annotation_response.response_id", "response.id")
-			.innerJoin("phenomenon_task", "phenomenon.id", "phenomenon_task.phenomenon_id")
-			.innerJoin("task", (join) =>
-				join
-					.onRef("phenomenon_task.task_id", "=", "task.id")
-					.onRef("task.id", "=", "response.task_id"),
-			)
-			.innerJoin("task_variety", "task.id", "task_variety.task_id")
-			.innerJoin("variety", "task_variety.variety_id", "variety.id")
-			.innerJoin("informant", "response.informant_id", "informant.id")
-			.innerJoin("age_group", "informant.age_group_id", "age_group.id")
-			.innerJoin(
-				"informant_lives_in_place",
-				"informant.id",
-				"informant_lives_in_place.informant_id",
-			)
-			.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
-			.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
-			.where("phenomenon.id", "=", phenomenonIdParsed)
-			.select(({ eb }) => [
-				eb.ref("place.place_name").as("place_name"),
-				eb.ref("place.plz").as("plz"),
-				eb.ref("place.lat").as("lat"),
-				eb.ref("place.lon").as("lon"),
-				eb.fn
-					.coalesce(
-						eb.fn.jsonAgg(
-							jsonbBuildObject({
-								age: eb.ref("age_group.age_group_name"),
-								gender: eb.ref("informant.gender"),
-								informant_id: eb.ref("informant.id"),
-								answers: eb.fn.coalesce(eb.ref("annotations"), sql`'[]'`),
-							}),
-						),
-					)
-					.as("informants"),
-			])
-			.groupBy(["place.plz", "place.lat", "place.lon", "place.place_name"]);
-		return await dbQuery.execute();
-	}
-
 	const request = db
-		.with("annotation_data", (query) =>
-			query
+		.with("annotation_data", (query) => {
+			let dbQuery = query
 				.selectFrom("response")
 				.innerJoin("annotation_response", "response.id", "annotation_response.response_id")
 				.innerJoin("annotation", "annotation_response.annotation_id", "annotation.id")
 				.innerJoin("task", "response.task_id", "task.id")
+				.innerJoin("survey_contains_task", "survey_contains_task.task_id", "task.id")
+				.innerJoin("survey", "survey.id", "survey_contains_task.survey_id")
 				.innerJoin("phenomenon_task", "task.id", "phenomenon_task.task_id")
 				.innerJoin("phenomenon", "phenomenon_task.phenomenon_id", "phenomenon.id")
 				.innerJoin("task_variety", "task.id", "task_variety.task_id")
@@ -147,8 +76,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 				.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
 				.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
 				.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
-				.where("phenomenon.id", "=", phenomenonIdParsed)
-				.where("project_tagset.project_id", "=", projectIdParsed)
+				.where("phenomenon.id", "=", phenomenonId)
 				// eslint-disable-next-line @typescript-eslint/unbound-method
 				.select(({ eb, fn, ref }) => [
 					"response.informant_id",
@@ -163,8 +91,15 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 						)
 						.as("annotations"),
 				])
-				.groupBy(["response.informant_id"]),
-		)
+				.groupBy(["response.informant_id"]);
+			if (surveyId > 0) {
+				dbQuery = dbQuery.where("survey.id", "=", surveyId);
+			}
+			if (projectId > 0) {
+				dbQuery = dbQuery.where("project_tagset.project_id", "=", projectId);
+			}
+			return dbQuery;
+		})
 		.selectFrom("phenomenon")
 		.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
 		.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
@@ -186,8 +121,7 @@ export async function getAllPhenomenonById(projectId: string, phenomenonId: stri
 		.innerJoin("informant_lives_in_place", "informant.id", "informant_lives_in_place.informant_id")
 		.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
 		.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
-		.where("phenomenon.id", "=", phenomenonIdParsed)
-		.where("project_tagset.project_id", "=", projectIdParsed)
+		.where("phenomenon.id", "=", phenomenonId)
 		.select(({ eb, fn }) => [
 			eb.ref("place.place_name").as("place_name"),
 			eb.ref("place.plz").as("plz"),

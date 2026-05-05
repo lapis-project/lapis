@@ -21,6 +21,7 @@
 		"test:article-handler": "vitest articleHandler",
 		"test:user-handler": "vitest userHandler",
 		"test:bib-handler": "vitest bibHandler",
+		"test:question-handler": "vitest questionHandler",
 		"start": "node --env-file .env.local ./dist/index.js",
 		"build": "tsdown --dts && cp -r src/db/migrations dist/migrations",
 		"migrate:latest": "NODE_OPTIONS='--import tsx' kysely migrate:latest -e local",

@@ -1,7 +1,8 @@
+import { log } from "@acdh-oeaw/lib";
 import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
 import type { OrderByDirection } from "kysely";
-import { array, number, object, optional, safeParse, string } from "valibot";
+import { array, number, object, optional, pipe, safeParse, string, transform } from "valibot";
 
 // import { restrictedRoute } from "@/lib/authHelper";
 import type { AppEnv } from "@/lib/context.ts";
@@ -37,6 +38,12 @@ const searchResponseQuerySchema = object({
 	pageSize: number(),
 });
 
+const surveyResponseSchema = object({
+	surveyId: optional(pipe(string(), transform(Number)), "-1"),
+	projectId: optional(pipe(string(), transform(Number)), "-1"),
+	phenomenonId: pipe(string(), transform(Number)),
+});
+
 // Enable in order to restrict the route only to signed in users
 // questions.use("*", restrictedRoute);
 
@@ -58,17 +65,35 @@ const questions = new Hono<AppEnv>()
 		}
 		return c.json(allQuestions, 200);
 	})
-	.get("/", async (c) => {
-		const projectId = c.req.query("project");
-		const phenomenonId = c.req.query("id");
+	/**
+	 * Retrieves a list of entries of a specific phenomenon filtered by survey round(s) and project id
+	 * @route GET /questions
+	 * @param {string} surveyId - The unique identifier of survey rounds (can be optional)
+	 * @param {string} projectId - The unique identifier of the project (can be optional)
+	 * @param {string} phenomenonId - The unique identifier of the phenomenon
+	 * @returns {Array} 200 - JSON array contains answers for every place which contains an array of
+	 * informants that are ordered by age group, eachof which containing the answers array
+	 * @returns {Object} 500 - JSON object containing an error message if the database query fails.
+	 */
+	.get("/", vValidator("query", surveyResponseSchema), async (c) => {
+		const { phenomenonId, projectId, surveyId } = c.req.valid("query");
 		/*
 		 * Would also work by using the deconstructed object
 		 */
 		if (!phenomenonId) {
 			return c.json("Phenomenon Id is required", 400);
 		}
-		const questionById = await getAllPhenomenonById(projectId ?? "", phenomenonId);
-		return c.json(questionById, 200);
+		if (Number.isNaN(projectId)) {
+			return c.json("The query parameter is not a number", 400);
+		}
+
+		try {
+			const questionById = await getAllPhenomenonById(projectId, phenomenonId, surveyId);
+			return c.json(questionById, 200);
+		} catch (error) {
+			log.error(`Error while fetching bibliography:`, error);
+			return c.json({ error: "Failed to fetch questions" }, 500);
+		}
 	})
 	.get("/responses", vValidator("json", searchResponseQuerySchema), (c) => {
 		return c.json("OK", 201);

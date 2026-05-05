@@ -6,7 +6,7 @@ import type { ZoteroCollection } from "@/types/apiTypes.ts";
 
 export const setupZoteroSync = () => {
 	// Cron expression for 3 am every day
-	schedule("0 14 * * *", async () => {
+	schedule("0 3 * * *", async () => {
 		log.info("Starting daily Zotero sync...");
 		try {
 			await syncZoteroCollection();

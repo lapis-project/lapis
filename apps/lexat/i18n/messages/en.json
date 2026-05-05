@@ -348,13 +348,7 @@
 			"register": {
 				"title": "Register",
 				"placeholder": "register",
-				"tooltip": "Designation of register / language level",
-				"show-all": "Show all"
-			},
-			"register-definition": {
-				"title": "Register name",
-				"placeholder": "register name",
-				"tooltip": "Designation of register / language level",
+				"tooltip": "Targeted language level",
 				"show-all": "Show all"
 			},
 			"variants": {

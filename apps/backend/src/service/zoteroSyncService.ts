@@ -2,11 +2,11 @@ import { log } from "@acdh-oeaw/lib";
 import { schedule } from "node-cron";
 
 import { db } from "@/db/connect.ts";
-import type { ZoteroCollectionData } from "@/types/apiTypes.ts";
+import type { ZoteroCollection } from "@/types/apiTypes.ts";
 
 export const setupZoteroSync = () => {
 	// Cron expression for 3 am every day
-	schedule("0 3 * * *", async () => {
+	schedule("0 14 * * *", async () => {
 		log.info("Starting daily Zotero sync...");
 		try {
 			await syncZoteroCollection();
@@ -33,13 +33,13 @@ async function syncZoteroCollection() {
 		const url = `https://api.zotero.org/groups/${collectionId}/items?format=json&limit=${String(limit)}&start=${String(start)}`;
 		const response = await fetch(url);
 
-		const items = (await response.json()) as Array<ZoteroCollectionData>;
+		const items = (await response.json()) as Array<ZoteroCollection>;
 
 		if (items.length === 0) {
 			break;
 		}
 		for (const item of items) {
-			if (item.itemType === "attachment" || item.itemType === "note") {
+			if (item.data.itemType === "attachment" || item.data.itemType === "note") {
 				continue;
 			}
 
@@ -47,7 +47,7 @@ async function syncZoteroCollection() {
 				.insertInto("bibliography")
 				.values({
 					name_bibliography: item.key,
-					title: item.title || "Unknown Title",
+					title: item.data.title || "Unknown Title",
 					data: JSON.stringify(item),
 				})
 				.onConflict((oc) => oc.column("name_bibliography").doNothing())

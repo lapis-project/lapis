@@ -227,6 +227,6 @@ export interface ZoteroCollection {
 		};
 		creatorSummary: string;
 		parsedDate: string;
-		data: ZoteroCollectionData;
 	};
+	data: ZoteroCollectionData;
 }

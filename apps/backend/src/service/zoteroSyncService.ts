@@ -6,7 +6,7 @@ import type { ZoteroCollection } from "@/types/apiTypes.ts";
 
 export const setupZoteroSync = () => {
 	// Cron expression for 3 am every day
-	schedule("0 3 * * *", async () => {
+	schedule("0 9 * * *", async () => {
 		log.info("Starting daily Zotero sync...");
 		try {
 			await syncZoteroCollection();
@@ -43,6 +43,7 @@ async function syncZoteroCollection() {
 				continue;
 			}
 
+			const title = item.data.title || "Unknown Title";
 			await db
 				.insertInto("bibliography")
 				.values({
@@ -50,7 +51,9 @@ async function syncZoteroCollection() {
 					title: item.data.title || "Unknown Title",
 					data: JSON.stringify(item),
 				})
-				.onConflict((oc) => oc.column("name_bibliography").doNothing())
+				.onConflict((oc) =>
+					oc.column("name_bibliography").doUpdateSet({ title: title, data: JSON.stringify(item) }),
+				)
 				.execute();
 		}
 		log.info(`Fetched and synced items offset ${String(start)} to ${String(start + limit)}`);

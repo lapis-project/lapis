@@ -213,7 +213,7 @@ jobs:
       actions: write
       contents: read
     needs:
-      - build-and-push-image
+      - build_and_deploy
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

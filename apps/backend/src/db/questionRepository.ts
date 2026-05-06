@@ -53,12 +53,14 @@ export async function getAllPhenomenon(projectId: string) {
 export async function getAllPhenomenonById(
 	projectId: number,
 	phenomenonId: number,
-	surveyId: number,
+	surveyIds: Array<number>,
 ) {
 	log.info(`Using following project: ${projectId.toString()}`);
 	if (phenomenonId < 0) {
 		return [];
 	}
+
+	console.log(surveyIds);
 
 	const request = db
 		.with("annotation_data", (query) => {
@@ -92,8 +94,8 @@ export async function getAllPhenomenonById(
 						.as("annotations"),
 				])
 				.groupBy(["response.informant_id"]);
-			if (surveyId > 0) {
-				dbQuery = dbQuery.where("survey.id", "=", surveyId);
+			if (surveyIds.length > 0) {
+				dbQuery = dbQuery.where("survey.id", "in", surveyIds);
 			}
 			if (projectId > 0) {
 				dbQuery = dbQuery.where("project_tagset.project_id", "=", projectId);

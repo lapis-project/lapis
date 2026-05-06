@@ -39,7 +39,7 @@ const searchResponseQuerySchema = object({
 });
 
 const surveyResponseSchema = object({
-	surveyId: optional(pipe(string(), transform(Number)), "-1"),
+	surveyId: optional(pipe(string())),
 	projectId: optional(pipe(string(), transform(Number)), "-1"),
 	phenomenonId: pipe(string(), transform(Number)),
 });
@@ -76,10 +76,16 @@ const questions = new Hono<AppEnv>()
 	 * @returns {Object} 500 - JSON object containing an error message if the database query fails.
 	 */
 	.get("/", vValidator("query", surveyResponseSchema), async (c) => {
-		const { phenomenonId, projectId, surveyId } = c.req.valid("query");
+		const { phenomenonId, projectId } = c.req.valid("query");
+		const { surveyIds } = c.req.queries();
+		log.info("surveyIds", surveyIds);
+		let surveyIds_parsed: Array<number> = [];
 		/*
 		 * Would also work by using the deconstructed object
 		 */
+		if (surveyIds && !surveyIds.includes("")) {
+			surveyIds_parsed = surveyIds.map((id) => Number(id));
+		}
 		if (!phenomenonId) {
 			return c.json("Phenomenon Id is required", 400);
 		}
@@ -88,10 +94,10 @@ const questions = new Hono<AppEnv>()
 		}
 
 		try {
-			const questionById = await getAllPhenomenonById(projectId, phenomenonId, surveyId);
+			const questionById = await getAllPhenomenonById(projectId, phenomenonId, surveyIds_parsed);
 			return c.json(questionById, 200);
 		} catch (error) {
-			log.error(`Error while fetching bibliography:`, error);
+			log.error(`Error while fetching questions:`, error);
 			return c.json({ error: "Failed to fetch questions" }, 500);
 		}
 	})

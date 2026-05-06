@@ -150,12 +150,13 @@ jobs:
     needs:
       - build-and-push-image
     runs-on: ubuntu-latest
-    name: Purge Cache for current branch
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    run: |
-      echo "Finding caches for branch: ${{ github.ref }}"
-      # Fetch cache ids for current branch and delete them
-      gh cache list --ref ${{ github.ref }} --json id --jq '.[].id' | xargs -I {} gh cache delete {} || echo "No caches found or failed to delete."
-
-      echo "Cache purge complete."
+    steps:
+      - name: Purge Cache for current branch
+        run: |
+          echo "Finding caches for branch: ${{ github.ref }}"
+          # Fetch cache ids for current branch and delete them
+          gh cache list --ref ${{ github.ref }} --json id --jq '.[].id' | xargs -I {} gh cache delete {} || echo "No caches found or failed to delete."
+    
+          echo "Cache purge complete."

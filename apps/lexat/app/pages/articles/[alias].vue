@@ -3,8 +3,6 @@
 import type { InferResponseType } from "hono/client";
 import { ArrowLeft, Database, MapPin } from "lucide-vue-next";
 
-const { bibliographyItems, getCitationItems, fetchBibliographyItems } = useCitationGenerator();
-
 const t = useTranslations();
 const env = useRuntimeConfig();
 const route = useRoute();
@@ -80,9 +78,11 @@ const bibliography = computed(() => {
 	if (!article.value?.bibliography?.length) {
 		return [];
 	}
-	const keys = article.value.bibliography.flatMap((entry) => (entry.name ? [entry.name] : []));
-
-	return keys.length ? getCitationItems(keys) : [];
+	return article.value.bibliography
+		.map((b) => b.data.data.extra)
+		.sort(
+			(a, b) => a.localeCompare(b, "de", { sensitivity: "base" }), // locale-aware alphabetical sort
+		);
 });
 
 const phenomenonId = computed(() => {
@@ -106,12 +106,6 @@ const goToMapsPage = async (): Promise<void> => {
 		},
 	});
 };
-
-onMounted(async () => {
-	if (!bibliographyItems.value.length) {
-		await fetchBibliographyItems(article.value?.bibliography.map((b) => b.name).join(",") ?? null);
-	}
-});
 
 if (article.value?.content) {
 	const enrichedContent = addIdsToHeadings(article.value.content);

@@ -1,4 +1,5 @@
 import { StorageSerializers } from "@vueuse/core";
+import type { InferResponseType } from "hono/client";
 
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
@@ -6,49 +7,39 @@ import type { BibliographyItem } from "@/types/zotero";
 export function useCitationGenerator() {
 	const env = useRuntimeConfig();
 
-	const collectionId = "5540614";
-
 	const bibliographyItems = ref<Array<BibliographyItem>>([]);
 
-	const fetchBibliographyItems = async (keyList: string | null = null) => {
+	const { apiClient } = useApiClient();
+	const _getBibliography = apiClient.bib.$get;
+	type APIBibliography = InferResponseType<typeof _getBibliography, 200>;
+
+	const fetchBibliographyItems = async () => {
 		const cached = useSessionStorage<Array<BibliographyItem> | null>("bibliography", null, {
 			serializer: StorageSerializers.object,
 		});
 
 		// only refetch if cache is empty, or if we're asking for specific keys
-		if (!cached.value || keyList) {
+		if (!cached.value) {
 			let items: Array<BibliographyItem> = [];
+			const { data } = await useFetch<APIBibliography>("bib", {
+				query: {
+					page: 1,
+					pageSize: 300,
+				},
+				baseURL: env.public.apiBaseUrl,
+				method: "GET",
+				credentials: "include",
+			});
 
-			if (keyList) {
-				// single fetch by keyList
-				const result = await $fetch<Array<{ data: BibliographyItem }>>(
-					`/groups/${collectionId}/items`,
-					{
-						query: { limit: 100, itemKey: keyList },
-						baseURL: env.public.zoteroBaseUrl,
-						method: "GET",
-					},
-				);
-				items = result.map((i) => i.data).filter((i) => i.itemType !== "note");
-			} else {
-				// full‐collection fetch, two pages of 100 each
-				const [page1, page2] = await Promise.all([
-					$fetch<Array<{ data: BibliographyItem }>>(`/groups/${collectionId}/items`, {
-						query: { limit: 100, start: 0 },
-						baseURL: env.public.zoteroBaseUrl,
-						method: "GET",
-					}),
-					$fetch<Array<{ data: BibliographyItem }>>(`/groups/${collectionId}/items`, {
-						query: { limit: 100, start: 100 },
-						baseURL: env.public.zoteroBaseUrl,
-						method: "GET",
-					}),
-				]);
+			const parse = (arr: APIBibliography["data"]) =>
+				arr
+					// 1. Dig two levels deep to get the pure bibliography data object
+					.map((i) => i.data.data)
+					// 2. Filter out the notes (and fix the previous .date typo!)
+					.filter((innerData) => innerData.itemType !== "note");
 
-				const parse = (arr: Array<{ data: BibliographyItem }>) =>
-					arr.map((i) => i.data).filter((i) => i.itemType !== "note");
-
-				items = [...parse(page1), ...parse(page2)];
+			if (data.value) {
+				items = parse(data.value.data) as Array<BibliographyItem>;
 				// cache the full list
 				cached.value = items;
 			}
@@ -58,16 +49,6 @@ export function useCitationGenerator() {
 			// serve from cache
 			bibliographyItems.value = cached.value;
 		}
-	};
-
-	const getCitationItems = (keys: Array<string>) => {
-		const sanitizedKeys = new Set(keys); // in case of duplicate items
-		return bibliographyItems.value
-			.filter((item) => sanitizedKeys.has(item.key))
-			.map((item) => item.extra) // take the “extra” field
-			.sort(
-				(a, b) => a.localeCompare(b, "de", { sensitivity: "base" }), // locale-aware alphabetical sort
-			);
 	};
 
 	const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
@@ -81,6 +62,5 @@ export function useCitationGenerator() {
 		bibliographyItems,
 		bibliographyOptions,
 		fetchBibliographyItems,
-		getCitationItems,
 	};
 }

@@ -100,7 +100,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.git_ref }}
 
@@ -156,20 +156,19 @@ jobs:
               ;;
           esac
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: "${{ github.repository_owner }}"
           password: "${{ secrets.GITHUB_TOKEN }}"
       - name: "Extract metadata (tags, labels) for Docker"
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: >
-            ghcr.io/${{ github.repository }}-${{ inputs.app_name }}-dev # The container is located
-            at the repository registry root at the moment.
+            ghcr.io/${{ github.repository }}-${{ inputs.app_name }}-dev
           flavor: |
             latest=auto
           tags: |
@@ -177,7 +176,7 @@ jobs:
             type=ref,event=branch
       - name: Build and push Docker image
         # This step remains the same as before
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ${{ steps.config.outputs.dockerfile }}
@@ -210,10 +209,19 @@ jobs:
       KUBE_INGRESS_BASE_DOMAIN: ${{ needs.generate_workflow_vars.outputs.KUBE_INGRESS_BASE_DOMAIN }}
       do_not_generate_additional_host_names: true
   clean_up_cache:
+    permissions:
+      actions: write
+      contents: read
     needs:
-      - build_and_deploy
+      - build-and-push-image
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: MyAlbum/purge-cache@v2
-        with:
-          max-age: 604800
+      - name: Purge Cache for current branch
+        run: |
+          echo "Finding caches for branch: ${{ github.ref }}"
+          # Fetch cache ids for current branch and delete them
+          gh cache list --ref ${{ github.ref }} --json id --jq '.[].id' | xargs -I {} gh cache delete {} || echo "No caches found or failed to delete."
+
+          echo "Cache purge complete."

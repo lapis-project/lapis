@@ -1,47 +1,18 @@
 import { sql } from "kysely";
-import { jsonBuildObject } from "kysely/helpers/postgres";
+import { jsonArrayFrom, jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect.ts";
-import { jsonbBuildObject } from "@/lib/dbHelper.ts";
 import type { Availablelang, Poststatus } from "@/types/db.ts";
 
 import type { PagedArticlesResult } from "../types/apiTypes.ts";
 
 export async function getArticleByAlias(alias: string) {
 	const query = db
-		.with("authors", (query) =>
-			query
-				.selectFrom("user_post")
-				.innerJoin("user_account", "user_post.user_id", "user_account.id")
-				.innerJoin("post", "user_post.post_id", "post.id")
-				.where("post.alias", "=", alias)
-				.where("user_post.user_id", "is not", null)
-				.select(["user_account.firstname", "user_account.lastname", "user_post.post_id"]),
-		)
-		.with("bibliography_query", (query) =>
-			query
-				.selectFrom("bibliography_post")
-				.innerJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
-				.innerJoin("post", "bibliography_post.post_id", "post.id")
-				.where("post.alias", "=", alias)
-				.select(["bibliography_post.post_id", "bibliography.title", "bibliography.data"]),
-		)
-		.with("phenomenon_query", (query) =>
-			query
-				.selectFrom("phenomenon_post")
-				.innerJoin("phenomenon", "phenomenon_post.phenomenon_id", "phenomenon.id")
-				.innerJoin("post", "phenomenon_post.post_id", "post.id")
-				.where("post.alias", "=", alias)
-				.select(["phenomenon.id", "phenomenon.phenomenon_name", "phenomenon_post.post_id"]),
-		)
 		.selectFrom("post")
 		.innerJoin("post_type", "post.post_type_id", "post_type.id")
 		.innerJoin("user_account", "user_account.id", "post.creator_id")
-		.leftJoin("bibliography_query", "bibliography_query.post_id", "post.id")
-		.leftJoin("authors", "authors.post_id", "post.id")
-		.leftJoin("phenomenon_query", "phenomenon_query.post_id", "post.id")
 		.where("post.alias", "=", alias)
-		.select(({ eb }) => [
+		.select((eb) => [
 			"post.id as post_id",
 			"post.title",
 			"post.alias",
@@ -57,47 +28,32 @@ export async function getArticleByAlias(alias: string) {
 			"user_account.firstname as creator_firstname",
 			"user_account.lastname as creator_lastname",
 			"post_type.post_type_name",
-			eb.fn
-				.coalesce(
-					eb.fn
-						.jsonAgg(
-							jsonBuildObject({
-								phenomenon_id: eb.ref("phenomenon_query.id"),
-								name: eb.ref("phenomenon_query.phenomenon_name"),
-							}),
-						)
-						.filterWhere("phenomenon_query.post_id", "is not", null),
-					sql`'[]'`,
-				)
-				.as("phenomenon"),
-			eb.fn
-				.coalesce(
-					eb.fn
-						.jsonAgg(
-							jsonbBuildObject({
-								title: eb.ref("bibliography_query.title"),
-								data: eb.ref("bibliography_query.data"),
-							}),
-						)
-						.filterWhere("bibliography_query.post_id", "is not", null),
-					sql`'[]'`,
-				)
-				.as("bibliography"),
-			eb.fn
-				.coalesce(
-					eb.fn
-						.jsonAgg(
-							jsonbBuildObject({
-								firstname: eb.ref("authors.firstname"),
-								lastname: eb.ref("authors.lastname"),
-							}),
-						)
-						.filterWhere("authors.post_id", "is not", null),
-					sql`'[]'`,
-				)
-				.as("authors"),
-		])
-		.groupBy(["post.id", "post_type.post_type_name", "user_account.id"]);
+
+			jsonArrayFrom(
+				eb
+					.selectFrom("phenomenon_post")
+					.innerJoin("phenomenon", "phenomenon_post.phenomenon_id", "phenomenon.id")
+					.whereRef("phenomenon_post.post_id", "=", "post.id")
+					.select(["phenomenon.id as phenomenon_id", "phenomenon.phenomenon_name as name"]),
+			).as("phenomenon"),
+
+			jsonArrayFrom(
+				eb
+					.selectFrom("bibliography_post")
+					.innerJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
+					.whereRef("bibliography_post.post_id", "=", "post.id")
+					.select(["bibliography.title", "bibliography.data"]),
+			).as("bibliography"),
+
+			jsonArrayFrom(
+				eb
+					.selectFrom("user_post")
+					.innerJoin("user_account as author_account", "user_post.user_id", "author_account.id")
+					.whereRef("user_post.post_id", "=", "post.id")
+					.where("user_post.user_id", "is not", null)
+					.select(["author_account.firstname", "author_account.lastname"]),
+			).as("authors"),
+		]);
 	return await query.executeTakeFirst();
 }
 

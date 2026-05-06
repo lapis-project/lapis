@@ -110,7 +110,7 @@ const surveyRoundOptions = [
 ];
 
 const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
-	query: { id: activeQuestionId, project: "1" },
+	query: { phenomenonId: activeQuestionId, projectId: "1" },
 	baseURL: env.public.apiBaseUrl,
 	method: "get",
 });

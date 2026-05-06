@@ -24,7 +24,7 @@ export async function getArticleByAlias(alias: string) {
 				.innerJoin("bibliography", "bibliography_post.bibliography_id", "bibliography.id")
 				.innerJoin("post", "bibliography_post.post_id", "post.id")
 				.where("post.alias", "=", alias)
-				.select(["bibliography.name_bibliography", "bibliography_post.post_id"]),
+				.select(["bibliography_post.post_id", "bibliography.title", "bibliography.data"]),
 		)
 		.with("phenomenon_query", (query) =>
 			query
@@ -75,7 +75,8 @@ export async function getArticleByAlias(alias: string) {
 					eb.fn
 						.jsonAgg(
 							jsonbBuildObject({
-								name: eb.ref("bibliography_query.name_bibliography"),
+								title: eb.ref("bibliography_query.title"),
+								data: eb.ref("bibliography_query.data"),
 							}),
 						)
 						.filterWhere("bibliography_query.post_id", "is not", null),

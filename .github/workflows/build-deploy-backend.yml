@@ -106,9 +106,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
+          # The container is located at the repository registry root at the moment.
           images: >
-            ghcr.io/${{ github.repository }}-backend # The container is located at the repository
-            registry root at the moment.
+            ghcr.io/${{ github.repository }}-backend
           flavor: |
             latest=auto
           tags: |
@@ -158,5 +158,5 @@ jobs:
           echo "Finding caches for branch: ${{ github.ref }}"
           # Fetch cache ids for current branch and delete them
           gh cache list --ref ${{ github.ref }} --json id --jq '.[].id' | xargs -I {} gh cache delete {} || echo "No caches found or failed to delete."
-    
+
           echo "Cache purge complete."

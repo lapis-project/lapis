@@ -22,6 +22,10 @@ export type APITranscriptFileData = APITranscriptPreview["fileData"]["data"][0];
 
 export type APIEvent = APITranscriptFileData["events"][0];
 
+export type APIKwicResponse = ExcludeStrings<
+	InferResponseType<ApiClient["corpus"]["search"]["kwic"]["$get"], 200>
+>;
+
 export type Speaker = {
 	gender: string | null;
 	sigle: string | null;

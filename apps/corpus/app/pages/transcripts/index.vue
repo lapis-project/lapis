@@ -13,12 +13,20 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 
+const filterOpen = ref(false);
+
+const activeTab = ref<"plain" | "kwic" | "xml">("plain");
 const bookmarkedIds = ref<Array<string>>([]);
 
 const { response, isPending, refreshTranscripts } = useTranscripts(2);
+const { response: kwicResponse, search, status } = useSearchKwic();
 
 const transcripts = computed(() => {
 	return response.value;
+});
+
+const kwic = computed(() => {
+	return kwicResponse.value;
 });
 
 const searchResults = ref<Array<Transcript>>(initialData.transcripts);
@@ -100,6 +108,22 @@ watch(
 	},
 	{ immediate: true },
 );
+
+watch(
+	() => route.query,
+	async (q) => {
+		if (q.word || q.lemma || q.pos) {
+			await search({
+				word: q.word as string,
+				lemma: q.lemma as string,
+				pos: q.pos as string,
+				mode: (q.mode as "simple" | "regex") ?? "simple",
+			});
+			activeTab.value = "kwic";
+		}
+	},
+	{ immediate: true, deep: true },
+);
 </script>
 
 <template>
@@ -139,12 +163,32 @@ watch(
 
 			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
 				<div class="flex relative items-center mb-4 pb-4 border-b gap-4">
-					<SearchBar />
+					<SearchBar search-type="default" />
 					<Separator orientation="vertical" />
-					<Sheet>
-						<SheetTrigger><Button variant="ghost"> Filter </Button></SheetTrigger>
+					<Sheet v-model:open="filterOpen">
+						<SheetTrigger><Button variant="outline"> Erweiterte Suche </Button></SheetTrigger>
 						<SheetContent class="h-[50vh] scroll-y-auto max-h-full" side="bottom">
-							<TagBuilderGroup />
+							<Tabs
+								class="w-full flex flex-col flex-grow min-h-0 overflow-hidden"
+								default-value="plain"
+							>
+								<div class="flex gap-4 mx-10 mt-2 items-center flex-shrink-0">
+									<TabsList class="w-full">
+										<TabsTrigger value="tags"> Tags </TabsTrigger>
+										<TabsTrigger value="word"> Word / Lemma / Pos </TabsTrigger>
+										<TabsTrigger value="cql"> CQL </TabsTrigger>
+									</TabsList>
+								</div>
+								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
+									<TagBuilderGroup />
+								</TabsContent>
+								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
+									<SearchKwic @search="filterOpen = false" />
+								</TabsContent>
+								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="cql">
+									Sample content
+								</TabsContent>
+							</Tabs>
 						</SheetContent>
 					</Sheet>
 				</div>
@@ -152,7 +196,7 @@ watch(
 				<p class="text-lg mb-3 flex-shrink-0">
 					Ergebnisse <span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
 				</p>
-				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" default-value="plain">
+				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" v-model="activeTab">
 					<div class="flex gap-4 items-center flex-shrink-0">
 						<TabsList class="w-full">
 							<TabsTrigger value="plain"> Plain </TabsTrigger>
@@ -196,7 +240,42 @@ watch(
 						</div>
 					</TabsContent>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="kwic">
-						Sample content
+						<div v-if="status === 'pending'" class="flex justify-center py-6">
+							<Spinner />
+						</div>
+
+						<div v-else-if="kwic?.Lines?.length" class="flex flex-col gap-2 overflow-y-auto">
+							<div
+								class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-8 items-center text-muted-foreground"
+							>
+								<span class="text-right">Rechter Kontext</span>
+								<span>KWIC</span>
+								<span class="text-left">Linker Kontext</span>
+							</div>
+							<div
+								v-for="line in kwic.Lines"
+								:key="line.toknum"
+								class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center"
+							>
+								<div
+									class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+								>
+									<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
+								</div>
+
+								<span
+									class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
+								>
+									{{ line.Kwic ? line.Kwic[0]?.str : "" }}
+								</span>
+
+								<div
+									class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
+								>
+									<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
+								</div>
+							</div>
+						</div>
 					</TabsContent>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="xml">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>

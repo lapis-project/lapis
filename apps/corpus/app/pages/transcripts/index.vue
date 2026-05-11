@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { BookmarkIcon, ChevronLeft, ChevronRight, Download } from "lucide-vue-next";
 import { toast } from "vue-sonner";
-
 import initialData from "@/assets/data/transcripts-demo.json";
 
 import type { APITranscriptsWithBookmark } from "@/types/api";
@@ -27,6 +26,27 @@ const transcripts = computed(() => {
 
 const kwic = computed(() => {
 	return kwicResponse.value;
+});
+
+const limit = 20;
+const totalPages = computed(() => {
+	return kwic.value?.concsize ? Math.ceil(kwic.value.concsize / limit) : 0;
+});
+const pages = computed(() => {
+	return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+});
+
+const currentPage = computed({
+	get: () => Number(route.query.page ?? 1),
+	set: (page: number) => {
+		router.push({
+			query: {
+				...route.query,
+				page: String(page),
+				from: String((page - 1) * limit),
+			},
+		});
+	},
 });
 
 const searchResults = ref<Array<Transcript>>(initialData.transcripts);
@@ -118,6 +138,7 @@ watch(
 				lemma: q.lemma as string,
 				pos: q.pos as string,
 				mode: (q.mode as "simple" | "regex") ?? "simple",
+				from: (q.from as string) ?? "0",
 			});
 			activeTab.value = "kwic";
 		}
@@ -192,10 +213,6 @@ watch(
 						</SheetContent>
 					</Sheet>
 				</div>
-
-				<p class="text-lg mb-3 flex-shrink-0">
-					Ergebnisse <span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
-				</p>
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" v-model="activeTab">
 					<div class="flex gap-4 items-center flex-shrink-0">
 						<TabsList class="w-full">
@@ -213,6 +230,10 @@ watch(
 							<Spinner />
 						</div>
 						<div v-else>
+							<p class="text-lg mb-3 flex-shrink-0">
+								Ergebnisse
+								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
+							</p>
 							<div v-for="result in transcripts" :key="result.transcript_id">
 								<div
 									class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
@@ -239,12 +260,16 @@ watch(
 							</div>
 						</div>
 					</TabsContent>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="kwic">
+					<TabsContent class="flex flex-col flex-grow min-h-0" value="kwic">
 						<div v-if="status === 'pending'" class="flex justify-center py-6">
 							<Spinner />
 						</div>
 
-						<div v-else-if="kwic?.Lines?.length" class="flex flex-col gap-2 overflow-y-auto">
+						<div v-else-if="kwic?.Lines?.length" class="flex flex-col flex-grow min-h-0 gap-2">
+							<p class="text-lg flex-shrink-0">
+								Ergebnisse
+								<span class="text-sm text-muted-foreground">({{ kwic.concsize }})</span>
+							</p>
 							<div
 								class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-8 items-center text-muted-foreground"
 							>
@@ -252,28 +277,60 @@ watch(
 								<span>KWIC</span>
 								<span class="text-left">Linker Kontext</span>
 							</div>
-							<div
-								v-for="line in kwic.Lines"
-								:key="line.toknum"
-								class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center"
-							>
+							<div class="flex-1 min-h-0 overflow-y-auto">
 								<div
-									class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+									v-for="line in kwic.Lines"
+									:key="line.toknum"
+									class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center"
 								>
-									<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
-								</div>
+									<div
+										class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+									>
+										<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
+									</div>
 
-								<span
-									class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
-								>
-									{{ line.Kwic ? line.Kwic[0]?.str : "" }}
-								</span>
+									<span
+										class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
+									>
+										{{ line.Kwic ? line.Kwic[0]?.str : "" }}
+									</span>
 
-								<div
-									class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
-								>
-									<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
+									<div
+										class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
+									>
+										<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
+									</div>
 								</div>
+							</div>
+							<div class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4">
+								<Pagination
+									v-model:page="currentPage"
+									:items-per-page="limit"
+									:total="kwic.concsize"
+									:sibling-count="1"
+									:show-edges="true"
+									class="flex items-center gap-1"
+								>
+									<PaginationContent v-slot="{ items }">
+										<PaginationPrevious />
+
+										<template v-for="(item, i) in items" :key="i">
+											<PaginationEllipsis v-if="item.type === 'ellipsis'" />
+
+											<PaginationItem v-else-if="item.type === 'page'" :value="item.value" as-child>
+												<Button
+													class="size-9 p-0"
+													:variant="item.value === currentPage ? 'default' : 'outline'"
+													@click="currentPage = item.value"
+												>
+													{{ item.value }}
+												</Button>
+											</PaginationItem>
+										</template>
+
+										<PaginationNext />
+									</PaginationContent>
+								</Pagination>
 							</div>
 						</div>
 					</TabsContent>

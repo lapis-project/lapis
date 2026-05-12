@@ -102,16 +102,17 @@ const open = ref(false);
 				variant="outline"
 			>
 				<span class="grow truncate text-left">
-					<!-- {{
+					{{
 						model.length
 							? props.options.find((question) => question.value === model[0])?.label
 							: t("Combobox.button", { placeholder: props.placeholder })
-					}}  -->
-					{{
+					}}
+					<!-- {{
 						model.includes("all")
 							? "Alles anzeigen"
 							: props.options.find((o) => o.value === model[0])?.label
 					}}
+				-->
 				</span>
 				<svg v-if="model.length > 1" class="ml-1 shrink-0" height="20" width="20">
 					<circle cx="10" cy="10" fill="currentColor" r="10" />

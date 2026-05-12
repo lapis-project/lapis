@@ -105,9 +105,9 @@ const activeQuestionId = computed(() => {
 
 // survey rounds select dummy data
 const surveyRoundOptions = [
-	{ value: "all", label: "Alles anzeigen", level: 0, group: "all" },
-	{ value: "1", label: "Runde 1", level: 1, group: "1" },
-	{ value: "2", label: "Runde 2", level: 1, group: "2" },
+	{ value: "all", label: t("MapsPage.selection.survey.options.all"), level: 0, group: "all" },
+	{ value: "1", label: t("MapsPage.selection.survey.options.one"), level: 1, group: "1" },
+	{ value: "2", label: t("MapsPage.selection.survey.options.two"), level: 1, group: "2" },
 ];
 
 const surveyIdsForApi = computed(() => {

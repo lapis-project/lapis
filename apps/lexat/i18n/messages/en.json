@@ -374,7 +374,12 @@
 			"filter-locations": "Filter locations",
 			"survey": {
 				"title": "Survey rounds",
-				"placeholder": "Choose rounds"
+				"placeholder": "Choose rounds",
+				"options": {
+					"all": "Show all",
+					"one": "Round 1",
+					"two": "Round 2"
+				}
 			}
 		},
 		"map": {

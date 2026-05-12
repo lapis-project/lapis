@@ -8,7 +8,8 @@ type KwicParams = {
 	pos?: string;
 	feats?: string;
 	mode?: "simple" | "regex";
-	from?: string;
+	fromp?: string;
+    pagesize?: string;
 };
 
 export function useSearchKwic() {

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { BookmarkIcon, ChevronLeft, ChevronRight, Download } from "lucide-vue-next";
+import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "lucide-vue-next";
 import { toast } from "vue-sonner";
 import initialData from "@/assets/data/transcripts-demo.json";
 
@@ -76,6 +76,7 @@ const gridColumns = computed(() => {
 const currentId = computed(() => {
 	return route.query.selection;
 });
+
 const currentSelectionArray = computed(() => {
 	return Array.isArray(route.query.selection)
 		? (route.query.selection as Array<string>)
@@ -281,25 +282,42 @@ watch(
 								<div
 									v-for="line in kwic.Lines"
 									:key="line.toknum"
-									class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center"
+									class="grid grid-cols-[1fr_auto] gap-2 items-center cursor-pointer"
 								>
-									<div
-										class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+									<button
+										class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
+										@click="
+											line.Tbl_refs ? handleSelection(line.Tbl_refs[0]?.slice(4, 5) ?? '') : ''
+										"
 									>
-										<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
-									</div>
+										<span class="sr-only">
+											Detailview Preview zu Transkript
+											{{ line.Tbl_refs ? line.Tbl_refs[0]?.slice(4, 5) : "existiert nicht" }}
+										</span>
 
-									<span
-										class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
-									>
-										{{ line.Kwic ? line.Kwic[0]?.str : "" }}
-									</span>
+										<div
+											class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+										>
+											<div
+												class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+											>
+												<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
+											</div>
 
-									<div
-										class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
-									>
-										<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
-									</div>
+											<span
+												class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
+											>
+												{{ line.Kwic ? line.Kwic[0]?.str : "" }}
+											</span>
+
+											<div
+												class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
+											>
+												<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
+											</div>
+										</div>
+									</button>
+									<CopyIcon :size="16" />
 								</div>
 							</div>
 							<div class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4">

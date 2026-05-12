@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import type { OrderByDirection } from "kysely";
 import { array, number, object, optional, pipe, safeParse, string, transform } from "valibot";
 
+import { checkIfPrivilegedForAdminOrHigher, restrictedRoute } from "@/lib/authHelper.ts";
 // import { restrictedRoute } from "@/lib/authHelper";
 import type { AppEnv } from "@/lib/context.ts";
 
@@ -13,7 +14,9 @@ import {
 	getAllRegister,
 	getAllSurveys,
 	getAnnotationsByPhaenAndProjectId,
+	getImpulsImageForPhen,
 	getResultsByPhaen,
+	updatePhenWithNewImage,
 } from "../db/questionRepository.ts";
 
 const saveMapSchema = object({
@@ -38,6 +41,11 @@ const searchResponseQuerySchema = object({
 	pageSize: number(),
 });
 
+const addImageSchema = object({
+	image_url: string(),
+	phen_id: number(),
+});
+
 const surveyResponseSchema = object({
 	surveyId: optional(pipe(string())),
 	projectId: optional(pipe(string(), transform(Number)), "-1"),
@@ -48,6 +56,8 @@ const surveyResponseSchema = object({
 // questions.use("*", restrictedRoute);
 
 const questions = new Hono<AppEnv>()
+	.use("/phen/addimage", restrictedRoute)
+	.use("/phen/addimage", checkIfPrivilegedForAdminOrHigher)
 	.get("/survey/:project", async (c) => {
 		const projectId = c.req.param("project");
 		if (!projectId) {
@@ -118,7 +128,7 @@ const questions = new Hono<AppEnv>()
 		const phenomenonId = c.req.param("id");
 		const { project, page, offset, pageSize, lowerAge, upperAge, orderBy, dir } = c.req.query();
 
-		/*
+		/*query
 		 * orderBy can receive the parameters which influence the order of the result query for the table view
 		 * this can be by:
 		 * - response_text (res)
@@ -306,6 +316,26 @@ const questions = new Hono<AppEnv>()
 			return c.json("No varieties found", 404);
 		}
 		return c.json(allVariety, 200);
+	})
+	/**
+	 * This endpoint checks if a phenomenon has already an image.
+	 * Will return the link of the image if a link is already saved
+	 * Will return an empty object if the phenomenon does not have an image assigned
+	 */
+	.get("/phen/:id", async (c) => {
+		const phen_id = c.req.param("id");
+		if (Number.isNaN(phen_id)) {
+			return c.json("Parameter phen_id must be a number!", 400);
+		}
+		const stimulus_media = await getImpulsImageForPhen(Number(phen_id));
+
+		return c.json(stimulus_media, 200);
+	})
+	.put("/phen/addimage", vValidator("json", addImageSchema), async (c) => {
+		const { phen_id, image_url } = c.req.valid("json");
+
+		await updatePhenWithNewImage(phen_id, image_url);
+		return c.json(`Updated tasks for phenomenon with ID ${String(phen_id)}`, 200);
 	});
 
 export default questions;

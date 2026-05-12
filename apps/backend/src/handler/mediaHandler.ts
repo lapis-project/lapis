@@ -1,11 +1,25 @@
+import path from "node:path";
+
 import { log } from "@acdh-oeaw/lib";
+import { vValidator } from "@hono/valibot-validator";
 import { Hono } from "hono";
+import { file, mimeType, object, pipe } from "valibot";
 
 import { getCoverById, updateArticleCover } from "@/db/cmsRepository.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import { generateSignedImageUrl } from "@/service/imageService.ts";
 
-import { deleteFromS3, uploadToS3 } from "../service/storageService.ts";
+import { checkIfExistsInS3, deleteFromS3, uploadToS3 } from "../service/storageService.ts";
+
+const uploadSchema = object({
+	image: pipe(
+		file("Payload must be a valid File object."),
+		mimeType(
+			["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml"],
+			"File must be a valid image MIME type.",
+		),
+	),
+});
 
 const media = new Hono()
 	.post("/upload/:id", async (c) => {
@@ -54,6 +68,23 @@ const media = new Hono()
 			console.error("Error in media upload handler:", error);
 			return c.json({ message: "Error uploading file" }, 500);
 		}
+	})
+	.post("/process-image", vValidator("form", uploadSchema), async (c) => {
+		const { image } = c.req.valid("form");
+
+		const filename = image.name;
+		const phenomenonName = path.parse(filename).name;
+		try {
+			await checkIfExistsInS3(phenomenonName);
+		} catch (error: unknown) {
+			if (error instanceof Error) {
+				log.info(`An error has occurred while uploading image: `, error.message);
+			}
+			return c.json({ message: "Image already exists. Skipped." }, 200);
+		}
+		// Check if the image already exists in our S3 Bucket
+
+		return c.json({ message: "Processed successfully" }, 200);
 	});
 
 media.use("*", restrictedRoute);

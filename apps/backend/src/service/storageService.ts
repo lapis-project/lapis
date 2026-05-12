@@ -1,6 +1,11 @@
 import { randomBytes } from "node:crypto";
 
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+	DeleteObjectCommand,
+	HeadObjectCommand,
+	PutObjectCommand,
+	S3Client,
+} from "@aws-sdk/client-s3";
 
 const endpoint = process.env.S3_ENDPOINT ?? "";
 const accessKeyId = process.env.S3_ACCESS_KEY ?? "";
@@ -85,5 +90,24 @@ export const deleteFromS3 = async (resourceUri: string) => {
 	} catch (error) {
 		console.error("Error deleting object from S3:", error);
 		throw new S3DeleteError("Failed to delete file from S3");
+	}
+};
+
+export const checkIfExistsInS3 = async (resourceUri: string) => {
+	try {
+		const params = {
+			Bucket: bucketName,
+			Key: resourceUri,
+		};
+		const command = new HeadObjectCommand(params);
+		await s3Client.send(command);
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			if (error.name !== "NotFound") {
+				throw new S3UploadError("Failed to upload file to S3. S3 Object failed");
+			}
+		} else {
+			throw new S3UploadError("Failed to upload file to S3. An unexpected error occured");
+		}
 	}
 };

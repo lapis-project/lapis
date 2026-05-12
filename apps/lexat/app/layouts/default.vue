@@ -5,11 +5,13 @@ const t = useTranslations();
 <template>
 	<div class="grid min-h-full grid-rows-[auto_1fr_auto]">
 		<SkipLink target-id="main-content">{{ t("DefaultLayout.skip-to-main-content") }}</SkipLink>
+		<AppAnnouncementBanner />
+		<AppHeader class="sticky top-0 left-0 right-0 border-b" />
 
-		<AppHeader class="fixed top-0 left-0 right-0" />
 		<ErrorBoundary>
 			<slot />
 		</ErrorBoundary>
+
 		<AppFooter />
 	</div>
 </template>

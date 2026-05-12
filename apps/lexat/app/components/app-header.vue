@@ -25,8 +25,8 @@ const mobileLinks = computed(() => {
 </script>
 
 <template>
-	<header class="container border-b bg-background z-40">
-		<div class="flex h-14 sm:h-16 items-center justify-between gap-4 py-4">
+	<header class="border-b bg-background z-40">
+		<div class="container flex h-14 sm:h-16 items-center justify-between gap-4 py-4">
 			<Drawer v-model:open="drawerOpen">
 				<DrawerTrigger class="lg:hidden">
 					<ClientOnly>

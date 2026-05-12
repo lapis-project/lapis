@@ -43,7 +43,7 @@ const currentPage = computed({
 			query: {
 				...route.query,
 				page: String(page),
-				from: String((page - 1) * limit),
+				fromp: String((page - 1) * limit),
 			},
 		});
 	},
@@ -139,7 +139,8 @@ watch(
 				lemma: q.lemma as string,
 				pos: q.pos as string,
 				mode: (q.mode as "simple" | "regex") ?? "simple",
-				from: (q.from as string) ?? "0",
+				fromp: (q.fromp as string) ?? "1",
+  				pagesize: String(limit),
 			});
 			activeTab.value = "kwic";
 		}
@@ -304,12 +305,12 @@ function copyKwicLine(line: KwicLine) {
 									<button
 										class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
 										@click="
-											line.Tbl_refs ? handleSelection(line.Tbl_refs[0]?.slice(4, 5) ?? '') : ''
+											line.Tbl_refs ? handleSelection( line.Tbl_refs[0]?.slice(18, 25) ?? '') : ''
 										"
 									>
 										<span class="sr-only">
 											Detailview Preview zu Transkript
-											{{ line.Tbl_refs ? line.Tbl_refs[0]?.slice(4, 5) : "existiert nicht" }}
+											{{ line.Tbl_refs ?  line.Tbl_refs[0]?.slice(18, 25) : "existiert nicht" }}
 										</span>
 
 										<div

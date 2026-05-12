@@ -378,7 +378,12 @@
 			"filter-locations": "Ortspunkte filtern",
 			"survey": {
 				"title": "Fragebogenrunden",
-				"placeholder": "Runden wählen"
+				"placeholder": "Runden wählen",
+				"options": {
+					"all": "Alles anzeigen",
+					"one": "Runde 1",
+					"two": "Runde 2"
+				}
 			}
 		},
 		"map": {

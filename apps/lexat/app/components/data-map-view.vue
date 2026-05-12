@@ -81,7 +81,7 @@ const mappedQuestions = computed(() => {
 
 const activeAgeGroup = ref([0, 100]);
 const activeLocations = ref<Array<ComboboxOption>>([]);
-const activeSurveyRound = ref<string>("1");
+const activeSurveyRounds = ref<Array<string>>(["all"]);
 const changedColors = ref<Record<string, string>>({});
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
@@ -105,12 +105,20 @@ const activeQuestionId = computed(() => {
 
 // survey rounds select dummy data
 const surveyRoundOptions = [
-	{ value: "1", label: "Runde 1" },
-	{ value: "2", label: "Runde 2" },
+	{ value: "all", label: t("MapsPage.selection.survey.options.all"), level: 0, group: "all" },
+	{ value: "1", label: t("MapsPage.selection.survey.options.one"), level: 1, group: "1" },
+	{ value: "2", label: t("MapsPage.selection.survey.options.two"), level: 1, group: "2" },
 ];
 
+const surveyIdsForApi = computed(() => {
+	if (activeSurveyRounds.value.includes("all")) {
+		return surveyRoundOptions.filter((sr) => sr.level === 1).map((r) => r.value);
+	}
+	return activeSurveyRounds.value;
+});
+
 const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
-	query: { phenomenonId: activeQuestionId, projectId: "1" },
+	query: { phenomenonId: activeQuestionId, projectId: "1", surveyIds: surveyIdsForApi },
 	baseURL: env.public.apiBaseUrl,
 	method: "get",
 });
@@ -573,11 +581,13 @@ const getQueryArray = (
 const updateUrlParams = async () => {
 	const queryObject: Record<string, string | Array<string>> = {};
 	Object.entries(route.query).forEach(([key, value]) => {
-		if (!["a", "q", "r", "v", "c", "sv"].includes(key)) {
+		if (!["a", "q", "r", "v", "c", "sv", "sr"].includes(key)) {
 			queryObject[key] = value;
 		}
 	});
-
+	if (activeSurveyRounds.value.length > 0) {
+		queryObject.sr = activeSurveyRounds.value;
+	}
 	if (activeAgeGroup.value.length > 0) {
 		queryObject.a = activeAgeGroup.value.toString();
 	}
@@ -615,6 +625,7 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	activeLocations.value = [];
 	popover.value = null;
 	changedColors.value = {};
+	activeSurveyRounds.value = ["all"];
 	await updateUrlParams();
 };
 
@@ -635,6 +646,18 @@ const initializeFromUrl = () => {
 		if (randomQuestion) {
 			activeQuestion.value = randomQuestion.value;
 		}
+	}
+	const surveyParams = getQueryArray(route, "sr");
+
+	if (surveyParams.length > 0) {
+		const params = surveyParams.map(String);
+		if (params.includes("1") && params.includes("2")) {
+			activeSurveyRounds.value = ["all"];
+		} else {
+			activeSurveyRounds.value = params;
+		}
+	} else {
+		activeSurveyRounds.value = ["all"];
 	}
 
 	const registerParams = getQueryArray(route, "r");
@@ -803,6 +826,15 @@ watch(activeQuestion, async () => {
 });
 
 watch(
+	activeSurveyRounds,
+	async () => {
+		popover.value = null;
+		await updateUrlParams();
+	},
+	{ deep: true },
+);
+
+watch(
 	activeVariants,
 	() => {
 		popover.value = null;
@@ -920,11 +952,12 @@ watch(activeVariants, updateUrlParams, {
 								<div class="mt-2 mb-1 ml-1 text-sm font-semibold">
 									{{ t("MapsPage.selection.survey.title") }}
 								</div>
-								<BaseSelect
-									v-model="activeSurveyRound"
-									disabled
+								<MultiSelect
+									v-model="activeSurveyRounds"
+									data-testid="survey"
 									:options="surveyRoundOptions"
 									:placeholder="t('MapsPage.selection.survey.placeholder')"
+									single-level
 								/>
 							</div>
 							<div class="">

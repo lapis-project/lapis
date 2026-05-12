@@ -4,8 +4,6 @@ import { ref } from "vue";
 
 import type { DropdownOption } from "@/types/dropdown-option";
 
-const t = useTranslations();
-
 const model = defineModel<Array<string>>({ default: [""] });
 
 export interface Props {
@@ -109,6 +107,12 @@ const open = ref(false);
 							? props.options.find((question) => question.value === model[0])?.label
 							: t("Combobox.button", { placeholder: props.placeholder })
 					}}
+					<!-- {{
+						model.includes("all")
+							? "Alles anzeigen"
+							: props.options.find((o) => o.value === model[0])?.label
+					}}
+				-->
 				</span>
 				<svg v-if="model.length > 1" class="ml-1 shrink-0" height="20" width="20">
 					<circle cx="10" cy="10" fill="currentColor" r="10" />

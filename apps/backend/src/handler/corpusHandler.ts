@@ -30,7 +30,11 @@ const SearchQuerySchema = object({
 
 	mode: optional(union([literal("simple"), literal("regex")]), "simple"),
 
-	from: optional(string(), "0"),
+	fromp: optional(string(), "1"),
+
+	pagesize: optional(string(), "50"),
+
+	refs: optional(string(), ""),
 });
 
 type RunCgiResponse =
@@ -56,7 +60,7 @@ const corpus = new Hono<AppEnv>()
 			);
 		}
 
-		const { word, query, lemma, pos, feats, mode, from } = result.output;
+		const { word, query, lemma, pos, feats, mode, fromp, refs, pagesize } = result.output;
 
 		// consolidate 'word' and 'query' (backward compatibility)
 		const wordInput = word ?? query;
@@ -80,13 +84,14 @@ const corpus = new Hono<AppEnv>()
 		);
 
 		try {
-			const response = await searchRequest(cql, from, "concordance");
+			const response = await searchRequest(cql, fromp, "concordance", refs, pagesize);
 
 			if (!response.ok) {
 				console.error(`NoSke Error: ${response.statusText}`);
 				return c.json({ error: "Upstream service error" }, 502);
 			}
 			const data = (await response.json()) as RunCgiResponse;
+
 			return c.json(data, 200);
 		} catch (error) {
 			console.error(error);

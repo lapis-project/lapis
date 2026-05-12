@@ -3,7 +3,7 @@ import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "luc
 import { toast } from "vue-sonner";
 import initialData from "@/assets/data/transcripts-demo.json";
 
-import type { APITranscriptsWithBookmark } from "@/types/api";
+import type { APITranscriptsWithBookmark, KwicLine } from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
@@ -146,6 +146,19 @@ watch(
 	},
 	{ immediate: true, deep: true },
 );
+
+function copyKwicLine(line: KwicLine) {
+
+	const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";
+	const kwic = line.Kwic?.map((t: any) => t.str).join(" ") ?? "";
+	const right = line.Right?.map((t: any) => t.str).join(" ") ?? "";
+
+	const text = `${left} ${kwic} ${right}`.replace(/\s+/g, " ").trim();
+
+	navigator.clipboard.writeText(text).then(() => {
+		toast.success("Zeile wurde in die Zwischenablage kopiert!");
+	});
+}
 </script>
 
 <template>
@@ -272,18 +285,22 @@ watch(
 								<span class="text-sm text-muted-foreground">({{ kwic.concsize }})</span>
 							</p>
 							<div
-								class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-8 items-center text-muted-foreground"
+								class="py-2 text-sm grid grid-cols-[auto_1fr]  gap-3 items-center text-muted-foreground"
 							>
+								<span>Line ID</span>
+								<div class="flex justify-center mr-27">
 								<span class="text-right">Rechter Kontext</span>
-								<span>KWIC</span>
+								<span class="px-5">KWIC</span>
 								<span class="text-left">Linker Kontext</span>
+								</div>
 							</div>
-							<div class="flex-1 min-h-0 overflow-y-auto">
+							<div class="flex-1 min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
 								<div
 									v-for="line in kwic.Lines"
 									:key="line.toknum"
-									class="grid grid-cols-[1fr_auto] gap-2 items-center cursor-pointer"
+									class="grid grid-cols-[auto_1fr_auto] gap-2 items-center"
 								>
+									<span class="text-xs text-muted-foreground">{{ line.toknum }}</span>
 									<button
 										class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
 										@click="
@@ -317,7 +334,9 @@ watch(
 											</div>
 										</div>
 									</button>
-									<CopyIcon :size="16" />
+									<Button variant="ghost" @click="copyKwicLine(line)">
+										<CopyIcon :size="16" />
+									</Button>
 								</div>
 							</div>
 							<div class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4">

@@ -26,6 +26,9 @@ export type APIKwicResponse = ExcludeStrings<
 	InferResponseType<ApiClient["corpus"]["search"]["kwic"]["$get"], 200>
 >;
 
+type KwicLines = NonNullable<APIKwicResponse>["Lines"];
+export type KwicLine = NonNullable<KwicLines>[number];
+
 export type Speaker = {
 	gender: string | null;
 	sigle: string | null;

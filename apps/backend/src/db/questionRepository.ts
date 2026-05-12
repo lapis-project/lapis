@@ -313,3 +313,29 @@ export async function getAllSurveys() {
 		.groupBy("survey.id")
 		.execute();
 }
+
+export async function getImpulsImageForPhen(phen_id: number) {
+	return await db
+		.selectFrom("phenomenon")
+		.innerJoin("phenomenon_task", "phenomenon_task.phenomenon_id", "phenomenon.id")
+		.innerJoin("task", "task.id", "phenomenon_task.task_id")
+		.select(["task.stimulus_media", "phenomenon.id", "phenomenon.phenomenon_name"])
+		.groupBy(["phenomenon.id", "task.stimulus_media"])
+		.where("phenomenon.id", "=", phen_id)
+		.execute();
+}
+
+export async function updatePhenWithNewImage(phen_id: number, image_url: string) {
+	return await db
+		.updateTable("task")
+		.set({
+			stimulus_media: image_url,
+		})
+		.where("id", "in", (eb) =>
+			eb
+				.selectFrom("phenomenon_task")
+				.select("phenomenon_task.task_id")
+				.where("phenomenon_task.phenomenon_id", "=", phen_id),
+		)
+		.execute();
+}

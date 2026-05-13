@@ -275,7 +275,7 @@ function copyKwicLine(line: KwicLine) {
 						</div>
 					</TabsContent>
 					<TabsContent class="flex flex-col flex-grow min-h-0" value="kwic">
-						<div v-if="status === 'pending'" class="flex justify-center py-6">
+						<div v-if="status === 'pending'" class="flex justify-center my-auto py-6">
 							<Spinner />
 						</div>
 
@@ -370,6 +370,7 @@ function copyKwicLine(line: KwicLine) {
 								</Pagination>
 							</div>
 						</div>
+						<div v-else class="text-md text-muted-foreground justify-center flex my-auto">Keine Ergebnisse vorhanden.</div>
 					</TabsContent>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="xml">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>

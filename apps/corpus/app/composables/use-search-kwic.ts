@@ -9,7 +9,7 @@ type KwicParams = {
 	feats?: string;
 	mode?: "simple" | "regex";
 	fromp?: string;
-    pagesize?: string;
+	pagesize?: string;
 };
 
 export function useSearchKwic() {

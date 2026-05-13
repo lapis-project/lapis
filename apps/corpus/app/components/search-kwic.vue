@@ -28,8 +28,8 @@ function handleSearch() {
 			lemma: form.lemma || undefined,
 			pos: form.pos || undefined,
 			mode: mode.value,
-            page: "1",
-            fromp: 0,
+			page: "1",
+			fromp: 0,
 		},
 	});
 

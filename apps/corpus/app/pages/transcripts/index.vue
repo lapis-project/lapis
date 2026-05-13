@@ -28,7 +28,7 @@ const kwic = computed(() => {
 	return kwicResponse.value;
 });
 
-const limit = 20;
+const limit = 50;
 const totalPages = computed(() => {
 	return kwic.value?.concsize ? Math.ceil(kwic.value.concsize / limit) : 0;
 });
@@ -43,7 +43,7 @@ const currentPage = computed({
 			query: {
 				...route.query,
 				page: String(page),
-				fromp: String((page - 1) * limit),
+				fromp: String(page),
 			},
 		});
 	},
@@ -140,7 +140,7 @@ watch(
 				pos: q.pos as string,
 				mode: (q.mode as "simple" | "regex") ?? "simple",
 				fromp: (q.fromp as string) ?? "1",
-  				pagesize: String(limit),
+				pagesize: String(limit),
 			});
 			activeTab.value = "kwic";
 		}
@@ -149,7 +149,6 @@ watch(
 );
 
 function copyKwicLine(line: KwicLine) {
-
 	const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";
 	const kwic = line.Kwic?.map((t: any) => t.str).join(" ") ?? "";
 	const right = line.Right?.map((t: any) => t.str).join(" ") ?? "";
@@ -286,13 +285,13 @@ function copyKwicLine(line: KwicLine) {
 								<span class="text-sm text-muted-foreground">({{ kwic.concsize }})</span>
 							</p>
 							<div
-								class="py-2 text-sm grid grid-cols-[auto_1fr]  gap-3 items-center text-muted-foreground"
+								class="py-2 text-sm grid grid-cols-[auto_1fr] gap-3 items-center text-muted-foreground"
 							>
 								<span>Line ID</span>
 								<div class="flex justify-center mr-27">
-								<span class="text-right">Rechter Kontext</span>
-								<span class="px-5">KWIC</span>
-								<span class="text-left">Linker Kontext</span>
+									<span class="text-right">Rechter Kontext</span>
+									<span class="px-5">KWIC</span>
+									<span class="text-left">Linker Kontext</span>
 								</div>
 							</div>
 							<div class="flex-1 min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
@@ -305,12 +304,12 @@ function copyKwicLine(line: KwicLine) {
 									<button
 										class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
 										@click="
-											line.Tbl_refs ? handleSelection( line.Tbl_refs[0]?.slice(18, 25) ?? '') : ''
+											line.Tbl_refs ? handleSelection(line.Tbl_refs[0]?.slice(18, 25) ?? '') : ''
 										"
 									>
 										<span class="sr-only">
 											Detailview Preview zu Transkript
-											{{ line.Tbl_refs ?  line.Tbl_refs[0]?.slice(18, 25) : "existiert nicht" }}
+											{{ line.Tbl_refs ? line.Tbl_refs[0]?.slice(18, 25) : "existiert nicht" }}
 										</span>
 
 										<div

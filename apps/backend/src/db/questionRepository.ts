@@ -60,8 +60,6 @@ export async function getAllPhenomenonById(
 		return [];
 	}
 
-	console.log(surveyIds);
-
 	const request = db
 		.with("annotation_data", (query) => {
 			let dbQuery = query
@@ -79,16 +77,15 @@ export async function getAllPhenomenonById(
 				.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
 				.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
 				.where("phenomenon.id", "=", phenomenonId)
-				// eslint-disable-next-line @typescript-eslint/unbound-method
-				.select(({ eb, fn, ref }) => [
+				.select(({ eb, fn }) => [
 					"response.informant_id",
 					fn
 						.jsonAgg(
 							jsonBuildObject({
-								annotation: eb.cast<string>(ref("annotation.annotation_name"), "text"),
-								response: eb.cast<string>(ref("response.response_text"), "text"),
-								phenomenon: eb.cast<string>(ref("phenomenon.phenomenon_name"), "text"),
-								variety: eb.cast<string>(ref("variety.variety_name"), "text"),
+								annotation: eb.cast<string>(eb.ref("annotation.annotation_name"), "text"),
+								response: eb.cast<string>(eb.ref("response.response_text"), "text"),
+								phenomenon: eb.cast<string>(eb.ref("phenomenon.phenomenon_name"), "text"),
+								variety: eb.cast<string>(eb.ref("variety.variety_name"), "text"),
 							}),
 						)
 						.as("annotations"),

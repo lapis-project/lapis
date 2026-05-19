@@ -1,14 +1,21 @@
 <script lang="ts" setup>
-import { useLocalStorage } from "@vueuse/core";
 import { ChevronRight, X } from "lucide-vue-next";
 
-// Use Nuxt's cookie to remember if the user has dismissed the banner
-const isDismissed = useLocalStorage("app.announcement-dismissed", false);
+const currentQuestionnaireRound = 4;
 
-const showBanner = computed(() => !isDismissed.value);
+const hasDismissedBanner = useCookie<boolean>(`banner-dismissed-${currentQuestionnaireRound}`, {
+	default: () => false,
+	// Make it act like local storage by persisting it for a long time (e.g., 1 year).
+	// Without maxAge, it becomes a "session cookie" and resets when the browser closes.
+	maxAge: 60 * 60 * 24 * 365,
+	// Ensure the cookie is accessible from all pages in your app
+	path: "/",
+});
+
+const showBanner = computed(() => !hasDismissedBanner.value);
 
 function dismissBanner() {
-	isDismissed.value = true;
+	hasDismissedBanner.value = true;
 }
 
 const locale = useLocale();
@@ -23,7 +30,9 @@ const locale = useLocale();
 			<div class="flex items-center gap-2 text-sm">
 				<span>🥳</span>
 				<span class="font-semibold">Neu:</span>
-				<span class="hidden sm:inline">Die aktuelle Fragenbogenrunde 3 ist online.</span>
+				<span class="hidden sm:inline"
+					>Die aktuelle Fragenbogenrunde {{ currentQuestionnaireRound }} ist online.</span
+				>
 				<span class="sm:hidden">Hier geht es zur neuen Fragenbogenrunde.</span>
 			</div>
 

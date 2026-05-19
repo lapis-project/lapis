@@ -1,13 +1,19 @@
 node_modules
 **/assets/data/*.json
-apps/lexat/.output/**
-apps/lexat/.nuxt/**
 apps/corpus/.output/**
 apps/corpus/.nuxt/**
+apps/lexat/.output/**
+apps/lexat/.nuxt/**
 apps/lexvad/.output/**
 apps/lexvad/.nuxt/**
 apps/lioe/.output/**
 apps/lioe/.nuxt/**
+apps/shadcn/.output/**
+apps/shadcn/.nuxt/**
+apps/ui/.output/**
+apps/ui/.nuxt/**
+apps/wboe/.output/**
+apps/wboe/.nuxt/**
 apps/wboe/content/**
 
 .gitignore

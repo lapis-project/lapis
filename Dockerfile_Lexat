@@ -35,7 +35,7 @@ RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm in
 COPY --chown=node:node . .
 
 # Build the UI Nuxt layer
-RUN pnpm run build:shadcn
+RUN pnpm run -F shadcn build
 
 # Pass build-time arguments for Nuxt's runtime config
 ARG NUXT_PUBLIC_APP_BASE_URL
@@ -46,7 +46,7 @@ ARG NUXT_PUBLIC_REDMINE_ID
 ARG NUXT_PUBLIC_ZOTERO_BASE_URL
 
 # Build the target application. This script is defined in your root package.json.
-RUN pnpm run build:lexat
+RUN pnpm run -F lexat build
 
 # ---- Serve Stage ----
 # This is the final, minimal image that will run in production.

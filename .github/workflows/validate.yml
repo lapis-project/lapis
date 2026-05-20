@@ -108,7 +108,7 @@ jobs:
         run: pnpm --filter ./apps/lexat exec playwright install-deps
 
       - name: Build app
-        run: pnpm build:lexat
+        run: pnpm -F lexat build
         env:
           NUXT_PUBLIC_APP_BASE_URL: "${{ env.NUXT_PUBLIC_APP_BASE_URL }}"
           NUXT_PUBLIC_API_BASE_URL: "${{ env.NUXT_PUBLIC_API_BASE_URL }}"

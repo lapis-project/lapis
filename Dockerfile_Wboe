@@ -34,7 +34,7 @@ RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm in
 COPY --chown=node:node . .
 
 # Build the UI Nuxt layer
-RUN pnpm run build:ui
+RUN pnpm run -F ui build
 
 # Pass build-time arguments for Nuxt's runtime config
 ARG NUXT_PUBLIC_APP_BASE_URL
@@ -50,7 +50,7 @@ ENV STUDIO_GITHUB_CLIENT_ID=$STUDIO_GITHUB_CLIENT_ID
 ENV STUDIO_GITHUB_CLIENT_SECRET="build_dummy_secret"
 
 # Build the target application. This script is defined in your root package.json.
-RUN echo "Cache Bust V1" && pnpm run build:wboe
+RUN echo "Cache Bust V1" && pnpm run -F wboe build
 
 # ---- Serve Stage ----
 # This is the final, minimal image that will run in production.

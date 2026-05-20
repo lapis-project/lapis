@@ -4,7 +4,7 @@
 		{
 			"label": "Build Nuxt Layers",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm build:shadcn && pnpm build:ui'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F shadcn build && pnpm -F ui build'",
 			"problemMatcher": [],
 			"isBackground": false
 		},
@@ -28,7 +28,7 @@
 		{
 			"label": "Start Backend",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev:backend'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F backend dev'",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true
@@ -36,7 +36,7 @@
 		{
 			"label": "Start LexAT21",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:lexat'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F lexat dev-local'",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true
@@ -44,7 +44,7 @@
 		{
 			"label": "Start Corpus",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:corpus'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F corpus dev-local'",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true
@@ -52,21 +52,21 @@
 		{
 			"label": "Start LexVAD20",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:lexvad'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F lexvad dev-local'",
 			"problemMatcher": [],
 			"isBackground": true
 		},
 		{
 			"label": "Start LIÖ",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:lioe'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F lioe dev-local'",
 			"problemMatcher": [],
 			"isBackground": true
 		},
 		{
 			"label": "Start WBÖ",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm dev-local:wboe'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F wboe dev-local'",
 			"problemMatcher": [],
 			"isBackground": true
 		},

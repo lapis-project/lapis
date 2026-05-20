@@ -1,5 +1,14 @@
 packages:
-  - apps/**
+  - "apps/*"
+
+catalog:
+  "@nuxt/eslint": ^1.15.2
+  eslint: ^9.39.2
+  nuxt: ^4.4.2
+  vue: ^3.5.32
+  tailwindcss: ^4.2.2
+  typescript: ^6.0.2
+  vite: ^7.3.1
 
 # tells pnpm never to run the installation/build scripts (preinstall, install, postinstall) for the specified dependencies
 ignoredBuiltDependencies:

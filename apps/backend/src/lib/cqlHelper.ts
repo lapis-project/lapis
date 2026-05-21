@@ -6,11 +6,31 @@ export const escapeRegex = (input: string): string => {
 	return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
+export const formatTranscriptIds = (ids: Array<number>): Array<string> => {
+	return ids.map((id) => `transcript_${String(id)}`);
+};
+
+/**
+ * Builds the CQL structural filter for sca_doc.id.
+ * Example: [1, 2] -> [sca_doc.id="transcript_1"|"transcript_2"]
+ */
+export const buildDocIdCqlFilter = (ids: Array<number>): string => {
+	const formatted = formatTranscriptIds(ids);
+	if (formatted.length === 0) {
+		return "";
+	}
+	if (formatted.length === 1) {
+		return `<doc id="${formatted[0] ?? ""}"/>`;
+	}
+	return `<doc id="${formatted.map((id) => id).join("|")}"/>`;
+};
+
 interface CqlCriteria {
 	word?: string;
 	lemma?: string;
 	pos?: string;
 	feats?: string;
+	transcripts?: Array<number>;
 }
 
 export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): string => {
@@ -41,6 +61,12 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 	if (parts.length === 0) {
 		// Fallback if empty search to prevent crashing
 		return '[word=".*"]';
+	}
+
+	if (criteria.transcripts && criteria.transcripts.length > 0) {
+		// Combine all parts with AND (&)
+		// add the transcript filter to the query
+		return `[${parts.join(" & ")}] within ${buildDocIdCqlFilter(criteria.transcripts)}`;
 	}
 
 	// Combine all parts with AND (&)

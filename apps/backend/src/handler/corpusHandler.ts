@@ -4,7 +4,18 @@ import path, { join } from "node:path";
 import { vValidator } from "@hono/valibot-validator";
 import { Hono, type TypedResponse } from "hono";
 import { stream } from "hono/streaming";
-import { literal, object, optional, safeParse, string, union } from "valibot";
+import {
+	array,
+	literal,
+	object,
+	optional,
+	pipe,
+	regex,
+	safeParse,
+	string,
+	transform,
+	union,
+} from "valibot";
 
 import { DATA_DIR } from "@/config/config.ts";
 import {
@@ -35,6 +46,13 @@ const SearchQuerySchema = object({
 	pagesize: optional(string(), "50"),
 
 	refs: optional(string(), ""),
+
+	transcripts: optional(
+		pipe(
+			array(pipe(string(), regex(/^\d+$/))),
+			transform((arr) => arr.map(Number)),
+		),
+	),
 });
 
 type RunCgiResponse =
@@ -43,9 +61,9 @@ type RunCgiResponse =
 const corpus = new Hono<AppEnv>()
 	.get("/search/kwic", async (c) => {
 		const rawQuery = c.req.query();
-
 		const result = safeParse(SearchQuerySchema, {
 			...rawQuery,
+			transcripts: c.req.queries("transcripts"),
 			// Default mode to simple if missing
 			mode: rawQuery.mode ?? "simple",
 		});
@@ -60,7 +78,8 @@ const corpus = new Hono<AppEnv>()
 			);
 		}
 
-		const { word, query, lemma, pos, feats, mode, fromp, refs, pagesize } = result.output;
+		const { word, query, lemma, pos, feats, mode, fromp, refs, pagesize, transcripts } =
+			result.output;
 
 		// consolidate 'word' and 'query' (backward compatibility)
 		const wordInput = word ?? query;
@@ -79,10 +98,10 @@ const corpus = new Hono<AppEnv>()
 				lemma,
 				pos,
 				feats,
+				transcripts,
 			},
 			mode,
 		);
-
 		try {
 			const response = await searchRequest(cql, fromp, "concordance", refs, pagesize);
 

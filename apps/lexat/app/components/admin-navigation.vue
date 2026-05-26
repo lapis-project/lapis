@@ -19,6 +19,11 @@ const collections = [
 		disabled: !isSuperadmin.value,
 	},
 	{
+		label: `${t("AdminNavigation.media")}`,
+		alias: "media-management",
+		disabled: !isSuperadmin.value,
+	},
+	{
 		label: `${t("AdminNavigation.categories")} (soon)`,
 		alias: "categories",
 		disabled: true,

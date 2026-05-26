@@ -7,8 +7,10 @@ import { array, number, object, optional, pipe, safeParse, string, transform } f
 import { checkIfPrivilegedForAdminOrHigher, restrictedRoute } from "@/lib/authHelper.ts";
 // import { restrictedRoute } from "@/lib/authHelper";
 import type { AppEnv } from "@/lib/context.ts";
+import { generateSignedImageUrl } from "@/service/imageService.ts";
 
 import {
+	getAllImpulseImagesForPhen,
 	getAllPhenomenon,
 	getAllPhenomenonById,
 	getAllRegister,
@@ -16,7 +18,6 @@ import {
 	getAnnotationsByPhaenAndProjectId,
 	getImpulsImageForPhen,
 	getResultsByPhaen,
-	updatePhenWithNewImage,
 } from "../db/questionRepository.ts";
 
 const saveMapSchema = object({
@@ -41,11 +42,6 @@ const searchResponseQuerySchema = object({
 	pageSize: number(),
 });
 
-const addImageSchema = object({
-	image_url: string(),
-	phen_id: number(),
-});
-
 const surveyResponseSchema = object({
 	surveyId: optional(pipe(string())),
 	projectId: optional(pipe(string(), transform(Number)), "-1"),
@@ -56,8 +52,8 @@ const surveyResponseSchema = object({
 // questions.use("*", restrictedRoute);
 
 const questions = new Hono<AppEnv>()
-	.use("/phen/addimage", restrictedRoute)
-	.use("/phen/addimage", checkIfPrivilegedForAdminOrHigher)
+	.use("/phen/all", restrictedRoute)
+	.use("/phen/all", checkIfPrivilegedForAdminOrHigher)
 	.get("/survey/:project", async (c) => {
 		const projectId = c.req.param("project");
 		if (!projectId) {
@@ -317,25 +313,37 @@ const questions = new Hono<AppEnv>()
 		}
 		return c.json(allVariety, 200);
 	})
+
+	.get("/phen/all", async (c) => {
+		const allPhenomenon = await getAllImpulseImagesForPhen();
+		const phenomenaWithSignedUrls = allPhenomenon.map((phen) => {
+			const signedUrl = phen.stimulus_media ? generateSignedImageUrl(phen.stimulus_media) : null;
+
+			return {
+				...phen,
+				stimulus_media: signedUrl, // Replace or add a new field like 'signed_url'
+			};
+		});
+		return c.json(phenomenaWithSignedUrls, 200);
+	})
 	/**
 	 * This endpoint checks if a phenomenon has already an image.
 	 * Will return the link of the image if a link is already saved
 	 * Will return an empty object if the phenomenon does not have an image assigned
 	 */
 	.get("/phen/:id", async (c) => {
-		const phen_id = c.req.param("id");
-		if (Number.isNaN(phen_id)) {
-			return c.json("Parameter phen_id must be a number!", 400);
+		const phenId = c.req.param("id");
+		if (Number.isNaN(phenId)) {
+			return c.json("Parameter phenId must be a number!", 400);
 		}
-		const stimulus_media = await getImpulsImageForPhen(Number(phen_id));
+		const phenomenonWithStimulusImage = await getImpulsImageForPhen(Number(phenId));
+		if (phenomenonWithStimulusImage?.stimulus_media) {
+			phenomenonWithStimulusImage.stimulus_media = generateSignedImageUrl(
+				phenomenonWithStimulusImage.stimulus_media,
+			);
+		}
 
-		return c.json(stimulus_media, 200);
-	})
-	.put("/phen/addimage", vValidator("json", addImageSchema), async (c) => {
-		const { phen_id, image_url } = c.req.valid("json");
-
-		await updatePhenWithNewImage(phen_id, image_url);
-		return c.json(`Updated tasks for phenomenon with ID ${String(phen_id)}`, 200);
+		return c.json(phenomenonWithStimulusImage, 200);
 	});
 
 export default questions;

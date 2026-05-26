@@ -319,10 +319,21 @@ export async function getImpulsImageForPhen(phen_id: number) {
 		.select(["task.stimulus_media", "phenomenon.id", "phenomenon.phenomenon_name"])
 		.groupBy(["phenomenon.id", "task.stimulus_media"])
 		.where("phenomenon.id", "=", phen_id)
+		.executeTakeFirst();
+}
+
+export async function getAllImpulseImagesForPhen() {
+	return await db
+		.selectFrom("phenomenon")
+		.innerJoin("phenomenon_task", "phenomenon_task.phenomenon_id", "phenomenon.id")
+		.innerJoin("task", "task.id", "phenomenon_task.task_id")
+		.where("task.stimulus_media", "is not", null)
+		.select(["task.stimulus_media", "phenomenon.id", "phenomenon.phenomenon_name"])
+		.groupBy(["phenomenon.id", "task.stimulus_media"])
 		.execute();
 }
 
-export async function updatePhenWithNewImage(phen_id: number, image_url: string) {
+export async function updatePhenWithNewImage(phen_id: number, image_url: string | null) {
 	return await db
 		.updateTable("task")
 		.set({

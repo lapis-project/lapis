@@ -2,6 +2,7 @@
 	"AdminNavigation": {
 		"articles": "Einträge",
 		"users": "Benutzerverwaltung",
+		"media": "Medienverwaltung",
 		"categories": "Kategorien"
 	},
 	"AdminPage": {

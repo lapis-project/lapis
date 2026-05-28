@@ -24,3 +24,43 @@ onlyBuiltDependencies:
   - "@intlify/vue-i18n-bridge"
   - "@intlify/vue-router-bridge"
   - better-sqlite3
+
+# -------------------------
+# Hoisting Rules
+# -------------------------
+# Elevates these specific dependencies to the root node_modules directory
+public-hoist-pattern:
+  - "*@tailwindcss/vite*"
+  - "@nuxtjs/mdc*"
+  - "remark*"
+  - "rehype*"
+  - "unified*"
+  - "unist*"
+  - "parse5*"
+  - "debug*"
+
+# -------------------------
+# Engine & Environment Settings
+# -------------------------
+engine-strict: true
+package-manager-strict: false
+shell-emulator: true
+
+# -------------------------
+# Workspace Settings
+# -------------------------
+shared-workspace-lockfile: true
+
+# -------------------------
+# Security Policies
+# -------------------------
+
+# Enforce a 3-day (4320 minutes) cooldown period for all new packages
+# 1 day = 1440, 3 days = 4320, 7 days = 10080
+minimumReleaseAge: 4320
+
+# Block transitive dependencies from using git repos or direct tarball URLs
+blockExoticSubdeps: true
+
+# Fail installation if a package loses its trusted publisher or provenance status
+trustPolicy: no-downgrade

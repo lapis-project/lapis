@@ -29,7 +29,7 @@ onlyBuiltDependencies:
 # Hoisting Rules
 # -------------------------
 # Elevates these specific dependencies to the root node_modules directory
-public-hoist-pattern:
+publicHoistPattern:
   - "*@tailwindcss/vite*"
   - "@nuxtjs/mdc*"
   - "remark*"
@@ -42,14 +42,14 @@ public-hoist-pattern:
 # -------------------------
 # Engine & Environment Settings
 # -------------------------
-engine-strict: true
-package-manager-strict: false
-shell-emulator: true
+engineStrict: true
+packageManagerStrict: false
+shellEmulator: true
 
 # -------------------------
 # Workspace Settings
 # -------------------------
-shared-workspace-lockfile: true
+sharedWorkspaceLockfile: true
 
 # -------------------------
 # Security Policies

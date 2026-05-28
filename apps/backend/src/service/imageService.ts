@@ -12,6 +12,8 @@ class ImgProxyError extends Error {
 
 export const generateSignedImageUrl = (url: string, width = 1280) => {
 	try {
+		const isGif = url.toLowerCase().endsWith(".gif");
+
 		const imageUrl = generateImageUrl({
 			endpoint: "https://imgproxy.acdh.oeaw.ac.at",
 			url,
@@ -20,7 +22,7 @@ export const generateSignedImageUrl = (url: string, width = 1280) => {
 				width,
 				gravity: { type: "no" },
 				enlarge: 1,
-				ext: "webp",
+				ext: isGif ? "gif" : "webp",
 			},
 			salt,
 			key,

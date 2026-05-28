@@ -39,7 +39,7 @@ const assets = ref<Array<AssetItem>>([]);
 
 // --- File Handling ---
 const { open: openFileDialog, onChange } = useFileDialog({
-	accept: "image/png, image/jpeg, image/webp",
+	accept: "image/png, image/jpeg, image/webp, image/gif",
 	multiple: true,
 });
 
@@ -81,6 +81,7 @@ const discardAll = () => {
 
 const _getAllPhenomenaWithStimuli = apiClient.questions.phen.all.$get;
 export type APIPhenomenaWithStimuli = InferResponseType<typeof _getAllPhenomenaWithStimuli, 200>;
+type APIPhenomenonWithStimulus = APIPhenomenaWithStimuli[number];
 
 const { data: allPhenomenaWithStimuli, refresh: refreshPhenomena } =
 	await useFetch<APIPhenomenaWithStimuli>("questions/phen/all", {
@@ -133,8 +134,8 @@ const isDeleteDialogOpen = ref(false);
 const isDeleting = ref(false);
 const itemToDelete = ref<{ id: number; name: string } | null>(null);
 
-const openDeleteDialog = (phen: any) => {
-	itemToDelete.value = { id: phen.id, name: phen.phenomenon_name };
+const openDeleteDialog = (phen: APIPhenomenonWithStimulus) => {
+	itemToDelete.value = { id: phen.id, name: phen.phenomenon_name ?? "" };
 	isDeleteDialogOpen.value = true;
 };
 
@@ -214,7 +215,7 @@ const canProcess = computed(
 						<CloudUpload class="w-8 h-8" />
 					</div>
 					<h3 class="text-lg font-medium text-slate-700 mb-2">Drop your images here</h3>
-					<p class="text-slate-500 text-sm mb-8">Supports PNG, JPG, WEBP</p>
+					<p class="text-slate-500 text-sm mb-8">Supports PNG, JPG, WEBP, GIF</p>
 
 					<Button
 						class="bg-[#0f172a] hover:bg-slate-800 text-white px-8"
@@ -398,7 +399,8 @@ const canProcess = computed(
 							class="w-16 h-16 rounded-md border border-slate-200 overflow-hidden bg-slate-100 shrink-0 shadow-sm"
 						>
 							<img
-								:alt="phen.phenomenon_name"
+								v-if="phen.stimulus_media"
+								:alt="phen.phenomenon_name ?? ''"
 								class="w-full h-full object-cover"
 								:src="phen.stimulus_media"
 							/>

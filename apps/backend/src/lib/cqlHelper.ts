@@ -10,10 +10,6 @@ export const formatTranscriptIds = (ids: Array<number>): Array<string> => {
 	return ids.map((id) => `transcript_${String(id)}`);
 };
 
-/**
- * Builds the CQL structural filter for sca_doc.id.
- * Example: [1, 2] -> [sca_doc.id="transcript_1"|"transcript_2"]
- */
 export const buildDocIdCqlFilter = (ids: Array<number>): string => {
 	const formatted = formatTranscriptIds(ids);
 	if (formatted.length === 0) {
@@ -36,39 +32,54 @@ interface CqlCriteria {
 export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): string => {
 	const parts: Array<string> = [];
 
-	// Helper to add condition based on mode
 	const addCondition = (attr: string, value: string, useLc = false) => {
 		if (!value) {
 			return;
 		}
 
 		if (mode === "simple") {
-			// Simple mode: Literal match
-			// If useLc is true (for word), use the 'lc' attribute for case-insensitivity
 			const targetAttr = useLc ? "lc" : attr;
 			parts.push(`${targetAttr}="${escapeCqlString(value)}"`);
 		} else {
-			// Regex mode: Raw regex injection
 			parts.push(`${attr}="${escapeCqlString(value)}"`);
 		}
 	};
 
-	addCondition("word", criteria.word ?? "", true); // defaults to 'lc' in simple mode
+	addCondition("word", criteria.word ?? "", true);
 	addCondition("lemma", criteria.lemma ?? "");
 	addCondition("pos", criteria.pos ?? "");
-	addCondition("feats", criteria.feats ?? "");
+
+	// -----------------------------------------------------------------
+	// FEATS: split by whitespace, enforce distinct space-delimited match
+	// -----------------------------------------------------------------
+	if (criteria.feats) {
+		const tags = criteria.feats.trim().split(/\s+/).filter(Boolean);
+
+		for (const tag of tags) {
+			// Escape regex metacharacters inside the tag itself
+			//    (e.g. the literal '+' in "stdL+" or "sPal+")
+			const escapedTag = escapeRegex(tag);
+
+			// Build a pattern that anchors the tag as a whole feature.
+			//    (^| )  → start of string OR a space
+			//    ( |$)  → a space OR end of string
+			// ie. Prevents that sPal is also matched to tags like sPal+
+			const pattern = `.*(^| )${escapedTag}( |$).*`;
+
+			// Escape backslashes
+			parts.push(`feats="${escapeCqlString(pattern)}"`);
+		}
+	}
 
 	if (parts.length === 0) {
-		// Fallback if empty search to prevent crashing
 		return '[word=".*"]';
 	}
 
+	const queryCore = `[${parts.join(" & ")}]`;
+
 	if (criteria.transcripts && criteria.transcripts.length > 0) {
-		// Combine all parts with AND (&)
-		// add the transcript filter to the query
-		return `[${parts.join(" & ")}] within ${buildDocIdCqlFilter(criteria.transcripts)}`;
+		return `${queryCore} within ${buildDocIdCqlFilter(criteria.transcripts)}`;
 	}
 
-	// Combine all parts with AND (&)
-	return `[${parts.join(" & ")}]`;
+	return queryCore;
 };

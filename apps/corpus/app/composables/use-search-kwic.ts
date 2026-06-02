@@ -23,8 +23,6 @@ export function useSearchKwic() {
 		status.value = "pending";
 		error.value = null;
 
-		console.log("Hello from caller", params);
-
 		try {
 			const { data, error } = await useFetch("/corpus/search/kwic", {
 				baseURL: env.public.apiBaseUrl,

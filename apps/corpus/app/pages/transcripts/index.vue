@@ -133,12 +133,13 @@ watch(
 watch(
 	() => route.query,
 	async (q) => {
-		if (q.word || q.lemma || q.pos) {
+		if (q.word || q.lemma || q.pos || q.tags) {
 			await search({
 				word: q.word as string,
 				lemma: q.lemma as string,
 				pos: q.pos as string,
 				mode: (q.mode as "simple" | "regex") ?? "simple",
+				feats: q.tags as string,
 				fromp: (q.fromp as string) ?? "1",
 				pagesize: String(limit),
 			});
@@ -215,7 +216,7 @@ function copyKwicLine(line: KwicLine) {
 									</TabsList>
 								</div>
 								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
-									<TagBuilderGroup />
+									<TagBuilderGroup @search="filterOpen = false" />
 								</TabsContent>
 								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
 									<SearchKwic @search="filterOpen = false" />
@@ -370,7 +371,9 @@ function copyKwicLine(line: KwicLine) {
 								</Pagination>
 							</div>
 						</div>
-						<div v-else class="text-md text-muted-foreground justify-center flex my-auto">Keine Ergebnisse vorhanden.</div>
+						<div v-else class="text-md text-muted-foreground justify-center flex my-auto">
+							Keine Ergebnisse vorhanden.
+						</div>
 					</TabsContent>
 					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="xml">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>

@@ -48,8 +48,11 @@ const parentLayer = computed(() => {
 	});
 });
 
+const model = defineModel<Array<TagNode>>({
+	default: [],
+});
+
 const activeParentLayerOption = ref<string | null>(null);
-const activeTags = ref<Array<TagNode>>([]);
 const availableTagLayer = ref<Array<TagNode>>([]);
 const parentLocked = ref(false);
 const availableGroupName = ref<string>("tags-root");
@@ -58,7 +61,7 @@ watch(
 	tagLayerOne,
 	(newList) => {
 		availableTagLayer.value = newList.filter(
-			(tag) => !activeTags.value.some((s) => s.value === tag.value),
+			(tag) => !model.value.some((s) => s.value === tag.value),
 		);
 	},
 	{ immediate: true },
@@ -74,9 +77,9 @@ watch(
 );
 
 watch(
-	activeTags.value,
+	model.value,
 	(newStack) => {
-		emit("annotationSelected", activeTags.value.length > 0);
+		emit("annotationSelected", model.value.length > 0);
 		availableTagLayer.value = availableTagLayer.value.filter(
 			(tag) => !newStack.some((s) => s.value === tag.value),
 		);
@@ -122,7 +125,7 @@ function handleLoadChildren(node: TagNode) {
 
 	children.forEach((child) => {
 		if (
-			!activeTags.value.some((t) => t.value === child.value) &&
+			!model.value.some((t) => t.value === child.value) &&
 			!availableTagLayer.value.some((t) => t.value === child.value)
 		) {
 			availableTagLayer.value.push({
@@ -146,7 +149,7 @@ function handleRemove(node: TagNode) {
 		return list.some((child) => removeFromList(child.children));
 	}
 
-	removeFromList(activeTags.value);
+	removeFromList(model.value);
 
 	if (!availableTagLayer.value.some((t) => t.value === node.value)) {
 		availableTagLayer.value.push({ ...node, children: node.children ?? [] });
@@ -210,7 +213,7 @@ function handleRemove(node: TagNode) {
 				<div>
 					<Label class="text-sm text-muted-foreground" for="tags">Annotation</Label>
 					<TagDropZone
-						v-model="activeTags"
+						v-model="model"
 						class="border border-muted-foreground rounded p-2 w-full min-w-40"
 						group-name="tags-root"
 						:has-children="hasChildren"

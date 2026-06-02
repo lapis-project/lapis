@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { reactive, ref, computed } from "vue";
-import { useSearchKwic } from "@/composables/use-search-kwic";
 
 const mode = ref<"simple" | "regex">("simple");
 
@@ -12,8 +11,6 @@ const form = reactive({
 	lemma: "",
 	pos: "",
 });
-
-const { response, search, status } = useSearchKwic();
 
 const emit = defineEmits<{
 	(e: "search"): void;
@@ -35,8 +32,6 @@ function handleSearch() {
 
 	emit("search");
 }
-
-const kwic = computed(() => response.value);
 </script>
 
 <template>

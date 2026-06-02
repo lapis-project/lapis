@@ -22,8 +22,6 @@ export function useTranscripts(projectId: number) {
 				return;
 			}
 
-			console.log("endpoint, corpus: ", data.value);
-
 			response.value = (data.value ?? []).map((item) => ({
 				...item,
 				bookmarked: false,

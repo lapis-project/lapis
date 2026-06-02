@@ -52,7 +52,6 @@ function loadCurrentChildren(node: TagNode) {
 			name: props.groupName,
 			pull: false,
 			put: (to, from) => {
-				console.log('hello from put: ', from?.options?.group?.name, props.groupName);
 				return activeZone && from?.options?.group?.name === props.groupName;
 			},
 		}"

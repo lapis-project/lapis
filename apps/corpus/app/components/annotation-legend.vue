@@ -1,6 +1,6 @@
 <script setup lang="ts">
 export interface LegendItem {
-	label: string;
+	label?: string;
 	color: string;
 	depth: number;
 }

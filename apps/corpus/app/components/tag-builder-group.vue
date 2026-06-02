@@ -2,13 +2,24 @@
 import { PlusCircleIcon, XIcon } from "lucide-vue-next";
 
 import type { TagNode } from "./tag-drop-zone.vue";
+import type { LegendItem } from "@/components/annotation-legend.vue";
+
+const router = useRouter();
+const route = useRoute();
 
 type LogicType = "AND" | "OR" | "NOT";
 
 interface BuilderBlock {
 	id: number;
 	logic?: LogicType;
+	tags: Array<TagNode>;
 }
+
+const operatorMap: Record<LogicType, string> = {
+  AND: "& ",
+  OR: "| ",
+  NOT: "! ",
+};
 
 const legend = ref<Array<LegendItem>>([
 	{ depth: 0, color: "#fd9a00" },
@@ -18,11 +29,68 @@ const legend = ref<Array<LegendItem>>([
 	{ depth: 4, color: "#104e64" },
 ]);
 
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\$&");
+}
+
+function flattenTags(tags: TagNode[]): string[] {
+  const result: string[] = [];
+
+  function walk(node: TagNode) {
+    result.push(escapeRegex(node.label));
+
+    node.children?.forEach(walk);
+  }
+
+  tags.forEach(walk);
+
+  return result;
+}
+
+const featsQuery = computed(() => {
+  return builders.value
+    .map((builder) => {
+      const tags = flattenTags(builder.tags).join(" ");
+      return tags;
+    })
+    .filter(Boolean)
+    .reduce((acc, clause, index) => {
+      if (index === 0) return clause;
+
+      const logic = builders.value[index]?.logic ?? "AND";
+
+      const op =
+        logic === "AND" ? " & "
+        : logic === "OR" ? " | "
+        : logic === "NOT" ? " ! "
+        : " & ";
+
+      return `${acc}${op}${clause}`;
+    }, "");
+});
+
+const emit = defineEmits<{
+	(e: "search"): void;
+}>();
+
+async function executeSearch() {
+  router.push({
+    query: {
+      ...route.query,
+      tags: featsQuery.value || "",
+      page: "1",
+      fromp: 0,
+    },
+  });
+
+  emit("search");
+}
+
 function handleLegendColor(newLegend: typeof legend.value) {
 	legend.value = newLegend;
 }
 
-const builders = ref<Array<BuilderBlock>>([{ id: 1, logic: undefined }]);
+const builders = ref<Array<BuilderBlock>>([{ id: 1, logic: undefined, tags: [] }]);
 
 function addBuilder(logic: LogicType) {
 	tagSelected.value = !tagSelected.value;
@@ -30,6 +98,7 @@ function addBuilder(logic: LogicType) {
 	builders.value.push({
 		id: Date.now(),
 		logic,
+		tags: [],
 	});
 }
 
@@ -71,6 +140,7 @@ const availableGroupName = ref<string>("tags-root");
 
 const tagSelected = ref(false);
 const activeBuilderId = ref<number | null>(null);
+
 </script>
 
 <template>
@@ -129,6 +199,7 @@ const activeBuilderId = ref<number | null>(null);
 				</div>
 
 				<TagBuilder
+					v-model="builder.tags"
 					:legend="legend"
 					@annotation-selected="(hasAnnotation) => toggleBuilder(hasAnnotation, builder.id)"
 					@available-tags="handleAvailableTags"
@@ -166,6 +237,9 @@ const activeBuilderId = ref<number | null>(null);
 			<div class="relative w-full border px-4 shadow-sm">
 				<AnnotationLegend @update-legend="handleLegendColor" />
 			</div>
+		</div>
+		<div class="p-4">
+			<Button @click="executeSearch"> Search </Button>
 		</div>
 	</div>
 </template>

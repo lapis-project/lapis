@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BookmarkIcon, FileText, Folder, FolderOpen, Undo2 } from "lucide-vue-next";
+import { BookmarkIcon, FileText, Folder, FolderOpen, Undo2 } from "@lucide/vue";
 import { TreeItem, TreeRoot } from "reka-ui";
 
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";

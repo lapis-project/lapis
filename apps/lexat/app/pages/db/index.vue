@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
-import { CircleHelp, InfoIcon, MapPin, Quote, RotateCcw } from "lucide-vue-next";
+import { CircleHelp, InfoIcon, MapPin, Quote, RotateCcw } from "@lucide/vue";
 import type {
 	LocationQueryRaw,
 	LocationQueryValue,

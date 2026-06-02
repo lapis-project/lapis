@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight } from "lucide-vue-next";
+import { ChevronLeft, ChevronRight } from "@lucide/vue";
 import { computed, ref } from "vue";
 
 import type { DropdownOption } from "@/types/dropdown-option";

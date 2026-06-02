@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Edit, Trash } from "lucide-vue-next";
+import { Edit, Trash } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 const t = useTranslations();

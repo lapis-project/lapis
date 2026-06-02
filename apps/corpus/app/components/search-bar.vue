@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SearchIcon } from "lucide-vue-next";
+import { SearchIcon } from "@lucide/vue";
 
 const searchInput = ref("");
 </script>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
-import { Plus } from "lucide-vue-next";
+import { Plus } from "@lucide/vue";
 
 import { columns } from "../../components/users/columns";
 

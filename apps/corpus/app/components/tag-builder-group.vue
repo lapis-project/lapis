@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { PlusCircleIcon, XIcon } from "lucide-vue-next";
+import { PlusCircleIcon, XIcon } from "@lucide/vue";
 
 import type { TagNode } from "./tag-drop-zone.vue";
 

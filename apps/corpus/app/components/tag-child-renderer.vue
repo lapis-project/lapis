@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PlusCircleIcon, XIcon } from "lucide-vue-next";
+import { PlusCircleIcon, XIcon } from "@lucide/vue";
 
 import type { LegendItem } from "./annotation-legend.vue";
 import type { TagNode } from "./tag-drop-zone.vue";

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { XIcon } from "lucide-vue-next";
+import { XIcon } from "@lucide/vue";
 import { useVOnboarding, VOnboardingStep, VOnboardingWrapper } from "v-onboarding";
 
 const t = useTranslations();

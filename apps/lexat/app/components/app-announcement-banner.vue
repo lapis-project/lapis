@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ChevronRight, X } from "lucide-vue-next";
+import { ChevronRight, X } from "@lucide/vue";
 
 const currentQuestionnaireRound = 4;
 

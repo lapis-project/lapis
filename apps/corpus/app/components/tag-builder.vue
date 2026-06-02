@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { PlusCircleIcon } from "lucide-vue-next";
+import { PlusCircleIcon } from "@lucide/vue";
 
 // import results from "@/assets/data/test-tags.json";
 import results from "@/assets/data/dioe-tags-tree.json";

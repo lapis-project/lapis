@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { LaptopIcon, MoonIcon, SunIcon } from "lucide-vue-next";
+import { LaptopIcon, MoonIcon, SunIcon } from "@lucide/vue";
 
 const t = useTranslations();
 

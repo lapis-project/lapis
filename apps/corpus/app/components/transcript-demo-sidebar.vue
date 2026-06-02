@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DownloadIcon, EyeIcon, XIcon } from "lucide-vue-next";
+import { DownloadIcon, EyeIcon, XIcon } from "@lucide/vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -114,11 +114,11 @@ watch(
 									<span v-if="index < item.informants.length - 1" class="-ml-1">, </span>
 								</span>
 							</li>
-							<!-- needs review 
+							<!-- needs review
 						<li>
 							<span class="font-medium text-foreground">Anzahl der Events:</span>
 							<span class="pl-1">{{ transcript..length }}</span>
-						</li> 
+						</li>
 						-->
 						</ul>
 					</div>
@@ -130,7 +130,7 @@ watch(
 			class="flex-grow w-full overflow-auto min-h-0"
 			value="plain"
 		>
-			
+
 		<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
 			<div class="divide-y w-full divide-gray-200">
 				<div v-for="(hit, index) in speakerTexts" :key="index" class="px-1 py-3 text-sm">

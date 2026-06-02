@@ -2,6 +2,7 @@ packages:
   - "apps/*"
 
 catalog:
+  "@lucide/vue": ^1.17.0
   "@nuxt/eslint": ^1.15.2
   eslint: ^9.39.2
   nuxt: ^4.4.2

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 /* eslint-disable vue/no-v-html */
 import type { InferResponseType } from "hono/client";
-import { ArrowLeft, Database, MapPin } from "lucide-vue-next";
+import { ArrowLeft, Database, MapPin } from "@lucide/vue";
 
 const t = useTranslations();
 const env = useRuntimeConfig();

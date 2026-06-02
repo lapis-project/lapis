@@ -7,7 +7,7 @@ import {
 	PauseIcon,
 	PlayIcon,
 	SquareIcon,
-} from "lucide-vue-next";
+} from "@lucide/vue";
 
 import { useAudioController } from "@/composables/use-audio-controller";
 

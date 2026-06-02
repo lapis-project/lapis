@@ -7,10 +7,10 @@ This is the frontend repository for the LIÖ project.
 prerequisites:
 
 - [node.js >=24.11](https://nodejs.org/en/download)
-- [pnpm >=10.25](https://pnpm.io/installation)
+- [pnpm >=11.4](https://pnpm.io/installation)
 
-set required environment variables in `.env.dev.local` (development) and
-`.env.prod.local` (production):
+set required environment variables in `.env.dev.local` (development) and `.env.prod.local`
+(production):
 
 ```bash
 # in /apps/lioe

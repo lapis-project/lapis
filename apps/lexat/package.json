@@ -6,7 +6,7 @@
 	"main": "./nuxt.config.ts",
 	"engines": {
 		"node": ">=24.11.0",
-		"pnpm": ">=10.25"
+		"pnpm": ">=11.4"
 	},
 	"scripts": {
 		"analyze": "nuxt analyze",

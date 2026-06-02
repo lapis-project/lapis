@@ -141,9 +141,12 @@ const availableGroupName = ref<string>("tags-root");
 const tagSelected = ref(false);
 const activeBuilderId = ref<number | null>(null);
 
+const hasTags = computed(() => featsQuery.value.trim().length > 0);
+
 </script>
 
 <template>
+	<div class="flex flex-col h-full">
 	<div class="relative grid grid-cols-[1fr_auto] gap-2 h-full">
 		<div class="flex flex-col flex-1 min-h-0 w-full h-full max-h-full overflow-y-auto">
 			<div
@@ -230,16 +233,24 @@ const activeBuilderId = ref<number | null>(null);
 				</div>
 			</div>
 		</div>
-		<div class="h-full flex flex-col">
-			<div class="h-full w-full border px-4 shadow-sm">
+		<div class="flex flex-col min-h-0">
+			<div class="flex-1 w-full border px-4 shadow-sm">
 				<AnnotationTags :group-name="availableGroupName" :tags="availableTags"></AnnotationTags>
 			</div>
 			<div class="relative w-full border px-4 shadow-sm">
 				<AnnotationLegend @update-legend="handleLegendColor" />
 			</div>
+			 <div
+    class="overflow-hidden transition-all duration-500 ease-out"
+    :class="hasTags ? 'max-h-50' : 'max-h-0'"
+  >
+    <div class="p-4 border shadow-sm">
+      <Button class="w-full" @click="executeSearch">
+        Suchen
+      </Button>
+    </div>
+  </div>
 		</div>
-		<div class="p-4">
-			<Button @click="executeSearch"> Search </Button>
-		</div>
+	</div>
 	</div>
 </template>

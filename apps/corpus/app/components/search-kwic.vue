@@ -54,6 +54,7 @@ function handleSearch() {
 				</div>
 			</div>
 
+			<Separator></Separator>
 			<div class="flex items-center justify-between">
 				<div class="flex gap-2">
 					<Button

@@ -26,7 +26,7 @@ import {
 	TableIcon,
 	UnderlineIcon,
 	UndoIcon,
-} from "lucide-vue-next";
+} from "@lucide/vue";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { toast } from "vue-sonner";
 

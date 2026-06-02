@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Menu, XIcon } from "lucide-vue-next";
+import { Menu, XIcon } from "@lucide/vue";
 
 import type { NuxtLinkProps } from "#app";
 

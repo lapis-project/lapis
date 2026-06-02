@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactiveOmit } from "@vueuse/core";
-import { SearchIcon } from "lucide-vue-next";
+import { SearchIcon } from "@lucide/vue";
 import {
 	ComboboxInput,
 	type ComboboxInputEmits,

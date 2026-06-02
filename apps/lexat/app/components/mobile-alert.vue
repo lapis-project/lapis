@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { AlertCircle } from "lucide-vue-next";
+import { AlertCircle } from "@lucide/vue";
 
 const t = useTranslations();
 </script>

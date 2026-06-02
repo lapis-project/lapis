@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowDown, ArrowUp, ArrowUpDown, Download } from "lucide-vue-next";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download } from "@lucide/vue";
 
 export type TableEntry = Record<string, number | string | null>;
 

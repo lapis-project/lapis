@@ -14,7 +14,7 @@ import {
 	Minimize2Icon,
 	RotateCcwIcon,
 	UserIcon,
-} from "lucide-vue-next";
+} from "@lucide/vue";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
 import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";

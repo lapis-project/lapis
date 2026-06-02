@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useDropZone, useFileDialog } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
-import { CheckCircle2, CloudUpload, FileImage, Trash2, X } from "lucide-vue-next";
+import { CheckCircle2, CloudUpload, FileImage, Trash2, X } from "@lucide/vue";
 import { computed, ref } from "vue";
 import { toast } from "vue-sonner";
 

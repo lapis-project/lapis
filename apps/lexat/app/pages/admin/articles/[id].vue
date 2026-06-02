@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { InferResponseType } from "hono/client";
-import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "lucide-vue-next";
+import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 import type { DropdownOption } from "@/types/dropdown-option";

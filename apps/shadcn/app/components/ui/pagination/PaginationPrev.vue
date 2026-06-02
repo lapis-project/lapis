@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft } from "lucide-vue-next";
+import { ChevronLeft } from "@lucide/vue";
 import { PaginationPrev, type PaginationPrevProps } from "reka-ui";
 import { computed, type HTMLAttributes } from "vue";
 

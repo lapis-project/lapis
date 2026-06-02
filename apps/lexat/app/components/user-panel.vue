@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LogOut, PanelLeft, User, UserRound } from "lucide-vue-next";
+import { LogOut, PanelLeft, User, UserRound } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 const localePath = useLocalePath();

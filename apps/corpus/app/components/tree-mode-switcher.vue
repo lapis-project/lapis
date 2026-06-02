@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ComponentIcon, MapPin, UserRound } from "lucide-vue-next";
+import { ComponentIcon, MapPin, UserRound } from "@lucide/vue";
 
 const modelValue = defineModel<string>({ default: "Setting" });
 

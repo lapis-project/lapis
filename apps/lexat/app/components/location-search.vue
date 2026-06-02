@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, ChevronsUpDown, Search } from "lucide-vue-next";
+import { Check, ChevronsUpDown, Search } from "@lucide/vue";
 import { computed, ref } from "vue";
 
 const modelValue = defineModel<Array<ComboboxOption>>({ default: [] });

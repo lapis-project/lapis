@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, Link, Mail } from "lucide-vue-next";
+import { Check, Link, Mail } from "@lucide/vue";
 
 const t = useTranslations();
 

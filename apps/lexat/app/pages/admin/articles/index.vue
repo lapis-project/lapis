@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Plus } from "lucide-vue-next";
+import { Plus } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 import type { ArticleListEntry } from "@/components/articles/articles";

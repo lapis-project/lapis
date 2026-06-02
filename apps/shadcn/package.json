@@ -15,6 +15,7 @@
 	"dependencies": {
 		"@acdh-oeaw/lib": "^1.0.5",
 		"@fontsource-variable/inter": "^5.2.8",
+		"@lucide/vue": "catalog:",
 		"@tailwindcss/vite": "^4.2.1",
 		"@tanstack/vue-table": "^8.21.3",
 		"@vee-validate/zod": "^4.15.1",
@@ -24,7 +25,6 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cva": "1.0.0-beta.1",
-		"lucide-vue-next": "^0.576.0",
 		"nuxt": "catalog:",
 		"reka-ui": "^2.8.2",
 		"shadcn-nuxt": "^2.4.3",

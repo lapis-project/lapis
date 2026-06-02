@@ -134,6 +134,7 @@ watch(
 	() => route.query,
 	async (q) => {
 		if (q.word || q.lemma || q.pos || q.tags) {
+			activeTab.value = "kwic";
 			await search({
 				word: q.word as string,
 				lemma: q.lemma as string,
@@ -143,7 +144,6 @@ watch(
 				fromp: (q.fromp as string) ?? "1",
 				pagesize: String(limit),
 			});
-			activeTab.value = "kwic";
 		}
 	},
 	{ immediate: true, deep: true },
@@ -211,7 +211,7 @@ function copyKwicLine(line: KwicLine) {
 								<div class="flex gap-4 mx-10 mt-2 items-center flex-shrink-0">
 									<TabsList class="w-full">
 										<TabsTrigger value="tags"> Tags </TabsTrigger>
-										<TabsTrigger value="word"> Word / Lemma / Pos </TabsTrigger>
+										<TabsTrigger value="word"> Word / Lemma / POS </TabsTrigger>
 										<TabsTrigger value="cql"> CQL </TabsTrigger>
 									</TabsList>
 								</div>

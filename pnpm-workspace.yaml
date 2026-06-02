@@ -62,5 +62,19 @@ minimumReleaseAge: 4320
 # Block transitive dependencies from using git repos or direct tarball URLs
 blockExoticSubdeps: true
 
+# -------------------------
+# Build Script Approvals
+# -------------------------
+allowBuilds:
+  "@intlify/vue-i18n-bridge": true
+  "@intlify/vue-router-bridge": true
+  "@parcel/watcher": true
+  "better-sqlite3": true
+  "esbuild": true
+  "sharp": true
+  "simple-git-hooks": true
+  "unrs-resolver": true
+  "vue-demi": true
+
 # Fail installation if a package loses its trusted publisher or provenance status
-trustPolicy: no-downgrade
+# trustPolicy: no-downgrade

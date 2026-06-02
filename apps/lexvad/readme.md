@@ -8,7 +8,7 @@ via https://lexvad.acdh-dev.oeaw.ac.at/
 prerequisites:
 
 - [node.js >=24.11](https://nodejs.org/en/download)
-- [pnpm >=10.25](https://pnpm.io/installation)
+- [pnpm >=11.4](https://pnpm.io/installation)
 
 set required environment variables in `.env.dev.local` (development against local backend) and
 `.env.prod.local` (development against production backend):

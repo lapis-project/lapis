@@ -4,10 +4,6 @@
 	"license": "MIT",
 	"type": "module",
 	"main": "./nuxt.config.ts",
-	"engines": {
-		"node": ">=24.11.0",
-		"pnpm": ">=11.4"
-	},
 	"scripts": {
 		"analyze": "nuxt analyze",
 		"build": "NODE_OPTIONS=--max_old_space_size=8192 nuxt build --dotenv ./.env.local",

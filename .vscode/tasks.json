@@ -92,8 +92,7 @@
 		{
 			"label": "Clean workspace (node_modules + caches)",
 			"type": "shell",
-			"command": "pnpm",
-			"args": ["-w", "run", "clean:workspace"],
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -w run clean:workspace'",
 			"options": { "cwd": "${workspaceFolder}" },
 			"problemMatcher": [],
 			"presentation": { "reveal": "always", "panel": "dedicated" },

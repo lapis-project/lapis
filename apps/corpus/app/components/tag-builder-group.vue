@@ -76,7 +76,6 @@ const emit = defineEmits<{
 async function executeSearch() {
   router.push({
     query: {
-      ...route.query,
       tags: featsQuery.value || "",
       page: "1",
       fromp: 0,

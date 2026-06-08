@@ -19,8 +19,6 @@ const emit = defineEmits<{
 function handleSearch() {
 	router.push({
 		query: {
-			...route.query,
-
 			word: form.word || undefined,
 			lemma: form.lemma || undefined,
 			pos: form.pos || undefined,

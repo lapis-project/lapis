@@ -2,12 +2,12 @@
 import "v-onboarding/dist/style.css";
 
 import { keyByToMap } from "@acdh-oeaw/lib";
-import { refDebounced } from "@vueuse/core";
 import {
 	ChevronDownIcon,
 	CircleHelp,
 	Database,
 	FileText,
+	Image,
 	InfoIcon,
 	MapPinIcon,
 	Maximize2Icon,
@@ -15,6 +15,7 @@ import {
 	RotateCcwIcon,
 	UserIcon,
 } from "@lucide/vue";
+import { refDebounced } from "@vueuse/core";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
 import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
@@ -30,6 +31,7 @@ import {
 	stateCapitalsList,
 } from "@/assets/data/static-filter-data";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
+import type StimulusDialog from "@/components/stimulus-dialog.vue";
 import { useMapColors } from "@/composables/use-map-colors";
 import { useQuestions } from "@/composables/use-questions";
 import type { DropdownOption } from "@/types/dropdown-option";
@@ -100,6 +102,12 @@ const activeQuestionId = computed(() => {
 	return activeQuestion.value ? parseInt(activeQuestion.value) : null;
 	// return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
 });
+
+const stimulusDialogRef = ref<InstanceType<typeof StimulusDialog> | null>(null);
+
+function handleShowImage() {
+	stimulusDialogRef.value?.openDialog();
+}
 
 // survey rounds select dummy data
 const surveyRoundOptions = [
@@ -1152,6 +1160,17 @@ watch(activeVariants, updateUrlParams, {
 					><component :is="mapExpanded ? Minimize2Icon : Maximize2Icon" class="size-4"
 				/></Button>
 			</div>
+			<div v-if="stimulusDialogRef?.hasImage" class="absolute top-14 right-2 z-10">
+				<Button
+					size="icon"
+					:title="t('MapsPage.show-stimulus')"
+					variant="outline"
+					@click="handleShowImage"
+				>
+					<Image class="size-5" />
+					<span class="sr-only">Show Phenomenon Image</span>
+				</Button>
+			</div>
 			<div
 				v-if="filteredPoints?.length && numberOfInformants"
 				id="dataLegend"
@@ -1272,4 +1291,5 @@ watch(activeVariants, updateUrlParams, {
 		>
 		</OnboardingWrapper>
 	</div>
+	<StimulusDialog ref="stimulusDialogRef" :phenomenon-id="activeQuestionId" />
 </template>

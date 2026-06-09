@@ -211,6 +211,7 @@
 		"download": "Als CSV herunterladen"
 	},
 	"DbPage": {
+		"image": "Impuls anzeigen",
 		"help": "Hilfe",
 		"meta": {
 			"title": "Belegdatenbank",

@@ -211,6 +211,7 @@
 		"download": "Download as CSV"
 	},
 	"DbPage": {
+		"image": "Show Stimulus",
 		"help": "Help",
 		"meta": {
 			"title": "Browse data",

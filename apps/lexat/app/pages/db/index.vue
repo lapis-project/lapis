@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+import { CircleHelp, Image, InfoIcon, MapPin, Quote, RotateCcw } from "@lucide/vue";
 import type { InferResponseType } from "hono/client";
-import { CircleHelp, InfoIcon, MapPin, Quote, RotateCcw } from "@lucide/vue";
 import type {
 	LocationQueryRaw,
 	LocationQueryValue,
@@ -9,6 +9,7 @@ import type {
 
 import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
+import type StimulusDialog from "@/components/stimulus-dialog.vue";
 import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();
@@ -100,6 +101,12 @@ const { data: annotations } = await useFetch<APIAnnotation>("/questions/annotati
 	credentials: "include",
 	server: false,
 });
+
+const stimulusDialogRef = ref<InstanceType<typeof StimulusDialog> | null>(null);
+
+function handleShowImage() {
+	stimulusDialogRef.value?.openDialog();
+}
 
 const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 	const variantOptions =
@@ -570,6 +577,14 @@ await refresh(); // manually refetch using updated state
 					<Button id="resetOnboarding" variant="outline" @click="resetOnboarding">
 						<CircleHelp class="mr-2 size-5" /> {{ t("DbPage.help") }}</Button
 					>
+					<Button
+						v-if="stimulusDialogRef?.hasImage"
+						id="showStimulus"
+						variant="outline"
+						@click="handleShowImage"
+					>
+						<Image class="mr-2 size-5" /> {{ t("DbPage.image") }}</Button
+					>
 				</div>
 			</template>
 			<template #right>
@@ -590,5 +605,6 @@ await refresh(); // manually refetch using updated state
 			@finished-onboarding="onOnboardingFinished"
 		>
 		</OnboardingWrapper>
+		<StimulusDialog ref="stimulusDialogRef" :phenomenon-id="activeQuestionId" />
 	</MainContent>
 </template>

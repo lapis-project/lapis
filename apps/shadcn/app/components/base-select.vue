@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const modelValue = defineModel<string | null>({ default: "" });
+const modelValue = defineModel<string | Array<string> | undefined>();
 
 export interface SelectOption {
 	label: string;
@@ -14,15 +14,12 @@ export interface Props {
 	dataTestid?: string;
 	id?: string;
 	size?: "large" | "medium" | "small";
+	multiple?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	placeholder: "Select an option",
 	size: "large",
-});
-
-const hasColor = computed(() => {
-	return props.options.find((o) => o.color);
 });
 
 const width = computed(() => {
@@ -36,35 +33,54 @@ const width = computed(() => {
 			return "w-full sm:w-32";
 	}
 });
+
+const selectedOptions = computed(() => {
+	if (!modelValue.value || modelValue.value.length === 0) return [];
+
+	// Multiple Selection (Array)
+	if (props.multiple && Array.isArray(modelValue.value)) {
+		return props.options.filter((o) => modelValue.value?.includes(o.value));
+	}
+
+	// Single Selection (String)
+	const single = props.options.find((o) => o.value === modelValue.value);
+	return single ? [single] : [];
+});
 </script>
 
 <template>
-	<!-- eslint-disable vuejs-accessibility/form-control-has-label -->
-	<Select v-model="modelValue">
+	<!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+	<Select v-model="modelValue" :multiple="props.multiple">
 		<SelectTrigger :id="props.id" :class="width" :data-testid="props.dataTestid">
 			<SelectValue>
-				<template v-if="modelValue">
-					<svg v-if="hasColor" class="size-3" viewBox="0 0 12 12">
-						<circle
-							cx="6"
-							cy="6"
-							:fill="props.options.find((o) => o.value === modelValue)?.color"
-							r="6"
-						/>
+				<div v-if="selectedOptions.length > 0" class="flex items-center gap-2 truncate">
+					<svg
+						v-if="!props.multiple && selectedOptions[0]?.color"
+						class="size-3 shrink-0"
+						viewBox="0 0 12 12"
+					>
+						<circle cx="6" cy="6" :fill="selectedOptions[0].color" r="6" />
 					</svg>
-					{{ props.options.find((question) => question.value === modelValue)?.label }}
-				</template>
+
+					<span class="truncate">
+						{{ selectedOptions.map((o) => o.label).join(", ") }}
+					</span>
+				</div>
 				<template v-else>{{ props.placeholder }}</template>
 			</SelectValue>
 		</SelectTrigger>
+
 		<SelectContent>
 			<SelectGroup>
 				<SelectLabel v-if="props.label">{{ props.label }}</SelectLabel>
+
 				<SelectItem v-for="option in props.options" :key="option.value" :value="option.value">
-					<svg v-if="option.color" class="size-3" viewBox="0 0 12 12">
-						<circle cx="6" cy="6" :fill="option.color" r="6" />
-					</svg>
-					{{ option.label }}
+					<span class="flex items-center gap-2">
+						<svg v-if="option.color" class="size-3 shrink-0" viewBox="0 0 12 12">
+							<circle cx="6" cy="6" :fill="option.color" r="6" />
+						</svg>
+						{{ option.label }}
+					</span>
 				</SelectItem>
 			</SelectGroup>
 		</SelectContent>

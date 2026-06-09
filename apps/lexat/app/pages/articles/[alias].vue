@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 /* eslint-disable vue/no-v-html */
-import type { InferResponseType } from "hono/client";
 import { ArrowLeft, Database, MapPin } from "@lucide/vue";
+import type { InferResponseType } from "hono/client";
 
 const t = useTranslations();
 const env = useRuntimeConfig();
 const route = useRoute();
 const { apiClient } = useApiClient();
 const localePath = useLocalePath();
+const currentLocale = useLocale();
 const alias = route.params.alias;
 
 const _getArticleByAlias = apiClient.articles.detail[":alias"].$get;
@@ -32,7 +33,7 @@ const publishedAt = computed(() => {
 		? new Date(article.value.published_at)
 		: undefined;
 	return publishDate
-		? publishDate.toLocaleDateString(undefined, {
+		? publishDate.toLocaleDateString(currentLocale.value, {
 				year: "numeric",
 				month: "short",
 				day: "numeric",
@@ -43,7 +44,7 @@ const publishedAt = computed(() => {
 const updatedAt = computed(() => {
 	const publishDate = article.value?.updated_at ? new Date(article.value.updated_at) : undefined;
 	return publishDate
-		? publishDate.toLocaleDateString(undefined, {
+		? publishDate.toLocaleDateString(currentLocale.value, {
 				year: "numeric",
 				month: "short",
 				day: "numeric",

@@ -627,6 +627,9 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 };
 
 const initializeFromUrl = () => {
+	// flag to track if we generated local state
+	let requiresUrlUpdate = false;
+
 	const ageParams = getQueryArray(route, "a");
 	if (ageParams.length > 0 && ageParams[0]) {
 		activeAgeGroup.value = ageParams[0].split(",").map(Number);
@@ -642,10 +645,11 @@ const initializeFromUrl = () => {
 
 		if (randomQuestion) {
 			activeQuestion.value = randomQuestion.value;
+			requiresUrlUpdate = true; // flag that we need to sync this new random state to the URL
 		}
 	}
-	const surveyParams = getQueryArray(route, "sr");
 
+	const surveyParams = getQueryArray(route, "sr");
 	if (surveyParams.length > 0) {
 		const params = surveyParams.map(String);
 		activeSurveyRounds.value = params;
@@ -671,7 +675,6 @@ const initializeFromUrl = () => {
 		colorParams.forEach((entry) => {
 			if (entry) {
 				// split string into index, hexcode and optional key for special colors
-				// e.g. "1-#ffffff-i" to ["1", "#ffffff", "i"]
 				const [index, hexCode, key] = entry.split("-");
 				if (index && hexCode) {
 					if (key === "i") {
@@ -685,6 +688,11 @@ const initializeFromUrl = () => {
 				}
 			}
 		});
+	}
+
+	// sync the URL once all other params have been safely parsed
+	if (requiresUrlUpdate) {
+		void updateUrlParams();
 	}
 };
 

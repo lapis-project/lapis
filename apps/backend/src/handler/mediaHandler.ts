@@ -1,16 +1,16 @@
+/* eslint-disable n/no-unsupported-features/node-builtins */
 import { log } from "@acdh-oeaw/lib";
 import { Hono } from "hono";
 
 import { getCoverById, updateArticleCover } from "@/db/cmsRepository.ts";
 import { getImpulsImageForPhen, updatePhenWithNewImage } from "@/db/questionRepository.ts";
-import { checkIfPrivilegedForAdminOrHigher, restrictedRoute } from "@/lib/authHelper.ts";
+import { restrictedRoute } from "@/lib/authHelper.ts";
 import { generateSignedImageUrl } from "@/service/imageService.ts";
 
 import { deleteFromS3, uploadToS3 } from "../service/storageService.ts";
 
 const media = new Hono()
 	.use("*", restrictedRoute)
-	.use("/phen/*", checkIfPrivilegedForAdminOrHigher)
 	.post("/upload/:id", async (c) => {
 		const body = await c.req.parseBody();
 		const file = body.image as File;

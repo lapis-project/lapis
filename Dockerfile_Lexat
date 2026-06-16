@@ -34,6 +34,9 @@ RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm in
 # Now, copy the rest of the source code
 COPY --chown=node:node . .
 
+# Set CI to true so pnpm bypasses interactive prompts and safety checks
+ENV CI=true
+
 # Build the UI Nuxt layer
 RUN pnpm run -F shadcn build
 

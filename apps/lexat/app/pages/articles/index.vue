@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 import { RotateCcwIcon, SearchIcon, SlidersHorizontalIcon } from "@lucide/vue";
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
 import type { LocationQueryRaw } from "vue-router";
 
 import { formatAuthors } from "#imports";

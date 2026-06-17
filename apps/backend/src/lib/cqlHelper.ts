@@ -1,3 +1,5 @@
+import { log } from "@acdh-oeaw/lib";
+
 export const escapeCqlString = (input: string): string => {
 	return input.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 };
@@ -27,27 +29,47 @@ interface CqlCriteria {
 	pos?: string;
 	feats?: string;
 	transcripts?: Array<number>;
+	projects?: Array<string>;
+	settings?: Array<string>;
+	age_lower?: number;
+	age_upper?: number;
+	locations?: Array<string>;
+	first_languages?: Array<string>;
+	dialect_competence?: number;
+	gender?: string;
 }
-
+/*
+ * When using the <doc> and <u> for the filters the within parameter needs to be chained in the following way
+ * [feats=".*LautVor.*"] within (<u age="jung \(18\-35\) \+matura" /> within <doc ort_namelang=".*Allentsteig.*" />)
+ * And use & or | to chain together the parameters for the query
+ */
 export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): string => {
-	const parts: Array<string> = [];
+	const parts_query: Array<string> = [];
+	const parts_utterance: Array<string> = [];
+	const parts_document: Array<string> = [];
 
-	const addCondition = (attr: string, value: string, useLc = false) => {
+	const addCondition = (
+		arr: Array<string>,
+		attr: string,
+		value: string,
+		useLc = false,
+		operator = "=",
+	) => {
 		if (!value) {
 			return;
 		}
 
 		if (mode === "simple") {
 			const targetAttr = useLc ? "lc" : attr;
-			parts.push(`${targetAttr}="${escapeCqlString(value)}"`);
+			arr.push(`${targetAttr}${operator}"${escapeCqlString(value)}"`);
 		} else {
-			parts.push(`${attr}="${escapeCqlString(value)}"`);
+			arr.push(`${attr}${operator}"${escapeCqlString(value)}"`);
 		}
 	};
 
-	addCondition("word", criteria.word ?? "", true);
-	addCondition("lemma", criteria.lemma ?? "");
-	addCondition("pos", criteria.pos ?? "");
+	addCondition(parts_query, "word", criteria.word ?? "", true);
+	addCondition(parts_query, "lemma", criteria.lemma ?? "");
+	addCondition(parts_query, "pos", criteria.pos ?? "");
 
 	// -----------------------------------------------------------------
 	// FEATS: split by whitespace, enforce distinct space-delimited match
@@ -67,19 +89,88 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 			const pattern = `.*(^| )${escapedTag}( |$).*`;
 
 			// Escape backslashes
-			parts.push(`feats="${escapeCqlString(pattern)}"`);
+			addCondition(parts_query, "feats", escapeCqlString(pattern));
 		}
 	}
 
-	if (parts.length === 0) {
+	// -----------------------------------------------------------------
+	// Projects: Join the array of projects together and seperate by | (OR Operator)
+	// -----------------------------------------------------------------
+	if (criteria.projects) {
+		const projects = criteria.projects.join("|");
+		addCondition(parts_document, "projects", escapeCqlString(projects));
+	}
+
+	// -----------------------------------------------------------------
+	// settings: Join the array of interview settings together and seperate by | (OR Operator)
+	// -----------------------------------------------------------------
+	if (criteria.settings) {
+		const settings = criteria.settings.join("|");
+		addCondition(parts_document, "erhebungsart", escapeCqlString(settings));
+	}
+
+	// -----------------------------------------------------------------
+	// age: Take the age range and pass it to the noske
+	// -----------------------------------------------------------------
+	if (criteria.age_lower) {
+		addCondition(parts_utterance, "age_lower", String(criteria.age_lower), false, " >= ");
+	}
+
+	if (criteria.age_upper) {
+		addCondition(parts_utterance, "age_lower", String(criteria.age_upper), false, " <= ");
+	}
+
+	if (criteria.locations) {
+		for (const loc of criteria.locations) {
+			const escpaedLoc = escapeRegex(loc);
+
+			const pattern = `.*${escpaedLoc}.*`;
+
+			// Escape backslashes
+			addCondition(parts_utterance, "location", escapeCqlString(pattern));
+		}
+	}
+
+	if (criteria.first_languages) {
+		const languages = criteria.first_languages.join("|");
+		// Currently not used in the NoSKE
+		log.info(`first_language=${escapeCqlString(languages)}`);
+		// addCondition(parts_utterance, "erhebungsart", escapeCqlString(languages))
+	}
+
+	if (criteria.dialect_competence) {
+		addCondition(parts_utterance, "dialect_competence", String(criteria.dialect_competence));
+	}
+
+	if (criteria.gender) {
+		addCondition(parts_utterance, "sex", escapeCqlString(criteria.gender));
+	}
+
+	if (parts_query.length === 0) {
 		return '[word=".*"]';
 	}
 
-	const queryCore = `[${parts.join(" & ")}]`;
-
 	if (criteria.transcripts && criteria.transcripts.length > 0) {
-		return `${queryCore} within ${buildDocIdCqlFilter(criteria.transcripts)}`;
+		const formatted = formatTranscriptIds(criteria.transcripts);
+		if (formatted.length > 0) {
+			addCondition(parts_document, "id", formatted.map((id) => id).join("|"));
+		}
 	}
 
+	let queryCore = `[${parts_query.join(" & ")}]`;
+
+	// Build query when only one part is set
+	if (
+		(parts_utterance.length > 0 && parts_document.length === 0) ||
+		(parts_utterance.length === 0 && parts_document.length > 0)
+	) {
+		const allParts = parts_utterance.length > 0 ? parts_utterance : parts_document;
+		// <doc id="${formatted.map((id) => id).join("|")}"/>
+		queryCore += ` within <${parts_utterance.length > 0 ? "u" : "doc"} ${allParts.join(" & ")}/>`;
+	} else if (parts_utterance.length > 0 && parts_document.length > 0) {
+		queryCore += ` within (<u ${parts_utterance.join(" & ")}/> within <doc ${parts_document.join(" & ")}/>)`;
+	}
+
+	log.info(queryCore);
 	return queryCore;
 };

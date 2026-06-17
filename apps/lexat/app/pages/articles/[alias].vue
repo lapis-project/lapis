@@ -187,6 +187,7 @@ const formattedTitle = computed(
 					v-if="article.cover"
 					:alt="article.cover_alt ?? 'Cover'"
 					class="object-cover aspect-video"
+					placeholder
 					:src="article.cover"
 				/>
 				<div v-if="article?.post_type_name !== 'short_description'" class="block sm:hidden">

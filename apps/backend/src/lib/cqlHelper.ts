@@ -98,7 +98,7 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 	// -----------------------------------------------------------------
 	if (criteria.projects) {
 		const projects = criteria.projects.join("|");
-		addCondition(parts_document, "projects", escapeCqlString(projects));
+		addCondition(parts_utterance, "subproject", escapeCqlString(projects));
 	}
 
 	// -----------------------------------------------------------------

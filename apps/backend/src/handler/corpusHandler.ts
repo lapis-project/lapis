@@ -53,6 +53,40 @@ const SearchQuerySchema = object({
 			transform((arr) => arr.map(Number)),
 		),
 	),
+
+	projects: optional(pipe(array(pipe(string(), regex(/^PP\d{2}$/))))),
+
+	settings: optional(array(string())),
+
+	age_lower: optional(
+		pipe(
+			string(),
+			regex(/^\d+$/),
+			transform((num) => Number(num)),
+		),
+	),
+
+	age_upper: optional(
+		pipe(
+			string(),
+			regex(/^\d+$/),
+			transform((num) => Number(num)),
+		),
+	),
+
+	locations: optional(array(string())),
+
+	first_languages: optional(array(string())),
+
+	dialect_competence: optional(
+		pipe(
+			string(),
+			regex(/^\d$/),
+			transform((num) => Number(num)),
+		),
+	),
+
+	gender: optional(string()),
 });
 
 type RunCgiResponse =
@@ -64,6 +98,9 @@ const corpus = new Hono<AppEnv>()
 		const result = safeParse(SearchQuerySchema, {
 			...rawQuery,
 			transcripts: c.req.queries("transcripts"),
+			projects: c.req.queries("projects"),
+			locations: c.req.queries("locations"),
+			first_languages: c.req.queries("first_languages"),
 			// Default mode to simple if missing
 			mode: rawQuery.mode ?? "simple",
 		});
@@ -78,8 +115,26 @@ const corpus = new Hono<AppEnv>()
 			);
 		}
 
-		const { word, query, lemma, pos, feats, mode, fromp, refs, pagesize, transcripts } =
-			result.output;
+		const {
+			word,
+			query,
+			lemma,
+			pos,
+			feats,
+			mode,
+			fromp,
+			refs,
+			pagesize,
+			transcripts,
+			projects,
+			settings,
+			age_lower,
+			age_upper,
+			locations,
+			first_languages,
+			dialect_competence,
+			gender,
+		} = result.output;
 
 		// consolidate 'word' and 'query' (backward compatibility)
 		const wordInput = word ?? query;
@@ -99,6 +154,14 @@ const corpus = new Hono<AppEnv>()
 				pos,
 				feats,
 				transcripts,
+				projects,
+				settings,
+				age_lower,
+				age_upper,
+				locations,
+				first_languages,
+				dialect_competence,
+				gender,
 			},
 			mode,
 		);

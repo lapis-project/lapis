@@ -14,8 +14,11 @@ export const searchRequest = async (
 		pagesize: pagesize || "50",
 		viewmode: "kwic",
 		fromp: from || "1",
-		refs: refs || "doc.id,file.id,u.who,u.sex,u.age,u.name,u.start,u.end",
+		refs:
+			refs ||
+			"doc.id,doc.title,doc.erhebung,doc.erhebungsart,doc.name,file.id,u.who,u.sex,u.age,u.name,u.start,u.end,u.subproject,u.dialect_competence,u.standard_competence,u.location,u.lat,u.lon",
 	});
+	// eslint-disable-next-line n/no-unsupported-features/node-builtins
 	const response = await fetch(`${NOSKE_URL}${path}?${params.toString()}`);
 	return response;
 };

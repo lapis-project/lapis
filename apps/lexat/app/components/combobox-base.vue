@@ -1,4 +1,3 @@
-// apps/lexat/app/components/combobox-base.vue
 <script setup lang="ts">
 import { Check, ChevronsUpDown } from "@lucide/vue";
 import { ref } from "vue";
@@ -30,6 +29,27 @@ const emit = defineEmits<{
 }>();
 
 const open = ref(false);
+
+const calculateScrollSpeed = (ev: MouseEvent) => {
+	const target = ev.currentTarget as HTMLElement;
+	const textElement = target.querySelector(".scrolling-text") as HTMLElement;
+	const containerElement = textElement?.parentElement;
+
+	if (textElement && containerElement) {
+		// Determine how many pixels the text actually needs to travel
+		const scrollDistance = textElement.scrollWidth - containerElement.clientWidth;
+
+		if (scrollDistance > 0) {
+			const pixelsPerSecond = 30; // Adjust this number to change the universal speed
+			const duration = scrollDistance / pixelsPerSecond;
+
+			// Inject the calculated time as a CSS variable
+			textElement.style.setProperty("--scroll-duration", `${duration}s`);
+		} else {
+			textElement.style.setProperty("--scroll-duration", `0s`);
+		}
+	}
+};
 </script>
 
 <template>
@@ -65,11 +85,13 @@ const open = ref(false);
 				</template>
 				<CommandList>
 					<CommandGroup>
+						<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
 						<CommandItem
 							v-for="question in props.options"
 							:key="question.id"
 							class="group"
 							:value="question.label ?? ''"
+							@mouseenter="calculateScrollSpeed"
 							@select="
 								(ev) => {
 									if (typeof ev.detail.value === 'string') {
@@ -107,7 +129,7 @@ const open = ref(false);
 
 <style scoped>
 .group:hover .scrolling-text {
-	animation: ping-pong 2s linear infinite alternate;
+	animation: ping-pong var(--scroll-duration, 2s) linear forwards alternate;
 }
 
 @keyframes ping-pong {

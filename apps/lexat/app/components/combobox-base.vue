@@ -1,3 +1,4 @@
+// apps/lexat/app/components/combobox-base.vue
 <script setup lang="ts">
 import { Check, ChevronsUpDown } from "@lucide/vue";
 import { ref } from "vue";
@@ -67,6 +68,7 @@ const open = ref(false);
 						<CommandItem
 							v-for="question in props.options"
 							:key="question.id"
+							class="group"
 							:value="question.label ?? ''"
 							@select="
 								(ev) => {
@@ -80,10 +82,19 @@ const open = ref(false);
 								}
 							"
 						>
-							{{ question.label }}
+							<div
+								class="flex-1 overflow-hidden pr-2 [container-type:inline-size] [-webkit-mask-image:linear-gradient(to_right,black_90%,transparent_100%)] [mask-image:linear-gradient(to_right,black_90%,transparent_100%)]"
+							>
+								<span class="scrolling-text block w-max min-w-full whitespace-nowrap">
+									{{ question.label }}
+								</span>
+							</div>
 							<Check
 								:class="
-									cn('ml-auto size-4', model === question.value ? 'opacity-100' : 'opacity-0')
+									cn(
+										'ml-auto size-4 shrink-0',
+										model === question.value ? 'opacity-100' : 'opacity-0',
+									)
 								"
 							/>
 						</CommandItem>
@@ -93,3 +104,21 @@ const open = ref(false);
 		</PopoverContent>
 	</Popover>
 </template>
+
+<style scoped>
+.group:hover .scrolling-text {
+	animation: ping-pong 2s linear infinite alternate;
+}
+
+@keyframes ping-pong {
+	0%,
+	15% {
+		transform: translateX(0);
+	}
+
+	85%,
+	100% {
+		transform: translateX(calc(100cqw - 100%));
+	}
+}
+</style>

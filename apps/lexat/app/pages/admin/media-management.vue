@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { CheckCircle2, CloudUpload, FileImage, Trash2, X } from "@lucide/vue";
 import { useDropZone, useFileDialog } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
-import { CheckCircle2, CloudUpload, FileImage, Trash2, X } from "@lucide/vue";
 import { computed, ref } from "vue";
 import { toast } from "vue-sonner";
 
@@ -54,8 +54,16 @@ const { isOverDropZone } = useDropZone(dropZoneRef, {
 	},
 });
 
+// limit uploads tp 5MB in bytes
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 const addFiles = (files: Array<File>) => {
 	files.forEach((file) => {
+		if (file.size > MAX_FILE_SIZE) {
+			toast.error(`"${file.name}" is too large. Maximum size is 5MB.`);
+			return;
+		}
+
 		assets.value.push({
 			id: crypto.randomUUID(),
 			file,

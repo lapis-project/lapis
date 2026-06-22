@@ -1,6 +1,7 @@
 /* eslint-disable n/no-unsupported-features/node-builtins */
 import { log } from "@acdh-oeaw/lib";
 import { Hono } from "hono";
+import { bodyLimit } from "hono/body-limit";
 
 import { getCoverById, updateArticleCover } from "@/db/cmsRepository.ts";
 import { getImpulsImageForPhen, updatePhenWithNewImage } from "@/db/questionRepository.ts";
@@ -11,6 +12,15 @@ import { deleteFromS3, uploadToS3 } from "../service/storageService.ts";
 
 const media = new Hono()
 	.use("*", restrictedRoute)
+	.use(
+		"*",
+		bodyLimit({
+			maxSize: 5 * 1024 * 1024, // 5 MB
+			onError: (c) => {
+				return c.json({ message: "File is too large. Maximum allowed size is 5MB." }, 413); // 413 Payload Too Large
+			},
+		}),
+	)
 	.post("/upload/:id", async (c) => {
 		const body = await c.req.parseBody();
 		const file = body.image as File;

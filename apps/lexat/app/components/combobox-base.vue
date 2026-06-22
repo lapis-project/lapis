@@ -29,6 +29,27 @@ const emit = defineEmits<{
 }>();
 
 const open = ref(false);
+
+const calculateScrollSpeed = (ev: MouseEvent) => {
+	const target = ev.currentTarget as HTMLElement;
+	const textElement = target.querySelector(".scrolling-text") as HTMLElement;
+	const containerElement = textElement?.parentElement;
+
+	if (textElement && containerElement) {
+		// Determine how many pixels the text actually needs to travel
+		const scrollDistance = textElement.scrollWidth - containerElement.clientWidth;
+
+		if (scrollDistance > 0) {
+			const pixelsPerSecond = 30; // Adjust this number to change the universal speed
+			const duration = scrollDistance / pixelsPerSecond;
+
+			// Inject the calculated time as a CSS variable
+			textElement.style.setProperty("--scroll-duration", `${duration}s`);
+		} else {
+			textElement.style.setProperty("--scroll-duration", `0s`);
+		}
+	}
+};
 </script>
 
 <template>
@@ -64,10 +85,13 @@ const open = ref(false);
 				</template>
 				<CommandList>
 					<CommandGroup>
+						<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
 						<CommandItem
 							v-for="question in props.options"
 							:key="question.id"
+							class="group"
 							:value="question.label ?? ''"
+							@mouseenter="calculateScrollSpeed"
 							@select="
 								(ev) => {
 									if (typeof ev.detail.value === 'string') {
@@ -80,10 +104,19 @@ const open = ref(false);
 								}
 							"
 						>
-							{{ question.label }}
+							<div
+								class="flex-1 overflow-hidden pr-2 [container-type:inline-size] [-webkit-mask-image:linear-gradient(to_right,black_90%,transparent_100%)] [mask-image:linear-gradient(to_right,black_90%,transparent_100%)]"
+							>
+								<span class="scrolling-text block w-max min-w-full whitespace-nowrap">
+									{{ question.label }}
+								</span>
+							</div>
 							<Check
 								:class="
-									cn('ml-auto size-4', model === question.value ? 'opacity-100' : 'opacity-0')
+									cn(
+										'ml-auto size-4 shrink-0',
+										model === question.value ? 'opacity-100' : 'opacity-0',
+									)
 								"
 							/>
 						</CommandItem>
@@ -93,3 +126,21 @@ const open = ref(false);
 		</PopoverContent>
 	</Popover>
 </template>
+
+<style scoped>
+.group:hover .scrolling-text {
+	animation: ping-pong var(--scroll-duration, 2s) linear forwards alternate;
+}
+
+@keyframes ping-pong {
+	0%,
+	15% {
+		transform: translateX(0);
+	}
+
+	85%,
+	100% {
+		transform: translateX(calc(100cqw - 100%));
+	}
+}
+</style>

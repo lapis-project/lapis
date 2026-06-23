@@ -22,14 +22,14 @@
 		"@acdh-oeaw/stylelint-config": "^3.0.3",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@nuxt/eslint": "catalog:",
-		"@types/node": "^25.6.0",
+		"@types/node": "^25.9.4",
 		"eslint": "catalog:",
 		"eslint-config-flat-gitignore": "^2.3.0",
-		"stylelint": "^17.6.0",
+		"stylelint": "^17.13.0",
 		"typescript": "catalog:",
-		"typescript-eslint": "^8.56.1",
+		"typescript-eslint": "^8.61.1",
 		"vite": "catalog:",
-		"vue-tsc": "^3.2.6"
+		"vue-tsc": "^3.3.5"
 	},
 	"browserslist": {
 		"development": [

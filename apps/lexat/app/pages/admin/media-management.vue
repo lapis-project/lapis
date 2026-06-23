@@ -11,6 +11,7 @@ definePageMeta({
 });
 
 const { apiClient } = useApiClient();
+const t = useTranslations();
 
 type UploadStatus = "pending" | "success" | "error";
 
@@ -193,7 +194,7 @@ const canProcess = computed(
 <template>
 	<main class="w-full max-w-[1600px] mx-auto p-6" :tabindex="-1">
 		<div class="flex items-center justify-between mb-8">
-			<h1 class="text-2xl font-semibold">Impulsbilder Verwaltung</h1>
+			<h1 class="text-2xl font-semibold">{{ t("AdminPage.media.title") }}</h1>
 			<div
 				class="px-4 py-1.5 rounded-full border text-sm font-medium flex items-center gap-2"
 				:class="
@@ -206,7 +207,7 @@ const canProcess = computed(
 					class="w-2 h-2 rounded-full"
 					:class="pendingCount > 0 ? 'bg-orange-500' : 'bg-gray-400'"
 				></div>
-				Queue: {{ pendingCount }} Items Pending
+				{{ t("AdminPage.media.queue") }}: {{ pendingCount }} {{ t("AdminPage.media.pending") }}
 			</div>
 		</div>
 
@@ -226,10 +227,14 @@ const canProcess = computed(
 					>
 						<CloudUpload class="w-8 h-8" />
 					</div>
-					<h3 class="text-lg font-medium text-foreground mb-2">Drop your images here</h3>
-					<p class="text-gray-500 dark:text-gray-400 text-sm mb-8">Supports PNG, JPG, WEBP, GIF</p>
+					<h3 class="text-lg font-medium text-foreground mb-2">
+						{{ t("AdminPage.media.drop_off.description") }}
+					</h3>
+					<p class="text-gray-500 dark:text-gray-400 text-sm mb-8">
+						{{ t("AdminPage.media.drop_off.image_types") }}
+					</p>
 
-					<Button @click="openFileDialog"> Browse Files </Button>
+					<Button @click="openFileDialog"> {{ t("AdminPage.media.drop_off.browse_btn") }} </Button>
 				</div>
 
 				<!-- Status Card -->
@@ -238,7 +243,7 @@ const canProcess = computed(
 						<h4
 							class="text-xs font-semibold tracking-wider dark:text-gray-800 text-gray-100 uppercase"
 						>
-							Verarbeitungsstatus
+							{{ t("AdminPage.media.status_card.title") }}
 						</h4>
 						<div
 							class="px-3 py-1 rounded text-xs font-medium"
@@ -248,15 +253,20 @@ const canProcess = computed(
 									: 'dark:bg-gray-300 dark:text-gray-600 bg-gray-600 text-gray-300'
 							"
 						>
-							{{ totalCount > 0 ? "Aktiv" : "Leer" }}
+							{{
+								totalCount > 0
+									? t("AdminPage.media.status_card.state.active")
+									: t("AdminPage.media.status_card.state.empty")
+							}}
 						</div>
 					</div>
 					<p class="text-sm text-gray-400 dark:text-gray-400">
 						<template v-if="totalCount === 0">
-							Lade Bilder hoch und weise ihnen Kategorien zu, um sie zu verarbeiten.
+							{{ t("AdminPage.media.status_card.description") }}
 						</template>
 						<template v-else>
-							{{ successCount }} von {{ totalCount }} Bildern gespeichert.
+							{{ successCount }} {{ t("AdminPage.media.status_card.of") }} {{ totalCount }}
+							{{ t("AdminPage.media.status_card.saved") }}.
 						</template>
 					</p>
 				</div>
@@ -268,17 +278,21 @@ const canProcess = computed(
 					class="px-6 py-5 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 flex items-center justify-between"
 				>
 					<h2 class="text-sm font-bold text-foreground tracking-wide uppercase">
-						Pending Assignments
+						{{ t("AdminPage.media.assignments.title") }}
 					</h2>
-					<span class="text-sm text-gray-400">Total File Size: {{ totalSize }} MB</span>
+					<span class="text-sm text-gray-400"
+						>{{ t("AdminPage.media.assignments.size") }}: {{ totalSize }} MB</span
+					>
 				</div>
 
 				<div
 					class="grid grid-cols-12 gap-4 px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-600 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
 				>
-					<div class="col-span-5">Preview & Filename</div>
-					<div class="col-span-5">Category Assignment</div>
-					<div class="col-span-2 text-right">Status</div>
+					<div class="col-span-5">{{ t("AdminPage.media.assignments.columns.preview") }}</div>
+					<div class="col-span-5">{{ t("AdminPage.media.assignments.columns.category") }}</div>
+					<div class="col-span-2 text-right">
+						{{ t("AdminPage.media.assignments.columns.status") }}
+					</div>
 				</div>
 				<div class="flex-1 overflow-y-auto p-2 bg-white dark:bg-gray-800">
 					<div
@@ -286,7 +300,7 @@ const canProcess = computed(
 						class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 py-20"
 					>
 						<FileImage class="w-12 h-12 opacity-20" />
-						<p class="text-sm">Noch keine Bilder hinzugefügt.</p>
+						<p class="text-sm">{{ t("AdminPage.media.assignments.body.placeholder") }}.</p>
 					</div>
 
 					<div
@@ -319,7 +333,7 @@ const canProcess = computed(
 									class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-100 dark:text-green-900 text-xs font-medium border border-green-200"
 								>
 									<CheckCircle2 class="w-3.5 h-3.5" />
-									Gespeichert
+									{{ t("AdminPage.media.assignments.body.saved_msg") }}
 								</div>
 							</template>
 							<template v-else>
@@ -337,12 +351,17 @@ const canProcess = computed(
 						class="mt-auto px-6 py-5 border-t border-gray-100 flex items-center justify-between bg-gray-50 dark:bg-gray-700"
 					>
 						<div class="flex flex-col">
-							<span class="text-xs font-semibold text-foreground uppercase tracking-wider mb-1"
-								>Upload Queue</span
-							>
+							<span class="text-xs font-semibold text-foreground uppercase tracking-wider mb-1">{{
+								t("AdminPage.media.assignments.footer.upload_queue")
+							}}</span>
 							<span class="text-sm text-gray-500 dark:text-gray-400">
-								<template v-if="pendingCount === 0">No items</template>
-								<template v-else>{{ pendingCount }} items ready</template>
+								<template v-if="pendingCount === 0">{{
+									t("AdminPage.media.assignments.footer.pending.none")
+								}}</template>
+								<template v-else
+									>{{ pendingCount }}
+									{{ t("AdminPage.media.assignments.footer.pending.count") }}</template
+								>
 							</span>
 						</div>
 
@@ -352,14 +371,18 @@ const canProcess = computed(
 								:disabled="isProcessing"
 								@click="discardAll"
 							>
-								Discard All
+								{{ t("AdminPage.media.assignments.footer.discard") }}
 							</button>
 							<Button
 								class="bg-indigo-500 hover:bg-indigo-600 text-white disabled:bg-indigo-300 disabled:opacity-70 px-6 py-2"
 								:disabled="!canProcess"
 								@click="processAssets"
 							>
-								{{ isProcessing ? "Processing..." : "Process Assets" }}
+								{{
+									isProcessing
+										? t("AdminPage.media.assignments.footer.processing")
+										: t("AdminPage.media.assignments.footer.process_btn")
+								}}
 							</Button>
 						</div>
 					</div>
@@ -374,19 +397,21 @@ const canProcess = computed(
 				class="px-6 py-5 border-b border-gray-100 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 flex items-center justify-between"
 			>
 				<h2 class="text-sm font-bold text-foreground tracking-wide uppercase">
-					Aktive Impulsbilder
+					{{ t("AdminPage.media.active_images.title") }}
 				</h2>
 				<span class="text-sm text-gray-400 font-medium">
-					Total: {{ allPhenomenaWithStimuli?.length || 0 }}
+					{{ t("AdminPage.media.active_images.total") }}: {{ allPhenomenaWithStimuli?.length || 0 }}
 				</span>
 			</div>
 
 			<div
 				class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 dark:border-gray-600 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-white dark:bg-gray-800"
 			>
-				<div class="col-span-3">Vorschau</div>
-				<div class="col-span-7">Phänomen</div>
-				<div class="col-span-2 text-right">Aktion</div>
+				<div class="col-span-3">{{ t("AdminPage.media.active_images.columns.preview") }}</div>
+				<div class="col-span-7">{{ t("AdminPage.media.active_images.columns.category") }}</div>
+				<div class="col-span-2 text-right">
+					{{ t("AdminPage.media.active_images.columns.action") }}
+				</div>
 			</div>
 
 			<div class="flex-1 overflow-y-auto">
@@ -395,7 +420,7 @@ const canProcess = computed(
 					class="flex flex-col items-center justify-center text-gray-400 space-y-4 py-16"
 				>
 					<FileImage class="w-12 h-12 opacity-20" />
-					<p class="text-sm">Bisher wurden keine Impulsbilder zugewiesen.</p>
+					<p class="text-sm">{{ t("AdminPage.media.active_images.body.placeholder") }}</p>
 				</div>
 
 				<div
@@ -424,7 +449,7 @@ const canProcess = computed(
 					<div class="col-span-2 flex items-center justify-end">
 						<button
 							class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-600 dark:hover:bg-red-100 rounded-md transition-all disabled:opacity-50"
-							title="Löschen"
+							:title="t('AdminPage.media.active_images.body.delete')"
 							@click="openDeleteDialog(phen)"
 						>
 							<Trash2 class="w-4 h-4" />
@@ -437,11 +462,11 @@ const canProcess = computed(
 		<Dialog :open="isDeleteDialogOpen" @update:open="(newVal) => (isDeleteDialogOpen = newVal)">
 			<DialogContent class="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>Delete Image</DialogTitle>
+					<DialogTitle>{{ t("AdminPage.media.delete_dialog.title") }}</DialogTitle>
 					<DialogDescription class="mt-2">
-						Are you sure you want to delete the image assigned to
-						<strong class="text-gray-800 dark:text-gray-200">{{ itemToDelete?.name }}</strong
-						>? This action cannot be undone.
+						{{ t("AdminPage.media.delete_dialog.description") }}
+						<strong class="text-gray-800 dark:text-gray-200">{{ itemToDelete?.name }}</strong>
+						{{ t("AdminPage.media.delete_dialog.warning") }}
 					</DialogDescription>
 				</DialogHeader>
 

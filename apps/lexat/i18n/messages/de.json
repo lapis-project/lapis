@@ -9,6 +9,67 @@
 		"meta": {
 			"title": "Admin"
 		},
+		"media": {
+			"title": "Impulsbilder Verwaltung",
+			"queue": "Warteschlange",
+			"pending": "Element(e) ausstehend",
+			"drop_off": {
+				"description": "Bilder hier ablegen",
+				"image_types": "Unterstützt PNG, JPG, WEBP, GIF",
+				"browse_btn": "Dateien Durchsuchen"
+			},
+			"status_card": {
+				"title": "Verarbeitungsstatus",
+				"description": " Lade Bilder hoch und weise ihnen Kategorien zu, um sie zu verarbeiten.",
+				"state": {
+					"empty": "Leer",
+					"active": "Aktiv"
+				},
+				"of": "von",
+				"saved": "Bilder(n) gespeichert"
+			},
+			"assignments": {
+				"title": "Ausstehende Aufträge",
+				"size": "Gesamte Dateigröße",
+				"columns": {
+					"preview": "Vorschau & Dateiname",
+					"category": "Phänomen Zuordnung",
+					"status": "Status"
+				},
+				"body": {
+					"placeholder": "Noch keine Bilder hinzugefügt",
+					"saved_msg": "Gespeichert"
+				},
+				"footer": {
+					"upload_queue": "Upload Warteschlange",
+					"discard": "Alles Verwerfen",
+					"process_btn": "Assets Verarbeiten",
+					"processing": "Verarbeiten...",
+					"pending": {
+						"none": "Keine Elemente",
+						"count": "Element(e) bereit"
+					}
+				}
+			},
+			"active_images": {
+				"title": "Aktive Impulsbilder",
+				"total": "Insgesamt",
+				"columns": {
+					"preview": "Vorschau",
+					"category": "Phänomen",
+					"action": "Aktion"
+				},
+				"body": {
+					"placeholder": "Bisher wurden keine Impulsbilder zugewiesen.",
+					"delete": "Löschen"
+				}
+			},
+			"delete_dialog": {
+				"title": "Bild Löschen",
+				"description": "Bist du dir sicher, das Bild zugewiesen für",
+				"warning": "zu löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+			}
+		},
 		"articles": {
 			"deletion_succeeded": "Eintrag erfolgreich gelöscht",
 			"deletion_failed": "Löschung des Eintrags fehlgeschlagen",

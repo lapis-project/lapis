@@ -9,6 +9,67 @@
 		"meta": {
 			"title": "Admin"
 		},
+		"media": {
+			"title": "Stimulus Image Manager",
+			"queue": "Queue",
+			"pending": "Item(s) pending",
+			"drop_off": {
+				"description": "Drop your images here",
+				"image_types": "Supports PNG, JPG, WEBP, GIF",
+				"browse_btn": "Browse Files"
+			},
+			"status_card": {
+				"title": "Processing State",
+				"description": " Upload images and assign categories to process them.",
+				"state": {
+					"empty": "Empty",
+					"active": "Active"
+				},
+				"of": "out of",
+				"saved": "Image(s) saved"
+			},
+			"assignments": {
+				"title": "Pending Assignments",
+				"size": "Total File Size",
+				"columns": {
+					"preview": "Preview & Filename",
+					"category": "Category Assignment",
+					"status": "Status"
+				},
+				"body": {
+					"placeholder": "No images added yet",
+					"saved_msg": "Saved"
+				},
+				"footer": {
+					"upload_queue": "Upload Queue",
+					"discard": "Discard All",
+					"process_btn": "Process Assets",
+					"processing": "Processing...",
+					"pending": {
+						"none": "No items",
+						"count": "item(s) ready"
+					}
+				}
+			},
+			"active_images": {
+				"title": "Active Stimulus Images",
+				"total": "Total",
+				"columns": {
+					"preview": "Preview",
+					"category": "Category",
+					"action": "Action"
+				},
+				"body": {
+					"placeholder": "Bisher wurden keine Impulsbilder zugewiesen.",
+					"delete": "Delete"
+				}
+			},
+			"delete_dialog": {
+				"title": "Delete Image",
+				"description": "Are you sure you want to delete the image assigned to",
+				"warning": "? This action cannot be undone."
+			}
+		},
 		"articles": {
 			"deletion_succeeded": "Article deleted",
 			"deletion_failed": "Deletion of article has failed",

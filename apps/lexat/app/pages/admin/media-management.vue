@@ -348,7 +348,7 @@ const canProcess = computed(
 
 						<div class="flex items-center gap-6">
 							<button
-								class="text-sm font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-500 transition-colors"
+								class="text-sm font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
 								:disabled="isProcessing"
 								@click="discardAll"
 							>

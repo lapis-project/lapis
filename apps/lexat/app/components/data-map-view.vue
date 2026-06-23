@@ -1246,16 +1246,18 @@ watch(activeVariants, updateUrlParams, {
 			</GeoMap>
 		</VisualisationContainer>
 		<div class="flex w-full gap-8 justify-between">
-			<div class="flex w-full gap-3">
+			<div class="flex flex-1 min-w-0 gap-3">
 				<p
-					class="wrap-break-word rounded-md border p-2 text-sm text-foreground/70"
+					class="min-w-0 flex-1 break-all rounded-md border p-2 text-sm text-foreground/70"
 					data-testid="clipboard-url"
 				>
 					{{ fullRoute }}
 				</p>
-				<CopyToClipboard :text="fullRoute" />
+				<div class="shrink-0">
+					<CopyToClipboard :text="fullRoute" />
+				</div>
 			</div>
-			<div class="flex gap-3">
+			<div class="flex shrink-0 gap-3">
 				<Button v-if="postAlias" data-testid="goToArticlePage" @click="goToArticlePage"
 					><FileText class="mr-2 size-4" />{{ t("MapsPage.go-to-article") }}</Button
 				>

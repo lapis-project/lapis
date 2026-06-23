@@ -193,18 +193,18 @@ const canProcess = computed(
 <template>
 	<main class="w-full max-w-[1600px] mx-auto p-6" :tabindex="-1">
 		<div class="flex items-center justify-between mb-8">
-			<h1 class="text-2xl font-semibold text-slate-800">Impulsbilder Verwaltung</h1>
+			<h1 class="text-2xl font-semibold">Impulsbilder Verwaltung</h1>
 			<div
 				class="px-4 py-1.5 rounded-full border text-sm font-medium flex items-center gap-2"
 				:class="
 					pendingCount > 0
-						? 'bg-orange-50 border-orange-200 text-orange-700'
-						: 'bg-slate-50 border-slate-200 text-slate-600'
+						? 'bg-orange-50 border-orange-200 text-orange-700 dark:bg-orange-100 dark:border-orange-300 dark:text-orange-800'
+						: 'bg-gray-50 border-gray-200 dark:border-gray-500 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
 				"
 			>
 				<div
 					class="w-2 h-2 rounded-full"
-					:class="pendingCount > 0 ? 'bg-orange-500' : 'bg-slate-400'"
+					:class="pendingCount > 0 ? 'bg-orange-500' : 'bg-gray-400'"
 				></div>
 				Queue: {{ pendingCount }} Items Pending
 			</div>
@@ -214,42 +214,44 @@ const canProcess = computed(
 			<div class="lg:col-span-4 flex flex-col gap-6">
 				<div
 					ref="dropZoneRef"
-					class="bg-white rounded-2xl border-2 border-dashed transition-colors flex flex-col items-center justify-center p-12 text-center min-h-[400px]"
-					:class="isOverDropZone ? 'border-indigo-500 bg-indigo-50/50' : 'border-slate-200'"
+					class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed transition-colors flex flex-col items-center justify-center p-12 text-center min-h-[400px]"
+					:class="
+						isOverDropZone
+							? 'border-indigo-500 bg-indigo-50/50 dark:border-indigo-200 dark:bg-indigo-20/50'
+							: 'border-gray-200 dark:border-gray-700 '
+					"
 				>
 					<div
-						class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-6 text-slate-400"
+						class="w-16 h-16 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center mb-6 text-gray-400"
 					>
 						<CloudUpload class="w-8 h-8" />
 					</div>
-					<h3 class="text-lg font-medium text-slate-700 mb-2">Drop your images here</h3>
-					<p class="text-slate-500 text-sm mb-8">Supports PNG, JPG, WEBP, GIF</p>
+					<h3 class="text-lg font-medium text-foreground mb-2">Drop your images here</h3>
+					<p class="text-gray-500 dark:text-gray-400 text-sm mb-8">Supports PNG, JPG, WEBP, GIF</p>
 
-					<Button
-						class="bg-[#0f172a] hover:bg-slate-800 text-white px-8"
-						variant="default"
-						@click="openFileDialog"
-					>
-						Browse Files
-					</Button>
+					<Button @click="openFileDialog"> Browse Files </Button>
 				</div>
 
 				<!-- Status Card -->
-				<div class="bg-[#0f172a] rounded-2xl p-6 text-white shadow-lg">
+				<div class="dark:bg-white bg-[#171717] rounded-2xl p-6 text-primary-foreground shadow-lg">
 					<div class="flex items-center justify-between mb-4">
-						<h4 class="text-xs font-semibold tracking-wider text-slate-400 uppercase">
+						<h4
+							class="text-xs font-semibold tracking-wider dark:text-gray-800 text-gray-100 uppercase"
+						>
 							Verarbeitungsstatus
 						</h4>
 						<div
 							class="px-3 py-1 rounded text-xs font-medium"
 							:class="
-								totalCount > 0 ? 'bg-indigo-500/20 text-indigo-300' : 'bg-slate-700 text-slate-300'
+								totalCount > 0
+									? 'bg-indigo-500/20  text-indigo-300 dark:text-indigo-600'
+									: 'dark:bg-gray-300 dark:text-gray-600 bg-gray-600 text-gray-300'
 							"
 						>
 							{{ totalCount > 0 ? "Aktiv" : "Leer" }}
 						</div>
 					</div>
-					<p class="text-sm text-slate-300">
+					<p class="text-sm text-gray-400 dark:text-gray-400">
 						<template v-if="totalCount === 0">
 							Lade Bilder hoch und weise ihnen Kategorien zu, um sie zu verarbeiten.
 						</template>
@@ -260,28 +262,28 @@ const canProcess = computed(
 				</div>
 			</div>
 			<div
-				class="lg:col-span-8 bg-white border border-slate-200 rounded-2xl flex flex-col shadow-sm overflow-hidden min-h-[600px]"
+				class="lg:col-span-8 border border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col shadow-sm overflow-hidden min-h-[600px]"
 			>
 				<div
-					class="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50"
+					class="px-6 py-5 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 flex items-center justify-between"
 				>
-					<h2 class="text-sm font-bold text-slate-700 tracking-wide uppercase">
+					<h2 class="text-sm font-bold text-foreground tracking-wide uppercase">
 						Pending Assignments
 					</h2>
-					<span class="text-sm text-slate-400">Total File Size: {{ totalSize }} MB</span>
+					<span class="text-sm text-gray-400">Total File Size: {{ totalSize }} MB</span>
 				</div>
 
 				<div
-					class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider"
+					class="grid grid-cols-12 gap-4 px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-600 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
 				>
 					<div class="col-span-5">Preview & Filename</div>
 					<div class="col-span-5">Category Assignment</div>
 					<div class="col-span-2 text-right">Status</div>
 				</div>
-				<div class="flex-1 overflow-y-auto p-2">
+				<div class="flex-1 overflow-y-auto p-2 bg-white dark:bg-gray-800">
 					<div
 						v-if="assets.length === 0"
-						class="h-full flex flex-col items-center justify-center text-slate-400 space-y-4 py-20"
+						class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 py-20"
 					>
 						<FileImage class="w-12 h-12 opacity-20" />
 						<p class="text-sm">Noch keine Bilder hinzugefügt.</p>
@@ -290,11 +292,11 @@ const canProcess = computed(
 					<div
 						v-for="asset in assets"
 						:key="asset.id"
-						class="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-slate-50 rounded-lg transition-colors group"
+						class="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group"
 					>
 						<div class="col-span-5 flex items-center gap-4">
 							<div
-								class="w-12 h-12 rounded border border-slate-200 overflow-hidden bg-slate-100 shrink-0"
+								class="w-12 h-12 rounded border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 shrink-0"
 							>
 								<img :alt="asset.category ?? ''" class="object-cover" :src="asset.previewUrl" />
 							</div>
@@ -314,7 +316,7 @@ const canProcess = computed(
 						<div class="col-span-2 flex items-center justify-end">
 							<template v-if="asset.status === 'success'">
 								<div
-									class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium border border-green-200"
+									class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-100 dark:text-green-900 text-xs font-medium border border-green-200"
 								>
 									<CheckCircle2 class="w-3.5 h-3.5" />
 									Gespeichert
@@ -322,7 +324,7 @@ const canProcess = computed(
 							</template>
 							<template v-else>
 								<button
-									class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+									class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-600 dark:hover:bg-red-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
 									@click="removeAsset(asset.id)"
 								>
 									<X class="w-4 h-4" />
@@ -332,13 +334,13 @@ const canProcess = computed(
 					</div>
 
 					<div
-						class="mt-auto px-6 py-5 border-t border-slate-100 flex items-center justify-between bg-slate-50/50"
+						class="mt-auto px-6 py-5 border-t border-gray-100 flex items-center justify-between bg-gray-50 dark:bg-gray-700"
 					>
 						<div class="flex flex-col">
-							<span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1"
+							<span class="text-xs font-semibold text-foreground uppercase tracking-wider mb-1"
 								>Upload Queue</span
 							>
-							<span class="text-sm text-slate-600">
+							<span class="text-sm text-gray-500 dark:text-gray-400">
 								<template v-if="pendingCount === 0">No items</template>
 								<template v-else>{{ pendingCount }} items ready</template>
 							</span>
@@ -346,7 +348,7 @@ const canProcess = computed(
 
 						<div class="flex items-center gap-6">
 							<button
-								class="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
+								class="text-sm font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
 								:disabled="isProcessing"
 								@click="discardAll"
 							>
@@ -366,21 +368,21 @@ const canProcess = computed(
 		</div>
 
 		<div
-			class="mt-12 bg-white border border-slate-200 rounded-2xl flex flex-col shadow-sm overflow-hidden"
+			class="mt-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col shadow-sm overflow-hidden"
 		>
 			<div
-				class="px-6 py-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between"
+				class="px-6 py-5 border-b border-gray-100 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 flex items-center justify-between"
 			>
-				<h2 class="text-sm font-bold text-slate-700 tracking-wide uppercase">
+				<h2 class="text-sm font-bold text-foreground tracking-wide uppercase">
 					Aktive Impulsbilder
 				</h2>
-				<span class="text-sm text-slate-500 font-medium">
+				<span class="text-sm text-gray-400 font-medium">
 					Total: {{ allPhenomenaWithStimuli?.length || 0 }}
 				</span>
 			</div>
 
 			<div
-				class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider bg-white"
+				class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 dark:border-gray-600 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-white dark:bg-gray-800"
 			>
 				<div class="col-span-3">Vorschau</div>
 				<div class="col-span-7">Phänomen</div>
@@ -390,7 +392,7 @@ const canProcess = computed(
 			<div class="flex-1 overflow-y-auto">
 				<div
 					v-if="!allPhenomenaWithStimuli?.length"
-					class="flex flex-col items-center justify-center text-slate-400 space-y-4 py-16"
+					class="flex flex-col items-center justify-center text-gray-400 space-y-4 py-16"
 				>
 					<FileImage class="w-12 h-12 opacity-20" />
 					<p class="text-sm">Bisher wurden keine Impulsbilder zugewiesen.</p>
@@ -400,11 +402,11 @@ const canProcess = computed(
 					v-for="phen in allPhenomenaWithStimuli"
 					v-else
 					:key="phen.id"
-					class="grid grid-cols-12 gap-4 items-center px-6 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors group last:border-0"
+					class="grid grid-cols-12 gap-4 items-center px-6 py-3 border-b border-gray-50 dark:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group last:border-0"
 				>
 					<div class="col-span-3">
 						<div
-							class="w-16 h-16 rounded-md border border-slate-200 overflow-hidden bg-slate-100 shrink-0 shadow-sm"
+							class="w-16 h-16 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 shrink-0 shadow-sm"
 						>
 							<img
 								v-if="phen.stimulus_media"
@@ -415,13 +417,13 @@ const canProcess = computed(
 						</div>
 					</div>
 
-					<div class="col-span-7 font-medium text-slate-700">
+					<div class="col-span-7 font-medium text-gray-700 dark:text-gray-300">
 						{{ phen.phenomenon_name }}
 					</div>
 
 					<div class="col-span-2 flex items-center justify-end">
 						<button
-							class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all disabled:opacity-50"
+							class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-600 dark:hover:bg-red-100 rounded-md transition-all disabled:opacity-50"
 							title="Löschen"
 							@click="openDeleteDialog(phen)"
 						>
@@ -438,7 +440,7 @@ const canProcess = computed(
 					<DialogTitle>Delete Image</DialogTitle>
 					<DialogDescription class="mt-2">
 						Are you sure you want to delete the image assigned to
-						<strong class="text-slate-800">{{ itemToDelete?.name }}</strong
+						<strong class="text-gray-800 dark:text-gray-200">{{ itemToDelete?.name }}</strong
 						>? This action cannot be undone.
 					</DialogDescription>
 				</DialogHeader>

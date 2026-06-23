@@ -36,6 +36,7 @@ interface CqlCriteria {
 	locations?: Array<string>;
 	first_languages?: Array<string>;
 	dialect_competence?: number;
+	standard_competence?: number;
 	gender?: string;
 }
 /*
@@ -139,7 +140,21 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 	}
 
 	if (criteria.dialect_competence) {
-		addCondition(parts_utterance, "dialect_competence", String(criteria.dialect_competence));
+		// Check if comptenence is below 0
+		// If yes pass unknown UNK to the search engine
+		if (criteria.dialect_competence < 0) {
+			addCondition(parts_utterance, "dialect_competence", "UNK");
+		} else {
+			addCondition(parts_utterance, "dialect_competence", String(criteria.dialect_competence));
+		}
+	}
+
+	if (criteria.standard_competence) {
+		if (criteria.standard_competence < 0) {
+			addCondition(parts_utterance, "standard_competence", "UNK");
+		} else {
+			addCondition(parts_utterance, "standard_competence", String(criteria.standard_competence));
+		}
 	}
 
 	if (criteria.gender) {

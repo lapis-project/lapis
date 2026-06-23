@@ -81,8 +81,24 @@ const SearchQuerySchema = object({
 	dialect_competence: optional(
 		pipe(
 			string(),
-			regex(/^\d$/),
-			transform((num) => Number(num)),
+			// Allow optional standard hyphen (-), math minus (\u2212), or en-dash (\u2013) followed by digits
+			regex(/^[-\u2212\u2013]?\d+$/),
+			transform((num) => {
+				const normalizedNum = num.replace(/[\u2212\u2013]/, "-");
+				return Number(normalizedNum);
+			}),
+		),
+	),
+
+	standard_competence: optional(
+		pipe(
+			string(),
+			// Allow optional standard hyphen (-), math minus (\u2212), or en-dash (\u2013) followed by digits
+			regex(/^[-\u2212\u2013]?\d+$/),
+			transform((num) => {
+				const normalizedNum = num.replace(/[\u2212\u2013]/, "-");
+				return Number(normalizedNum);
+			}),
 		),
 	),
 
@@ -133,6 +149,7 @@ const corpus = new Hono<AppEnv>()
 			locations,
 			first_languages,
 			dialect_competence,
+			standard_competence,
 			gender,
 		} = result.output;
 
@@ -161,6 +178,7 @@ const corpus = new Hono<AppEnv>()
 				locations,
 				first_languages,
 				dialect_competence,
+				standard_competence,
 				gender,
 			},
 			mode,

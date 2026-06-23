@@ -5,6 +5,9 @@ import { TreeItem, TreeRoot } from "reka-ui";
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
 import type { Transcript } from "@/pages/transcripts/[id].vue";
 
+const router = useRouter();
+const route = useRoute();
+
 const props = defineProps<{
 	transcripts: Array<Transcript>;
 }>();
@@ -18,31 +21,48 @@ const activeGender = ref<string | null>(null);
 const activeSetting = ref<string | null>(null);
 const activeLocation = ref<string | null>(null);
 
+const ageRange = computed(() => {
+	if (!activeAgeGroup.value) return null;
+
+	const [lower, upper] = activeAgeGroup.value.split("-");
+
+	return {
+		lower,
+		upper,
+	};
+});
+
 const projectOptions = ref<Array<{ label: string; value: string }>>([
+	{ label: "PP01", value: "PP01" },
 	{ label: "PP02", value: "PP02" },
 	{ label: "PP03", value: "PP03" },
 	{ label: "PP04", value: "PP04" },
-	{ label: "PP07", value: "PP07" },
+	{ label: "PP05", value: "PP05" },
+	{ label: "PP06", value: "PP06" },
+	{ label: "PP08", value: "PP08" },
+	{ label: "PP10", value: "PP10" },
+	{ label: "PP11", value: "PP11" },
 ]);
 
 const settingOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "Interview", value: "interview" },
-	{ label: "Freundesgespräch", value: "freundesgespraech" },
-	{ label: "Nordwind & Sonne", value: "nordwind-und-sonne" },
+	{ label: "Interview", value: "Interview" },
+	{ label: "Gespräch ohne Explorator/in", value: "Gespräch ohne Explorator/in" },
+	{ label: "Übersetzungen", value: "Übersetzungen" },
+	{ label: "Vorlesen", value: "Vorlesen" },
+	{ label: "Papier-Fragebogen", value: "Papier-Fragebogen" },
+	{ label: "Online-Fragebogen", value: "Online-Fragebogen" },
+	{ label: "Fragebuch", value: "Fragebuch" },
+	{ label: "Experimente (SPT und andere)", value: "Experimente (SPT und andere)" },
 ]);
 
 const ageGroupOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "5-10", value: "5-10" },
-	{ label: "10-15", value: "10-15" },
-	{ label: "15-20", value: "15-20" },
-	{ label: "20-25", value: "20-25" },
-	{ label: "25-30", value: "25-30" },
+	{ label: "18-35", value: "18-35" },
+	{ label: "65+", value: "65-999" },
 ]);
 
 const genderOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "Männlich", value: "m" },
-	{ label: "Weiblich", value: "w" },
-	{ label: "Divers", value: "divers" },
+	{ label: "Männlich", value: "male" },
+	{ label: "Weiblich", value: "female" },
 ]);
 
 const languageOptions = ref<Array<{ label: string; value: string }>>([
@@ -63,7 +83,39 @@ const locationOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "St. Pölten", value: "stpoelten" },
 ]);
 
-const competenceValue = ref<Array<number>>([1]);
+const dialectCompetenceEnabled = ref(false);
+const dialectCompetenceValue = ref<number[] | null>(null);
+
+const standardCompetenceEnabled = ref(false);
+const standardCompetenceValue = ref<number[] | null>(null);
+
+watch(
+	() => {
+		return dialectCompetenceEnabled.value;
+	},
+	() => {
+		if (dialectCompetenceEnabled.value) {
+			dialectCompetenceValue.value = [1];
+		} else {
+			dialectCompetenceValue.value = null;
+		}
+	},
+	{ immediate: true },
+);
+
+watch(
+	() => {
+		return standardCompetenceEnabled.value;
+	},
+	() => {
+		if (standardCompetenceEnabled.value) {
+			standardCompetenceValue.value = [1];
+		} else {
+			standardCompetenceValue.value = null;
+		}
+	},
+	{ immediate: true },
+);
 
 const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
 
@@ -115,6 +167,46 @@ function handleBookmark(transcript: Transcript) {
 function handleSelection(id: string) {
 	emit("handleSelection", id);
 }
+
+watch(
+	[
+		activeContext,
+		activeSetting,
+		activeAgeGroup,
+		activeLocation,
+		activeFirstLanguage,
+		activeGender,
+		dialectCompetenceValue,
+		standardCompetenceValue
+	],
+	() => {
+		router.replace({
+			query: {
+				...route.query,
+
+				projects: activeContext.value ? [activeContext.value] : undefined,
+
+				settings: activeSetting.value ? [activeSetting.value] : undefined,
+
+				locations: activeLocation.value ? [activeLocation.value] : undefined,
+
+				first_languages: activeFirstLanguage.value ? [activeFirstLanguage.value] : undefined,
+
+				gender: activeGender.value || undefined,
+
+				dialect_competence:
+					dialectCompetenceValue.value?.[0] != null ? String(dialectCompetenceValue.value[0]) : undefined,
+				
+				standard_competence: 
+					standardCompetenceValue.value?.[0] != null ? String(standardCompetenceValue.value[0]) : undefined,
+
+				age_lower: ageRange.value?.lower,
+				age_upper: ageRange.value?.upper,
+			},
+		});
+	},
+	{ deep: true },
+);
 </script>
 
 <template>
@@ -245,22 +337,86 @@ function handleSelection(id: string) {
 							/></Button>
 						</div>
 					</div>
-					<div class="grid w-full gap-3 my-2">
-						<div class="flex gap-1">
-							<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz</Label>
-							<span class="text-xs text-muted-foreground">{{ competenceValue[0] }}</span>
+					<div class="grid my-2">
+						<div class="flex w-full justify-between">
+							<span class="flex-row flex gap-1">
+								<Checkbox type="checkbox" id="competence-enabled" v-model="standardCompetenceEnabled" />
+								<Label class="tracking-wide pl-1" for="nos">Standardkompetenz</Label>
+							</span>
+							<span
+								v-if="standardCompetenceEnabled && standardCompetenceValue"
+								class="text-xs text-muted-foreground"
+							>
+								{{ standardCompetenceValue[0] }}
+							</span>
 						</div>
-						<div class="flex flex-row gap-4">
-							<Slider v-model="competenceValue" :max="7" :min="1" :step="1" />
-							<div class="flex items-center space-x-2">
-								<Checkbox id="na" />
-								<TooltipProvider>
-									<Tooltip>
-										<TooltipTrigger> <label class="text-sm" for="na">NA</label></TooltipTrigger>
-										<TooltipContent> „Nicht angegeben“ berücksichtigen </TooltipContent>
-									</Tooltip>
-								</TooltipProvider>
-							</div>
+						<div class="grid w-full">
+							<div class="flex items-center gap-2"></div>
+
+							<Collapsible :open="standardCompetenceEnabled">
+								<CollapsibleContent
+									class="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:mt-3"
+								>
+									<div class="flex flex-row gap-4">
+										<Slider v-model="standardCompetenceValue" :max="7" :min="1" :step="1" />
+
+										<div class="flex items-center space-x-2">
+											<Checkbox id="na" />
+
+											<TooltipProvider>
+												<Tooltip>
+													<TooltipTrigger>
+														<label class="text-sm" for="na">NA</label>
+													</TooltipTrigger>
+
+													<TooltipContent> „Nicht angegeben“ berücksichtigen </TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										</div>
+									</div>
+								</CollapsibleContent>
+							</Collapsible>
+						</div>
+					</div>
+					<div class="grid my-2">
+						<div class="flex w-full justify-between">
+							<span class="flex-row flex gap-1">
+								<Checkbox type="checkbox" id="competence-enabled" v-model="dialectCompetenceEnabled" />
+								<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz</Label>
+							</span>
+							<span
+								v-if="dialectCompetenceEnabled && dialectCompetenceValue"
+								class="text-xs text-muted-foreground"
+							>
+								{{ dialectCompetenceValue[0] }}
+							</span>
+						</div>
+						<div class="grid w-full">
+							<div class="flex items-center gap-2"></div>
+
+							<Collapsible :open="dialectCompetenceEnabled">
+								<CollapsibleContent
+									class="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:mt-3"
+								>
+									<div class="flex flex-row gap-4">
+										<Slider v-model="dialectCompetenceValue" :max="7" :min="1" :step="1" />
+
+										<div class="flex items-center space-x-2">
+											<Checkbox id="na" />
+
+											<TooltipProvider>
+												<Tooltip>
+													<TooltipTrigger>
+														<label class="text-sm" for="na">NA</label>
+													</TooltipTrigger>
+
+													<TooltipContent> „Nicht angegeben“ berücksichtigen </TooltipContent>
+												</Tooltip>
+											</TooltipProvider>
+										</div>
+									</div>
+								</CollapsibleContent>
+							</Collapsible>
 						</div>
 					</div>
 					<div class="grid w-full gap-1.5">

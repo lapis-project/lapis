@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "lucide-vue-next";
+import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "@lucide/vue";
 import { toast } from "vue-sonner";
 import initialData from "@/assets/data/transcripts-demo.json";
 
@@ -133,21 +133,66 @@ watch(
 watch(
 	() => route.query,
 	async (q) => {
-		if (q.word || q.lemma || q.pos || q.tags) {
-			activeTab.value = "kwic";
-			await search({
-				word: q.word as string,
-				lemma: q.lemma as string,
-				pos: q.pos as string,
-				mode: (q.mode as "simple" | "regex") ?? "simple",
-				feats: q.tags as string,
-				fromp: (q.fromp as string) ?? "1",
-				pagesize: String(limit),
-			});
-		}
+		const hasFilters =
+			q.word ||
+			q.query ||
+			q.lemma ||
+			q.pos ||
+			q.feats ||
+			q.projects ||
+			q.settings ||
+			q.locations ||
+			q.first_languages ||
+			q.gender ||
+			q.dialect_competence ||
+			q.age_lower ||
+			q.age_upper;
+
+		if (!hasFilters) return;
+
+		activeTab.value = "kwic";
+
+		await search({
+			word: q.word as string,
+			query: q.query as string,
+			lemma: q.lemma as string,
+			pos: q.pos as string,
+
+			mode: (q.mode as "simple" | "regex") ?? "simple",
+
+			feats: q.feats as string,
+
+			fromp: (q.fromp as string) ?? "1",
+			pagesize: String(limit),
+
+			projects: asArray(q.projects),
+
+			settings: asArray(q.settings),
+
+			locations: asArray(q.locations),
+
+			first_languages: asArray(q.first_languages),
+
+			gender: q.gender as string,
+
+			dialect_competence: q.dialect_competence ? Number(q.dialect_competence) : undefined,
+
+			age_lower: q.age_lower ? Number(q.age_lower) : undefined,
+
+			age_upper: q.age_upper ? Number(q.age_upper) : undefined,
+		});
 	},
-	{ immediate: true, deep: true },
+	{
+		immediate: true,
+		deep: true,
+	},
 );
+
+function asArray(v: unknown): string[] | undefined {
+	if (v == null) return undefined;
+	console.log(v);
+	return Array.isArray(v) ? v.map(String) : [String(v)];
+}
 
 function copyKwicLine(line: KwicLine) {
 	const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";

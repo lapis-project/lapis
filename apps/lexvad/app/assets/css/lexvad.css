@@ -60,6 +60,7 @@
 	--destructive-foreground: oklch(57.7% 0.245 27.325deg);
 	--ring: oklch(70.8% 0 0deg);
 	--radius: 0.5rem;
+	--sidebar: transparent;
 }
 
 .dark {

@@ -57,6 +57,35 @@
 		"short-name": "LexVAD",
 		"description": "Sample description"
 	},
+	"MapsPage": {
+		"selection": {
+			"variable": {
+				"title": "Phenomenon",
+				"placeholder": "Phenomenon",
+				"tooltip": "Concept in question"
+			},
+			"variants": {
+				"title": "Variants",
+				"placeholder": "variants",
+				"tooltip": "Normalised answers"
+			}
+		},
+		"controls": {
+			"point-map": "Point map",
+			"area-map": "Area map",
+			"compare": "Compare",
+			"open-sidebar": "Details",
+			"close-split-view": "Close split view"
+		},
+		"sidebar": {
+			"variable": "Phenomenon",
+			"variant": "Variant",
+			"region": "Dialectal region",
+			"labels": {
+				"data-insights": "Data insights"
+			}
+		}
+	},
 	"MobileAlert": {
 		"title": "Please note",
 		"text": "This area of the website is not designed for use on smartphones."

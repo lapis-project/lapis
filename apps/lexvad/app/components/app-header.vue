@@ -11,6 +11,7 @@ const links = computed(() => {
 	// TODO add i18n messages when navigation is fixated
 	return {
 		about: { to: { path: "/about" }, label: "Über das Projekt" },
+		maps: { to: { path: "/map" }, label: "Kartierung" },
 	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
 });
 
@@ -23,14 +24,14 @@ const mobileLinks = computed(() => {
 </script>
 
 <template>
-	<header class="container border-b">
+	<header class="container border-b z-10 bg-background">
 		<div class="flex h-16 items-center justify-between gap-4 py-4">
 			<Drawer v-model:open="drawerOpen">
 				<DrawerTrigger class="lg:hidden">
 					<ClientOnly>
-						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline"
-							><component :is="drawerOpen ? XIcon : Menu" class="size-4"
-						/></Button>
+						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline">
+							<component :is="drawerOpen ? XIcon : Menu" class="size-4" />
+						</Button>
 					</ClientOnly>
 				</DrawerTrigger>
 				<DrawerContent>
@@ -61,9 +62,11 @@ const mobileLinks = computed(() => {
 				</DrawerContent>
 			</Drawer>
 
-			<NuxtLinkLocale class="hidden lg:block" to="/">
-				<!-- TODO: insert LexVAD Logo -->
-			</NuxtLinkLocale>
+			<LapisBrandWrapper>
+				<NuxtLinkLocale class="hidden lg:block" to="/">
+					<span class="text-3xl font-serif">LexVAD20</span>
+				</NuxtLinkLocale>
+			</LapisBrandWrapper>
 			<!-- <img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" /> -->
 			<nav :aria-label="t('AppHeader.navigation-main')" class="hidden lg:block">
 				<ul class="flex items-center gap-4" role="list">

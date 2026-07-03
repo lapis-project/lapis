@@ -2,9 +2,25 @@
 import { X } from "@lucide/vue";
 
 const t = useTranslations();
+const { allQuestions } = useQuestions();
 
 const splitMode = ref(true);
 const sidebarOpen = ref(false);
+
+const activeQuestion = ref<string>(allQuestions[0] ?? "Gießkanne");
+
+function updateSidebar(question: string) {
+	if (!sidebarOpen.value) {
+		activeQuestion.value = question;
+		sidebarOpen.value = true;
+		return;
+	}
+	if (activeQuestion.value !== question) {
+		activeQuestion.value = question;
+		return;
+	}
+	sidebarOpen.value = false;
+}
 </script>
 
 <template>
@@ -20,14 +36,14 @@ const sidebarOpen = ref(false);
 					class="grow shrink"
 					:split-mode="splitMode"
 					@toggle-compare-mode="splitMode = true"
-					@toggle-sidebar="sidebarOpen = !sidebarOpen"
+					@toggle-sidebar="updateSidebar"
 				/>
 				<template v-if="splitMode">
 					<div class="divide-accent border-l h-150 self-end"></div>
 					<SingleMapView
 						class="grow shrink"
 						:split-mode="splitMode"
-						@toggle-sidebar="sidebarOpen = !sidebarOpen"
+						@toggle-sidebar="updateSidebar"
 					/>
 					<Button
 						class="absolute right-0 top-0 size-6 p-1 m-1 text-muted-foreground"
@@ -41,6 +57,6 @@ const sidebarOpen = ref(false);
 			</div>
 		</SidebarInset>
 
-		<AppSidebar :open="sidebarOpen"></AppSidebar>
+		<AppSidebar :active-question="activeQuestion" :open="sidebarOpen"></AppSidebar>
 	</SidebarProvider>
 </template>

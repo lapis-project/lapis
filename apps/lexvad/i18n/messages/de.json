@@ -5,6 +5,10 @@
 		},
 		"navigation-main": "Hauptnavigation"
 	},
+	"CategoryCard": {
+		"category": "Kategorie",
+		"noun": "Nomen"
+	},
 	"Clipboard": {
 		"copy": "Kopieren",
 		"copied": "Kopiert",
@@ -98,6 +102,11 @@
 		},
 		"title": "Seite nicht gefunden"
 	},
+	"SelectedPhenomenonCard": {
+		"title": "Ausgewähltes Phänomen",
+		"forms": "Bögen",
+		"variants": "Varianten"
+	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
 		"empty": "Keine Ergebnisse gefunden"
@@ -108,5 +117,8 @@
 		"logout": "Ausloggen",
 		"profile": "Profil",
 		"settings": "Einstellungen"
+	},
+	"VariantOverviewCard": {
+		"title": "Varianten-Übersicht"
 	}
 }

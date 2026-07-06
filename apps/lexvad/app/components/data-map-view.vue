@@ -2,21 +2,25 @@
 import { X } from "@lucide/vue";
 
 const t = useTranslations();
-const { allQuestions } = useQuestions();
+const { allQuestions, getValuesForQuestion } = useQuestions();
 
 const splitMode = ref(true);
 const sidebarOpen = ref(false);
 
 const activeQuestion = ref<string>(allQuestions[0] ?? "Gießkanne");
+const activeVariant = ref<string>(getValuesForQuestion(activeQuestion.value)[0] ?? "");
 
-function updateSidebar(question: string) {
+function updateSidebar(question: string, variant?: string) {
+	const selectedVariant = variant ?? getValuesForQuestion(question)[0] ?? "";
 	if (!sidebarOpen.value) {
 		activeQuestion.value = question;
+		activeVariant.value = selectedVariant;
 		sidebarOpen.value = true;
 		return;
 	}
-	if (activeQuestion.value !== question) {
+	if (activeQuestion.value !== question || activeVariant.value !== selectedVariant) {
 		activeQuestion.value = question;
+		activeVariant.value = selectedVariant;
 		return;
 	}
 	sidebarOpen.value = false;
@@ -57,6 +61,10 @@ function updateSidebar(question: string) {
 			</div>
 		</SidebarInset>
 
-		<AppSidebar :active-question="activeQuestion" :open="sidebarOpen"></AppSidebar>
+		<AppSidebar
+			:active-question="activeQuestion"
+			:active-variant="activeVariant"
+			:open="sidebarOpen"
+		></AppSidebar>
 	</SidebarProvider>
 </template>

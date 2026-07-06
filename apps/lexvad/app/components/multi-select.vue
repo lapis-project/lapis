@@ -32,7 +32,16 @@ const showAll = computed(
 	() => model.value.length === 1 && model.value[0] === levelZeroElement.value?.value,
 );
 
-const toggelSelection = (selection: string) => {
+const toggleSelection = (selection: string) => {
+	if (props.singleLevel) {
+		// flat list: no level 0/1/2 hierarchy, just toggle the selection
+		model.value = model.value.includes(selection)
+			? model.value.filter((l) => l !== selection)
+			: [...model.value, selection];
+		emit("selected");
+		return;
+	}
+
 	const option = props.options.find((o) => o.value === selection);
 	let modifiedModel: Array<string> = [];
 	if (option?.level === 0) {
@@ -143,7 +152,7 @@ const open = ref(false);
 							@select="
 								(ev) => {
 									if (typeof ev.detail.value === 'string') {
-										toggelSelection(ev.detail.value);
+										toggleSelection(ev.detail.value);
 									}
 								}
 							"

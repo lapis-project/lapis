@@ -85,6 +85,7 @@
 			"variable": "Phenomenon",
 			"variant": "Variant",
 			"region": "Dialectal region",
+			"places": "{n} Place | {n} Places",
 			"labels": {
 				"data-insights": "Data insights"
 			}
@@ -105,6 +106,11 @@
 		"forms": "Forms",
 		"variants": "Variants"
 	},
+	"SelectedVariantCard": {
+		"title": "Selected variant",
+		"mentions": "mentions",
+		"notations": "notations"
+	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
 		"empty": "No results found"
@@ -117,6 +123,11 @@
 		"settings": "Settings"
 	},
 	"VariantOverviewCard": {
-		"title": "Variant overview"
+		"title": "Variant overview",
+		"regional-cooccurrences": "Regional Cooccurrences",
+		"cooccurrences-subtitle": "Other variants in the same regions"
+	},
+	"VariantSelectionCard": {
+		"title": "Select variant"
 	}
 }

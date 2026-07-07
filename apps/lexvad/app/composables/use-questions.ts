@@ -50,6 +50,19 @@ function getNotationsForVariant(question: string, variant: string) {
 	);
 }
 
+function getRegionsForVariant(question: string, variant: string): Record<string, number> {
+	const matchingEntries = filterDataByQuestionAndVariant(question, variant);
+	const matchingRegions = matchingEntries
+		.map((entry) => entry.region)
+		.filter((r) => r !== undefined);
+	return Object.fromEntries(
+		[...new Set(matchingRegions)].map((entry) => [
+			entry,
+			matchingRegions.filter((e) => e === entry).length,
+		]),
+	);
+}
+
 function getRegionalCooccurrencesForVariant(question: string, variant: string) {
 	const matchingEntries = filterDataByQuestionAndVariant(question, variant);
 	const matchingRegions = new Set(matchingEntries.map((entry) => entry.region));
@@ -71,6 +84,7 @@ export function useQuestions() {
 		getValuesForQuestion,
 		countAnswersForQuestion,
 		getNotationsForVariant,
+		getRegionsForVariant,
 		getRegionalCooccurrencesForVariant,
 	};
 }

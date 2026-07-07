@@ -22,15 +22,15 @@ const t = useTranslations();
 				<span class="ml-2">{{ entry.label }}</span>
 				<span class="float-right">
 					<span class="mr-2 text-muted-foreground">{{ entry.secondary }}</span>
-					<span class="font-semibold">{{ (entry.value * 100).toFixed(0) }}%</span></span
-				>
+					<span class="font-semibold">{{ (entry.value * 100).toFixed(0) }}%</span></span>
 			</div>
 			<div class="w-full relative">
-				<div class="w-full rounded-full bg-accent h-1"></div>
-				<div
-					class="absolute top-0 rounded-full bg-amber-600 h-1 transition-[width] duration-500"
-					:style="{ width: `${entry.value * 100}%` }"
-				></div>
+				<svg class="block w-full" height="4">
+					<rect height="4" rx="2" :style="{ fill: 'var(--accent)' }" width="100%" />
+					<rect
+class="transition-[width] duration-500" height="4" rx="2"
+						:style="{ width: `${entry.value * 100}%`, fill: 'var(--color-amber-600)' }" />
+				</svg>
 			</div>
 		</div>
 	</div>

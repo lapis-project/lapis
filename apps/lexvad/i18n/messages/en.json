@@ -122,6 +122,11 @@
 		"profile": "Profile",
 		"settings": "Settings"
 	},
+	"VariantDistributionCard": {
+		"title": "Distribution per",
+		"dialectal-region": "Dialectal region",
+		"state": "Federal state"
+	},
 	"VariantOverviewCard": {
 		"title": "Variant overview",
 		"regional-cooccurrences": "Regional Cooccurrences",

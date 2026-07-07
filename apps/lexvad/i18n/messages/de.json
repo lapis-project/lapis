@@ -122,6 +122,11 @@
 		"profile": "Profil",
 		"settings": "Einstellungen"
 	},
+	"VariantDistributionCard": {
+		"title": "Verteilung nach",
+		"dialectal-region": "Dialektzone",
+		"state": "Bundesland"
+	},
 	"VariantOverviewCard": {
 		"title": "Varianten-Übersicht",
 		"regional-cooccurrences": "Regionale Kovorkommnisse",

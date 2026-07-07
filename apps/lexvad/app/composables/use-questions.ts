@@ -13,6 +13,7 @@ const data = _data.map((entry) => {
 });
 
 const allQuestions = [...new Set(data.map((entry) => entry.Item))];
+const allRegions = [...new Set(data.map((entry) => entry.region).filter((r) => r !== undefined))];
 
 function filterDataByQuestionAndVariant(question: string, variant?: string) {
 	return data
@@ -78,13 +79,28 @@ function getRegionalCooccurrencesForVariant(question: string, variant: string) {
 	);
 }
 
+function getVariantsForRegion(question: string, region: string) {
+	const matchingEntries = filterDataByQuestionAndVariant(question).filter(
+		(entry) => entry.region === region,
+	);
+	const matchingVariants = matchingEntries.flatMap((entry) => entry.variants);
+	return Object.fromEntries(
+		[...new Set(matchingVariants)].map((entry) => [
+			entry,
+			matchingVariants.filter((e) => e === entry).length,
+		]),
+	);
+}
+
 export function useQuestions() {
 	return {
 		allQuestions,
+		allRegions,
 		getValuesForQuestion,
 		countAnswersForQuestion,
 		getNotationsForVariant,
 		getRegionsForVariant,
 		getRegionalCooccurrencesForVariant,
+		getVariantsForRegion,
 	};
 }

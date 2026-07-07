@@ -98,11 +98,11 @@ const legendItems = computed(() => {
 
 <style scoped>
 * {
-	--vis-color5: #aaa;
-	--vis-color4: #9b9b9b;
-	--vis-color3: #666;
-	--vis-color2: #565656;
-	--vis-color1: #474747;
-	--vis-color0: #323232;
+	--vis-color5: #bababa;
+	--vis-color4: #474747;
+	--vis-color3: #9b9b9b;
+	--vis-color2: #cacaca;
+	--vis-color1: #666;
+	--vis-color0: #aaa;
 }
 </style>

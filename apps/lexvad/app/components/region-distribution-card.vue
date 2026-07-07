@@ -1,0 +1,112 @@
+<script setup lang="ts">
+const props = defineProps<{
+	data: Array<{ label: string; entries: Array<{ label: string; value: number }> }>;
+}>();
+
+const t = useTranslations();
+const mode = ref("region");
+
+//TODO: use Tableau10 color palette for now, replace with proper color management later
+const palette = [
+	"#5778a4",
+	"#e49444",
+	"#d1615d",
+	"#85b6b2",
+	"#6a9f58",
+	"#e7ca60",
+	"#a87c9f",
+	"#f1a2a9",
+	"#967662",
+	"#b8b0ac",
+];
+
+const orderedVariants = computed(() => {
+	const totals = new Map<string, number>();
+	for (const region of props.data) {
+		for (const entry of region.entries) {
+			totals.set(entry.label, (totals.get(entry.label) ?? 0) + entry.value);
+		}
+	}
+	return [...totals.keys()].sort((a, b) => (totals.get(b) ?? 0) - (totals.get(a) ?? 0));
+});
+
+const colorFor = (label: string) => palette[orderedVariants.value.indexOf(label) % palette.length];
+
+const legend = computed(() =>
+	orderedVariants.value.map((label) => ({ label, color: colorFor(label) })),
+);
+
+const rows = computed(() =>
+	props.data
+		.map((region) => {
+			const values = new Map(region.entries.map((e) => [e.label, e.value]));
+			const total = region.entries.reduce((sum, e) => sum + e.value, 0);
+			return {
+				label: region.label,
+				total,
+				segments: orderedVariants.value
+					.map((label) => ({ label, value: values.get(label) ?? 0, color: colorFor(label) }))
+					.filter((segment) => segment.value > 0),
+			};
+		})
+		.sort((a, b) => a.total - b.total),
+);
+</script>
+
+<template>
+	<div class="rounded-lg p-3.5 border">
+		<div
+			class="uppercase font-semibold text-muted-foreground text-xs mb-2.5 flex items-center gap-1"
+		>
+			{{ t("VariantDistributionCard.title") }}
+
+			<Label
+				><Select default-value="region">
+					<SelectTrigger
+						v-model="mode"
+						class="uppercase font-semibold text-muted-foreground text-xs border-0 shadow-none data-[size=sm]:h-fit min-h-0 py-0 px-0"
+						size="sm"
+					>
+						<SelectValue />
+					</SelectTrigger>
+					<SelectContent :body-lock="false">
+						<SelectItem value="region">
+							{{ t("VariantDistributionCard.dialectal-region") }}
+						</SelectItem>
+						<SelectItem value="state">
+							{{ t("VariantDistributionCard.state") }}
+						</SelectItem>
+					</SelectContent>
+				</Select></Label
+			>
+		</div>
+
+		<div class="flex flex-wrap gap-x-3 gap-y-1 mb-3 text-xs">
+			<div v-for="item in legend" :key="item.label" class="flex items-center gap-1.5">
+				<span class="rounded-[3px] size-3 shrink-0" :style="{ backgroundColor: item.color }"></span>
+				<span>{{ item.label }}</span>
+			</div>
+		</div>
+
+		<div v-for="row in rows" :key="row.label" class="mb-2.5 text-xs">
+			<div class="flex justify-between items-baseline mb-1">
+				<span class="font-semibold">{{ row.label }}</span>
+				<span class="font-semibold">{{ row.total }}</span>
+			</div>
+			<div class="w-full">
+				<div class="flex h-4 rounded overflow-hidden w-full">
+					<div
+						v-for="segment in row.segments"
+						:key="segment.label"
+						class="h-full"
+						:style="{
+							width: `${(segment.value / row.total) * 100}%`,
+							backgroundColor: segment.color,
+						}"
+						:title="`${segment.label}: ${segment.value}`"
+					></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</template>

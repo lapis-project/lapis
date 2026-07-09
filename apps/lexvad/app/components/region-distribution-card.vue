@@ -1,24 +1,11 @@
 <script setup lang="ts">
 const props = defineProps<{
 	data: Array<{ label: string; entries: Array<{ label: string; value: number }> }>;
+	colors: Record<string, string>;
 }>();
 
 const t = useTranslations();
 const mode = ref("region");
-
-//TODO: use Tableau10 color palette for now, replace with proper color management later
-const palette = [
-	"#5778a4",
-	"#e49444",
-	"#d1615d",
-	"#85b6b2",
-	"#6a9f58",
-	"#e7ca60",
-	"#a87c9f",
-	"#f1a2a9",
-	"#967662",
-	"#b8b0ac",
-];
 
 const orderedVariants = computed(() => {
 	const totals = new Map<string, number>();
@@ -30,7 +17,7 @@ const orderedVariants = computed(() => {
 	return [...totals.keys()].sort((a, b) => (totals.get(b) ?? 0) - (totals.get(a) ?? 0));
 });
 
-const colorFor = (label: string) => palette[orderedVariants.value.indexOf(label) % palette.length];
+const colorFor = (label: string) => props.colors[label];
 
 const legend = computed(() =>
 	orderedVariants.value.map((label) => ({ label, color: colorFor(label) })),
@@ -98,13 +85,15 @@ const rows = computed(() =>
 					<div
 						v-for="segment in row.segments"
 						:key="segment.label"
-						class="h-full"
+						class="h-full text-center text-white"
 						:style="{
 							width: `${(segment.value / row.total) * 100}%`,
 							backgroundColor: segment.color,
 						}"
 						:title="`${segment.label}: ${segment.value}`"
-					></div>
+					>
+						{{ ((segment.value / row.total) * 100).toFixed(0) }}% ({{ segment.value }})
+					</div>
 				</div>
 			</div>
 		</div>

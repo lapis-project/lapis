@@ -20,6 +20,8 @@ const emit = defineEmits(["toggle-compare-mode", "toggle-sidebar"]);
 
 const t = useTranslations();
 
+const { setDefaultColorsForQuestion, hasQuestion } = useColorStore();
+
 const activeQuestion = ref<string | null>("Gießkanne");
 const { allQuestions, countAnswersForQuestion } = useQuestions();
 
@@ -42,6 +44,14 @@ function resetSelection() {
 	activeVariants.value = [];
 	activeQuestion.value = null;
 }
+
+watch(activeQuestion, () => {
+	if (activeQuestion.value && !hasQuestion(activeQuestion.value))
+		setDefaultColorsForQuestion(
+			activeQuestion.value,
+			uniqueVariants.value.map((v) => v.label),
+		);
+});
 
 const mapMode = ref("point");
 </script>

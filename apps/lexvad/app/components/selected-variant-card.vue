@@ -3,6 +3,7 @@ defineProps<{
 	variant: string;
 	count: number;
 	notations: number;
+	color: string;
 }>();
 
 const t = useTranslations();
@@ -14,7 +15,8 @@ const t = useTranslations();
 			{{ t("SelectedVariantCard.title") }}
 		</div>
 		<div class="uppercase font-bold text-lg mt-1 mb-2">
-			<span class="size-3 inline-block rounded-full bg-amber-600 mr-2"></span>{{ variant }}
+			<span class="size-3 inline-block rounded-full mr-2" :style="{ backgroundColor: color }"></span
+			>{{ variant }}
 		</div>
 		<div class="flex w-full justify-stretch gap-4">
 			<div class="rounded-lg bg-background p-2 px-3 w-full border">

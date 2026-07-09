@@ -14,6 +14,7 @@ const {
 	getVariantsForRegion,
 	allRegions,
 } = useQuestions();
+const { getColorsForQuestion } = useColorStore();
 
 const props = defineProps<{
 	activeQuestion: string;
@@ -69,6 +70,10 @@ const cooccurrences = computed(() => {
 			secondary: `${t("MapsPage.sidebar.places", entry[1])}`,
 		}));
 });
+
+const colors = computed(() => {
+	return getColorsForQuestion(props.activeQuestion) ?? {};
+});
 </script>
 
 <template>
@@ -120,22 +125,26 @@ const cooccurrences = computed(() => {
 								:phenomenon="activeQuestion"
 								:variants="variantCount.length"
 							></SelectedPhenomenonCard>
-							<VariantOverviewCard class="w-full" :data="variantCount"></VariantOverviewCard>
+							<VariantOverviewCard class="w-full" :colors="colors" :data="variantCount">
+							</VariantOverviewCard>
 							<CategoryCard class="w-full"></CategoryCard>
 						</TabsContent>
 						<TabsContent class="p-2 flex flex-col gap-4" value="variant">
 							<SelectedVariantCard
 								class="w-full"
+								:color="colors[selectedVariant] ?? ''"
 								:count="activeVariantCount"
 								:notations="notations.length"
 								:variant="selectedVariant"
-							></SelectedVariantCard>
-							<VariantSelectionCard v-model="selectedVariant" :data="variantCount">
+							>
+							</SelectedVariantCard>
+							<VariantSelectionCard v-model="selectedVariant" :colors="colors" :data="variantCount">
 							</VariantSelectionCard>
 							<VariantDistributionCard :data="regionsForVariant"></VariantDistributionCard>
 
 							<VariantOverviewCard
 								class="w-full"
+								:colors="colors"
 								:data="cooccurrences"
 								:subtitle="t('VariantOverviewCard.cooccurrences-subtitle')"
 								:title="t('VariantOverviewCard.regional-cooccurrences')"
@@ -148,7 +157,8 @@ const cooccurrences = computed(() => {
 								:phenomenon="activeQuestion"
 								:variants="variantCount.length"
 							></SelectedPhenomenonCard>
-							<RegionDistributionCard :data="regions"></RegionDistributionCard>
+							<RegionDistributionCard :colors="colors" :data="regions" :question="activeQuestion">
+							</RegionDistributionCard>
 							<CategoryCard class="w-full"></CategoryCard>
 						</TabsContent>
 					</Tabs>

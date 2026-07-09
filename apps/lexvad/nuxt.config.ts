@@ -85,6 +85,7 @@ export default defineNuxtConfig({
 		"@nuxtjs/i18n",
 		"shadcn-nuxt",
 		"@vueuse/nuxt",
+		"@pinia/nuxt",
 	],
 
 	nitro: {

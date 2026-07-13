@@ -58,6 +58,7 @@ export default defineNuxtConfig({
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
 		"@nuxt/ui",
+		"@nuxtjs/seo",
 	],
 
 	runtimeConfig: {

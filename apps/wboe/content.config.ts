@@ -1,9 +1,11 @@
 import { defineCollection, defineContentConfig, z } from "@nuxt/content";
+import { defineSitemapSchema } from "@nuxtjs/seo/content";
 
 const commonSchema = z.object({
 	title: z.string(),
 	description: z.string(),
 	linksTitle: z.string(),
+	sitemap: defineSitemapSchema(),
 });
 
 export default defineContentConfig({
@@ -12,7 +14,7 @@ export default defineContentConfig({
 			type: "page",
 			source: {
 				include: "en/**/index.md",
-				prefix: "",
+				prefix: "/en",
 			},
 			schema: commonSchema,
 		}),
@@ -20,7 +22,7 @@ export default defineContentConfig({
 			type: "page",
 			source: {
 				include: "de/**/index.md",
-				prefix: "",
+				prefix: "/de",
 			},
 			schema: commonSchema,
 		}),
@@ -28,7 +30,7 @@ export default defineContentConfig({
 			type: "page",
 			source: {
 				include: "de/**/resources.md",
-				prefix: "",
+				prefix: "/de",
 			},
 			schema: commonSchema,
 		}),
@@ -36,7 +38,7 @@ export default defineContentConfig({
 			type: "page",
 			source: {
 				include: "en/**/resources.md",
-				prefix: "",
+				prefix: "/en",
 			},
 			schema: commonSchema,
 		}),

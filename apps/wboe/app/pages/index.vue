@@ -8,7 +8,7 @@ const { data: page } = await useAsyncData(
 	`page-${route.path}`,
 	async () => {
 		const collectionName = `content_${locale.value}` as keyof Collections;
-		const contentPath = `/`;
+		const contentPath = route.path === "/" ? `/${locale.value}` : route.path;
 
 		return await queryCollection(collectionName).path(contentPath).first();
 	},

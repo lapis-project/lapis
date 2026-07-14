@@ -12,6 +12,8 @@ const data = _data.map((entry) => {
 	};
 });
 
+export type PilotDataType = (typeof data)[0];
+
 const allQuestions = [...new Set(data.map((entry) => entry.Item))];
 const allRegions = [...new Set(data.map((entry) => entry.region).filter((r) => r !== undefined))];
 
@@ -102,5 +104,6 @@ export function useQuestions() {
 		getRegionsForVariant,
 		getRegionalCooccurrencesForVariant,
 		getVariantsForRegion,
+		filterDataByQuestionAndVariant,
 	};
 }

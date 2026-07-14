@@ -1,5 +1,7 @@
 @import "tailwindcss" source("../../../../shadcn/app/assets/css");
 
+@import "maplibre-gl/dist/maplibre-gl.css";
+
 @theme {
 	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 }

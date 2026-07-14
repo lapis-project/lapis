@@ -4,7 +4,7 @@ import { X } from "@lucide/vue";
 const t = useTranslations();
 const { allQuestions, getValuesForQuestion } = useQuestions();
 
-const splitMode = ref(true);
+const splitMode = ref(false);
 const sidebarOpen = ref(false);
 
 const activeQuestion = ref<string>(allQuestions[0] ?? "Gießkanne");

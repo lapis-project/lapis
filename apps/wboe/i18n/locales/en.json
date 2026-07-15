@@ -14,11 +14,8 @@
 		},
 		"navigation-secondary": "Secondary"
 	},
-	"Clipboard": {
-		"copy": "Copy",
-		"copied": "Copied",
-		"copy-success": "Copied to clipboard",
-		"copy-fail": "Cant save to clipboard"
+	"ArticlesPage": {
+		"title": "Articles"
 	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Change color scheme",
@@ -28,10 +25,8 @@
 			"system": "System"
 		}
 	},
-	"Combobox": {
-		"button": "Select {placeholder}...",
-		"empty": "No {placeholder} found",
-		"search": "Search {placeholder}..."
+	"DbPage": {
+		"title": "Database"
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -66,26 +61,11 @@
 		"short-name": "LIÖ",
 		"description": "Sample description"
 	},
-	"MobileAlert": {
-		"title": "Please note",
-		"text": "This area of the website is not designed for use on smartphones."
-	},
 	"NotFoundPage": {
 		"meta": {
 			"title": "Page not found"
 		},
 		"title": "Page not found"
-	},
-	"TagsCombobox": {
-		"button": "{placeholder}...",
-		"empty": "No results found"
-	},
-	"UserPanel": {
-		"admin": "Admin",
-		"login": "Log in",
-		"logout": "Log out",
-		"profile": "Profile",
-		"settings": "Settings"
 	},
 	"LandingPage": {
 		"title": "Dictionary of Bavarian Dialects in Austria"

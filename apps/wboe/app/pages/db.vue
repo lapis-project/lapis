@@ -1,4 +1,15 @@
 <script lang="ts" setup>
+const { t } = useI18n();
+
+definePageMeta({
+	sitemap: {
+		lastmod: "2026-07-13", // or Date object
+	},
+});
+useSeoMeta({
+	title: t("DbPage.title"),
+});
+
 import type { TableColumn } from "@nuxt/ui";
 import { computed, h, ref, resolveComponent } from "vue";
 

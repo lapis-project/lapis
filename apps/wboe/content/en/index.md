@@ -1,5 +1,7 @@
 ---
 title: Dictionary of Bavarian Dialects in Austria
+sitemap:
+  lastmod: 2026-07-13
 ---
 
 # Dictionary of Bavarian Dialects in Austria (WBÖ)

@@ -6,6 +6,11 @@ export default defineNuxtConfig({
 		pageTransition: false,
 	},
 
+	site: {
+		url: baseUrl,
+		name: "WBÖ",
+	},
+
 	content: {
 		experimental: { sqliteConnector: "native" },
 	},
@@ -52,13 +57,13 @@ export default defineNuxtConfig({
 
 	modules: [
 		"nuxt-svgo",
+		"@nuxtjs/seo",
 		"@nuxt/content",
 		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
 		"@nuxt/ui",
-		"@nuxtjs/seo",
 	],
 
 	runtimeConfig: {
@@ -92,4 +97,45 @@ export default defineNuxtConfig({
 			global: true,
 		},
 	],
+
+	robots: {
+		groups: [
+			// the following applies to all standard bots that respect emerging AI standards.
+			{
+				userAgent: "*",
+				allow: "/",
+				// IETF: https://ietf-wg-aipref.github.io/drafts/draft-ietf-aipref-vocab.html
+				contentUsage: {
+					bots: "y",
+					"train-ai": "n",
+					"ai-output": "y", // allows real-time AI generation (RAG) using your site
+				},
+				// https://contentsignals.org/
+				contentSignal: {
+					"ai-train": "no",
+					search: "yes",
+					"ai-input": "yes", // allows real-time AI generation (RAG) using your site
+				},
+			},
+			// explicitly block other major AI foundation models and datasets
+			{
+				userAgent: [
+					"Google-Extended", // Google's AI Scraper (This stops Gemini/Vertex AI training but keeps Google Search fully intact)
+					"Applebot-Extended", // Apple's AI Scraper (This stops Apple Intelligence training but keeps Apple Search/Siri intact)
+					"GPTBot", // OpenAI / ChatGPT
+					"ChatGPT-User", // OpenAI Plugins
+					"ClaudeBot", // Anthropic
+					"Anthropic-ai", // Anthropic
+					"CCBot", // Common Crawl (Dataset used to train almost all LLMs)
+					"Bytespider", // ByteDance (TikTok) AI
+					"Diffbot", // AI Extraction
+					"FacebookBot", // Meta AI
+					"cohere-ai", // Cohere
+					"Omgilibot", // AI Web Scraper
+					"Omgili", // AI Web Scraper
+				],
+				disallow: ["/"],
+			},
+		],
+	},
 });

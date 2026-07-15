@@ -3,7 +3,7 @@ import type { Collections } from "@nuxt/content";
 
 const { locale } = useI18n();
 
-const { data: info } = await useAsyncData(
+const { data: page } = await useAsyncData(
 	`resources`,
 	async () => {
 		const collectionName = `resources_${locale.value}` as keyof Collections;
@@ -15,25 +15,29 @@ const { data: info } = await useAsyncData(
 		watch: [locale],
 	},
 );
+
+useSeoMeta({
+	title: page.value?.title,
+});
 </script>
 
 <template>
 	<UPage
-		v-if="info"
+		v-if="page"
 		:ui="{
 			root: 'pt-6 pb-12 lg:pt-10 lg:pb-18 container',
 		}"
 	>
 		<div class="max-w-4xl mx-auto">
-			<UPageHeader :title="info.title" />
+			<UPageHeader :title="page.title" />
 
 			<div class="my-6 text-center">
-				<p>{{ info.description }}</p>
+				<p>{{ page.description }}</p>
 			</div>
 
 			<ContentRenderer
 				class="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center"
-				:value="info"
+				:value="page"
 			/>
 		</div>
 	</UPage>

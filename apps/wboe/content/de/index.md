@@ -1,5 +1,7 @@
 ---
 title: Wörterbuch der bairischen Mundarten in Österreich (WBÖ)
+sitemap:
+  lastmod: 2026-07-13
 ---
 
 # Wörterbuch der bairischen Mundarten in Österreich (WBÖ)

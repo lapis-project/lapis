@@ -14,11 +14,8 @@
 		},
 		"navigation-secondary": "Sekundärnavigation"
 	},
-	"Clipboard": {
-		"copy": "Kopieren",
-		"copied": "Kopiert",
-		"copy-success": "In Zwischenablage gespeichert",
-		"copy-fail": "Konnte nicht in Zwischenablage gespeichert werden"
+	"ArticlesPage": {
+		"title": "Wörterbuchartikel"
 	},
 	"ColorSchemeSwitcher": {
 		"change-color-scheme": "Farbschema ändern",
@@ -28,10 +25,8 @@
 			"system": "System"
 		}
 	},
-	"Combobox": {
-		"button": "{placeholder} wählen...",
-		"empty": "Keine {placeholder} gefunden",
-		"search": "{placeholder} suchen..."
+	"DbPage": {
+		"title": "Belegdatenbank"
 	},
 	"DefaultLayout": {
 		"meta": {
@@ -66,26 +61,11 @@
 		"short-name": "WBÖ",
 		"description": "Sample description"
 	},
-	"MobileAlert": {
-		"title": "Hinweis",
-		"text": "Dieser Bereich der Website ist nicht für die Nutzung auf Smartphones ausgelegt."
-	},
 	"NotFoundPage": {
 		"meta": {
 			"title": "Seite nicht gefunden"
 		},
 		"title": "Seite nicht gefunden"
-	},
-	"TagsCombobox": {
-		"button": "{placeholder}...",
-		"empty": "Keine Ergebnisse gefunden"
-	},
-	"UserPanel": {
-		"admin": "Admin",
-		"login": "Einloggen",
-		"logout": "Ausloggen",
-		"profile": "Profil",
-		"settings": "Einstellungen"
 	},
 	"LandingPage": {
 		"title": "Wörterbuch der bairischen Mundarten in Österreich (WBÖ)"

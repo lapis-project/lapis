@@ -1,45 +1,33 @@
 ---
 title: Dictionary of Bavarian Dialects in Austria
+sitemap:
+  lastmod: 2026-07-13
 ---
 
-# Wörterbuch der bairischen Mundarten in Österreich (WBÖ)
+# Dictionary of Bavarian Dialects in Austria (WBÖ)
 
-Das WBÖ beschäftigt sich mit der lexikalischen Variation des Bairischen innerhalb Österreichs und
-Südtirols zu Beginn des 20. Jahrhunderts. Darüber hinaus wird das zugrundeliegende Datenmaterial zur
-Verfügung gestellt, das auch historische Quellen und Informationen aus angrenzenden Gebieten sowie
-Sprachinseln des Bairischen abdeckt. Im wesentlichen beinhalten die Seite folgende Aspekte:
+The WBÖ focuses on the lexical variation of the Bavarian dialect within Austria and South Tyrol at the beginning of the 20th century. Furthermore, the underlying data material is made available, which also covers historical sources and information from adjacent regions as well as Bavarian language islands. Essentially, the site encompasses the following aspects:
 
-## Wörterbuchartikel
+## Dictionary Articles
 
-Eine zentrale Komponente bilden die Wörterbuchartikel, die den historischen Dialektstand in der
-ersten Hälfte des 20. Jahrhunderts repräsentieren Die einsehbaren Wörterbuchartikel enthalten
-sogenannte Grundlagenartikel und Vollartikel
+A central component is formed by the dictionary articles, which represent the historical state of the dialect in the first half of the 20th century. The accessible dictionary articles include so-called basic articles and comprehensive articles.
 
-- Grundlagenartikel beinhalten das jeweilige Stichwort, einen Bedeutungsüberblick sowie das
-  zugrundeliegende Datenmaterial.
-- Vollartikel enthalten ausführliche, redaktionell aufbereitete Informationen zu Bedeutung,
-  Aussprache, geographischer Verbreitung sowie Verwendungskontexten der bairischen Dialektwörter.
-- Retrodigitalisierte Artikelsind jene Artikel, die bereits in Buchform erschienen sind im an die
-  neuen Wörterbuchartikel angepassten Gewand zur Verfügung gestellt werden.
+- Basic articles contain the respective headword, an overview of its meanings, and the underlying data.
+- Comprehensive articles contain detailed, editorially processed information on the meaning, pronunciation, geographical distribution, and contexts of use of the Bavarian dialect words.
+- Retro-digitized articles are those that have already been published in book form and are now made available in a format adapted to match the new dictionary articles.
 
-## Belegdatenbank
+## Citation Database
 
-Der direkte Zugriff auf die digitale Version der Handzettelsammlung des WBÖ ermöglicht eine Vielzahl
-weiterer Auswertungen zu den Stichwörtern (Lemmata). Die Belegdatenbank bietet Einblick in das
-historische Rohmaterial und erlaubt detaillierte Analysen über die in den Artikeln präsentierten
-Informationen hinaus.
+Direct access to the digital version of the WBÖ's slip archive (Handzettelsammlung) enables a multitude of further analyses regarding the headwords (lemmas). The citation database offers insight into the historical raw material and allows for detailed analyses beyond the information presented in the articles.
 
-## Kartierung
+## Mapping
 
-Ein dynamisches Kartierungstool ermöglicht die Kartierung der Inhalte der Wörterbuchartikel sowie
-einzelner Belege aus der Belegdatenbank.
+A dynamic mapping tool enables the mapping of the contents of the dictionary articles as well as individual citations from the database.
 
-## Informationen
+## Information
 
-An dieser Stelle finden Sie Informationen zur Projektgeschichte, zu den Daten und Korpora, zur
-lexikographischen Arbeit sowie Verzeichnisse und Materialien.
+In this section, you will find information on the project's history, the data and corpora, the lexicographical work, as well as directories and materials.
 
 ## FAQ
 
-Informationen zu technischen, inhaltlichen, konzeptionellen Aspekten zum WBÖ sowie zu allem, was
-darüber hinaus noch interessant sein könnte, finden Sie auf unserer FAQ-Seite.
+Information on technical, content-related, and conceptual aspects of the WBÖ, as well as anything else that might be of interest, can be found on our FAQ page.

@@ -6,8 +6,8 @@ node_modules/
 *.log
 
 # non-public environment variables
-.env.local
-.env.*.local
+.env
+.env.*
 
 # caches
 .eslintcache

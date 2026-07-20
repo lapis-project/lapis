@@ -105,8 +105,7 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: >
-            ghcr.io/${{ github.repository }}-lioe-frontend # The container is located at the
-            repository registry root at the moment.
+            ghcr.io/${{ github.repository }}-lioe-frontend
           flavor: |
             latest=auto
           tags: |

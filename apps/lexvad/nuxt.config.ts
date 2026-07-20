@@ -40,7 +40,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	extends: ["../shadcn"],
+	extends: ["../ui"],
 
 	experimental: {
 		defaults: {
@@ -83,9 +83,9 @@ export default defineNuxtConfig({
 		"@nuxt/image",
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
-		"shadcn-nuxt",
 		"@vueuse/nuxt",
 		"@pinia/nuxt",
+		'@nuxt/ui',
 	],
 
 	nitro: {

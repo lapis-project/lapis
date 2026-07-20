@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Check, ChevronsUpDown } from "@lucide/vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 import type { DropdownOption } from "@/types/dropdown-option";
 
@@ -29,67 +29,58 @@ const emit = defineEmits<{
 }>();
 
 const open = ref(false);
+const search = ref("");
+
+const filteredOptions = computed(() => {
+	if (!props.hasSearch || !search.value) return props.options;
+	const query = search.value.toLowerCase();
+	return props.options.filter((option) => option.label?.toLowerCase().includes(query));
+});
+
+function selectOption(option: DropdownOption) {
+	if (!props.selectOnly) {
+		model.value = option.value;
+	}
+	emit("selected", option.value ?? "");
+	open.value = false;
+	search.value = "";
+}
 </script>
 
 <template>
-	<Popover v-model:open="open">
-		<PopoverTrigger as-child class="">
-			<Button
-				aria-controls="popover-content"
-				:aria-expanded="open"
-				class="justify-between"
-				:class="[props.width]"
-				:data-testid="props.dataTestid"
-				role="combobox"
-				variant="outline"
-			>
-				<span class="truncate">
-					{{
-						model
-							? props.options.find((question) => question.value === model)?.label
-							: t("Combobox.button", { placeholder: props.placeholder })
-					}}
-				</span>
-				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
-			</Button>
-		</PopoverTrigger>
-		<PopoverContent id="popover-content" class="p-0" :class="[props.width]" role="listbox">
-			<Command>
+	<UPopover v-model:open="open" :content="{ align: 'start', side: 'bottom' }">
+		<UButton aria-controls="popover-content" :aria-expanded="open" class="justify-between bg-card"
+			:class="[props.width]" :data-testid="props.dataTestid" role="combobox" variant="outline">
+			<span class="truncate">
+				{{
+					model
+						? props.options.find((question) => question.value === model)?.label
+						: t("Combobox.button", { placeholder: props.placeholder })
+				}}
+			</span>
+			<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
+		</UButton>
+
+		<template #content>
+			<div id="popover-content" class="p-0" :class="[props.width]" role="listbox">
 				<template v-if="hasSearch">
-					<CommandInput
-						class="h-9"
-						:placeholder="t('Combobox.search', { placeholder: props.placeholder })"
-					/>
-					<CommandEmpty>{{ t("Combobox.empty", { placeholder: props.placeholder }) }}</CommandEmpty>
+					<UInput v-model="search" class="w-full"
+						:placeholder="t('Combobox.search', { placeholder: props.placeholder })" variant="none" />
+					<USeparator />
 				</template>
-				<CommandList>
-					<CommandGroup>
-						<CommandItem
-							v-for="question in props.options"
-							:key="question.id"
-							:value="question.label ?? ''"
-							@select="
-								(ev) => {
-									if (typeof ev.detail.value === 'string') {
-										if (!selectOnly) {
-											model = question.value;
-										}
-										emit('selected', question.value ?? '');
-									}
-									open = false;
-								}
-							"
-						>
-							{{ question.label }}
-							<Check
-								:class="
-									cn('ml-auto size-4', model === question.value ? 'opacity-100' : 'opacity-0')
-								"
-							/>
-						</CommandItem>
-					</CommandGroup>
-				</CommandList>
-			</Command>
-		</PopoverContent>
-	</Popover>
+				<div class="max-h-64 overflow-y-auto p-1">
+					<p v-if="hasSearch && !filteredOptions.length" class="py-6 text-center text-sm">
+						{{ t("Combobox.empty", { placeholder: props.placeholder }) }}
+					</p>
+					<button v-for="question in filteredOptions" :key="question.id"
+						:aria-selected="model === question.value"
+						class="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent" role="option"
+						type="button" @click="selectOption(question)">
+						{{ question.label }}
+						<Check class="ml-auto size-4" :class="model === question.value ? 'opacity-100' : 'opacity-0'" />
+					</button>
+				</div>
+			</div>
+		</template>
+	</UPopover>
 </template>

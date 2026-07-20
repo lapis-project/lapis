@@ -9,9 +9,5 @@ defineProps<{
 </script>
 
 <template>
-	<ToggleGroup type="single">
-		<ToggleGroupItem v-for="mode in modes" :key="mode.value" :value="mode.value">
-			{{ mode.label }}
-		</ToggleGroupItem>
-	</ToggleGroup>
+	<UTabs :content="false" :items="modes" variant="pill" />
 </template>

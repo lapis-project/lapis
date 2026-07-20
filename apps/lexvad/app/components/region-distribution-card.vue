@@ -7,6 +7,11 @@ const props = defineProps<{
 const t = useTranslations();
 const mode = ref("region");
 
+const modeItems = computed(() => [
+	{ label: t("VariantDistributionCard.dialectal-region"), value: "region" },
+	{ label: t("VariantDistributionCard.state"), value: "state" },
+]);
+
 const orderedVariants = computed(() => {
 	const totals = new Map<string, number>();
 	for (const region of props.data) {
@@ -47,25 +52,13 @@ const rows = computed(() =>
 		>
 			{{ t("VariantDistributionCard.title") }}
 
-			<Label
-				><Select default-value="region">
-					<SelectTrigger
-						v-model="mode"
-						class="uppercase font-semibold text-muted-foreground text-xs border-0 shadow-none data-[size=sm]:h-fit min-h-0 py-0 px-0"
-						size="sm"
-					>
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent :body-lock="false">
-						<SelectItem value="region">
-							{{ t("VariantDistributionCard.dialectal-region") }}
-						</SelectItem>
-						<SelectItem value="state">
-							{{ t("VariantDistributionCard.state") }}
-						</SelectItem>
-					</SelectContent>
-				</Select></Label
-			>
+			<USelect
+				v-model="mode"
+				class="uppercase font-semibold text-muted-foreground text-xs min-h-0 py-0 px-0"
+				:items="modeItems"
+				size="sm"
+				variant="none"
+			/>
 		</div>
 
 		<div class="flex flex-wrap gap-x-3 gap-y-1 mb-3 text-xs">

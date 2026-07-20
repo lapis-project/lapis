@@ -13,21 +13,23 @@ const model = defineModel<string>();
 		<div class="uppercase font-semibold text-muted-foreground text-xs mb-2.5">
 			{{ t("VariantSelectionCard.title") }}
 		</div>
-		<RadioGroup v-model="model" class="flex gap-2 flex-wrap">
-			<div
-				v-for="entry in data"
-				:key="entry.label"
-				class="border border-border flex items-center gap-1.5 rounded-full transition-[background] has-data-[state=unchecked]:bg-card! has-data-[state=checked]:border-0 p-1 px-2 bg-muted has-data-[state=checked]:text-white"
-				:style="{ backgroundColor: colors[entry.label] }"
-			>
-				<RadioGroupItem :id="entry.label" class="sr-only peer" :value="entry.label" />
-				<div
-					class="size-2 rounded-full peer-data-[state=checked]:bg-white!"
-					:style="{ backgroundColor: colors[entry.label] }"
-				></div>
+		<URadioGroup v-model="model" indicator="hidden" :items="data" name="variant-selection" :ui="{
+			fieldset: 'flex flex-row flex-wrap gap-2',
+			wrapper: 'w-auto',
+			label: 'contents',
+		}" value-key="label">
+			<template #label="{ item, modelValue }">
+				<span
+					class="flex items-center gap-1.5 rounded-full border border-border p-1 px-2 text-xs transition-[background] cursor-pointer"
+					:class="modelValue === item.label ? 'border-0 text-white' : 'bg-card'"
+					:style="modelValue === item.label ? { backgroundColor: colors[item.label] } : undefined">
+					<div class="size-2 rounded-full" :style="{
+						backgroundColor: modelValue === item.label ? '#fff' : colors[item.label],
+					}"></div>
 
-				<Label class="text-xs" :for="entry.label">{{ entry.label }}</Label>
-			</div>
-		</RadioGroup>
+					<span>{{ item.label }}</span>
+				</span>
+			</template>
+		</URadioGroup>
 	</div>
 </template>

@@ -1,4 +1,6 @@
-@import "tailwindcss" source("../../../../shadcn/app/assets/css");
+@import "tailwindcss" theme(static);
+
+@import "@nuxt/ui";
 
 @import "maplibre-gl/dist/maplibre-gl.css";
 

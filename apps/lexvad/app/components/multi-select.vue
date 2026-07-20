@@ -104,79 +104,45 @@ const open = ref(false);
 </script>
 
 <template>
-	<Popover v-model:open="open" :class="[props.width]">
-		<PopoverTrigger as-child class="">
-			<Button
-				aria-controls="popover-content"
-				:aria-expanded="open"
-				class="justify-between"
-				:class="[props.width]"
-				:data-testid="props.dataTestid"
-				role="combobox"
-				variant="outline"
-			>
-				<span class="grow truncate text-left">
-					{{
-						model.length
-							? props.options.find((question) => question.value === model[0])?.label
-							: t("Combobox.button", { placeholder: props.placeholder })
-					}}
-				</span>
-				<svg v-if="model.length > 1" class="ml-1 shrink-0" height="20" width="20">
-					<circle cx="10" cy="10" fill="currentColor" r="10" />
-					<text
-						class="text-xs text-primary-foreground"
-						dominant-baseline="central"
-						fill="currentColor"
-						text-anchor="middle"
-						x="50%"
-						y="50%"
-					>
-						+{{ model.length - 1 }}
-					</text>
-				</svg>
-				<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
-			</Button>
-		</PopoverTrigger>
-		<PopoverContent id="popover-content" class="p-0" :class="[props.width]" role="listbox">
-			<Command>
-				<CommandList>
-					<CommandGroup>
-						<CommandItem
-							v-for="question in props.options"
-							:key="question.value"
-							:class="{
-								'border-b rounded-b-none text-accent-foreground': question.value === 'all',
-							}"
-							:value="question.value"
-							@select="
-								(ev) => {
-									if (typeof ev.detail.value === 'string') {
-										toggleSelection(ev.detail.value);
-									}
-								}
-							"
-						>
-							<Check
-								:class="
-									cn(
-										'mr-2 h-4 w-4',
-										(model.includes(question.value) || showAll) && question.value !== 'all'
-											? 'opacity-100'
-											: 'opacity-0',
-									)
-								"
-							/>
-							<div
-								class="flex-1"
-								:class="{ 'font-semibold': question.level === 1 && !props.singleLevel }"
-							>
-								<span v-if="question.level === 2" class="opacity-50">- </span>{{ question.label }}
-							</div>
-						</CommandItem>
-					</CommandGroup>
-				</CommandList>
-			</Command>
-		</PopoverContent>
-	</Popover>
+	<UPopover v-model:open="open" :class="[props.width]" :content="{ align: 'start', side: 'bottom' }">
+		<UButton aria-controls="popover-content" :aria-expanded="open" class="justify-between bg-card"
+			:class="[props.width]" :data-testid="props.dataTestid" role="combobox" variant="outline">
+			<span class="grow truncate text-left">
+				{{
+					model.length
+						? props.options.find((question) => question.value === model[0])?.label
+						: t("Combobox.button", { placeholder: props.placeholder })
+				}}
+			</span>
+			<svg v-if="model.length > 1" class="ml-1 shrink-0" height="20" width="20">
+				<circle cx="10" cy="10" fill="currentColor" r="10" />
+				<text class="text-xs text-primary-foreground" dominant-baseline="central" fill="currentColor"
+					text-anchor="middle" x="50%" y="50%">
+					+{{ model.length - 1 }}
+				</text>
+			</svg>
+			<ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
+		</UButton>
+
+		<template #content>
+			<div id="popover-content" class="p-0" :class="[props.width]" role="listbox">
+				<div class="max-h-64 overflow-y-auto p-1">
+					<button v-for="question in props.options" :key="question.value"
+						:aria-selected="model.includes(question.value) || showAll"
+						class="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent" :class="{
+							'border-b rounded-b-none text-accent-foreground': question.value === 'all',
+						}" role="option" type="button" @click="toggleSelection(question.value)">
+						<Check class="mr-2 h-4 w-4" :class="(model.includes(question.value) || showAll) && question.value !== 'all'
+								? 'opacity-100'
+								: 'opacity-0'
+							" />
+						<div class="flex-1 text-left"
+							:class="{ 'font-semibold': question.level === 1 && !props.singleLevel }">
+							<span v-if="question.level === 2" class="opacity-50">- </span>{{ question.label }}
+						</div>
+					</button>
+				</div>
+			</div>
+		</template>
+	</UPopover>
 </template>

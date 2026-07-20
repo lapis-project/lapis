@@ -28,13 +28,8 @@ function updateSidebar(question: string, variant?: string) {
 </script>
 
 <template>
-	<SidebarProvider
-		class="min-h-0!"
-		:open="sidebarOpen"
-		style="--sidebar-width: 25rem"
-		@update:open="sidebarOpen = $event"
-	>
-		<SidebarInset class="shadow-none! min-h-0!">
+	<div class="flex min-h-0">
+		<div class="flex-1 min-w-0">
 			<div class="flex gap-5 justify-center relative">
 				<SingleMapView
 					class="grow shrink"
@@ -49,22 +44,22 @@ function updateSidebar(question: string, variant?: string) {
 						:split-mode="splitMode"
 						@toggle-sidebar="updateSidebar"
 					/>
-					<Button
+					<UButton
 						class="absolute right-0 top-0 size-6 p-1 m-1 text-muted-foreground"
 						variant="ghost"
-						@click="splitMode = false"
+						@click="() => {splitMode = false}"
 					>
 						<X></X>
 						<span class="sr-only">{{ t("MapsPage.controls.close-split-view") }}</span>
-					</Button>
+					</UButton>
 				</template>
 			</div>
-		</SidebarInset>
+		</div>
 
 		<AppSidebar
+			v-model:open="sidebarOpen"
 			:active-question="activeQuestion"
 			:active-variant="activeVariant"
-			:open="sidebarOpen"
 		></AppSidebar>
-	</SidebarProvider>
+	</div>
 </template>

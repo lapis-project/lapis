@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { X } from "@lucide/vue";
 
-import { useSidebar } from "../../../shadcn/app/components/ui/sidebar";
+const open = defineModel<boolean>("open", { default: false });
 
-const { toggleSidebar } = useSidebar();
 const t = useTranslations();
 const {
 	countAnswersForQuestion,
@@ -74,98 +73,67 @@ const cooccurrences = computed(() => {
 const colors = computed(() => {
 	return getColorsForQuestion(props.activeQuestion) ?? {};
 });
+
+const tabItems = computed(() => [
+	{ label: t("MapsPage.sidebar.variable"), value: "phenomenon", slot: "phenomenon" as const },
+	{ label: t("MapsPage.sidebar.variant"), value: "variant", slot: "variant" as const },
+	{ label: t("MapsPage.sidebar.region"), value: "region", slot: "region" as const },
+]);
 </script>
 
 <template>
-	<Sidebar
-		class="top-14 h-[calc(100svh-3.5rem)] sm:top-16 sm:h-[calc(100svh-4rem)] shadow-lg bg-background border-t border-border"
-		side="right"
-		variant="inset"
-	>
-		<SidebarHeader class="pb-0">
-			<SidebarGroup class="border-b border-border flex-row justify-between">
-				<SidebarGroupLabel class="uppercase font-semibold"
-					>{{ t("MapsPage.sidebar.labels.data-insights") }}
-				</SidebarGroupLabel>
-				<Button class="size-6 p-1 m-1 text-muted-foreground" variant="ghost" @click="toggleSidebar">
+	<USidebar collapsible="offcanvas" :open="open" side="right"
+		:ui="{ header: 'pb-0', body: 'p-0  mb-(--ui-header-height)', container: 'h-full top-(--ui-header-height)', root: ['[--sidebar-width:25rem]'] }"
+		variant="sidebar">
+		<template #header>
+			<div class="flex flex-row items-center justify-between w-full">
+				<span class="uppercase font-semibold text-sm">
+					{{ t("MapsPage.sidebar.labels.data-insights") }}
+				</span>
+				<UButton class="size-6 p-1 m-1 text-muted-foreground" variant="ghost" @click="() => { open = false }">
 					<X></X>
-				</Button>
-			</SidebarGroup>
-		</SidebarHeader>
-		<SidebarContent>
-			<SidebarGroup>
-				<SidebarGroupContent>
-					<Tabs default-value="phenomenon">
-						<TabsList
-							class="w-full h-auto items-stretch justify-start gap-0 rounded-none border-b border-border bg-transparent p-0"
-						>
-							<TabsTrigger
-								class="h-auto flex-1 items-center whitespace-normal rounded-none border-0 border-b-2 border-transparent bg-transparent px-1 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground leading-tight shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none dark:data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent"
-								value="phenomenon"
-							>
-								{{ t("MapsPage.sidebar.variable") }}
-							</TabsTrigger>
-							<TabsTrigger
-								class="h-auto flex-1 items-center whitespace-normal rounded-none border-0 border-b-2 border-transparent bg-transparent px-1 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground leading-tight shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none dark:data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent"
-								value="variant"
-							>
-								{{ t("MapsPage.sidebar.variant") }}
-							</TabsTrigger>
-							<TabsTrigger
-								class="h-auto flex-1 items-center whitespace-normal rounded-none border-0 border-b-2 border-transparent bg-transparent px-1 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground leading-tight shadow-none data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none dark:data-[state=active]:border-foreground dark:data-[state=active]:bg-transparent"
-								value="region"
-							>
-								{{ t("MapsPage.sidebar.region") }}
-							</TabsTrigger>
-						</TabsList>
-						<TabsContent class="p-2 flex flex-col gap-4" value="phenomenon">
-							<SelectedPhenomenonCard
-								class="w-full"
-								:count="answerCount"
-								:phenomenon="activeQuestion"
-								:variants="variantCount.length"
-							></SelectedPhenomenonCard>
-							<VariantOverviewCard class="w-full" :colors="colors" :data="variantCount">
-							</VariantOverviewCard>
-							<CategoryCard class="w-full"></CategoryCard>
-						</TabsContent>
-						<TabsContent class="p-2 flex flex-col gap-4" value="variant">
-							<SelectedVariantCard
-								class="w-full"
-								:color="colors[selectedVariant] ?? ''"
-								:count="activeVariantCount"
-								:notations="notations.length"
-								:variant="selectedVariant"
-							>
-							</SelectedVariantCard>
-							<VariantSelectionCard v-model="selectedVariant" :colors="colors" :data="variantCount">
-							</VariantSelectionCard>
-							<VariantDistributionCard :data="regionsForVariant"></VariantDistributionCard>
+				</UButton>
+			</div>
+		</template>
 
-							<VariantOverviewCard
-								class="w-full"
-								:colors="colors"
-								:data="cooccurrences"
-								:subtitle="t('VariantOverviewCard.cooccurrences-subtitle')"
-								:title="t('VariantOverviewCard.regional-cooccurrences')"
-							></VariantOverviewCard>
-						</TabsContent>
-						<TabsContent class="p-2 flex flex-col gap-4" value="region">
-							<SelectedPhenomenonCard
-								class="w-full"
-								:count="answerCount"
-								:phenomenon="activeQuestion"
-								:variants="variantCount.length"
-							></SelectedPhenomenonCard>
-							<RegionDistributionCard :colors="colors" :data="regions" :question="activeQuestion">
-							</RegionDistributionCard>
-							<CategoryCard class="w-full"></CategoryCard>
-						</TabsContent>
-					</Tabs>
-				</SidebarGroupContent>
-			</SidebarGroup>
-		</SidebarContent>
-		<SidebarFooter />
-		<SidebarRail />
-	</Sidebar>
+		<UTabs class="w-full" default-value="phenomenon" :items="tabItems" :ui="{
+			list: 'w-full border-b border-border',
+			label: 'text-wrap',
+			trigger:
+				'flex-1 uppercase text-xs font-semibold tracking-wide leading-tight',
+		}" variant="link">
+			<template #phenomenon>
+				<div class="p-2 flex flex-col gap-4">
+					<SelectedPhenomenonCard class="w-full" :count="answerCount" :phenomenon="activeQuestion"
+						:variants="variantCount.length"></SelectedPhenomenonCard>
+					<VariantOverviewCard class="w-full" :colors="colors" :data="variantCount">
+					</VariantOverviewCard>
+					<CategoryCard class="w-full"></CategoryCard>
+				</div>
+			</template>
+			<template #variant>
+				<div class="p-2 flex flex-col gap-4">
+					<SelectedVariantCard class="w-full" :color="colors[selectedVariant] ?? ''"
+						:count="activeVariantCount" :notations="notations.length" :variant="selectedVariant">
+					</SelectedVariantCard>
+					<VariantSelectionCard v-model="selectedVariant" :colors="colors" :data="variantCount">
+					</VariantSelectionCard>
+					<VariantDistributionCard :data="regionsForVariant"></VariantDistributionCard>
+
+					<VariantOverviewCard class="w-full" :colors="colors" :data="cooccurrences"
+						:subtitle="t('VariantOverviewCard.cooccurrences-subtitle')"
+						:title="t('VariantOverviewCard.regional-cooccurrences')"></VariantOverviewCard>
+				</div>
+			</template>
+			<template #region>
+				<div class="p-2 flex flex-col gap-4">
+					<SelectedPhenomenonCard class="w-full" :count="answerCount" :phenomenon="activeQuestion"
+						:variants="variantCount.length"></SelectedPhenomenonCard>
+					<RegionDistributionCard :colors="colors" :data="regions" :question="activeQuestion">
+					</RegionDistributionCard>
+					<CategoryCard class="w-full"></CategoryCard>
+				</div>
+			</template>
+		</UTabs>
+	</USidebar>
 </template>

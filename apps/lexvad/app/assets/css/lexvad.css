@@ -1,7 +1,5 @@
 @import "tailwindcss" theme(static);
-
 @import "@nuxt/ui";
-
 @import "maplibre-gl/dist/maplibre-gl.css";
 
 @theme {

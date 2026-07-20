@@ -2,8 +2,14 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { type Color, Deck } from "@deck.gl/core";
-import { ScatterplotLayer } from "@deck.gl/layers";
+import { MaskExtension } from "@deck.gl/extensions";
+import { GeoJsonLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
+import { featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map } from "maplibre-gl";
+
+import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+
+const regions = regionsJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
 
 interface MapDataType {
 	coordinates: [number, number];
@@ -13,6 +19,7 @@ interface MapDataType {
 
 interface MapProps {
 	data: Array<MapDataType>;
+	mode: "point" | "area";
 }
 
 const props = defineProps<MapProps>();
@@ -34,28 +41,63 @@ const hexToRgb = (hex: string, alpha = 255): Color => {
 		: [0, 0, 0, alpha];
 };
 
+const points = computed(() => props.data.map((entry) => point(entry.coordinates, entry)));
+
 const mapContainer = ref<HTMLDivElement | null>(null);
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
 
 let map: Map | null = null;
 let deck: Deck | null = null;
 
+function createScatterplotLayer() {
+	return new ScatterplotLayer<MapDataType>({
+		id: "ScatterplotLayer",
+		data: props.data,
+		getFillColor: (d) => hexToRgb(d.color, 220),
+		getLineColor: [255, 255, 255, 200],
+		getPosition: (d) => d.coordinates,
+		getRadius: 5500,
+		lineWidthMinPixels: 1,
+		pickable: true,
+		radiusMaxPixels: 12,
+		radiusMinPixels: 4,
+		stroked: true,
+	});
+}
+
+function createVoronoiLayer() {
+	const features = featureCollection(points.value);
+	const polygons = voronoi(features);
+
+	return new PolygonLayer({
+		id: "VoronoiLayer",
+		data: polygons.features.filter((e) => e !== undefined),
+		getFillColor: (d: (typeof polygons.features)[0]) => hexToRgb(d.properties?.color, 220),
+		filled: true,
+		getPolygon: (d: (typeof polygons.features)[0]) => d.geometry.coordinates,
+		lineWidthMinPixels: 1,
+		getLineColor: [255, 255, 255, 200],
+		pickable: true,
+		extensions: [new MaskExtension()],
+		maskId: "bordermask",
+	});
+}
+
+function createMaskLayer() {
+	const border = union(regions);
+	if (!border) return;
+	return new GeoJsonLayer({
+		id: "bordermask",
+		data: border,
+		operation: "mask",
+	});
+}
+
 function createLayers() {
-	return [
-		new ScatterplotLayer<MapDataType>({
-			id: "ScatterplotLayer",
-			data: props.data,
-			getFillColor: (d) => hexToRgb(d.color, 220),
-			getLineColor: [255, 255, 255, 200],
-			getPosition: (d) => d.coordinates,
-			getRadius: 5500,
-			lineWidthMinPixels: 1,
-			pickable: true,
-			radiusMaxPixels: 12,
-			radiusMinPixels: 4,
-			stroked: true,
-		}),
-	];
+	if (props.mode === "point") {
+		return [createScatterplotLayer()];
+	}
+	return [createMaskLayer(), createVoronoiLayer()];
 }
 
 onMounted(() => {
@@ -74,7 +116,8 @@ onMounted(() => {
 		canvas: deckCanvas.value!,
 		initialViewState: INITIAL_VIEW_STATE,
 		controller: true,
-		getTooltip: ({ object }) => (object as MapDataType | null) && `${(object as MapDataType).name}`,
+		getTooltip: ({ object }) =>
+			(object as GeoJSON.Feature | null) && `${(object as GeoJSON.Feature).properties?.name}`,
 		onViewStateChange: ({ viewState }) => {
 			map?.jumpTo({
 				center: [viewState.longitude, viewState.latitude],
@@ -88,7 +131,7 @@ onMounted(() => {
 });
 
 watch(
-	() => props.data,
+	() => [props.data, props.mode],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},

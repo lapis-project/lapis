@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import { HexagonLayer } from "@deck.gl/aggregation-layers";
 import { type Color, Deck } from "@deck.gl/core";
 import { MaskExtension } from "@deck.gl/extensions";
 import { GeoJsonLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
@@ -19,6 +20,7 @@ interface MapDataType {
 
 interface MapProps {
 	data: Array<MapDataType>;
+	colors: Array<string>;
 	mode: "point" | "area";
 }
 
@@ -50,12 +52,12 @@ let map: Map | null = null;
 let deck: Deck | null = null;
 
 function createScatterplotLayer() {
-	return new ScatterplotLayer<MapDataType>({
+	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: "ScatterplotLayer",
-		data: props.data,
-		getFillColor: (d) => hexToRgb(d.color, 220),
+		data: points.value,
+		getFillColor: (d) => hexToRgb(d.properties?.color, 220),
 		getLineColor: [255, 255, 255, 200],
-		getPosition: (d) => d.coordinates,
+		getPosition: (d) => d.geometry.coordinates as [number, number],
 		getRadius: 5500,
 		lineWidthMinPixels: 1,
 		pickable: true,
@@ -65,21 +67,44 @@ function createScatterplotLayer() {
 	});
 }
 
-function createVoronoiLayer() {
+function _createVoronoiLayer() {
 	const features = featureCollection(points.value);
 	const polygons = voronoi(features);
 
-	return new PolygonLayer({
+	return new PolygonLayer<(typeof polygons.features)[0]>({
 		id: "VoronoiLayer",
 		data: polygons.features.filter((e) => e !== undefined),
-		getFillColor: (d: (typeof polygons.features)[0]) => hexToRgb(d.properties?.color, 220),
+		getFillColor: (d) => hexToRgb(d.properties?.color, 220),
 		filled: true,
-		getPolygon: (d: (typeof polygons.features)[0]) => d.geometry.coordinates,
+		getPolygon: (d) => d.geometry.coordinates,
 		lineWidthMinPixels: 1,
 		getLineColor: [255, 255, 255, 200],
 		pickable: true,
 		extensions: [new MaskExtension()],
+		//@ts-expect-error - unrecognized key "maskId"
 		maskId: "bordermask",
+	});
+}
+
+const radius = ref(5000);
+function createHexagonLayer() {
+	return new HexagonLayer<GeoJSON.Feature<GeoJSON.Point>>({
+		id: "HexagonLayer",
+		data: points.value,
+		gpuAggregation: false,
+		coverage: 0.92,
+		getPosition: (d) => d.geometry.coordinates as [number, number],
+		radius: radius.value,
+		elevationScale: 1,
+		extruded: false,
+		colorScaleType: "quantize",
+		getColorValue: (d) =>
+			props.colors.findIndex((c) => {
+				return d[0]?.properties?.color === c;
+			}),
+		colorDomain: [0, props.colors.length - 1],
+		colorRange: props.colors.map((c) => hexToRgb(c)),
+		pickable: true,
 	});
 }
 
@@ -97,7 +122,7 @@ function createLayers() {
 	if (props.mode === "point") {
 		return [createScatterplotLayer()];
 	}
-	return [createMaskLayer(), createVoronoiLayer()];
+	return [createMaskLayer(), createHexagonLayer()];
 }
 
 onMounted(() => {
@@ -116,8 +141,11 @@ onMounted(() => {
 		canvas: deckCanvas.value!,
 		initialViewState: INITIAL_VIEW_STATE,
 		controller: true,
-		getTooltip: ({ object }) =>
-			(object as GeoJSON.Feature | null) && `${(object as GeoJSON.Feature).properties?.name}`,
+		getTooltip: ({ object }) => {
+			if (!object) return null;
+			if ("points" in object) return `${object.points[0].properties.name}`;
+			return `${(object as GeoJSON.Feature).properties?.name}`;
+		},
 		onViewStateChange: ({ viewState }) => {
 			map?.jumpTo({
 				center: [viewState.longitude, viewState.latitude],
@@ -131,7 +159,7 @@ onMounted(() => {
 });
 
 watch(
-	() => [props.data, props.mode],
+	() => [props.data, props.mode, radius.value],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},
@@ -147,6 +175,24 @@ onBeforeUnmount(() => {
 
 <template>
 	<div class="relative size-full">
+		<div
+			v-if="mode === 'area'"
+			class="absolute top-4 left-1/2 h-12 z-20 bg-card p-4 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center"
+		>
+			<span class="uppercase text-muted-foreground font-semibold">Radius</span>
+			<USlider
+				v-model="radius"
+				class="w-36"
+				color="neutral"
+				:max="20000"
+				:min="3000"
+				size="xs"
+				:step="500"
+			>
+			</USlider>
+			<span class="text-muted-foreground">{{ (radius / 1000).toFixed(1) }} km</span>
+		</div>
+
 		<div ref="mapContainer" class="size-full absolute inset-0"></div>
 		<canvas ref="deckCanvas" class="size-full absolute inset-0"></canvas>
 	</div>

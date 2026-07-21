@@ -76,7 +76,7 @@ const data = computed(() =>
 	filterDataByQuestionAndVariant(activeQuestion.value ?? "").map((entry) => ({
 		coordinates: [Number(entry.Longitude), Number(entry.Latitude)] as [number, number],
 		color: getColorForVariant(activeQuestion.value ?? "", entry.variants[0] ?? "") ?? "",
-		name: entry.Ort,
+		name: entry.variants[0]!,
 	})),
 );
 </script>
@@ -223,7 +223,14 @@ const data = computed(() =>
 				</div>
 			</div>
 			<div v-if="height && width" class="w-full h-full">
-				<GeoMap :data="data" :mode="mapMode"></GeoMap>
+				<GeoMap
+					:colors="
+						uniqueVariants.map((v) => getColorForVariant(activeQuestion ?? '', v.anno) ?? '')
+					"
+					:data="data"
+					:mode="mapMode"
+				>
+				</GeoMap>
 			</div>
 		</VisualisationContainer>
 	</div>

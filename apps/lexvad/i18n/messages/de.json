@@ -77,6 +77,8 @@
 		"controls": {
 			"point-map": "Punktkarte",
 			"area-map": "Flächenkarte",
+			"voronoi": "Voronoi",
+			"hexagon": "Hexagon",
 			"compare": "Vergleichen",
 			"open-sidebar": "Details",
 			"close-split-view": "Geteilte Ansicht schließen"

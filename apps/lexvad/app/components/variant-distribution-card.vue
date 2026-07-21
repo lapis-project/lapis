@@ -13,21 +13,18 @@ const modeItems = computed(() => [
 	{ label: t("VariantDistributionCard.state"), value: "state" },
 ]);
 
-// Enable Unovis' built-in pattern fills: https://unovis.dev/docs/guides/theming/#applying-patterns
-useHead({ bodyAttrs: { class: "theme-patterns" } });
+const { getRegionPattern, getRegionPatternFill } = useColorStore();
 
-const NUM_PATTERNS = 6;
-const colorVar = (index: number) => `var(--vis-color${index % NUM_PATTERNS})`;
-const patternVar = (index: number) => `var(--vis-pattern-fill${index % NUM_PATTERNS})`;
+const color = (d: (typeof props.data)[0]) => getRegionPatternFill(d.label);
 
 const legendItems = computed(() => {
 	const total = props.data.reduce((sum, d) => sum + d.value, 0);
-	return props.data.map((d, index) => ({
+	return props.data.map((d) => ({
 		label: d.label,
 		value: total > 0 ? d.value / total : 0,
 		secondary: t("MapsPage.sidebar.places", d.value),
-		fill: colorVar(index),
-		mask: patternVar(index),
+		fill: getRegionPatternFill(d.label),
+		color: getRegionPattern(d.label).color,
 	}));
 });
 </script>
@@ -50,6 +47,7 @@ const legendItems = computed(() => {
 		<VisSingleContainer class="w-full h-52" :data="data">
 			<VisDonut
 				:arc-width="30"
+				:color="color"
 				:pad-angle="0.025"
 				:radius="80"
 				:value="(d: (typeof data)[0]) => d.value"
@@ -58,12 +56,7 @@ const legendItems = computed(() => {
 		<div v-for="entry in legendItems" :key="entry.label" class="my-2 text-xs">
 			<div class="my-0.5">
 				<svg class="inline-block align-[-2px]" height="12" viewBox="0 0 12 12" width="12">
-					<circle
-						cx="6"
-						cy="6"
-						r="6"
-						:style="{ fill: entry.fill, mask: entry.mask, WebkitMask: entry.mask }"
-					/>
+					<circle cx="6" cy="6" r="5.5" :style="{ fill: entry.fill, stroke: entry.color }" />
 				</svg>
 				<span class="ml-2">{{ entry.label }}</span>
 				<span class="float-right">
@@ -79,23 +72,10 @@ const legendItems = computed(() => {
 					rx="2"
 					:style="{
 						width: `${entry.value * 100}%`,
-						fill: entry.fill,
-						mask: entry.mask,
-						WebkitMask: entry.mask,
+						fill: entry.color,
 					}"
 				/>
 			</svg>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-* {
-	--vis-color5: #bababa;
-	--vis-color4: #474747;
-	--vis-color3: #9b9b9b;
-	--vis-color2: #cacaca;
-	--vis-color1: #666;
-	--vis-color0: #aaa;
-}
-</style>

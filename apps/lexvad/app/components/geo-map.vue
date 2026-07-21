@@ -1,14 +1,36 @@
 <script setup lang="ts">
 import "maplibre-gl/dist/maplibre-gl.css";
 
+import {
+	HexagonIcon,
+	LayersIcon,
+	MinusIcon,
+	PlusIcon,
+} from "@lucide/vue";
+
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
 import { type Color, Deck } from "@deck.gl/core";
-import { MaskExtension } from "@deck.gl/extensions";
-import { GeoJsonLayer, PolygonLayer, ScatterplotLayer } from "@deck.gl/layers";
+import {
+	FillStyleExtension,
+	type FillStyleExtensionProps,
+	MaskExtension,
+} from "@deck.gl/extensions";
+import {
+	GeoJsonLayer,
+	type GeoJsonLayerProps,
+	PolygonLayer,
+	ScatterplotLayer,
+} from "@deck.gl/layers";
 import { featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map } from "maplibre-gl";
 
 import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import { regionPatterns } from "@/stores/use-color-store";
+import {
+	createRegionPatternAtlas,
+	PATTERN_RESOLUTION,
+	type RegionPatternAtlas,
+} from "@/utils/region-pattern-atlas";
 
 const regions = regionsJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
 
@@ -45,11 +67,17 @@ const hexToRgb = (hex: string, alpha = 255): Color => {
 
 const points = computed(() => props.data.map((entry) => point(entry.coordinates, entry)));
 
+const areaMapMode = ref("hexagon")
 const mapContainer = ref<HTMLDivElement | null>(null);
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
 
 let map: Map | null = null;
 let deck: Deck | null = null;
+
+const { getRegionPattern } = useColorStore();
+
+/** Built on mount — rasterising the patterns needs a canvas. */
+let patternAtlas: RegionPatternAtlas | null = null;
 
 function createScatterplotLayer() {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
@@ -86,7 +114,7 @@ function _createVoronoiLayer() {
 	});
 }
 
-const radius = ref(5000);
+const radius = ref(10000);
 function createHexagonLayer() {
 	return new HexagonLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: "HexagonLayer",
@@ -103,9 +131,48 @@ function createHexagonLayer() {
 				return d[0]?.properties?.color === c;
 			}),
 		colorDomain: [0, props.colors.length - 1],
-		colorRange: props.colors.map((c) => hexToRgb(c)),
+		colorRange: props.colors.map((c) => hexToRgb(c, 220)),
 		pickable: true,
 	});
+}
+
+const PATTERN_TILE_METERS = 10000;
+
+type RegionProperties = (typeof regions)["features"][0]["properties"];
+type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
+const showRegions = ref(false)
+function patternForFeature(feature: RegionFeature) {
+	return getRegionPattern(feature.properties?.Dialektregion_Name ?? "");
+}
+
+function createRegionsLayer() {
+	const atlas = patternAtlas;
+
+	const patternProps: Partial<FillStyleExtensionProps<RegionFeature>> = atlas
+		? {
+			fillPatternAtlas: atlas.url,
+			fillPatternMapping: atlas.mapping,
+			fillPatternMask: true,
+			getFillPattern: (d) => patternForFeature(d).id,
+			getFillPatternScale: (d) =>
+				PATTERN_TILE_METERS / (patternForFeature(d).w * PATTERN_RESOLUTION),
+		}
+		: {};
+
+	const layerProps: GeoJsonLayerProps<RegionProperties> &
+		Partial<FillStyleExtensionProps<RegionFeature>> = {
+		id: "regionLayer",
+		data: regions,
+		filled: atlas !== null,
+		stroked: true,
+		lineWidthMinPixels: 1,
+		getFillColor: (d) => hexToRgb(patternForFeature(d as RegionFeature).color, 100),
+		getLineColor: (d) => hexToRgb(patternForFeature(d as RegionFeature).color, 220),
+		extensions: atlas ? [new FillStyleExtension({ pattern: true })] : [],
+		...patternProps,
+	};
+
+	return new GeoJsonLayer(layerProps);
 }
 
 function createMaskLayer() {
@@ -119,13 +186,20 @@ function createMaskLayer() {
 }
 
 function createLayers() {
+	const regionsLayer = showRegions.value ? [createRegionsLayer()] : []
 	if (props.mode === "point") {
-		return [createScatterplotLayer()];
+		return [...regionsLayer, createScatterplotLayer()];
 	}
-	return [createMaskLayer(), createHexagonLayer()];
+	switch (areaMapMode.value) {
+		case "hexagon": return [createMaskLayer(), ...regionsLayer, createHexagonLayer()];
+		case "voronoi": return [createMaskLayer(), ...regionsLayer, _createVoronoiLayer()];
+	}
+	return []
 }
 
 onMounted(() => {
+	patternAtlas = createRegionPatternAtlas(regionPatterns);
+
 	map = new Map({
 		container: mapContainer.value!,
 		style,
@@ -159,7 +233,7 @@ onMounted(() => {
 });
 
 watch(
-	() => [props.data, props.mode, radius.value],
+	() => [props.data, props.mode, radius.value, showRegions.value, areaMapMode.value],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},
@@ -171,26 +245,52 @@ onBeforeUnmount(() => {
 	map?.remove();
 	map = null;
 });
+
+const t = useTranslations()
+const areaMapModeIcons: Record<string, typeof HexagonIcon> = {
+	hexagon: HexagonIcon,
+	voronoi: LayersIcon,
+};
+const areaMapModeItems = [
+	{ label: t("MapsPage.controls.voronoi"), value: "voronoi", icon: "i-gis-polygon-o" },
+	{ label: t("MapsPage.controls.hexagon"), value: "hexagon", icon: "i-lucide-hexagon" },
+]
 </script>
 
 <template>
 	<div class="relative size-full">
-		<div
-			v-if="mode === 'area'"
-			class="absolute top-4 left-1/2 h-12 z-20 bg-card p-4 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center"
-		>
-			<span class="uppercase text-muted-foreground font-semibold">Radius</span>
-			<USlider
-				v-model="radius"
-				class="w-36"
-				color="neutral"
-				:max="20000"
-				:min="3000"
-				size="xs"
-				:step="500"
-			>
-			</USlider>
-			<span class="text-muted-foreground">{{ (radius / 1000).toFixed(1) }} km</span>
+		<div v-if="mode === 'area'"
+			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg">
+			<UTabs v-model="areaMapMode" class="w-fit " color="neutral" :content="false" :items="areaMapModeItems" :ui="{
+				list: 'bg-card rounded-lg p-1',
+				indicator: 'bg-foreground text-background',
+				trigger:
+					'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-background text-xs',
+			}" variant="pill">
+			</UTabs>
+			<template v-if="areaMapMode === 'hexagon'">
+				<USeparator orientation="vertical"></USeparator>
+				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
+				<USlider v-model="radius" class="w-36" color="neutral" :max="20000" :min="3000" size="xs" :step="500">
+				</USlider>
+				<span class="text-muted-foreground mr-4">{{ (radius / 1000).toFixed(1) }} km</span>
+			</template>
+		</div>
+		<div class="absolute top-4 left-4 z-20 flex gap-4 flex-col">
+			<div class="bg-card border border-border rounded-lg text-xs shadow-lg flex flex-col">
+				<UButton class="rounded-b-none aspect-square justify-center" variant="outline" color="neutral">
+					<PlusIcon class="size-4"></PlusIcon>
+				</UButton>
+				<UButton class="rounded-t-none aspect-square justify-center" variant="outline" color="neutral">
+					<MinusIcon class="size-4"></MinusIcon>
+				</UButton>
+			</div>
+			<label class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
+				:class="{ 'text-background bg-foreground hover:bg-foreground': showRegions }"><span class="sr-only">Toggle
+					Layers</span>
+				<LayersIcon class="size-4"></LayersIcon>
+				<UCheckbox indicator="hidden" class="size-0" v-model="showRegions"></UCheckbox>
+			</label>
 		</div>
 
 		<div ref="mapContainer" class="size-full absolute inset-0"></div>

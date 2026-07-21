@@ -77,6 +77,8 @@
 		"controls": {
 			"point-map": "Point map",
 			"area-map": "Area map",
+			"voronoi": "Voronoi",
+			"hexagon": "Hexagon",
 			"compare": "Compare",
 			"open-sidebar": "Details",
 			"close-split-view": "Close split view"

@@ -3,7 +3,7 @@ import { booleanContains, point } from "@turf/turf";
 import regions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import _data from "@/assets/data/DWA_Pilot_Variablen.json";
 
-const data = _data.map((entry) => {
+const _regularData = _data.map((entry) => {
 	const p = point([Number(entry.Longitude), Number(entry.Latitude)]);
 	return {
 		...entry,
@@ -11,6 +11,32 @@ const data = _data.map((entry) => {
 			?.properties.Dialektregion_Name,
 	};
 });
+
+function _createShiftedPointFromEntry(entry: (typeof _data)[0], dLong: number, dLat: number) {
+	const clonedEntry = {
+		...entry,
+		Latitude: String(Number(entry.Latitude) + dLat),
+		Longitude: String(Number(entry.Longitude) + dLong),
+	};
+	const p = point([Number(clonedEntry.Longitude), Number(clonedEntry.Latitude)]);
+	return {
+		...clonedEntry,
+		region: regions.features.find((region) => booleanContains(region.geometry as never, p))
+			?.properties.Dialektregion_Name,
+	};
+}
+
+const _mockData = _data.flatMap((entry) => {
+	const shiftedPoints = [_createShiftedPointFromEntry(entry, 0, 0)];
+	for (let i = 0; i < 15; i++) {
+		const deltaX = 0.5 * (Math.random() - 0.5);
+		const deltaY = 0.5 * (Math.random() - 0.5);
+		shiftedPoints.push(_createShiftedPointFromEntry(entry, deltaX, deltaY));
+	}
+	return shiftedPoints;
+});
+
+const data = _mockData;
 
 export type PilotDataType = (typeof data)[0];
 

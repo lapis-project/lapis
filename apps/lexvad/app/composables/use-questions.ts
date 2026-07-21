@@ -33,7 +33,7 @@ const _mockData = _data.flatMap((entry) => {
 		const deltaY = 0.5 * (Math.random() - 0.5);
 		shiftedPoints.push(_createShiftedPointFromEntry(entry, deltaX, deltaY));
 	}
-	return shiftedPoints;
+	return shiftedPoints.filter((point) => point.region !== undefined);
 });
 
 const data = _mockData;

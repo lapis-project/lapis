@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import {
-	HexagonIcon,
-	LayersIcon,
-	MinusIcon,
-	PlusIcon,
-} from "@lucide/vue";
-
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
 import { type Color, Deck } from "@deck.gl/core";
 import {
@@ -21,6 +14,11 @@ import {
 	PolygonLayer,
 	ScatterplotLayer,
 } from "@deck.gl/layers";
+import {
+	LayersIcon,
+	MinusIcon,
+	PlusIcon,
+} from "@lucide/vue";
 import { featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map } from "maplibre-gl";
 
@@ -79,34 +77,34 @@ const { getRegionPattern } = useColorStore();
 /** Built on mount — rasterising the patterns needs a canvas. */
 let patternAtlas: RegionPatternAtlas | null = null;
 
-function createScatterplotLayer() {
+function createScatterplotLayer(minimal = false) {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: "ScatterplotLayer",
 		data: points.value,
-		getFillColor: (d) => hexToRgb(d.properties?.color, 220),
+		getFillColor: (d) => minimal ? [255, 255, 255] : hexToRgb(d.properties?.color, 220),
 		getLineColor: [255, 255, 255, 200],
 		getPosition: (d) => d.geometry.coordinates as [number, number],
-		getRadius: 5500,
+		getRadius: minimal ? 100 : 2000,
 		lineWidthMinPixels: 1,
-		pickable: true,
-		radiusMaxPixels: 12,
-		radiusMinPixels: 4,
-		stroked: true,
+		pickable: !minimal,
+		radiusMaxPixels: Math.max(3, 3 * points.value.length / 1000),
+		radiusMinPixels: minimal ? 0 : Math.max(1, points.value.length / 1000),
+		stroked: !minimal,
 	});
 }
 
-function _createVoronoiLayer() {
+function createVoronoiLayer() {
 	const features = featureCollection(points.value);
 	const polygons = voronoi(features);
 
 	return new PolygonLayer<(typeof polygons.features)[0]>({
 		id: "VoronoiLayer",
 		data: polygons.features.filter((e) => e !== undefined),
-		getFillColor: (d) => hexToRgb(d.properties?.color, 220),
+		getFillColor: (d) => hexToRgb(d.properties?.color, 180),
 		filled: true,
 		getPolygon: (d) => d.geometry.coordinates,
 		lineWidthMinPixels: 1,
-		getLineColor: [255, 255, 255, 200],
+		getLineColor: [255, 255, 255, 150],
 		pickable: true,
 		extensions: [new MaskExtension()],
 		//@ts-expect-error - unrecognized key "maskId"
@@ -131,7 +129,7 @@ function createHexagonLayer() {
 				return d[0]?.properties?.color === c;
 			}),
 		colorDomain: [0, props.colors.length - 1],
-		colorRange: props.colors.map((c) => hexToRgb(c, 220)),
+		colorRange: props.colors.map((c) => hexToRgb(c, 180)),
 		pickable: true,
 	});
 }
@@ -192,7 +190,7 @@ function createLayers() {
 	}
 	switch (areaMapMode.value) {
 		case "hexagon": return [createMaskLayer(), ...regionsLayer, createHexagonLayer()];
-		case "voronoi": return [createMaskLayer(), ...regionsLayer, _createVoronoiLayer()];
+		case "voronoi": return [createMaskLayer(), ...regionsLayer, createVoronoiLayer(), createScatterplotLayer(true)];
 	}
 	return []
 }
@@ -247,10 +245,7 @@ onBeforeUnmount(() => {
 });
 
 const t = useTranslations()
-const areaMapModeIcons: Record<string, typeof HexagonIcon> = {
-	hexagon: HexagonIcon,
-	voronoi: LayersIcon,
-};
+
 const areaMapModeItems = [
 	{ label: t("MapsPage.controls.voronoi"), value: "voronoi", icon: "i-gis-polygon-o" },
 	{ label: t("MapsPage.controls.hexagon"), value: "hexagon", icon: "i-lucide-hexagon" },
@@ -259,9 +254,11 @@ const areaMapModeItems = [
 
 <template>
 	<div class="relative size-full">
-		<div v-if="mode === 'area'"
+		<div
+v-if="mode === 'area'"
 			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg">
-			<UTabs v-model="areaMapMode" class="w-fit " color="neutral" :content="false" :items="areaMapModeItems" :ui="{
+			<UTabs
+v-model="areaMapMode" class="w-fit " color="neutral" :content="false" :items="areaMapModeItems" :ui="{
 				list: 'bg-card rounded-lg p-1',
 				indicator: 'bg-foreground text-background',
 				trigger:
@@ -278,18 +275,20 @@ const areaMapModeItems = [
 		</div>
 		<div class="absolute top-4 left-4 z-20 flex gap-4 flex-col">
 			<div class="bg-card border border-border rounded-lg text-xs shadow-lg flex flex-col">
-				<UButton class="rounded-b-none aspect-square justify-center" variant="outline" color="neutral">
+				<UButton class="rounded-b-none aspect-square justify-center" color="neutral" variant="outline">
 					<PlusIcon class="size-4"></PlusIcon>
 				</UButton>
-				<UButton class="rounded-t-none aspect-square justify-center" variant="outline" color="neutral">
+				<UButton class="rounded-t-none aspect-square justify-center" color="neutral" variant="outline">
 					<MinusIcon class="size-4"></MinusIcon>
 				</UButton>
 			</div>
-			<label class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
-				:class="{ 'text-background bg-foreground hover:bg-foreground': showRegions }"><span class="sr-only">Toggle
+			<label
+class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
+				:class="{ 'text-background bg-foreground hover:bg-foreground': showRegions }" for="showRegions"><span
+					class="sr-only">Toggle
 					Layers</span>
 				<LayersIcon class="size-4"></LayersIcon>
-				<UCheckbox indicator="hidden" class="size-0" v-model="showRegions"></UCheckbox>
+				<UCheckbox id="showRegions" v-model="showRegions" class="size-0" indicator="hidden"></UCheckbox>
 			</label>
 		</div>
 

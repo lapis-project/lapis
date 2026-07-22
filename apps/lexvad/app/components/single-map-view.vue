@@ -77,8 +77,8 @@ const data = computed(() =>
 	filterDataByQuestionAndVariant(activeQuestion.value ?? "").map((entry) => ({
 		coordinates: [Number(entry.Longitude), Number(entry.Latitude)] as [number, number],
 		color: getColorForVariant(activeQuestion.value ?? "", entry.variants[0] ?? "") ?? "",
-		name: entry.variants[0]!,
-		variants: entry.variants,
+		name: entry.Ort,
+		...entry,
 	})),
 );
 </script>

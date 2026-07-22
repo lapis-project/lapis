@@ -19,6 +19,7 @@ import { featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map } from "maplibre-gl";
 
 import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import MapTooltip from "@/components/map-tooltip.vue";
 import { regionPatterns } from "@/stores/use-color-store";
 import {
 	createRegionPatternAtlas,
@@ -65,6 +66,15 @@ const points = computed(() => props.data.map((entry) => point(entry.coordinates,
 const areaMapMode = ref("hexagon");
 const mapContainer = ref<HTMLDivElement | null>(null);
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
+
+interface TooltipState {
+	x: number;
+	y: number;
+	name?: string;
+	variants?: Array<string>;
+	entry?: PilotDataType;
+}
+const tooltip = ref<TooltipState | null>(null);
 
 let map: Map | null = null;
 let deck: Deck | null = null;
@@ -217,6 +227,26 @@ function createLayers() {
 	return [];
 }
 
+function _joinEntries(entries: Array<GeoJSON.Feature>) {
+	const reducedEntries = entries.reduce(
+		(acc, current) => {
+			Object.entries(current.properties as PilotDataType).forEach((e) =>
+				acc[e[0]]?.push(...String(e[1]!).split("; ")),
+			);
+			return acc;
+		},
+		Object.fromEntries(
+			Object.entries(entries[0]?.properties ?? {}).map((e) => [e[0], [] as Array<string | number>]),
+		),
+	);
+	return Object.fromEntries(
+		Object.entries(reducedEntries).map((e) => [
+			e[0],
+			[...new Set(e[1].flat())].sort((a, b) => String(a).localeCompare(String(b))).join("; "),
+		]),
+	);
+}
+
 onMounted(() => {
 	patternAtlas = createRegionPatternAtlas(regionPatterns);
 
@@ -235,11 +265,24 @@ onMounted(() => {
 		canvas: deckCanvas.value!,
 		initialViewState: INITIAL_VIEW_STATE,
 		controller: true,
-		getTooltip: ({ object }) => {
-			if (!object) return null;
-			if ("points" in object)
-				return `${[...new Set(object.points.flatMap((p: GeoJSON.Feature) => p.properties?.variants))].join(", ")}`;
-			return `${(object as GeoJSON.Feature).properties?.name}`;
+		onHover: ({ object, x, y }) => {
+			if (!object) {
+				tooltip.value = null;
+				return;
+			}
+			if ("points" in object) {
+				tooltip.value = {
+					x,
+					y,
+					entry: _joinEntries(object.points) as unknown as PilotDataType,
+				};
+			} else {
+				tooltip.value = {
+					x,
+					y,
+					entry: object.properties,
+				};
+			}
 		},
 		onViewStateChange: ({ viewState }) => {
 			map?.jumpTo({
@@ -346,5 +389,12 @@ const areaMapModeItems = [
 
 		<div ref="mapContainer" class="size-full absolute inset-0"></div>
 		<canvas ref="deckCanvas" class="size-full absolute inset-0"></canvas>
+
+		<MapTooltip
+			v-if="tooltip"
+			class="absolute z-30 pointer-events-none max-w-xs -translate-x-1/2 -translate-y-[calc(100%+12px)]"
+			:entry="tooltip.entry"
+			:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
+		/>
 	</div>
 </template>

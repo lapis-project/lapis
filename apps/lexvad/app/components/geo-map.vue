@@ -14,11 +14,7 @@ import {
 	PolygonLayer,
 	ScatterplotLayer,
 } from "@deck.gl/layers";
-import {
-	LayersIcon,
-	MinusIcon,
-	PlusIcon,
-} from "@lucide/vue";
+import { LayersIcon, MinusIcon, PlusIcon } from "@lucide/vue";
 import { featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map } from "maplibre-gl";
 
@@ -36,11 +32,12 @@ interface MapDataType {
 	coordinates: [number, number];
 	color: string;
 	name: string;
+	variants: Array<string>;
 }
 
 interface MapProps {
 	data: Array<MapDataType>;
-	colors: Array<string>;
+	colors: Record<string, string>;
 	mode: "point" | "area";
 }
 
@@ -65,7 +62,7 @@ const hexToRgb = (hex: string, alpha = 255): Color => {
 
 const points = computed(() => props.data.map((entry) => point(entry.coordinates, entry)));
 
-const areaMapMode = ref("hexagon")
+const areaMapMode = ref("hexagon");
 const mapContainer = ref<HTMLDivElement | null>(null);
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
 
@@ -79,15 +76,15 @@ let patternAtlas: RegionPatternAtlas | null = null;
 
 function createScatterplotLayer(minimal = false) {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
-		id: "ScatterplotLayer",
+		id: `ScatterplotLayer${minimal ? "minimal" : ""}`,
 		data: points.value,
-		getFillColor: (d) => minimal ? [255, 255, 255] : hexToRgb(d.properties?.color, 220),
+		getFillColor: (d) => (minimal ? [255, 255, 255] : hexToRgb(d.properties?.color, 220)),
 		getLineColor: [255, 255, 255, 200],
 		getPosition: (d) => d.geometry.coordinates as [number, number],
 		getRadius: minimal ? 100 : 2000,
 		lineWidthMinPixels: 1,
 		pickable: !minimal,
-		radiusMaxPixels: Math.max(3, 3 * points.value.length / 1000),
+		radiusMaxPixels: Math.max(3, (3 * points.value.length) / 1000),
 		radiusMinPixels: minimal ? 0 : Math.max(1, points.value.length / 1000),
 		stroked: !minimal,
 	});
@@ -112,12 +109,26 @@ function createVoronoiLayer() {
 	});
 }
 
+function _getDominantVariant(d: Array<GeoJSON.Feature<GeoJSON.Point>>) {
+	const variantCount: Record<string, number> = {};
+	d.forEach((entry) =>
+		entry.properties?.variants.forEach((v: string) => {
+			if (!(v in variantCount)) variantCount[v] = 0;
+			variantCount[v]!++;
+		}),
+	);
+	const sortedVariants = Object.entries(variantCount).sort((a, b) => b[1] - a[1]);
+	return sortedVariants[0]![0];
+}
+
+const colorsArray = computed(() => Object.entries(props.colors));
+
 const radius = ref(10000);
 function createHexagonLayer() {
 	return new HexagonLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: "HexagonLayer",
 		data: points.value,
-		gpuAggregation: false,
+		gpuAggregation: true,
 		coverage: 0.92,
 		getPosition: (d) => d.geometry.coordinates as [number, number],
 		radius: radius.value,
@@ -125,12 +136,16 @@ function createHexagonLayer() {
 		extruded: false,
 		colorScaleType: "quantize",
 		getColorValue: (d) =>
-			props.colors.findIndex((c) => {
-				return d[0]?.properties?.color === c;
+			colorsArray.value.findIndex(([_, c]) => {
+				const color = props.colors[_getDominantVariant(d)!];
+				return color === c;
 			}),
-		colorDomain: [0, props.colors.length - 1],
-		colorRange: props.colors.map((c) => hexToRgb(c, 180)),
+		colorDomain: [0, colorsArray.value.length - 1],
+		colorRange: colorsArray.value.map(([_, c]) => hexToRgb(c, 180)),
 		pickable: true,
+		extensions: [new MaskExtension()],
+		//@ts-expect-error - unrecognized key "maskId"
+		maskId: "bordermask",
 	});
 }
 
@@ -138,7 +153,7 @@ const PATTERN_TILE_METERS = 10000;
 
 type RegionProperties = (typeof regions)["features"][0]["properties"];
 type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
-const showRegions = ref(false)
+const showRegions = ref(false);
 function patternForFeature(feature: RegionFeature) {
 	return getRegionPattern(feature.properties?.Dialektregion_Name ?? "");
 }
@@ -148,13 +163,13 @@ function createRegionsLayer() {
 
 	const patternProps: Partial<FillStyleExtensionProps<RegionFeature>> = atlas
 		? {
-			fillPatternAtlas: atlas.url,
-			fillPatternMapping: atlas.mapping,
-			fillPatternMask: true,
-			getFillPattern: (d) => patternForFeature(d).id,
-			getFillPatternScale: (d) =>
-				PATTERN_TILE_METERS / (patternForFeature(d).w * PATTERN_RESOLUTION),
-		}
+				fillPatternAtlas: atlas.url,
+				fillPatternMapping: atlas.mapping,
+				fillPatternMask: true,
+				getFillPattern: (d) => patternForFeature(d).id,
+				getFillPatternScale: (d) =>
+					PATTERN_TILE_METERS / (patternForFeature(d).w * PATTERN_RESOLUTION),
+			}
 		: {};
 
 	const layerProps: GeoJsonLayerProps<RegionProperties> &
@@ -184,15 +199,22 @@ function createMaskLayer() {
 }
 
 function createLayers() {
-	const regionsLayer = showRegions.value ? [createRegionsLayer()] : []
+	const regionsLayer = showRegions.value ? [createRegionsLayer()] : [];
 	if (props.mode === "point") {
 		return [...regionsLayer, createScatterplotLayer()];
 	}
 	switch (areaMapMode.value) {
-		case "hexagon": return [createMaskLayer(), ...regionsLayer, createHexagonLayer()];
-		case "voronoi": return [createMaskLayer(), ...regionsLayer, createVoronoiLayer(), createScatterplotLayer(true)];
+		case "hexagon":
+			return [createMaskLayer(), ...regionsLayer, createHexagonLayer()];
+		case "voronoi":
+			return [
+				createMaskLayer(),
+				...regionsLayer,
+				createVoronoiLayer(),
+				createScatterplotLayer(true),
+			];
 	}
-	return []
+	return [];
 }
 
 onMounted(() => {
@@ -215,7 +237,8 @@ onMounted(() => {
 		controller: true,
 		getTooltip: ({ object }) => {
 			if (!object) return null;
-			if ("points" in object) return `${object.points[0].properties.name}`;
+			if ("points" in object)
+				return `${[...new Set(object.points.flatMap((p: GeoJSON.Feature) => p.properties?.variants))].join(", ")}`;
 			return `${(object as GeoJSON.Feature).properties?.name}`;
 		},
 		onViewStateChange: ({ viewState }) => {
@@ -244,51 +267,80 @@ onBeforeUnmount(() => {
 	map = null;
 });
 
-const t = useTranslations()
+const t = useTranslations();
 
 const areaMapModeItems = [
 	{ label: t("MapsPage.controls.voronoi"), value: "voronoi", icon: "i-gis-polygon-o" },
 	{ label: t("MapsPage.controls.hexagon"), value: "hexagon", icon: "i-lucide-hexagon" },
-]
+];
 </script>
 
 <template>
 	<div class="relative size-full">
 		<div
-v-if="mode === 'area'"
-			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg">
+			v-if="mode === 'area'"
+			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg"
+		>
 			<UTabs
-v-model="areaMapMode" class="w-fit " color="neutral" :content="false" :items="areaMapModeItems" :ui="{
-				list: 'bg-card rounded-lg p-1',
-				indicator: 'bg-foreground text-background',
-				trigger:
-					'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-background text-xs',
-			}" variant="pill">
+				v-model="areaMapMode"
+				class="w-fit"
+				color="neutral"
+				:content="false"
+				:items="areaMapModeItems"
+				:ui="{
+					list: 'bg-card rounded-lg p-1',
+					indicator: 'bg-foreground text-background',
+					trigger:
+						'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-background text-xs',
+				}"
+				variant="pill"
+			>
 			</UTabs>
 			<template v-if="areaMapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
 				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
-				<USlider v-model="radius" class="w-36" color="neutral" :max="20000" :min="3000" size="xs" :step="500">
+				<USlider
+					v-model="radius"
+					class="w-36"
+					color="neutral"
+					:max="20000"
+					:min="3000"
+					size="xs"
+					:step="500"
+				>
 				</USlider>
 				<span class="text-muted-foreground mr-4">{{ (radius / 1000).toFixed(1) }} km</span>
 			</template>
 		</div>
 		<div class="absolute top-4 left-4 z-20 flex gap-4 flex-col">
 			<div class="bg-card border border-border rounded-lg text-xs shadow-lg flex flex-col">
-				<UButton class="rounded-b-none aspect-square justify-center" color="neutral" variant="outline">
+				<UButton
+					class="rounded-b-none aspect-square justify-center"
+					color="neutral"
+					variant="outline"
+				>
 					<PlusIcon class="size-4"></PlusIcon>
 				</UButton>
-				<UButton class="rounded-t-none aspect-square justify-center" color="neutral" variant="outline">
+				<UButton
+					class="rounded-t-none aspect-square justify-center"
+					color="neutral"
+					variant="outline"
+				>
 					<MinusIcon class="size-4"></MinusIcon>
 				</UButton>
 			</div>
 			<label
-class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
-				:class="{ 'text-background bg-foreground hover:bg-foreground': showRegions }" for="showRegions"><span
-					class="sr-only">Toggle
-					Layers</span>
+				class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
+				:class="{ 'text-background bg-foreground hover:bg-foreground': showRegions }"
+				for="showRegions"
+				><span class="sr-only">Toggle Layers</span>
 				<LayersIcon class="size-4"></LayersIcon>
-				<UCheckbox id="showRegions" v-model="showRegions" class="size-0" indicator="hidden"></UCheckbox>
+				<UCheckbox
+					id="showRegions"
+					v-model="showRegions"
+					class="size-0"
+					indicator="hidden"
+				></UCheckbox>
 			</label>
 		</div>
 

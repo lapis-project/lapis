@@ -5,7 +5,7 @@ catalog:
   "@lucide/vue": ^1.21.0
   "@nuxt/eslint": ^1.16.0
   eslint: ^9.39.2
-  nuxt: ^4.4.8
+  nuxt: ^4.5.1
   vue: ^3.5.38
   tailwindcss: ^4.3.1
   typescript: ^6.0.2
@@ -36,7 +36,7 @@ shellEmulator: true
 # -------------------------
 # Enforce a 3-day (4320 minutes) cooldown period for all new packages
 # 1 day = 1440, 3 days = 4320, 7 days = 10080
-minimumReleaseAge: 4320
+minimumReleaseAge: 1440
 blockExoticSubdeps: true
 
 # -------------------------

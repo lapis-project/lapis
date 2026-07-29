@@ -30,7 +30,7 @@
 		"vaul-vue": "^0.4.1",
 		"vee-validate": "^4.15.1",
 		"vue": "catalog:",
-		"vue-router": "^5.0.3",
+		"vue-router": "^5.2.0",
 		"vue-sonner": "^2.0.9",
 		"zod": "^4.3.6"
 	},

@@ -26,8 +26,8 @@ export const regionPatterns: Array<RegionPattern> = [
 	},
 	{
 		id: "diag-2",
-		w: 4,
-		h: 4,
+		w: 6,
+		h: 6,
 		path: "M5,-1 l-6,6 M2,6 l6,-6 M-2,2 l4,-4",
 		color: "#bababa",
 	},
@@ -37,7 +37,7 @@ export const regionPatterns: Array<RegionPattern> = [
 	{ id: "grid", w: 8, h: 8, path: "M3,0 l0,6 M0,3 l6,0", color: "#565656" },
 	{ id: "zig", w: 6, h: 6, path: "M0,3 l3,-3 l3,3", color: "#9b9b9b" },
 	{ id: "wave", w: 8, h: 4, path: "M0,2 q2,-2 4,0 t4,0", color: "#bababa" },
-	{ id: "dots", w: 4, h: 4, circle: true, color: "#474747" },
+	{ id: "dots", w: 8, h: 8, circle: true, color: "#474747" },
 ];
 
 const patternsById = new Map(regionPatterns.map((p) => [p.id, p]));
@@ -58,7 +58,7 @@ const patternIdByRegion: Record<string, string> = {
 	Steiermark: "horiz",
 	Kärnten: "grid",
 	Tirol: "crosshatch",
-	Oberösterreich: "dots",
+	Oberösterreich: "diag-2",
 	Niederösterreich: "vert",
 };
 

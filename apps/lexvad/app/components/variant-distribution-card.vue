@@ -2,24 +2,32 @@
 import { VisDonut, VisSingleContainer } from "@unovis/vue";
 
 const props = defineProps<{
-	data: Array<{ label: string; value: number }>;
+	question: string;
+	variant: string;
 }>();
 
 const t = useTranslations();
-const mode = ref("region");
+const { getRegionsForVariant } = useQuestions();
+const mode = defineModel<"region" | "bundesland">("mode", { default: "region" });
 
 const modeItems = computed(() => [
 	{ label: t("VariantDistributionCard.dialectal-region"), value: "region" },
-	{ label: t("VariantDistributionCard.state"), value: "state" },
+	{ label: t("VariantDistributionCard.state"), value: "bundesland" },
 ]);
 
 const { getRegionPattern, getRegionPatternFill } = useColorStore();
 
-const color = (d: (typeof props.data)[0]) => getRegionPatternFill(d.label);
+const data = computed(() =>
+	Object.entries(getRegionsForVariant(props.question, props.variant, mode.value))
+		.sort((a, b) => b[1] - a[1])
+		.map(([label, value]) => ({ label, value })),
+);
+
+const color = (d: (typeof data.value)[0]) => getRegionPatternFill(d.label);
 
 const legendItems = computed(() => {
-	const total = props.data.reduce((sum, d) => sum + d.value, 0);
-	return props.data.map((d) => ({
+	const total = data.value.reduce((sum, d) => sum + d.value, 0);
+	return data.value.map((d) => ({
 		label: d.label,
 		value: total > 0 ? d.value / total : 0,
 		secondary: t("MapsPage.sidebar.places", d.value),

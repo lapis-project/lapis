@@ -1,20 +1,31 @@
 <script setup lang="ts">
 const props = defineProps<{
-	data: Array<{ label: string; entries: Array<{ label: string; value: number }> }>;
+	question: string;
 	colors: Record<string, string>;
 }>();
 
 const t = useTranslations();
-const mode = ref("region");
+const { getVariantsForRegion, allRegions, allBundeslaender } = useQuestions();
+const mode = defineModel<"region" | "bundesland">("mode", { default: "region" });
 
 const modeItems = computed(() => [
 	{ label: t("VariantDistributionCard.dialectal-region"), value: "region" },
-	{ label: t("VariantDistributionCard.state"), value: "state" },
+	{ label: t("VariantDistributionCard.state"), value: "bundesland" },
 ]);
+
+const data = computed(() => {
+	const keys = mode.value === "region" ? allRegions : allBundeslaender;
+	return keys.map((label) => ({
+		label,
+		entries: Object.entries(getVariantsForRegion(props.question, label, mode.value)).map(
+			([entryLabel, value]) => ({ label: entryLabel, value }),
+		),
+	}));
+});
 
 const orderedVariants = computed(() => {
 	const totals = new Map<string, number>();
-	for (const region of props.data) {
+	for (const region of data.value) {
 		for (const entry of region.entries) {
 			totals.set(entry.label, (totals.get(entry.label) ?? 0) + entry.value);
 		}
@@ -29,7 +40,7 @@ const legend = computed(() =>
 );
 
 const rows = computed(() =>
-	props.data
+	data.value
 		.map((region) => {
 			const values = new Map(region.entries.map((e) => [e.label, e.value]));
 			const total = region.entries.reduce((sum, e) => sum + e.value, 0);
@@ -41,7 +52,7 @@ const rows = computed(() =>
 					.filter((segment) => segment.value > 0),
 			};
 		})
-		.sort((a, b) => a.total - b.total),
+		.sort((a, b) => b.total - a.total),
 );
 </script>
 
@@ -78,10 +89,11 @@ const rows = computed(() =>
 					<div
 						v-for="segment in row.segments"
 						:key="segment.label"
-						class="h-full text-center text-white"
+						class="h-full text-center text-white content-center text-nowrap overflow-hidden px-1"
 						:style="{
 							width: `${(segment.value / row.total) * 100}%`,
 							backgroundColor: segment.color,
+							fontSize: '10px',
 						}"
 						:title="`${segment.label}: ${segment.value}`"
 					>

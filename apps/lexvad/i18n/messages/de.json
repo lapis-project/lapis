@@ -79,6 +79,11 @@
 			"area-map": "Flächenkarte",
 			"voronoi": "Voronoi",
 			"hexagon": "Hexagon",
+			"layers": {
+				"none": "Keine Ebenen",
+				"regions": "Dialektregionen",
+				"bundeslaender": "Bundesländer"
+			},
 			"compare": "Vergleichen",
 			"open-sidebar": "Details",
 			"close-split-view": "Geteilte Ansicht schließen"
@@ -132,7 +137,8 @@
 	"VariantOverviewCard": {
 		"title": "Varianten-Übersicht",
 		"regional-cooccurrences": "Regionale Kovorkommnisse",
-		"cooccurrences-subtitle": "Andere Varianten in denselben Regionen"
+		"cooccurrences-subtitle-region": "Andere Varianten in denselben Dialektzonen",
+		"cooccurrences-subtitle-bundesland": "Andere Varianten in denselben Bundesländern"
 	},
 	"VariantSelectionCard": {
 		"title": "Variante auswählen"

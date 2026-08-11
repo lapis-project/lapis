@@ -79,6 +79,11 @@
 			"area-map": "Area map",
 			"voronoi": "Voronoi",
 			"hexagon": "Hexagon",
+			"layers": {
+				"none": "No layers",
+				"regions": "Dialectal regions",
+				"bundeslaender": "Federal states"
+			},
 			"compare": "Compare",
 			"open-sidebar": "Details",
 			"close-split-view": "Close split view"
@@ -132,7 +137,8 @@
 	"VariantOverviewCard": {
 		"title": "Variant overview",
 		"regional-cooccurrences": "Regional Cooccurrences",
-		"cooccurrences-subtitle": "Other variants in the same regions"
+		"cooccurrences-subtitle-region": "Other variants in the same dialectal regions",
+		"cooccurrences-subtitle-bundesland": "Other variants in the same federal states"
 	},
 	"VariantSelectionCard": {
 		"title": "Select variant"

@@ -18,6 +18,7 @@ import { LayersIcon, MinusIcon, PlusIcon } from "@lucide/vue";
 import { featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map } from "maplibre-gl";
 
+import bundeslaenderJson from "@/assets/data/bundeslaender.json";
 import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import MapTooltip from "@/components/map-tooltip.vue";
 import { regionPatterns } from "@/stores/use-color-store";
@@ -28,6 +29,9 @@ import {
 } from "@/utils/region-pattern-atlas";
 
 const regions = regionsJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
+const bundeslaender = bundeslaenderJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
+
+type MapLayer = "none" | "regions" | "bundeslaender";
 
 interface MapDataType {
 	coordinates: [number, number];
@@ -163,39 +167,67 @@ const PATTERN_TILE_METERS = 10000;
 
 type RegionProperties = (typeof regions)["features"][0]["properties"];
 type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
-const showRegions = ref(false);
-function patternForFeature(feature: RegionFeature) {
-	return getRegionPattern(feature.properties?.Dialektregion_Name ?? "");
-}
+type BundeslandFeature = (typeof bundeslaender)["features"][0];
+const activeLayer = ref<MapLayer>("none");
 
-function createRegionsLayer() {
+function createPatternLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
+	id: string,
+	data: GeoJSON.FeatureCollection<GeoJSON.Polygon>,
+	getName: (feature: F) => string,
+) {
 	const atlas = patternAtlas;
+	const patternFor = (d: F) => getRegionPattern(getName(d));
 
-	const patternProps: Partial<FillStyleExtensionProps<RegionFeature>> = atlas
+	const patternProps: Partial<FillStyleExtensionProps<F>> = atlas
 		? {
-				fillPatternAtlas: atlas.url,
-				fillPatternMapping: atlas.mapping,
-				fillPatternMask: true,
-				getFillPattern: (d) => patternForFeature(d).id,
-				getFillPatternScale: (d) =>
-					PATTERN_TILE_METERS / (patternForFeature(d).w * PATTERN_RESOLUTION),
-			}
+			fillPatternAtlas: atlas.url,
+			fillPatternMapping: atlas.mapping,
+			fillPatternMask: true,
+			getFillPattern: (d) => patternFor(d).id,
+			getFillPatternScale: (d) => PATTERN_TILE_METERS / (patternFor(d).w * PATTERN_RESOLUTION),
+		}
 		: {};
 
-	const layerProps: GeoJsonLayerProps<RegionProperties> &
-		Partial<FillStyleExtensionProps<RegionFeature>> = {
-		id: "regionLayer",
-		data: regions,
+	const layerProps: GeoJsonLayerProps & Partial<FillStyleExtensionProps<F>> = {
+		id,
+		data,
 		filled: atlas !== null,
 		stroked: true,
 		lineWidthMinPixels: 1,
-		getFillColor: (d) => hexToRgb(patternForFeature(d as RegionFeature).color, 100),
-		getLineColor: (d) => hexToRgb(patternForFeature(d as RegionFeature).color, 220),
+		getFillColor: (d) => hexToRgb(patternFor(d as F).color, 100),
+		getLineColor: (d) => hexToRgb(patternFor(d as F).color, 220),
 		extensions: atlas ? [new FillStyleExtension({ pattern: true })] : [],
 		...patternProps,
 	};
 
 	return new GeoJsonLayer(layerProps);
+}
+
+function createRegionsLayer() {
+	return createPatternLayer<RegionFeature>(
+		"regionLayer",
+		regions,
+		(d) => d.properties?.Dialektregion_Name ?? "",
+	);
+}
+
+function createBundeslaenderLayer() {
+	return createPatternLayer<BundeslandFeature>(
+		"bundeslaenderLayer",
+		bundeslaender,
+		(d) => d.properties?.name ?? "",
+	);
+}
+
+function createOverlayLayers() {
+	switch (activeLayer.value) {
+		case "regions":
+			return [createRegionsLayer()];
+		case "bundeslaender":
+			return [createBundeslaenderLayer()];
+		default:
+			return [];
+	}
 }
 
 function createMaskLayer() {
@@ -209,17 +241,17 @@ function createMaskLayer() {
 }
 
 function createLayers() {
-	const regionsLayer = showRegions.value ? [createRegionsLayer()] : [];
+	const overlayLayers = createOverlayLayers();
 	if (props.mode === "point") {
-		return [...regionsLayer, createScatterplotLayer()];
+		return [...overlayLayers, createScatterplotLayer()];
 	}
 	switch (areaMapMode.value) {
 		case "hexagon":
-			return [createMaskLayer(), ...regionsLayer, createHexagonLayer()];
+			return [createMaskLayer(), ...overlayLayers, createHexagonLayer()];
 		case "voronoi":
 			return [
 				createMaskLayer(),
-				...regionsLayer,
+				...overlayLayers,
 				createVoronoiLayer(),
 				createScatterplotLayer(true),
 			];
@@ -297,7 +329,7 @@ onMounted(() => {
 });
 
 watch(
-	() => [props.data, props.mode, radius.value, showRegions.value, areaMapMode.value],
+	() => [props.data, props.mode, radius.value, activeLayer.value, areaMapMode.value],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},
@@ -316,85 +348,72 @@ const areaMapModeItems = [
 	{ label: t("MapsPage.controls.voronoi"), value: "voronoi", icon: "i-gis-polygon-o" },
 	{ label: t("MapsPage.controls.hexagon"), value: "hexagon", icon: "i-lucide-hexagon" },
 ];
+
+const layerItems = computed(() =>
+	(
+		[
+			{ value: "none", icon: "i-lucide-eye-off" },
+			{ value: "regions", icon: "i-lucide-shapes" },
+			{ value: "bundeslaender", icon: "i-lucide-map" },
+		] as const
+	).map((item) => ({
+		label: t(`MapsPage.controls.layers.${item.value}`),
+		icon: item.icon,
+		type: "checkbox" as const,
+		checked: activeLayer.value === item.value,
+		onUpdateChecked() {
+			activeLayer.value = item.value;
+		},
+	})),
+);
 </script>
 
 <template>
 	<div class="relative size-full">
 		<div
-			v-if="mode === 'area'"
-			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg"
-		>
+v-if="mode === 'area'"
+			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg">
 			<UTabs
-				v-model="areaMapMode"
-				class="w-fit"
-				color="neutral"
-				:content="false"
-				:items="areaMapModeItems"
-				:ui="{
-					list: 'bg-card rounded-lg p-1',
-					indicator: 'bg-foreground text-background',
-					trigger:
-						'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-background text-xs',
-				}"
-				variant="pill"
-			>
+v-model="areaMapMode" class="w-fit" color="neutral" :content="false" :items="areaMapModeItems" :ui="{
+				list: 'bg-card rounded-lg p-1',
+				indicator: 'bg-foreground text-background',
+				trigger:
+					'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-background text-xs',
+			}" variant="pill">
 			</UTabs>
 			<template v-if="areaMapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
 				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
-				<USlider
-					v-model="radius"
-					class="w-36"
-					color="neutral"
-					:max="20000"
-					:min="3000"
-					size="xs"
-					:step="500"
-				>
+				<USlider v-model="radius" class="w-36" color="neutral" :max="20000" :min="3000" size="xs" :step="500">
 				</USlider>
 				<span class="text-muted-foreground mr-4">{{ (radius / 1000).toFixed(1) }} km</span>
 			</template>
 		</div>
 		<div class="absolute top-4 left-4 z-20 flex gap-4 flex-col">
 			<div class="bg-card border border-border rounded-lg text-xs shadow-lg flex flex-col">
-				<UButton
-					class="rounded-b-none aspect-square justify-center"
-					color="neutral"
-					variant="outline"
-				>
+				<UButton class="rounded-b-none aspect-square justify-center" color="neutral" variant="outline">
 					<PlusIcon class="size-4"></PlusIcon>
 				</UButton>
-				<UButton
-					class="rounded-t-none aspect-square justify-center"
-					color="neutral"
-					variant="outline"
-				>
+				<UButton class="rounded-t-none aspect-square justify-center" color="neutral" variant="outline">
 					<MinusIcon class="size-4"></MinusIcon>
 				</UButton>
 			</div>
-			<label
-				class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
-				:class="{ 'text-background bg-foreground hover:bg-foreground': showRegions }"
-				for="showRegions"
-				><span class="sr-only">Toggle Layers</span>
-				<LayersIcon class="size-4"></LayersIcon>
-				<UCheckbox
-					id="showRegions"
-					v-model="showRegions"
-					class="size-0"
-					indicator="hidden"
-				></UCheckbox>
-			</label>
+			<UDropdownMenu :content="{ align: 'start', side: 'right' }" :items="layerItems" :modal="false">
+				<button
+class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
+					:class="{ 'text-background bg-foreground hover:bg-foreground': activeLayer !== 'none' }" type="button">
+					<span class="sr-only">Toggle Layers</span>
+					<LayersIcon class="size-4"></LayersIcon>
+				</button>
+			</UDropdownMenu>
 		</div>
 
 		<div ref="mapContainer" class="size-full absolute inset-0"></div>
 		<canvas ref="deckCanvas" class="size-full absolute inset-0"></canvas>
 
 		<MapTooltip
-			v-if="tooltip"
+v-if="tooltip"
 			class="absolute z-30 pointer-events-none max-w-xs -translate-x-1/2 -translate-y-[calc(100%+12px)]"
-			:entry="tooltip.entry"
-			:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
-		/>
+			:entry="tooltip.entry" :style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }" />
 	</div>
 </template>

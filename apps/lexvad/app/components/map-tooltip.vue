@@ -8,12 +8,11 @@ const multipleEntries = computed(() => (props.entry?.Variante?.split(";")?.lengt
 
 <template>
 	<UCard
-		:ui="{
-			root: 'divide-none min-w-42 bg-background/95',
-			body: 'p-3 sm:p-3',
-			header: 'p-3 text-sm text-left sm:p-3 pb-0 sm:pb-0',
-		}"
-	>
+:ui="{
+		root: 'divide-none min-w-42 bg-background/95',
+		body: 'p-3 sm:p-3',
+		header: 'p-3 text-sm text-left sm:p-3 pb-0 sm:pb-0',
+	}">
 		<template #header>
 			<span class="font-semibold">{{ entry?.Ort }}</span>
 		</template>
@@ -26,7 +25,7 @@ const multipleEntries = computed(() => (props.entry?.Variante?.split(";")?.lengt
 			<span class="text-xs font-serif tracking-wider">{{ entry?.Variante }} </span>
 
 			<span class="text-muted mt-1">Bundesland: </span>
-			<span class="text-xs mt-1">{{ entry?.region }}</span>
+			<span class="text-xs mt-1">{{ entry?.bundesland }}</span>
 
 			<span class="text-muted">Kreis: </span>
 			<span class="text-xs">{{ entry?.Kreis }}</span>

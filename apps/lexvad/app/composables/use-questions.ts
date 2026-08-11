@@ -1,5 +1,6 @@
-import { booleanContains, point } from "@turf/turf";
+import { booleanPointInPolygon, point } from "@turf/turf";
 
+import bundeslaender from "@/assets/data/bundeslaender.json";
 import regions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import _data from "@/assets/data/DWA_Pilot_Variablen.json";
 
@@ -7,8 +8,11 @@ const _regularData = _data.map((entry) => {
 	const p = point([Number(entry.Longitude), Number(entry.Latitude)]);
 	return {
 		...entry,
-		region: regions.features.find((region) => booleanContains(region.geometry as never, p))
+		region: regions.features.find((region) => booleanPointInPolygon(p, region.geometry as never))
 			?.properties.Dialektregion_Name,
+		bundesland: bundeslaender.features.find((region) =>
+			booleanPointInPolygon(p, region.geometry as never),
+		)?.properties.name,
 	};
 });
 
@@ -21,8 +25,11 @@ function _createShiftedPointFromEntry(entry: (typeof _data)[0], dLong: number, d
 	const p = point([Number(clonedEntry.Longitude), Number(clonedEntry.Latitude)]);
 	return {
 		...clonedEntry,
-		region: regions.features.find((region) => booleanContains(region.geometry as never, p))
+		region: regions.features.find((region) => booleanPointInPolygon(p, region.geometry as never))
 			?.properties.Dialektregion_Name,
+		bundesland: bundeslaender.features.find((region) =>
+			booleanPointInPolygon(p, region.geometry as never),
+		)?.properties.name,
 	};
 }
 
@@ -42,6 +49,9 @@ export type PilotDataType = (typeof data)[0];
 
 const allQuestions = [...new Set(data.map((entry) => entry.Item))];
 const allRegions = [...new Set(data.map((entry) => entry.region).filter((r) => r !== undefined))];
+const allBundeslaender = [
+	...new Set(data.map((entry) => entry.bundesland).filter((b) => b !== undefined)),
+];
 
 function filterDataByQuestionAndVariant(question: string, variant?: string) {
 	return data
@@ -79,11 +89,13 @@ function getNotationsForVariant(question: string, variant: string) {
 	);
 }
 
-function getRegionsForVariant(question: string, variant: string): Record<string, number> {
+function getRegionsForVariant(
+	question: string,
+	variant: string,
+	key: "region" | "bundesland",
+): Record<string, number> {
 	const matchingEntries = filterDataByQuestionAndVariant(question, variant);
-	const matchingRegions = matchingEntries
-		.map((entry) => entry.region)
-		.filter((r) => r !== undefined);
+	const matchingRegions = matchingEntries.map((entry) => entry[key]).filter((r) => r !== undefined);
 	return Object.fromEntries(
 		[...new Set(matchingRegions)].map((entry) => [
 			entry,
@@ -92,11 +104,15 @@ function getRegionsForVariant(question: string, variant: string): Record<string,
 	);
 }
 
-function getRegionalCooccurrencesForVariant(question: string, variant: string) {
+function getRegionalCooccurrencesForVariant(
+	question: string,
+	variant: string,
+	key: "region" | "bundesland",
+) {
 	const matchingEntries = filterDataByQuestionAndVariant(question, variant);
-	const matchingRegions = new Set(matchingEntries.map((entry) => entry.region));
+	const matchingRegions = new Set(matchingEntries.map((entry) => entry[key]));
 	const cooccurrences = filterDataByQuestionAndVariant(question)
-		.filter((entry) => matchingRegions.has(entry.region))
+		.filter((entry) => matchingRegions.has(entry[key]))
 		.flatMap((entry) => entry.variants)
 		.filter((v) => v !== variant);
 	return Object.fromEntries(
@@ -107,9 +123,9 @@ function getRegionalCooccurrencesForVariant(question: string, variant: string) {
 	);
 }
 
-function getVariantsForRegion(question: string, region: string) {
+function getVariantsForRegion(question: string, region: string, key: "region" | "bundesland") {
 	const matchingEntries = filterDataByQuestionAndVariant(question).filter(
-		(entry) => entry.region === region,
+		(entry) => entry[key] === region,
 	);
 	const matchingVariants = matchingEntries.flatMap((entry) => entry.variants);
 	return Object.fromEntries(
@@ -124,6 +140,7 @@ export function useQuestions() {
 	return {
 		allQuestions,
 		allRegions,
+		allBundeslaender,
 		getValuesForQuestion,
 		countAnswersForQuestion,
 		getNotationsForVariant,

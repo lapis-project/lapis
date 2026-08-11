@@ -8,10 +8,7 @@ const {
 	countAnswersForQuestion,
 	getValuesForQuestion,
 	getNotationsForVariant,
-	getRegionsForVariant,
 	getRegionalCooccurrencesForVariant,
-	getVariantsForRegion,
-	allRegions,
 } = useQuestions();
 const { getColorsForQuestion } = useColorStore();
 
@@ -20,6 +17,7 @@ const props = defineProps<{
 	activeVariant: string;
 }>();
 const selectedVariant = toRef(props.activeVariant);
+const distributionMode = ref<"region" | "bundesland">("region");
 
 const variantCount = computed(() => {
 	return countAnswersForQuestion(props.activeQuestion ?? "")
@@ -36,29 +34,11 @@ const notations = computed(() => [
 	...new Set(getNotationsForVariant(props.activeQuestion, selectedVariant.value)),
 ]);
 
-const regionsForVariant = computed(() => {
-	return Object.entries(getRegionsForVariant(props.activeQuestion, selectedVariant.value))
-		.sort((a, b) => b[1] - a[1])
-		.map((entry) => ({
-			label: entry[0],
-			value: entry[1],
-		}));
-});
-
-const regions = computed(() => {
-	return allRegions.map((entry) => ({
-		label: entry,
-		entries: Object.entries(getVariantsForRegion(props.activeQuestion, entry)).map((e) => ({
-			label: e[0],
-			value: e[1],
-		})),
-	}));
-});
-
 const cooccurrences = computed(() => {
 	const regionalCooccurrences = getRegionalCooccurrencesForVariant(
 		props.activeQuestion,
 		selectedVariant.value,
+		distributionMode.value,
 	);
 	const total = Object.values(regionalCooccurrences).reduce((a, b) => a + b, 0);
 	return Object.entries(regionalCooccurrences)
@@ -82,30 +62,56 @@ const tabItems = computed(() => [
 </script>
 
 <template>
-	<USidebar collapsible="offcanvas" :open="open" side="right"
-		:ui="{ header: 'pb-0', body: 'p-0  mb-(--ui-header-height)', container: 'h-full top-(--ui-header-height)', root: ['[--sidebar-width:25rem]'] }"
-		variant="sidebar">
+	<USidebar
+		collapsible="offcanvas"
+		:open="open"
+		side="right"
+		:ui="{
+			header: 'pb-0',
+			body: 'p-0  mb-(--ui-header-height)',
+			container: 'h-full top-(--ui-header-height)',
+			root: ['[--sidebar-width:25rem]'],
+		}"
+		variant="sidebar"
+	>
 		<template #header>
 			<div class="flex flex-row items-center justify-between w-full">
 				<span class="uppercase font-semibold text-sm">
 					{{ t("MapsPage.sidebar.labels.data-insights") }}
 				</span>
-				<UButton class="size-6 p-1 m-1 text-muted-foreground" variant="ghost" @click="() => { open = false }">
+				<UButton
+					class="size-6 p-1 m-1 text-muted-foreground"
+					variant="ghost"
+					@click="
+						() => {
+							open = false;
+						}
+					"
+				>
 					<X></X>
 				</UButton>
 			</div>
 		</template>
 
-		<UTabs class="w-full" default-value="phenomenon" :items="tabItems" :ui="{
-			list: 'w-full border-b border-border',
-			label: 'text-wrap',
-			trigger:
-				'flex-1 uppercase text-xs font-semibold tracking-wide leading-tight',
-		}" variant="link">
+		<UTabs
+			class="w-full"
+			default-value="phenomenon"
+			:items="tabItems"
+			:ui="{
+				list: 'w-full border-b border-border',
+				label: 'text-wrap',
+				trigger: 'flex-1 uppercase text-xs font-semibold tracking-wide leading-tight',
+			}"
+			variant="link"
+		>
 			<template #phenomenon>
 				<div class="p-2 flex flex-col gap-4">
-					<SelectedPhenomenonCard class="w-full" :count="answerCount" :phenomenon="activeQuestion"
-						:variants="variantCount.length"></SelectedPhenomenonCard>
+					<SelectedPhenomenonCard
+						class="w-full"
+						:count="answerCount"
+						:phenomenon="activeQuestion"
+						:variants="variantCount.length"
+					></SelectedPhenomenonCard>
 					<VariantOverviewCard class="w-full" :colors="colors" :data="variantCount">
 					</VariantOverviewCard>
 					<CategoryCard class="w-full"></CategoryCard>
@@ -113,23 +119,45 @@ const tabItems = computed(() => [
 			</template>
 			<template #variant>
 				<div class="p-2 flex flex-col gap-4">
-					<SelectedVariantCard class="w-full" :color="colors[selectedVariant] ?? ''"
-						:count="activeVariantCount" :notations="notations.length" :variant="selectedVariant">
+					<SelectedVariantCard
+						class="w-full"
+						:color="colors[selectedVariant] ?? ''"
+						:count="activeVariantCount"
+						:notations="notations.length"
+						:variant="selectedVariant"
+					>
 					</SelectedVariantCard>
 					<VariantSelectionCard v-model="selectedVariant" :colors="colors" :data="variantCount">
 					</VariantSelectionCard>
-					<VariantDistributionCard :data="regionsForVariant"></VariantDistributionCard>
+					<VariantDistributionCard
+						v-model:mode="distributionMode"
+						:question="activeQuestion"
+						:variant="selectedVariant"
+					>
+					</VariantDistributionCard>
 
-					<VariantOverviewCard class="w-full" :colors="colors" :data="cooccurrences"
-						:subtitle="t('VariantOverviewCard.cooccurrences-subtitle')"
-						:title="t('VariantOverviewCard.regional-cooccurrences')"></VariantOverviewCard>
+					<VariantOverviewCard
+						class="w-full"
+						:colors="colors"
+						:data="cooccurrences"
+						:subtitle="t(`VariantOverviewCard.cooccurrences-subtitle-${distributionMode}`)"
+						:title="t('VariantOverviewCard.regional-cooccurrences')"
+					></VariantOverviewCard>
 				</div>
 			</template>
 			<template #region>
 				<div class="p-2 flex flex-col gap-4">
-					<SelectedPhenomenonCard class="w-full" :count="answerCount" :phenomenon="activeQuestion"
-						:variants="variantCount.length"></SelectedPhenomenonCard>
-					<RegionDistributionCard :colors="colors" :data="regions" :question="activeQuestion">
+					<SelectedPhenomenonCard
+						class="w-full"
+						:count="answerCount"
+						:phenomenon="activeQuestion"
+						:variants="variantCount.length"
+					></SelectedPhenomenonCard>
+					<RegionDistributionCard
+						v-model:mode="distributionMode"
+						:colors="colors"
+						:question="activeQuestion"
+					>
 					</RegionDistributionCard>
 					<CategoryCard class="w-full"></CategoryCard>
 				</div>

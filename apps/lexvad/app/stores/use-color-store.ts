@@ -35,7 +35,7 @@ export const regionPatterns: Array<RegionPattern> = [
 	{ id: "vert", w: 4, h: 4, path: "M2,0 l0,4", color: "#9b9b9b" },
 	{ id: "horiz", w: 4, h: 4, path: "M0,2 l4,0", color: "#666666" },
 	{ id: "grid", w: 8, h: 8, path: "M3,0 l0,6 M0,3 l6,0", color: "#565656" },
-	{ id: "zig", w: 6, h: 6, path: "M0,3 l3,-3 l3,3", color: "#d8d8d8" },
+	{ id: "zig", w: 6, h: 6, path: "M0,3 l3,-3 l3,3", color: "#9b9b9b" },
 	{ id: "wave", w: 8, h: 4, path: "M0,2 q2,-2 4,0 t4,0", color: "#bababa" },
 	{ id: "dots", w: 4, h: 4, circle: true, color: "#474747" },
 ];
@@ -43,12 +43,23 @@ export const regionPatterns: Array<RegionPattern> = [
 const patternsById = new Map(regionPatterns.map((p) => [p.id, p]));
 
 const patternIdByRegion: Record<string, string> = {
+	// Dialektregionen
 	Alemannisch: "diag-1",
 	"Bairisch-Alemannisch": "dots",
 	Westmittelbairisch: "crosshatch",
 	Ostmittelbairisch: "vert",
 	Südmittelbairisch: "horiz",
 	Südbairisch: "grid",
+	// Bundesländer
+	Wien: "dots",
+	Vorarlberg: "zig",
+	Burgenland: "diag-1",
+	Salzburg: "wave",
+	Steiermark: "horiz",
+	Kärnten: "grid",
+	Tirol: "crosshatch",
+	Oberösterreich: "dots",
+	Niederösterreich: "vert",
 };
 
 function hash(value: string) {

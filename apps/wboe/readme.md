@@ -6,8 +6,8 @@ This is the frontend repository for the LIÖ project.
 
 prerequisites:
 
-- [node.js >=24.11](https://nodejs.org/en/download)
-- [pnpm >=11.4](https://pnpm.io/installation)
+- [node.js >=24.19](https://nodejs.org/en/download)
+- [pnpm >=11.13](https://pnpm.io/installation)
 
 set required environment variables in `.env.dev.local` (development) and `.env.prod.local`
 (production):

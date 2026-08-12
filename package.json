@@ -8,14 +8,14 @@
 	"devEngines": {
 		"runtime": {
 			"name": "node",
-			"version": ">=24.11.0",
+			"version": ">=24.19.0",
 			"onFail": "download"
 		}
 	},
 	"engines": {
 		"runtime": {
 			"name": "node",
-			"version": "^26.3.1",
+			"version": "^24.18.0",
 			"onFail": "download"
 		}
 	},
@@ -41,7 +41,6 @@
 		"dev:wboe": "pnpm -F wboe dev",
 		"dev-test:backend": "pnpm -F backend dev-test",
 		"dev-local:corpus": "pnpm -F corpus dev-local",
-		"dev-local:lexat": "pnpm -F lexat dev-local",
 		"dev-local:lexvad": "pnpm -F lexvad dev-local",
 		"dev-local:lioe": "pnpm -F lioe dev-local",
 		"dev-local:wboe": "pnpm -F wboe dev-local",

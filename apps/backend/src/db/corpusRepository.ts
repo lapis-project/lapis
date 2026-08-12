@@ -53,7 +53,7 @@ export async function getAllTranscripts(
 
 	return await query
 		.select(({ eb, fn }) => [
-			eb.ref("survey_conducted.comment").as("survey_conducted_comment"),
+			eb.ref("survey_conducted.comment").as("transcript_name"),
 			eb.ref("survey_conducted.conducted_on").as("conducted_on"),
 			eb.ref("survey_conducted.instance_id").as("instance_id"),
 			eb.ref("survey.id").as("survey_id"),

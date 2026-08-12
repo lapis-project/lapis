@@ -3,12 +3,12 @@ const t = useTranslations();
 </script>
 
 <template>
-	<div class="grid min-h-full grid-rows-[auto_1fr_auto]">
+	<div >
 		<SkipLink target-id="main-content">{{ t("DefaultLayout.skip-to-main-content") }}</SkipLink>
 
-		<AppHeader class="fixed top-0 left-0 right-0" />
-		<ErrorBoundary>
-			<slot />
-		</ErrorBoundary>
+		<AppHeader/>
+		<UMain id="main-content" :tabindex="-1" :ui="{ base: 'flex-1 min-h-0 overflow-y-auto container mx-auto' }">
+			<NuxtPage />
+		</UMain>
 	</div>
 </template>

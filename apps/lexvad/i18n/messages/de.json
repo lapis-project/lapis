@@ -5,6 +5,10 @@
 		},
 		"navigation-main": "Hauptnavigation"
 	},
+	"CategoryCard": {
+		"category": "Kategorie",
+		"noun": "Nomen"
+	},
 	"Clipboard": {
 		"copy": "Kopieren",
 		"copied": "Kopiert",
@@ -57,6 +61,43 @@
 		"short-name": "LexVAD",
 		"description": "Sample description"
 	},
+	"MapsPage": {
+		"selection": {
+			"variable": {
+				"title": "Phänomen",
+				"placeholder": "Phänomen",
+				"tooltip": "Abgefragtes Konzept"
+			},
+			"variants": {
+				"title": "Varianten",
+				"placeholder": "Varianten",
+				"tooltip": "Normalisierte Antworttypen"
+			}
+		},
+		"controls": {
+			"point-map": "Punktkarte",
+			"area-map": "Flächenkarte",
+			"voronoi": "Voronoi",
+			"hexagon": "Hexagon",
+			"layers": {
+				"none": "Keine Ebenen",
+				"regions": "Dialektregionen",
+				"bundeslaender": "Bundesländer"
+			},
+			"compare": "Vergleichen",
+			"open-sidebar": "Details",
+			"close-split-view": "Geteilte Ansicht schließen"
+		},
+		"sidebar": {
+			"variable": "Phänomen",
+			"variant": "Variante",
+			"region": "Dialektaler Raum",
+			"places": "{n} Ort | {n} Orte",
+			"labels": {
+				"data-insights": "Dateneinblicke"
+			}
+		}
+	},
 	"MobileAlert": {
 		"title": "Hinweis",
 		"text": "Dieser Bereich der Website ist nicht für die Nutzung auf Smartphones ausgelegt."
@@ -66,6 +107,16 @@
 			"title": "Seite nicht gefunden"
 		},
 		"title": "Seite nicht gefunden"
+	},
+	"SelectedPhenomenonCard": {
+		"title": "Ausgewähltes Phänomen",
+		"forms": "Bögen",
+		"variants": "Varianten"
+	},
+	"SelectedVariantCard": {
+		"title": "Ausgewählte Variante",
+		"mentions": "Nennungen",
+		"notations": "Schreibweisen"
 	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
@@ -77,5 +128,19 @@
 		"logout": "Ausloggen",
 		"profile": "Profil",
 		"settings": "Einstellungen"
+	},
+	"VariantDistributionCard": {
+		"title": "Verteilung nach",
+		"dialectal-region": "Dialektzone",
+		"state": "Bundesland"
+	},
+	"VariantOverviewCard": {
+		"title": "Varianten-Übersicht",
+		"regional-cooccurrences": "Regionale Kovorkommnisse",
+		"cooccurrences-subtitle-region": "Andere Varianten in denselben Dialektzonen",
+		"cooccurrences-subtitle-bundesland": "Andere Varianten in denselben Bundesländern"
+	},
+	"VariantSelectionCard": {
+		"title": "Variante auswählen"
 	}
 }

@@ -1,88 +1,38 @@
 <script lang="ts" setup>
-import { Menu, XIcon } from "@lucide/vue";
-
-import type { NuxtLinkProps } from "#app";
 
 const t = useTranslations();
 
-const drawerOpen = ref<boolean>(false);
-
 const links = computed(() => {
 	// TODO add i18n messages when navigation is fixated
-	return {
-		about: { to: { path: "/about" }, label: "Über das Projekt" },
-	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
-});
-
-const mobileLinks = computed(() => {
-	return {
-		home: { to: { path: "/" }, label: t("AppHeader.links.home") },
-		...links.value,
-	};
+	return [
+		{ to: "/", label: t("AppHeader.links.home"), class: "lg:hidden uppercase text-foreground" },
+		{ to: "/about", label: "Über das Projekt", class: "uppercase text-foreground" },
+		{ to: "/map", label: "Kartierung", class: "uppercase text-foreground" },
+ ];
 });
 </script>
 
 <template>
-	<header class="container border-b">
-		<div class="flex h-16 items-center justify-between gap-4 py-4">
-			<Drawer v-model:open="drawerOpen">
-				<DrawerTrigger class="lg:hidden">
-					<ClientOnly>
-						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline"
-							><component :is="drawerOpen ? XIcon : Menu" class="size-4"
-						/></Button>
-					</ClientOnly>
-				</DrawerTrigger>
-				<DrawerContent>
-					<DrawerHeader>
-						<DrawerTitle>Navigation</DrawerTitle>
-					</DrawerHeader>
-					<DrawerFooter>
-						<DrawerClose>
-							<nav :aria-label="t('AppHeader.navigation-main')" class="pb-12">
-								<ul class="flex flex-col" role="list">
-									<li
-										v-for="(link, key) of mobileLinks"
-										:key="key"
-										class="border-b p-3 last:border-none"
-									>
-										<NuxtLinkLocale
-											class="uppercase"
-											exact-active-class="underline underline-offset-2"
-											:to="link.to"
-										>
-											{{ link.label }}
-										</NuxtLinkLocale>
-									</li>
-								</ul>
-							</nav>
-						</DrawerClose>
-					</DrawerFooter>
-				</DrawerContent>
-			</Drawer>
+	<UHeader toggle-side="left">
+		<template #left>
+			<LapisBrandWrapper class="hidden lg:block">
+				<ULink raw to="/">
+					<span class="text-3xl font-serif">LexVAD20</span>
+				</ULink>
+			</LapisBrandWrapper>
+		</template>
 
-			<NuxtLinkLocale class="hidden lg:block" to="/">
-				<!-- TODO: insert LexVAD Logo -->
-			</NuxtLinkLocale>
-			<!-- <img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" /> -->
-			<nav :aria-label="t('AppHeader.navigation-main')" class="hidden lg:block">
-				<ul class="flex items-center gap-4" role="list">
-					<li v-for="(link, key) of links" :key="key">
-						<NuxtLinkLocale
-							class="uppercase"
-							exact-active-class="underline underline-offset-2"
-							:to="link.to"
-						>
-							{{ link.label }}
-						</NuxtLinkLocale>
-					</li>
-				</ul>
-			</nav>
+		<UNavigationMenu :items="links" variant="link" :highlight="true" :highlight-color="'primary'"/>
 
-			<div class="relative flex items-center gap-4">
+		<template #right>
+			<ClientOnly>
 				<ColorSchemeSwitcher />
-				<LocaleSwitcher />
-			</div>
-		</div>
-	</header>
+			</ClientOnly>
+			<LocaleSwitcher />
+		</template>
+
+		<template #body>
+			<UNavigationMenu class="-mx-2.5" :items="links" orientation="vertical" />
+		</template>
+	</UHeader>
 </template>

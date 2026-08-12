@@ -49,7 +49,7 @@ function goToHome() {
 		</template>
 
 		<div>
-			<Button @click="goToHome">{{ t("ErrorPage.go-to-home") }}</Button>
+			<UButton @click="goToHome">{{ t("ErrorPage.go-to-home") }}</UButton>
 		</div>
 	</MainContent>
 </template>

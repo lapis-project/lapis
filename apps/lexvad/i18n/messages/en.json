@@ -5,6 +5,10 @@
 		},
 		"navigation-main": "Main"
 	},
+	"CategoryCard": {
+		"category": "Category",
+		"noun": "Noun"
+	},
 	"Clipboard": {
 		"copy": "Copy",
 		"copied": "Copied",
@@ -57,6 +61,43 @@
 		"short-name": "LexVAD",
 		"description": "Sample description"
 	},
+	"MapsPage": {
+		"selection": {
+			"variable": {
+				"title": "Phenomenon",
+				"placeholder": "Phenomenon",
+				"tooltip": "Concept in question"
+			},
+			"variants": {
+				"title": "Variants",
+				"placeholder": "variants",
+				"tooltip": "Normalised answers"
+			}
+		},
+		"controls": {
+			"point-map": "Point map",
+			"area-map": "Area map",
+			"voronoi": "Voronoi",
+			"hexagon": "Hexagon",
+			"layers": {
+				"none": "No layers",
+				"regions": "Dialectal regions",
+				"bundeslaender": "Federal states"
+			},
+			"compare": "Compare",
+			"open-sidebar": "Details",
+			"close-split-view": "Close split view"
+		},
+		"sidebar": {
+			"variable": "Phenomenon",
+			"variant": "Variant",
+			"region": "Dialectal region",
+			"places": "{n} Place | {n} Places",
+			"labels": {
+				"data-insights": "Data insights"
+			}
+		}
+	},
 	"MobileAlert": {
 		"title": "Please note",
 		"text": "This area of the website is not designed for use on smartphones."
@@ -66,6 +107,16 @@
 			"title": "Page not found"
 		},
 		"title": "Page not found"
+	},
+	"SelectedPhenomenonCard": {
+		"title": "Selected phenomenon",
+		"forms": "Forms",
+		"variants": "Variants"
+	},
+	"SelectedVariantCard": {
+		"title": "Selected variant",
+		"mentions": "mentions",
+		"notations": "notations"
 	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
@@ -77,5 +128,19 @@
 		"logout": "Log out",
 		"profile": "Profile",
 		"settings": "Settings"
+	},
+	"VariantDistributionCard": {
+		"title": "Distribution per",
+		"dialectal-region": "Dialectal region",
+		"state": "Federal state"
+	},
+	"VariantOverviewCard": {
+		"title": "Variant overview",
+		"regional-cooccurrences": "Regional Cooccurrences",
+		"cooccurrences-subtitle-region": "Other variants in the same dialectal regions",
+		"cooccurrences-subtitle-bundesland": "Other variants in the same federal states"
+	},
+	"VariantSelectionCard": {
+		"title": "Select variant"
 	}
 }

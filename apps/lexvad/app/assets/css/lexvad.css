@@ -1,4 +1,6 @@
-@import "tailwindcss" source("../../../../shadcn/app/assets/css");
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 @theme {
 	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
@@ -46,7 +48,7 @@
 	--muted-foreground: oklch(55.6% 0 0deg);
 	--popover: oklch(100% 0 0deg);
 	--popover-foreground: oklch(14.5% 0 0deg);
-	--card: oklch(100% 0 0deg);
+	--card: oklch(98.42% 0.003 247.86deg);
 	--card-foreground: oklch(14.5% 0 0deg);
 	--border: oklch(92.2% 0 0deg);
 	--input: oklch(92.2% 0 0deg);
@@ -60,6 +62,7 @@
 	--destructive-foreground: oklch(57.7% 0.245 27.325deg);
 	--ring: oklch(70.8% 0 0deg);
 	--radius: 0.5rem;
+	--sidebar: transparent;
 }
 
 .dark {

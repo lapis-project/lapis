@@ -34,7 +34,7 @@ run a development server from the root folder on [http://localhost:3000](http://
 pnpm dev:lexat
 # dev server against local backend
 pnpm dev:backend
-pnpm dev-local:lexat
+pnpm dev:lexat
 ```
 
 build the application:

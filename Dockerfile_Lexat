@@ -4,7 +4,7 @@
 # @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
 
 # ---- Build Stage ----
-FROM node:24.11-alpine AS build
+FROM node:24.19-alpine AS build
 
 # Enable pnpm via Corepack, Node's built-in package manager handler
 RUN corepack enable
@@ -22,7 +22,6 @@ COPY --chown=node:node .npmrc ./
 
 # Copy the package.json for all workspaces in the monorepo.
 COPY --chown=node:node apps/backend/package.json ./apps/backend/
-COPY --chown=node:node apps/corpus/package.json ./apps/corpus/
 COPY --chown=node:node apps/lexat/package.json ./apps/lexat/
 COPY --chown=node:node apps/shadcn/package.json ./apps/shadcn/
 
@@ -53,7 +52,7 @@ RUN pnpm run -F lexat build
 
 # ---- Serve Stage ----
 # This is the final, minimal image that will run in production.
-FROM node:24.11-alpine AS serve
+FROM node:24.19-alpine AS serve
 
 # Create and set up the same non-root user and working directory
 RUN mkdir /app && chown -R node:node /app

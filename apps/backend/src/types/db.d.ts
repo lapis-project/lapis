@@ -113,10 +113,17 @@ export interface Informant {
 	age_group_id: number | null;
 	comment: string | null;
 	dialect_competence: number | null;
+	standard_competence: number | null;
+	misc: string | null;
 	education_level_id: number | null;
 	gender: string | null;
 	id: Generated<number>;
 	survey_id: number | null;
+}
+
+export interface informant_survey_conducted {
+	informant_id: number;
+	survey_conducted_id: number;
 }
 
 export interface InformantLivesInPlace {
@@ -426,6 +433,7 @@ export interface DB {
 	education_level: EducationLevel;
 	informant: Informant;
 	informant_lives_in_place: InformantLivesInPlace;
+	informant_survey_conducted: informant_survey_conducted;
 	instance: Instance;
 	instance_source: InstanceSource;
 	ling_level_phenomenon: LingLevelPhenomenon;

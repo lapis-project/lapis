@@ -3,8 +3,18 @@ import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect.ts";
 
-export async function getAllTranscripts(project_id: number) {
-	return await db
+export async function getAllTranscripts(
+	project_id: number,
+	filters?: {
+		age_lower?: number;
+		age_upper?: number;
+		loc_name?: string;
+		dialect_competence?: number;
+		standard_competence?: number;
+		gender?: string;
+	},
+) {
+	let query = db
 		.selectFrom("project")
 		.innerJoin("project_survey", "project_survey.project_id", "project.id")
 		.innerJoin("survey", "survey.id", "project_survey.survey_id")
@@ -18,7 +28,29 @@ export async function getAllTranscripts(project_id: number) {
 			"survey_conducted.id",
 		)
 		.innerJoin("place", "place.id", "place_survey_conducted.place_id")
-		.where("project.id", "=", project_id)
+		.where("project.id", "=", project_id);
+
+	// Apply optional filters
+	if (filters?.age_lower !== undefined) {
+		query = query.where("age_group.lower_limit", ">=", filters.age_lower);
+	}
+	if (filters?.age_upper !== undefined) {
+		query = query.where("age_group.upper_limit", "<=", filters.age_upper);
+	}
+	if (filters?.loc_name) {
+		query = query.where("place.place_name", "ilike", `%${filters.loc_name}%`);
+	}
+	if (filters?.dialect_competence !== undefined) {
+		query = query.where("informant.dialect_competence", "=", filters.dialect_competence);
+	}
+	if (filters?.standard_competence !== undefined) {
+		query = query.where("informant.standard_competence", "=", filters.standard_competence);
+	}
+	if (filters?.gender) {
+		query = query.where("informant.gender", "=", filters.gender);
+	}
+
+	return await query
 		.select(({ eb, fn }) => [
 			eb.ref("project.project_name").as("project_name"),
 			eb.ref("survey.survey_name").as("survey_name"),

@@ -230,17 +230,71 @@ const corpus = new Hono<AppEnv>()
 			}
 		}) as unknown as TypedResponse<TranscriptJsonFormat | string>;
 	})
-	.get("/corpus/:id", async (c) => {
+	.get("/corpus/:id?", async (c) => {
 		const id = c.req.param("id");
-		if (!id) {
-			return c.json("Project Id is required", 400);
-		}
 
-		const parsedId = Number(id);
+		// Default to project ID 2 if no ID is provided
+		const parsedId = id ? Number(id) : 2;
+
 		if (Number.isNaN(parsedId)) {
 			return c.json("Invalid project id", 400);
 		}
-		const response = await getAllTranscripts(parsedId);
+
+		// Parse optional filter query parameters
+		const rawQuery = c.req.query();
+		const filters: {
+			age_lower?: number;
+			age_upper?: number;
+			loc_name?: string;
+			dialect_competence?: number;
+			standard_competence?: number;
+			gender?: string;
+		} = {};
+
+		if (rawQuery.age_lower) {
+			const ageLower = Number(rawQuery.age_lower);
+			if (Number.isNaN(ageLower)) {
+				return c.json("Invalid age_lower parameter", 400);
+			}
+			filters.age_lower = ageLower;
+		}
+
+		if (rawQuery.age_upper) {
+			const ageUpper = Number(rawQuery.age_upper);
+			if (Number.isNaN(ageUpper)) {
+				return c.json("Invalid age_upper parameter", 400);
+			}
+			filters.age_upper = ageUpper;
+		}
+
+		if (rawQuery.loc_name) {
+			filters.loc_name = rawQuery.loc_name;
+		}
+
+		if (rawQuery.dialect_competence) {
+			const dialectComp = Number(rawQuery.dialect_competence);
+			if (Number.isNaN(dialectComp)) {
+				return c.json("Invalid dialect_competence parameter", 400);
+			}
+			filters.dialect_competence = dialectComp;
+		}
+
+		if (rawQuery.standard_competence) {
+			const standardComp = Number(rawQuery.standard_competence);
+			if (Number.isNaN(standardComp)) {
+				return c.json("Invalid standard_competence parameter", 400);
+			}
+			filters.standard_competence = standardComp;
+		}
+
+		if (rawQuery.gender) {
+			if (rawQuery.gender !== "männlich" && rawQuery.gender !== "weiblich") {
+				return c.json("Invalid gender parameter. Must be 'männlich' or 'weiblich'", 400);
+			}
+			filters.gender = rawQuery.gender;
+		}
+
+		const response = await getAllTranscripts(parsedId, filters);
 
 		return c.json(response, 200);
 	})

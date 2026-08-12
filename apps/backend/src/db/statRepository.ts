@@ -30,7 +30,16 @@ export async function getAgeBuckets(project_id: number, bucket_border: Array<num
 	const ageGroupQuery = db
 		.selectFrom("informant")
 		.innerJoin("age_group", "informant.age_group_id", "age_group.id")
-		.innerJoin("survey_conducted", "informant.survey_id", "survey_conducted.id")
+		.innerJoin(
+			"informant_survey_conducted",
+			"informant_survey_conducted.informant_id",
+			"informant.id",
+		)
+		.innerJoin(
+			"survey_conducted",
+			"survey_conducted.id",
+			"informant_survey_conducted.survey_conducted_id",
+		)
 		.innerJoin("survey", "survey_conducted.survey_id", "survey.id")
 		.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
 		.where("project_survey.project_id", "=", project_id)
@@ -98,17 +107,21 @@ export async function getAllStatData(project_id: number) {
 		)
 		.with("survey_conducted_query", (query) =>
 			query
-				.selectFrom("informant")
-				.innerJoin("survey_conducted", "informant.survey_id", "survey_conducted.id")
+				.selectFrom("informant_survey_conducted")
+				.innerJoin(
+					"survey_conducted",
+					"survey_conducted.id",
+					"informant_survey_conducted.survey_conducted_id",
+				)
 				.innerJoin("survey", "survey_conducted.survey_id", "survey.id")
 				.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
 				.where("project_survey.project_id", "=", project_id)
 				.select(({ eb }) => [
 					eb.val("query").as("type"),
-					eb.ref("informant.survey_id").as("survey"),
+					eb.ref("survey_conducted.id").as("survey"),
 					eb.fn.countAll().as("total"),
 				])
-				.groupBy("informant.survey_id"),
+				.groupBy("survey_conducted.id"),
 		);
 
 	const unionQuery = dbQuery

@@ -78,17 +78,42 @@ export async function getAllStatData(project_id: number) {
 		.with("gender_count", (query) =>
 			query
 				.selectFrom("informant")
+				.innerJoin(
+					"informant_survey_conducted",
+					"informant_survey_conducted.informant_id",
+					"informant.id",
+				)
+				.innerJoin(
+					"survey_conducted",
+					"survey_conducted.id",
+					"informant_survey_conducted.survey_conducted_id",
+				)
+				.innerJoin("survey", "survey_conducted.survey_id", "survey.id")
+				.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
+				.where("project_survey.project_id", "=", project_id)
 				.select(({ eb }) => [
 					eb.ref("informant.gender").as("type"),
-					eb.fn.count("gender").as("total"),
+					eb.fn.count("informant.gender").as("total"),
 					eb.val("query").as("inftype"),
 				])
-				.groupBy("gender"),
+				.groupBy("informant.gender"),
 		)
 		.with("place_count", (query) =>
 			query
 				.selectFrom("place")
-				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")]),
+				.innerJoin("place_survey_conducted", "place_survey_conducted.place_id", "place.id")
+				.innerJoin(
+					"survey_conducted",
+					"survey_conducted.id",
+					"place_survey_conducted.survey_conducted_id",
+				)
+				.innerJoin("survey", "survey_conducted.survey_id", "survey.id")
+				.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
+				.where("project_survey.project_id", "=", project_id)
+				.select(({ eb }) => [
+					eb.val("query").as("type"),
+					eb.fn.count("place_survey_conducted.place_id").distinct().as("total"),
+				]),
 		)
 		.with("phen_count", (query) =>
 			query
@@ -98,11 +123,26 @@ export async function getAllStatData(project_id: number) {
 		.with("inf_count", (query) =>
 			query
 				.selectFrom("informant")
+				.innerJoin(
+					"informant_survey_conducted",
+					"informant_survey_conducted.informant_id",
+					"informant.id",
+				)
+				.innerJoin(
+					"survey_conducted",
+					"survey_conducted.id",
+					"informant_survey_conducted.survey_conducted_id",
+				)
+				.innerJoin("survey", "survey_conducted.survey_id", "survey.id")
+				.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
+				.where("project_survey.project_id", "=", project_id)
 				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")]),
 		)
 		.with("survey_count", (query) =>
 			query
 				.selectFrom("survey")
+				.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
+				.where("project_survey.project_id", "=", project_id)
 				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")]),
 		)
 		.with("survey_conducted_query", (query) =>

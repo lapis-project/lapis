@@ -53,14 +53,16 @@ const allBundeslaender = [
 	...new Set(data.map((entry) => entry.bundesland).filter((b) => b !== undefined)),
 ];
 
-function filterDataByQuestionAndVariant(question: string, variant?: string) {
+function filterDataByQuestionAndVariant(question: string, variant?: string | Array<string>) {
 	return data
 		.filter((entry) => entry.Item === question)
 		.map((entry) => ({
 			...entry,
-			variants: entry.Benennungsvariante.split(";").map((v) => v.trim()),
+			variants: entry.Benennungsvariante.split(";")
+				.map((v) => v.trim())
+				.filter((v) => !variant || (Array.isArray(variant) ? variant : [variant]).includes(v)),
 		}))
-		.filter((entry) => !variant || entry.variants.includes(variant));
+		.filter((entry) => entry.variants.length > 0);
 }
 
 function getValuesForQuestion(question: string) {

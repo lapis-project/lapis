@@ -84,6 +84,14 @@
 			"open-sidebar": "Dateneinblicke",
 			"close-split-view": "Geteilte Ansicht schließen"
 		},
+		"legend": {
+			"title": "Legende",
+			"new-group": "Aus Gruppe entfernen",
+			"new-group-hint": "Variante hierher ziehen, um sie aus der Gruppe zu entfernen",
+			"group-name": "Gruppenname",
+			"rename": "Gruppe umbenennen",
+			"ungroup": "Gruppierung aufheben"
+		},
 		"sidebar": {
 			"variable": "Phänomen",
 			"variant": "Variante",

@@ -84,6 +84,14 @@
 			"open-sidebar": "Data insights",
 			"close-split-view": "Close split view"
 		},
+		"legend": {
+			"title": "Legend",
+			"new-group": "Remove from group",
+			"new-group-hint": "Drag a variant here to remove it from its current group",
+			"group-name": "Group name",
+			"rename": "Rename group",
+			"ungroup": "Ungroup"
+		},
 		"sidebar": {
 			"variable": "Phenomenon",
 			"variant": "Variant",

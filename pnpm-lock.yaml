@@ -838,6 +838,9 @@ importers:
       vue-sonner:
         specifier: ^2.0.9
         version: 2.0.9(e0a11d8b7b3c64e6c4fa1d6f07f83352)
+      vuedraggable:
+        specifier: ^4.1.0
+        version: 4.1.0(vue@3.5.41(typescript@6.0.3))
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3

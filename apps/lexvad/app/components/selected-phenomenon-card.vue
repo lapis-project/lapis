@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { List } from "@lucide/vue";
+
 defineProps<{
 	phenomenon: string;
-	count: number;
-	variants: number;
+	badges: Array<string>;
 }>();
 
 const t = useTranslations();
@@ -16,23 +17,8 @@ const t = useTranslations();
 		<div class="uppercase font-bold text-lg mt-1 mb-2">
 			{{ phenomenon }}
 		</div>
-		<div class="flex w-full justify-stretch gap-4">
-			<div class="rounded-lg bg-background p-2 px-3 w-full border">
-				<div class="font-semibold text-muted-foreground text-xs">
-					{{ t("SelectedPhenomenonCard.forms") }}
-				</div>
-				<div class="font-semibold text-lg">
-					{{ count }}
-				</div>
-			</div>
-			<div class="rounded-lg bg-background p-2 px-3 w-full border">
-				<div class="font-semibold text-muted-foreground text-xs">
-					{{ t("SelectedPhenomenonCard.variants") }}
-				</div>
-				<div class="font-semibold text-lg">
-					{{ variants }}
-				</div>
-			</div>
-		</div>
+		<UBadge v-for="badge in badges" :key="badge" color="neutral" variant="outline"
+			><List class="size-3 self-center text-muted-foreground"></List>{{ badge }}</UBadge
+		>
 	</div>
 </template>

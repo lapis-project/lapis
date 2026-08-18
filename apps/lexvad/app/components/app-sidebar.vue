@@ -4,12 +4,8 @@ import { X } from "@lucide/vue";
 const open = defineModel<boolean>("open", { default: false });
 
 const t = useTranslations();
-const {
-	countAnswersForQuestion,
-	getValuesForQuestion,
-	getNotationsForVariant,
-	getRegionalCooccurrencesForVariant,
-} = useQuestions();
+const { countAnswersForQuestion, getNotationsForVariant, getRegionalCooccurrencesForVariant } =
+	useQuestions();
 const { getColorsForQuestion } = useColorStore();
 
 const props = defineProps<{
@@ -24,8 +20,6 @@ const variantCount = computed(() => {
 		.map((entry) => ({ ...entry, value: entry.rel }))
 		.toSorted((a, b) => b.value - a.value);
 });
-
-const answerCount = computed(() => getValuesForQuestion(props.activeQuestion).length);
 
 const activeVariantCount = computed(
 	() => variantCount.value.find((v) => v.label === selectedVariant.value)?.abs ?? 0,
@@ -107,14 +101,13 @@ const tabItems = computed(() => [
 			<template #phenomenon>
 				<div class="p-2 flex flex-col gap-4">
 					<SelectedPhenomenonCard
+						:badges="[t('SelectedPhenomenonCard.categories.noun')]"
 						class="w-full"
-						:count="answerCount"
 						:phenomenon="activeQuestion"
-						:variants="variantCount.length"
-					></SelectedPhenomenonCard>
+					>
+					</SelectedPhenomenonCard>
 					<VariantOverviewCard class="w-full" :colors="colors" :data="variantCount">
 					</VariantOverviewCard>
-					<CategoryCard class="w-full"></CategoryCard>
 				</div>
 			</template>
 			<template #variant>
@@ -148,10 +141,9 @@ const tabItems = computed(() => [
 			<template #region>
 				<div class="p-2 flex flex-col gap-4">
 					<SelectedPhenomenonCard
+						:badges="[]"
 						class="w-full"
-						:count="answerCount"
 						:phenomenon="activeQuestion"
-						:variants="variantCount.length"
 					></SelectedPhenomenonCard>
 					<RegionDistributionCard
 						v-model:mode="distributionMode"

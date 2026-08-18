@@ -5,10 +5,6 @@
 		},
 		"navigation-main": "Hauptnavigation"
 	},
-	"CategoryCard": {
-		"category": "Kategorie",
-		"noun": "Nomen"
-	},
 	"Clipboard": {
 		"copy": "Kopieren",
 		"copied": "Kopiert",
@@ -111,7 +107,10 @@
 	"SelectedPhenomenonCard": {
 		"title": "Ausgewähltes Phänomen",
 		"forms": "Bögen",
-		"variants": "Varianten"
+		"variants": "Varianten",
+		"categories": {
+			"noun": "Substantiv"
+		}
 	},
 	"SelectedVariantCard": {
 		"title": "Ausgewählte Variante",

@@ -1,4 +1,4 @@
-name: Build and deploy the LexVAD App
+name: Production Deployment - LexVAD20
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true

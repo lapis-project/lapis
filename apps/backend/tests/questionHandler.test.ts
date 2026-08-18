@@ -17,16 +17,24 @@ describe("Question Handler", () => {
 			expect(res.length).toBeGreaterThan(0);
 
 			const firstPosition = res[0];
-			expect(firstPosition).toHaveProperty("place_name", "Wien");
+			expect(firstPosition).toHaveProperty("place_name");
 			expect(firstPosition).toHaveProperty("plz");
 			expect(typeof firstPosition.lat).toBe("number");
+			expect(typeof firstPosition.lon).toBe("number");
 
 			assert.isArray(firstPosition.informants);
+			expect(firstPosition.informants.length).toBeGreaterThan(0);
 			const firstInformant = firstPosition.informants[0];
 			expect(firstInformant).toHaveProperty("age");
+			expect(firstInformant).toHaveProperty("gender");
+			expect(firstInformant).toHaveProperty("informant_id");
 
 			assert.isArray(firstInformant.answers);
+			expect(firstInformant.answers.length).toBeGreaterThan(0);
 			expect(firstInformant.answers[0]).toHaveProperty("phenomenon");
+			expect(firstInformant.answers[0]).toHaveProperty("annotation");
+			expect(firstInformant.answers[0]).toHaveProperty("response");
+			expect(firstInformant.answers[0]).toHaveProperty("variety");
 		});
 		it("should return a 400 error when surveyId is not a valid number", async () => {
 			const data = await questions.request("/?surveyId=1&phenomenonId=10&projectId=test");

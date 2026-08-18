@@ -60,89 +60,115 @@ export async function getAllPhenomenonById(
 		return [];
 	}
 
-	const request = db
-		.with("annotation_data", (query) => {
-			let dbQuery = query
-				.selectFrom("response")
-				.innerJoin("annotation_response", "response.id", "annotation_response.response_id")
-				.innerJoin("annotation", "annotation_response.annotation_id", "annotation.id")
-				.innerJoin("task", "response.task_id", "task.id")
-				.innerJoin("survey_contains_task", "survey_contains_task.task_id", "task.id")
-				.innerJoin("survey", "survey.id", "survey_contains_task.survey_id")
-				.innerJoin("phenomenon_task", "task.id", "phenomenon_task.task_id")
-				.innerJoin("phenomenon", "phenomenon_task.phenomenon_id", "phenomenon.id")
-				.innerJoin("task_variety", "task.id", "task_variety.task_id")
-				.innerJoin("variety", "task_variety.variety_id", "variety.id")
-				.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
-				.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
-				.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
-				.where("phenomenon.id", "=", phenomenonId)
-				.select(({ eb, fn }) => [
-					"response.informant_id",
-					fn
-						.jsonAgg(
-							jsonBuildObject({
-								annotation: eb.cast<string>(eb.ref("annotation.annotation_name"), "text"),
-								response: eb.cast<string>(eb.ref("response.response_text"), "text"),
-								phenomenon: eb.cast<string>(eb.ref("phenomenon.phenomenon_name"), "text"),
-								variety: eb.cast<string>(eb.ref("variety.variety_name"), "text"),
-							}),
-						)
-						.as("annotations"),
-				])
-				.groupBy(["response.informant_id"]);
-			if (surveyIds.length > 0) {
-				dbQuery = dbQuery.where("survey.id", "in", surveyIds);
-			}
-			if (projectId > 0) {
-				dbQuery = dbQuery.where("project_tagset.project_id", "=", projectId);
-			}
-			return dbQuery;
-		})
-		.selectFrom("phenomenon")
-		.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
-		.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
-		.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
-		.innerJoin("annotation_tagset", "tagset.id", "annotation_tagset.tagset_id")
-		.innerJoin("annotation", "annotation_tagset.annotation_id", "annotation.id")
-		.innerJoin("annotation_response", "annotation.id", "annotation_response.annotation_id")
-		.innerJoin("response", "annotation_response.response_id", "response.id")
-		.innerJoin("phenomenon_task", "phenomenon.id", "phenomenon_task.phenomenon_id")
-		.innerJoin("task", (join) =>
-			join
-				.onRef("phenomenon_task.task_id", "=", "task.id")
-				.onRef("task.id", "=", "response.task_id"),
-		)
+	// Optimized query: single pass aggregation with early filtering
+	let query = db
+		.selectFrom("response")
+		.innerJoin("annotation_response", "response.id", "annotation_response.response_id")
+		.innerJoin("annotation", "annotation_response.annotation_id", "annotation.id")
+		.innerJoin("task", "response.task_id", "task.id")
+		.innerJoin("phenomenon_task", "task.id", "phenomenon_task.task_id")
+		.innerJoin("phenomenon", "phenomenon_task.phenomenon_id", "phenomenon.id")
 		.innerJoin("task_variety", "task.id", "task_variety.task_id")
 		.innerJoin("variety", "task_variety.variety_id", "variety.id")
 		.innerJoin("informant", "response.informant_id", "informant.id")
 		.innerJoin("age_group", "informant.age_group_id", "age_group.id")
 		.innerJoin("informant_lives_in_place", "informant.id", "informant_lives_in_place.informant_id")
 		.innerJoin("place", "informant_lives_in_place.place_id", "place.id")
-		.innerJoin("annotation_data", "informant.id", "annotation_data.informant_id")
-		.where("phenomenon.id", "=", phenomenonId)
-		.select(({ eb, fn }) => [
+		.where("phenomenon.id", "=", phenomenonId);
+
+	// Apply project filter early if provided
+	if (projectId > 0) {
+		query = query
+			.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
+			.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
+			.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
+			.where("project_tagset.project_id", "=", projectId);
+	}
+
+	// Apply survey filter early if provided
+	if (surveyIds.length > 0) {
+		query = query
+			.innerJoin("survey_contains_task", "survey_contains_task.task_id", "task.id")
+			.innerJoin("survey", "survey.id", "survey_contains_task.survey_id")
+			.where("survey.id", "in", surveyIds);
+	}
+
+	// Single aggregation: group by place, then informant, then answers
+	const result = await query
+		.select(({ eb }) => [
 			eb.ref("place.place_name").as("place_name"),
 			eb.ref("place.plz").as("plz"),
 			eb.ref("place.lat").as("lat"),
 			eb.ref("place.lon").as("lon"),
-			fn
-				.coalesce(
-					fn.jsonAgg(
-						jsonbBuildObject({
-							age: eb.ref("age_group.age_group_name"),
-							gender: eb.ref("informant.gender"),
-							informant_id: eb.ref("informant.id"),
-							answers: fn.coalesce(eb.ref("annotations"), sql`'[]'`),
-						}),
-					),
-					sql`'[]'`,
-				)
-				.as("informants"),
+			eb.ref("informant.id").as("informant_id"),
+			eb.ref("age_group.age_group_name").as("age"),
+			eb.ref("informant.gender").as("gender"),
+			eb.ref("annotation.annotation_name").as("annotation"),
+			eb.ref("response.response_text").as("response_text"),
+			eb.ref("phenomenon.phenomenon_name").as("phenomenon_name"),
+			eb.ref("variety.variety_name").as("variety_name"),
 		])
-		.groupBy(["place.plz", "place.lat", "place.lon", "place.place_name"]);
+		.orderBy("place.place_name", "asc")
+		.orderBy("informant.id", "asc")
+		.execute();
 
-	return await request.execute();
+	// Group results in memory (more efficient than nested JSON aggregation in DB)
+	const placeMap = new Map<
+		string,
+		{
+			place_name: string;
+			plz: number;
+			lat: number;
+			lon: number;
+			informants: Array<{
+				age: string;
+				gender: string;
+				informant_id: number;
+				answers: Array<{
+					annotation: string;
+					response: string;
+					phenomenon: string;
+					variety: string;
+				}>;
+			}>;
+		}
+	>();
+
+	for (const row of result) {
+		const placeKey = `${String(row.plz)}_${String(row.lat)}_${String(row.lon)}`;
+
+		if (!placeMap.has(placeKey)) {
+			placeMap.set(placeKey, {
+				place_name: row.place_name ?? "",
+				plz: row.plz ?? 0,
+				lat: row.lat ?? 0,
+				lon: row.lon ?? 0,
+				informants: [],
+			});
+		}
+
+		const place = placeMap.get(placeKey)!;
+		let informant = place.informants.find((inf) => inf.informant_id === row.informant_id);
+
+		if (!informant) {
+			informant = {
+				age: row.age ?? "",
+				gender: row.gender ?? "",
+				informant_id: row.informant_id,
+				answers: [],
+			};
+			place.informants.push(informant);
+		}
+
+		informant.answers.push({
+			annotation: row.annotation ?? "",
+			response: row.response_text ?? "",
+			phenomenon: row.phenomenon_name ?? "",
+			variety: row.variety_name ?? "",
+		});
+	}
+
+	return Array.from(placeMap.values());
 }
 
 export async function getAnnotationsByPhaenAndProjectId(projectId: number, phenId: number) {

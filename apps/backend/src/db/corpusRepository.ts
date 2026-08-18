@@ -12,6 +12,8 @@ export async function getAllTranscripts(
 		dialect_competence?: number;
 		standard_competence?: number;
 		gender?: string;
+		comment_search?: string;
+		comment_search_mode?: "simple" | "regex";
 	},
 ) {
 	let query = db
@@ -49,6 +51,16 @@ export async function getAllTranscripts(
 	}
 	if (filters?.gender) {
 		query = query.where("informant.gender", "=", filters.gender);
+	}
+	if (filters?.comment_search) {
+		const searchMode = filters.comment_search_mode ?? "simple";
+		if (searchMode === "regex") {
+			// Use PostgreSQL regex match operator (~)
+			query = query.where("survey_conducted.comment", "~", filters.comment_search);
+		} else {
+			// Simple case-insensitive substring match
+			query = query.where("survey_conducted.comment", "ilike", `%${filters.comment_search}%`);
+		}
 	}
 
 	return await query

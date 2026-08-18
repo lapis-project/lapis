@@ -44,7 +44,7 @@
 		{
 			"label": "Start Corpus",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F corpus dev-local'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F corpus dev'",
 			"problemMatcher": [],
 			"group": "build",
 			"isBackground": true
@@ -52,14 +52,14 @@
 		{
 			"label": "Start LexVAD20",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F lexvad dev-local'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F lexvad dev'",
 			"problemMatcher": [],
 			"isBackground": true
 		},
 		{
 			"label": "Start LIÖ",
 			"type": "shell",
-			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F lioe dev-local'",
+			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F lioe dev'",
 			"problemMatcher": [],
 			"isBackground": true
 		},
@@ -69,18 +69,6 @@
 			"command": "bash -lc 'if [ -s \"$HOME/.nvm/nvm.sh\" ]; then source \"$HOME/.nvm/nvm.sh\" && nvm use; fi && pnpm -F wboe dev'",
 			"problemMatcher": [],
 			"isBackground": true
-		},
-		{
-			"label": "Full Local Setup - LexAT21",
-			"dependsOn": ["Start DB Container", "Seed DB", "Start Backend", "Start LexAT21"],
-			"problemMatcher": [],
-			"group": "build"
-		},
-		{
-			"label": "Full Local Setup - Corpus",
-			"dependsOn": ["Start DB Container", "Seed DB", "Start Backend", "Start Corpus"],
-			"problemMatcher": [],
-			"group": "build"
 		},
 		{
 			"label": "Reset DB",

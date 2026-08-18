@@ -4,7 +4,7 @@ This document explains the purpose and usage of the automated workflows in this 
 
 ---
 
-## Workflow: `Build and deploy the Backend`
+## Workflow: `Production Deployment - Backend`
 
 ### 🚀 Overview
 
@@ -31,7 +31,7 @@ This workflow can be triggered manually for the **main** branch
 You can trigger this workflow manually by following these steps.
 
 1.  Navigate to the **Actions** tab in the GitHub repository.
-2.  Select the **"Build and deploy the Backend"** workflow from the list on the left.
+2.  Select the **"Production Deployment - Backend"** workflow from the list on the left.
 3.  Click the **"Run workflow"** dropdown button.
 4.  Choose the **main** **branch** from the "Use workflow from" dropdown.
 5.  Click the green **"Run workflow"** button.
@@ -54,7 +54,7 @@ environment and contains the values for the deployment.
 
 ---
 
-## Workflow: `Build and deploy the LexAT21 App`
+## Workflow: `Production Deployment - LexAT21`
 
 ### 🚀 Overview
 
@@ -81,7 +81,7 @@ This workflow can be triggered manually for the **main** branch
 You can trigger this workflow manually.
 
 1.  Navigate to the **Actions** tab in the GitHub repository.
-2.  Select the **"Build and deploy the Corpus App"** workflow from the list on the left.
+2.  Select the **"Production Deployment - LexAT21"** workflow from the list on the left.
 3.  Click the **"Run workflow"** dropdown button.
 4.  Choose the **branch** or **tag** you wish to deploy from the "Use workflow from" dropdown.
 5.  Click the green **"Run workflow"** button.
@@ -108,7 +108,7 @@ environment and contains the values for the deployment.
 
 ---
 
-## Workflow: `Build and deploy the Corpus App`
+## Workflow: `Production Deployment - LIVI`
 
 ### 🚀 Overview
 
@@ -136,7 +136,7 @@ This workflow can be triggered manually for the **main** branch
 You can trigger this workflow manually.
 
 1.  Navigate to the **Actions** tab in the GitHub repository.
-2.  Select the **"Build and deploy the Corpus App"** workflow from the list on the left.
+2.  Select the **"Production Deployment - LIVI"** workflow from the list on the left.
 3.  Click the **"Run workflow"** dropdown button.
 4.  Choose the **branch** or **tag** you wish to deploy from the "Use workflow from" dropdown.
 5.  Click the green **"Run workflow"** button.

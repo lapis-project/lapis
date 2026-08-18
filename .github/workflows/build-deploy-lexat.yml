@@ -1,4 +1,4 @@
-name: Build and deploy the LexAT21 App
+name: Production Deployment - LexAT21
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}-build-deploy"
   cancel-in-progress: true

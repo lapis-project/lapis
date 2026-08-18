@@ -8,7 +8,6 @@
 		"analyze": "nuxt analyze",
 		"build": "nuxt build --dotenv ./.env.local",
 		"dev": "nuxt dev --dotenv ./.env.dev.local",
-		"dev-local": "nuxt dev --dotenv ./.env.dev.local",
 		"postinstall": "nuxt prepare",
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.dev.local",

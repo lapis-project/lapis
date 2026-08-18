@@ -249,6 +249,8 @@ const corpus = new Hono<AppEnv>()
 			dialect_competence?: number;
 			standard_competence?: number;
 			gender?: string;
+			comment_search?: string;
+			comment_search_mode?: "simple" | "regex";
 		} = {};
 
 		if (rawQuery.age_lower) {
@@ -292,6 +294,11 @@ const corpus = new Hono<AppEnv>()
 				return c.json("Invalid gender parameter. Must be 'männlich' or 'weiblich'", 400);
 			}
 			filters.gender = rawQuery.gender;
+		}
+
+		if (rawQuery.comment_search) {
+			filters.comment_search = rawQuery.comment_search;
+			filters.comment_search_mode = rawQuery.comment_search_mode === "regex" ? "regex" : "simple";
 		}
 
 		const response = await getAllTranscripts(parsedId, filters);

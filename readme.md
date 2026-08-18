@@ -13,46 +13,34 @@ For details on the project's architecture, see [Architecture](architecture.md).
 - Optional: [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) for node
   version management
 
-## Quick start for LexAT21
+## Quick Start
 
 1. Clone the repository
 2. Install dependencies in the project root via `pnpm i`
 3. Build all shared nuxt layers via `Tasks: Run Task` > `Build Nuxt Layers`
-4. Setup & run local dev environment via `Tasks: Run Task` > `Full Local Setup - LexAT21`
+4. Setup a PostgreSQL container via `Tasks: Run Task` > `Start DB Container`
+5. Seed the DB via `Tasks: Run Task` > `Seed DB`
 
-## Setup for local development
+Hint: VSCode tasks can be run by opening the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on
+macOS).
 
-### Setup backend .env files
+### Setup Backend .env file
 
 1. Navigate to `/apps/backend` and create a `.env.local` file
-2. Copy the contents from `.env.local.example` into `.env.local` and ask a Lapis team member for
-   viable keys
+2. Copy the contents from `.env.local.example` into `.env.local` and ask a Lapis team member for any
+   secret keys
 
-### Setup LexAT21 .env files
+### Setup Frontend .env files
 
-1. Navigate to `/apps/lexat` and create a `.env.dev.local` file
+1. Navigate to `/apps/<app>` and create a `.env.dev.local` file
 2. Copy the contents from `.env.local.example` into `.env.dev.local` and ask a Lapis team member for
-   viable keys
+   any secret keys
 
-### Setup Corpus .env files
+### Run Applications
 
-1. Navigate to `/apps/corpus` and create a `.env.dev.local` file
-2. TODO
+To start an application, run its respective VSCode task. E.g. `Tasks: Run Task` > `Start Backend`
 
-### Build Nuxt Layers
-
-1. `Tasks: Run Task` > `Build Nuxt Layers` (this is needed to provide the `./.nuxt/tsconfig.json"`
-   file extended in `tsconfig.ts`)
-
-### Option 1: Run setup via VSCode task
-
-1. Open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on macOS).
-2. Search for `Tasks: Run Task`
-3. Select `Full Local Setup - LexAT21` or `Full Local Setup - Corpus`
-
-### Option 2: Run setup manually
-
-#### Setup & run PostgreSQL instance
+## (Optional) Manual PostgreSQL setup
 
 1. Spin up a PostgreSQL instance via Docker:
 
@@ -63,18 +51,7 @@ For details on the project's architecture, see [Architecture](architecture.md).
 
    `docker exec -i lapis-dev-database-1  psql -U lapis_dev lapis_dev < ./db/lapis_dump.sql`
 
-#### Run backend
-
-1. Run the backend either via `pnpm dev:backend` (in root) or `pnpm dev` (in `/apps/backend`)
-2. The app should now be running on port `5000` (default)
-
-#### Run frontend
-
-1. Run the frontend either via `pnpm dev-local:<lexat | corpus>` (in project root) or
-   `pnpm dev-local` (in `/apps/<lexat | corpus>`)
-2. The app should now be running on port `3000` (default)
-
-### (Optional) Run GUI for Ceph S3
+## Run GUI for Ceph S3
 
 1. Run the following command in your terminal
 
@@ -160,5 +137,5 @@ NUXT_PUBLIC_API_BASE_URL="http://192.168.x.x:5000"
 
 ### Playwright
 
-after every playwright update, execute `pnpm exec playwright install` in the lexat folder to
-download the latest browser runtimes
+after every playwright update, execute `pnpm exec playwright install` in the respective app folder
+to download the latest browser runtimes

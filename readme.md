@@ -26,15 +26,23 @@ macOS).
 
 ### Setup Backend .env file
 
-1. Navigate to `/apps/backend` and create a `.env.local` file
-2. Copy the contents from `.env.local.example` into `.env.local` and ask a Lapis team member for any
-   secret keys
+```bash
+# in /apps/backend
+cp .env.local.example .env.dev.local
+```
+
+Ask a LAPIS team member for any secret keys
 
 ### Setup Frontend .env files
 
-1. Navigate to `/apps/<app>` and create a `.env.dev.local` file
-2. Copy the contents from `.env.local.example` into `.env.dev.local` and ask a Lapis team member for
-   any secret keys
+```bash
+# in /apps/<app>
+cp .env.local.example .env.dev.local
+```
+
+MacOS Users: don't use default port `5000` for `NUXT_PUBLIC_API_BASE_URL`
+
+Ask a LAPIS team member for any secret keys
 
 ### Run Applications
 

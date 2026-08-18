@@ -1,9 +1,7 @@
-import { createReadStream, existsSync } from "node:fs";
-import path, { join } from "node:path";
+import { join } from "node:path";
 
 import { vValidator } from "@hono/valibot-validator";
-import { Hono, type TypedResponse } from "hono";
-import { stream } from "hono/streaming";
+import { Hono } from "hono";
 import {
 	array,
 	literal,
@@ -18,16 +16,16 @@ import {
 } from "valibot";
 
 import { DATA_DIR } from "@/config/config.ts";
-import {
-	getAllTranscripts,
-	transcriptDetailView,
-	type TranscriptMetadata,
-} from "@/db/corpusRepository.ts";
+import { getAllTranscripts, transcriptDetailView } from "@/db/corpusRepository.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
+import {
+	streamFile,
+	streamJsonWithMetadata,
+	validateTranscriptId,
+} from "@/lib/fileStreamHelper.ts";
 import { searchRequest } from "@/search/index.ts";
-import type { EventTranscript, TranscriptJsonFormat } from "@/types/apiTypes.ts";
 import type { paths } from "@/types/noske.d.ts";
 
 const SearchQuerySchema = object({
@@ -199,36 +197,27 @@ const corpus = new Hono<AppEnv>()
 		}
 	})
 	.get("/transcript/:id/:format", (c) => {
-		const id = c.req.param("id"); // Pass the id of the transcript as the param
+		const id = c.req.param("id");
 		const format = c.req.param("format"); // 'xml' or 'json'
 
-		// 1. Sanitize Path (Security Critical)
-		// Prevent directory traversal (e.g. "../../../etc/passwd")
-		const safeId = id.replace(/[^\w-]/g, "");
+		// 1. Validate transcript ID (Security Critical)
+		const safeId = validateTranscriptId(id);
+		if (!safeId) {
+			return c.json({ error: "Invalid transcript ID" }, 400);
+		}
+
+		// 2. Validate format
 		const extension = format === "json" ? "json" : "xml";
 		const filename = `${safeId}.${extension}`;
 		const filePath = join(DATA_DIR, extension, filename);
 
-		// 2. Check Existence
-		if (!existsSync(filePath)) {
-			return c.json({ error: "Transcript not found" }, 404);
-		}
-
-		// 3. Stream File
-		c.header("Content-Type", format === "json" ? "application/json" : "application/xml");
-
-		return stream(c, async (stream) => {
-			try {
-				const fileStream = createReadStream(filePath);
-
-				for await (const chunk of fileStream) {
-					// Cast the chunk as Uint8Array since TS infers it as Buffer => but inherits from Uint8Array
-					await stream.write(chunk as Uint8Array);
-				}
-			} catch (err) {
-				console.error("Streaming error:", err);
-			}
-		}) as unknown as TypedResponse<TranscriptJsonFormat | string>;
+		// 3. Stream file with optimizations (compression, caching, etc.)
+		return streamFile(c, {
+			filePath,
+			contentType: format === "json" ? "application/json" : "application/xml",
+			enableCompression: true,
+			enableCaching: true,
+		});
 	})
 	.get("/corpus/:id?", async (c) => {
 		const id = c.req.param("id");
@@ -315,32 +304,31 @@ const corpus = new Hono<AppEnv>()
 		),
 		async (c) => {
 			const id = c.req.param("id");
-			const parsedId = Number(id);
-			if (Number.isNaN(parsedId)) {
-				return c.json("Invalid transcript id", 400);
+
+			// 1. Validate transcript ID
+			const safeId = validateTranscriptId(id);
+			if (!safeId) {
+				return c.json({ error: "Invalid transcript ID" }, 400);
 			}
+
+			const parsedId = Number(safeId);
+
+			// 2. Fetch metadata from database
 			const transcriptData = await transcriptDetailView(parsedId);
 
-			const filePath = path.join(process.cwd(), `private_data/${String(parsedId)}.json`);
-			if (!existsSync(filePath)) {
-				return c.json({ error: "Transcript data file not found" }, 404);
-			}
+			// 3. Construct file path using DATA_DIR constant for consistency
+			const filePath = join(DATA_DIR, "json", `${String(parsedId)}.json`);
 
-			c.header("Content-Type", "application/json");
-
-			// Stitch the JSON together on the fly via HTTP streaming
-			return stream(c, async (stream) => {
-				await stream.write(`{"metadata": ${JSON.stringify(transcriptData)}, "fileData": `);
-
-				const fileStream = createReadStream(filePath);
-				for await (const chunk of fileStream) {
-					// cast the chunk so the ts-server is happy
-					await stream.write(chunk as Uint8Array);
-				}
-
-				// Write closing brace to get valid JSON
-				await stream.write(`}`);
-			}) as unknown as TypedResponse<{ metadata: TranscriptMetadata; fileData: EventTranscript }>;
+			// 4. Stream JSON with metadata stitched in
+			return streamJsonWithMetadata(c, {
+				filePath,
+				prefix: {
+					metadata: transcriptData,
+				},
+				contentKey: "transcript_data",
+				enableCompression: true,
+				enableCaching: true,
+			});
 		},
 	);
 

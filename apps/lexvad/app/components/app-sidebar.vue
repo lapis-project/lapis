@@ -50,7 +50,6 @@ const colors = computed(() => {
 
 const tabItems = computed(() => [
 	{ label: t("MapsPage.sidebar.variable"), value: "phenomenon", slot: "phenomenon" as const },
-	{ label: t("MapsPage.sidebar.variant"), value: "variant", slot: "variant" as const },
 	{ label: t("MapsPage.sidebar.region"), value: "region", slot: "region" as const },
 ]);
 </script>
@@ -110,7 +109,7 @@ const tabItems = computed(() => [
 					</VariantOverviewCard>
 				</div>
 			</template>
-			<template #variant>
+			<template #region>
 				<div class="p-2 flex flex-col gap-4">
 					<SelectedVariantCard
 						class="w-full"
@@ -136,22 +135,12 @@ const tabItems = computed(() => [
 						:subtitle="t(`VariantOverviewCard.cooccurrences-subtitle-${distributionMode}`)"
 						:title="t('VariantOverviewCard.regional-cooccurrences')"
 					></VariantOverviewCard>
-				</div>
-			</template>
-			<template #region>
-				<div class="p-2 flex flex-col gap-4">
-					<SelectedPhenomenonCard
-						:badges="[]"
-						class="w-full"
-						:phenomenon="activeQuestion"
-					></SelectedPhenomenonCard>
 					<RegionDistributionCard
 						v-model:mode="distributionMode"
 						:colors="colors"
 						:question="activeQuestion"
 					>
 					</RegionDistributionCard>
-					<CategoryCard class="w-full"></CategoryCard>
 				</div>
 			</template>
 		</UTabs>

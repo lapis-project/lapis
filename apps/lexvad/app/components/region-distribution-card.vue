@@ -8,11 +8,6 @@ const t = useTranslations();
 const { getVariantsForRegion, allRegions, allBundeslaender } = useQuestions();
 const mode = defineModel<"region" | "bundesland">("mode", { default: "region" });
 
-const modeItems = computed(() => [
-	{ label: t("VariantDistributionCard.dialectal-region"), value: "region" },
-	{ label: t("VariantDistributionCard.state"), value: "bundesland" },
-]);
-
 const data = computed(() => {
 	const keys = mode.value === "region" ? allRegions : allBundeslaender;
 	return keys.map((label) => ({
@@ -61,15 +56,7 @@ const rows = computed(() =>
 		<div
 			class="uppercase font-semibold text-muted-foreground text-xs mb-2.5 flex items-center gap-1"
 		>
-			{{ t("VariantDistributionCard.title") }}
-
-			<USelect
-				v-model="mode"
-				class="uppercase font-semibold text-muted-foreground text-xs min-h-0 py-0 px-0"
-				:items="modeItems"
-				size="sm"
-				variant="none"
-			/>
+			{{ t("RegionDistributionCard.title") }}
 		</div>
 
 		<div class="flex flex-wrap gap-x-3 gap-y-1 mb-3 text-xs">

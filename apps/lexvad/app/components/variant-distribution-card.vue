@@ -46,10 +46,10 @@ const legendItems = computed(() => {
 
 			<USelect
 				v-model="mode"
-				class="uppercase font-semibold text-muted-foreground text-xs min-h-0 py-0 px-0"
+				class="uppercase font-semibold text-muted-foreground text-xs min-h-0"
 				:items="modeItems"
 				size="sm"
-				variant="none"
+				variant="outline"
 			/>
 		</div>
 		<VisSingleContainer class="w-full h-52" :data="data">

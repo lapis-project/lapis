@@ -87,7 +87,7 @@
 		"sidebar": {
 			"variable": "Phenomenon",
 			"variant": "Variant",
-			"region": "Dialectal region",
+			"region": "Spatial patterns",
 			"places": "{n} Place | {n} Places",
 			"labels": {
 				"data-insights": "Data insights"
@@ -103,6 +103,9 @@
 			"title": "Page not found"
 		},
 		"title": "Page not found"
+	},
+	"RegionDistributionCard": {
+		"title": "Distribution of all variants"
 	},
 	"SelectedPhenomenonCard": {
 		"title": "Selected phenomenon",

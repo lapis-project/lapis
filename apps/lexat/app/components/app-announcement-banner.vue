@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ChevronRight, X } from "@lucide/vue";
 
-const currentQuestionnaireRound = 4;
+const currentQuestionnaireRound = 3;
 
 const hasDismissedBanner = useCookie<boolean>(`banner-dismissed-${currentQuestionnaireRound}`, {
 	default: () => false,
@@ -31,9 +31,9 @@ const locale = useLocale();
 				<span>🥳</span>
 				<span class="font-semibold">Neu:</span>
 				<span class="hidden sm:inline"
-					>Die aktuelle Fragenbogenrunde {{ currentQuestionnaireRound }} ist online.</span
+					>Die aktuelle Fragebogenrunde {{ currentQuestionnaireRound }} ist online.</span
 				>
-				<span class="sm:hidden">Hier geht es zur neuen Fragenbogenrunde.</span>
+				<span class="sm:hidden">Hier geht es zur neuen Fragebogenrunde.</span>
 			</div>
 
 			<a

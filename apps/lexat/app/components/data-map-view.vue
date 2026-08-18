@@ -131,7 +131,9 @@ const points = computed(() => {
 		if (Array.isArray(f.informants)) {
 			// Filter out "Keine Angabe" answers in each coalesce entry
 			f.informants.forEach((entry) => {
-				entry.answers = entry.answers.filter((answer) => answer.annotation !== "Keine Angabe");
+				entry.answers = entry.answers.filter(
+					(answer) => answer.annotation.toLowerCase() !== "keine angabe",
+				);
 			});
 
 			// Remove coalesce entries whose answers array is now empty

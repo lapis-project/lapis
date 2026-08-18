@@ -48,21 +48,27 @@ const surveyResponseSchema = object({
 	phenomenonId: pipe(string(), transform(Number)),
 });
 
+const surveyQuerySchema = object({
+	survey: optional(pipe(string(), transform(Number))),
+});
+
 // Enable in order to restrict the route only to signed in users
 // questions.use("*", restrictedRoute);
 
 const questions = new Hono<AppEnv>()
 	.use("/phen/all", restrictedRoute)
 	.use("/phen/all", checkIfPrivilegedForAdminOrHigher)
-	.get("/survey/:project", async (c) => {
+	.get("/survey/:project", vValidator("query", surveyQuerySchema), async (c) => {
 		const projectId = c.req.param("project");
+		const { survey } = c.req.valid("query");
+
 		if (!projectId) {
 			return c.json("Project Id is required", 400);
 		}
 
 		const frontendURL = process.env.FRONTEND_URL_LEXAT ?? "http://localhost:3000";
 
-		const allQuestions = await getAllPhenomenon(projectId);
+		const allQuestions = await getAllPhenomenon(projectId, survey?.toString());
 
 		for (const question of allQuestions) {
 			if (question.post_alias) {

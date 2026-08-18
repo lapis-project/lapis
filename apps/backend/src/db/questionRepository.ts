@@ -6,39 +6,42 @@ import { jsonbBuildObject } from "@/lib/dbHelper.ts";
 
 import { db } from "./connect.ts";
 
-export async function getAllPhenomenon(projectId: string) {
+export async function getAllPhenomenon(projectId: string, surveyId?: string) {
 	const projectIdParsed = parseInt(projectId);
-	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
-		return await db
-			.selectFrom("phenomenon")
-			.leftJoin("phenomenon_post", "phenomenon.id", "phenomenon_post.phenomenon_id")
-			.leftJoin("post", (join) =>
-				join
-					.onRef("phenomenon_post.post_id", "=", "post.id")
-					.on("post.post_status", "=", "Published"),
-			)
-			.orderBy("phenomenon.phenomenon_name")
-			.distinct()
-			.select([
-				"phenomenon.id",
-				"phenomenon.phenomenon_name",
-				"phenomenon.description",
-				"post.alias as post_alias",
-			])
-			.execute();
-	}
-	return await db
+	const surveyIdParsed = surveyId ? parseInt(surveyId) : undefined;
+	const hasValidProjectId = !Number.isNaN(projectIdParsed) && projectIdParsed >= 0;
+	const hasValidSurveyId = surveyIdParsed !== undefined && !Number.isNaN(surveyIdParsed);
+
+	// Start base query
+	let query = db
 		.selectFrom("phenomenon")
-		.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
-		.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
-		.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
 		.leftJoin("phenomenon_post", "phenomenon.id", "phenomenon_post.phenomenon_id")
 		.leftJoin("post", (join) =>
 			join
 				.onRef("phenomenon_post.post_id", "=", "post.id")
 				.on("post.post_status", "=", "Published"),
-		)
-		.where("project_tagset.project_id", "=", projectIdParsed)
+		);
+
+	// Apply project filter if valid project ID provided
+	if (hasValidProjectId) {
+		query = query
+			.innerJoin("phenomenon_tagset", "phenomenon.id", "phenomenon_tagset.phenomenon_id")
+			.innerJoin("tagset", "phenomenon_tagset.tagset_id", "tagset.id")
+			.innerJoin("project_tagset", "tagset.id", "project_tagset.tagset_id")
+			.where("project_tagset.project_id", "=", projectIdParsed);
+	}
+
+	// Apply survey filter if provided
+	if (hasValidSurveyId) {
+		query = query
+			.innerJoin("phenomenon_task", "phenomenon.id", "phenomenon_task.phenomenon_id")
+			.innerJoin("task", "phenomenon_task.task_id", "task.id")
+			.innerJoin("survey_contains_task", "task.id", "survey_contains_task.task_id")
+			.innerJoin("survey", "survey_contains_task.survey_id", "survey.id")
+			.where("survey.id", "=", surveyIdParsed);
+	}
+
+	return await query
 		.orderBy("phenomenon.phenomenon_name")
 		.distinct()
 		.select([

@@ -21,12 +21,12 @@ const emit = defineEmits<{
 	"toggle-sidebar": [question: string | null, variant: string | undefined];
 }>();
 
+const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
+
 const t = useTranslations();
 
 const { setDefaultColorsForQuestion, hasQuestion, getColorForVariant, getColorsForQuestion } =
 	useColorStore();
-
-const activeQuestion = ref<string | null>("Gießkanne");
 const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } = useQuestions();
 
 const mappedQuestions = computed(() => {
@@ -46,7 +46,6 @@ const activeVariants = ref<Array<string>>([]);
 
 function resetSelection() {
 	activeVariants.value = [];
-	activeQuestion.value = null;
 }
 
 onMounted(() => {

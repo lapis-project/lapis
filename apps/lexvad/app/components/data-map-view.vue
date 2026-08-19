@@ -23,13 +23,13 @@ function createSidebarState(): SidebarState {
 	};
 }
 
-const sidebars = reactive<Record<MapPosition, SidebarState>>({
+const sidebars = ref<Record<MapPosition, SidebarState>>({
 	left: createSidebarState(),
 	right: createSidebarState(),
 });
 
 function updateSidebar(position: MapPosition, question: string | null, variant?: string) {
-	const sidebar = sidebars[position];
+	const sidebar = sidebars.value[position];
 	const selectedQuestion = question ?? sidebar.question;
 	const selectedVariant = variant ?? getValuesForQuestion(selectedQuestion)[0] ?? "";
 	if (!sidebar.open) {
@@ -48,8 +48,16 @@ function updateSidebar(position: MapPosition, question: string | null, variant?:
 
 function closeSplitMode() {
 	splitMode.value = false;
-	sidebars.right.open = false;
+	sidebars.value.right.open = false;
 }
+
+watch(
+	() => [sidebars.value.left.question, sidebars.value.right.question],
+	() => {
+		sidebars.value.left.variant = getValuesForQuestion(sidebars.value.left.question)[0] ?? "";
+		sidebars.value.right.variant = getValuesForQuestion(sidebars.value.right.question)[0] ?? "";
+	},
+);
 </script>
 
 <template>
@@ -69,6 +77,7 @@ function closeSplitMode() {
 					:split-mode="splitMode"
 					@toggle-compare-mode="splitMode = true"
 					@toggle-sidebar="(question, variant) => updateSidebar('left', question, variant)"
+					v-model:question="sidebars.left.question"
 				/>
 				<template v-if="splitMode">
 					<div class="divide-accent border-l h-150 self-end"></div>
@@ -76,6 +85,7 @@ function closeSplitMode() {
 						class="min-w-0 flex-1"
 						:split-mode="splitMode"
 						@toggle-sidebar="(question, variant) => updateSidebar('right', question, variant)"
+						v-model:question="sidebars.right.question"
 					/>
 					<UButton
 						class="absolute right-0 top-0 size-6 p-1 m-1 text-muted-foreground"

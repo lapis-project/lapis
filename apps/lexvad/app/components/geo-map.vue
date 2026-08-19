@@ -329,8 +329,10 @@ watch(
 );
 
 onBeforeUnmount(() => {
+	const gl = deckCanvas.value?.getContext("webgl2");
 	deck?.finalize();
 	deck = null;
+	gl?.getExtension("WEBGL_lose_context")?.loseContext();
 	map?.remove();
 	map = null;
 });

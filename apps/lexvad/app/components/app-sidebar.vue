@@ -73,7 +73,7 @@ const tabItems = computed(() => [
 		:open="open"
 		:side="side"
 		:ui="{
-			header: 'pb-0',
+			header: 'pb-0 min-h-12 text-muted-foreground',
 			body: 'p-0  mb-(--ui-header-height)',
 			container: 'h-full top-(--ui-header-height) bg-background',
 			root: ['[--sidebar-width:clamp(16rem,22vw,25rem)]'],
@@ -106,7 +106,7 @@ const tabItems = computed(() => [
 			:ui="{
 				list: 'w-full border-b border-border',
 				label: 'text-wrap',
-				trigger: 'flex-1 uppercase text-xs font-semibold tracking-wide leading-tight',
+				trigger: 'flex-1 uppercase text-xs font-semibold tracking-wide leading-tight py-3',
 			}"
 			variant="link"
 		>

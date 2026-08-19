@@ -27,7 +27,7 @@ export const getSortedVariants = (
 	const unsortedVariants = Array.from(variants.entries()).map(([anno, count]) => ({ anno, count }));
 
 	// Apply special sort order if provided
-	const sortedVariants = unsortedVariants.sort((a, b) => {
+	const sortedVariants = unsortedVariants.toSorted((a, b) => {
 		// If special order exists, use it to sort
 		if (specialSortOrder) {
 			const aSpecialOrder = specialSortOrder[a.anno] ?? 0;
@@ -83,7 +83,7 @@ export const processUniqueVariants = (
 
 	// Step 3: Distribute the remaining percentage points using the largest remainder method
 	// Sort by remainder descending. (If equal, preserve the original sorted order)
-	const sortedByRemainder = [...processed].sort((a, b) => b.remainder - a.remainder);
+	const sortedByRemainder = [...processed].toSorted((a, b) => b.remainder - a.remainder);
 
 	for (const variant of sortedByRemainder) {
 		if (remainderToDistribute <= 0) {

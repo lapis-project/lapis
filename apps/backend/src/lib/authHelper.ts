@@ -35,10 +35,10 @@ export const checkIfPrivilegedForsuperadmin = createMiddleware<Context>(async (c
 });
 
 /**
- * Checks if a user is FORBIDDEN from modifying another user based on roles.
- * Returns TRUE if the action is forbidden (should trigger a 403).
- * Returns FALSE if the action is allowed.
- * * Logic: Admins and Superadmins cannot be modified by regular users (or regular admins).
+ * Checks if a user is FORBIDDEN from modifying another user based on roles. Returns TRUE if the
+ * action is forbidden (should trigger a 403). Returns FALSE if the action is allowed.
+ *
+ * - Logic: Admins and Superadmins cannot be modified by regular users (or regular admins).
  */
 export const isRoleModificationForbidden = (
 	targetUserRole: Userroles | null,

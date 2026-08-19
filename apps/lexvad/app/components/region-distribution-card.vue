@@ -30,7 +30,7 @@ const orderedVariants = computed(() => {
 			totals.set(entry.label, (totals.get(entry.label) ?? 0) + entry.value);
 		}
 	}
-	return [...totals.keys()].sort((a, b) => (totals.get(b) ?? 0) - (totals.get(a) ?? 0));
+	return [...totals.keys()].toSorted((a, b) => (totals.get(b) ?? 0) - (totals.get(a) ?? 0));
 });
 
 const colorFor = (label: string) => props.colors[label];
@@ -52,7 +52,7 @@ const rows = computed(() =>
 					.filter((segment) => segment.value > 0),
 			};
 		})
-		.sort((a, b) => b.total - a.total),
+		.toSorted((a, b) => b.total - a.total),
 );
 </script>
 

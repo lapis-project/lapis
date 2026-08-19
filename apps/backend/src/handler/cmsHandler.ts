@@ -65,8 +65,8 @@ cms.use("*", restrictedRoute);
 
 cms
 	/**
-	 * Delete the article with the provided id as queryparam
-	 * Returns code 200 when the article has been processed
+	 * Delete the article with the provided id as queryparam Returns code 200 when the article has
+	 * been processed
 	 */
 	.delete("/articles/:id", async (c) => {
 		const articleId = c.req.param("id");
@@ -92,8 +92,9 @@ cms
 	/**
 	 * Edit the article with the provided id as queryparam
 	 *
-	 * @returns code 200 when the article has been processed and the relevant entry has been updated with the updated object
-	 * @returns code 400 when the provided id is not a number
+	 * @returns Code 200 when the article has been processed and the relevant entry has been updated
+	 *   with the updated object
+	 * @returns Code 400 when the provided id is not a number
 	 */
 	.put("/articles/:id", vValidator("json", createNewArticleSchema), async (c) => {
 		const articleId = c.req.param("id");
@@ -165,7 +166,6 @@ cms
 			try {
 				await linkAuthorsToPost(articleIdParsed, body.authors);
 			} catch (e) {
-				// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
 				return c.json(`Error while updating author, ${e}`, 500);
 			}
 		}
@@ -193,9 +193,11 @@ cms
 	})
 
 	/**
-	 * Get all articles (posts) from a project, Does not return articles where no project has been assigned
+	 * Get all articles (posts) from a project, Does not return articles where no project has been
+	 * assigned
+	 *
 	 * @returns Object with all articleIds from the provided project id with the users who wrote them,
-	 * Comes in a paged format
+	 *   Comes in a paged format
 	 */
 	.get("/articles/all/:project", async (c) => {
 		const projectId = c.req.param("project");
@@ -279,9 +281,9 @@ cms
 		return c.json({ article: fetchedArticle }, 200);
 	})
 	/**
-	 * Creates a new article with the provided information in the body
-	 * Will also create the necessary relations to authors, bibliography and projects
-	 * If a new bibliography entry is provided, which is not available in the bibliography table, it will be created and linked to the article
+	 * Creates a new article with the provided information in the body Will also create the necessary
+	 * relations to authors, bibliography and projects If a new bibliography entry is provided, which
+	 * is not available in the bibliography table, it will be created and linked to the article
 	 */
 	.post("/articles/create", async (c) => {
 		/*
@@ -391,12 +393,13 @@ cms
 		);
 	})
 	/**
-	 * Provides all information about authors, categories and phenomenon based on the provided project id
-	 * @returns Object with all authors, categories and phenomenon with a status code of 200 on success
-	 * It contains the following fields:
-	 * authors: Array of authors with the following fields: id, name, email
-	 * categories: Array of categories with the following fields: id, name
-	 * phenomenon: Array of phenomenon with the following fields: id, name
+	 * Provides all information about authors, categories and phenomenon based on the provided project
+	 * id
+	 *
+	 * @returns Object with all authors, categories and phenomenon with a status code of 200 on
+	 *   success It contains the following fields: authors: Array of authors with the following
+	 *   fields: id, name, email categories: Array of categories with the following fields: id, name
+	 *   phenomenon: Array of phenomenon with the following fields: id, name
 	 */
 	.get("/articles/create/info", async (c) => {
 		const information = await getAllUserPhenKat("1");

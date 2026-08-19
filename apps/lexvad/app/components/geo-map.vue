@@ -131,7 +131,7 @@ function _getDominantVariant(d: Array<GeoJSON.Feature<GeoJSON.Point>>) {
 			variantCount[v]!++;
 		}),
 	);
-	const sortedVariants = Object.entries(variantCount).sort((a, b) => b[1] - a[1]);
+	const sortedVariants = Object.entries(variantCount).toSorted((a, b) => b[1] - a[1]);
 	return sortedVariants[0]![0];
 }
 
@@ -180,12 +180,12 @@ function createPatternLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
 
 	const patternProps: Partial<FillStyleExtensionProps<F>> = atlas
 		? {
-			fillPatternAtlas: atlas.url,
-			fillPatternMapping: atlas.mapping,
-			fillPatternMask: true,
-			getFillPattern: (d) => patternFor(d).id,
-			getFillPatternScale: (d) => PATTERN_TILE_METERS / (patternFor(d).w * PATTERN_RESOLUTION),
-		}
+				fillPatternAtlas: atlas.url,
+				fillPatternMapping: atlas.mapping,
+				fillPatternMask: true,
+				getFillPattern: (d) => patternFor(d).id,
+				getFillPatternScale: (d) => PATTERN_TILE_METERS / (patternFor(d).w * PATTERN_RESOLUTION),
+			}
 		: {};
 
 	const layerProps: GeoJsonLayerProps & Partial<FillStyleExtensionProps<F>> = {
@@ -274,7 +274,7 @@ function _joinEntries(entries: Array<GeoJSON.Feature>) {
 	return Object.fromEntries(
 		Object.entries(reducedEntries).map((e) => [
 			e[0],
-			[...new Set(e[1].flat())].sort((a, b) => String(a).localeCompare(String(b))).join("; "),
+			[...new Set(e[1].flat())].toSorted((a, b) => String(a).localeCompare(String(b))).join("; "),
 		]),
 	);
 }
@@ -371,37 +371,67 @@ const layerItems = computed(() =>
 <template>
 	<div class="relative size-full">
 		<div
-v-if="mode === 'area'"
-			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg">
+			v-if="mode === 'area'"
+			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg"
+		>
 			<UTabs
-v-model="areaMapMode" class="w-fit" color="neutral" :content="false" :items="areaMapModeItems" :ui="{
-				list: 'bg-card rounded-lg p-1',
-				indicator: 'bg-foreground text-background',
-				trigger:
-					'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-background text-xs',
-			}" variant="pill">
+				v-model="areaMapMode"
+				class="w-fit"
+				color="neutral"
+				:content="false"
+				:items="areaMapModeItems"
+				:ui="{
+					list: 'bg-card rounded-lg p-1',
+					indicator: 'bg-foreground text-background',
+					trigger:
+						'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-background text-xs',
+				}"
+				variant="pill"
+			>
 			</UTabs>
 			<template v-if="areaMapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
 				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
-				<USlider v-model="radius" class="w-36" color="neutral" :max="20000" :min="3000" size="xs" :step="500">
+				<USlider
+					v-model="radius"
+					class="w-36"
+					color="neutral"
+					:max="20000"
+					:min="3000"
+					size="xs"
+					:step="500"
+				>
 				</USlider>
 				<span class="text-muted-foreground mr-4">{{ (radius / 1000).toFixed(1) }} km</span>
 			</template>
 		</div>
 		<div class="absolute top-4 left-4 z-20 flex gap-4 flex-col">
 			<div class="bg-card border border-border rounded-lg text-xs shadow-lg flex flex-col">
-				<UButton class="rounded-b-none aspect-square justify-center" color="neutral" variant="outline">
+				<UButton
+					class="rounded-b-none aspect-square justify-center"
+					color="neutral"
+					variant="outline"
+				>
 					<PlusIcon class="size-4"></PlusIcon>
 				</UButton>
-				<UButton class="rounded-t-none aspect-square justify-center" color="neutral" variant="outline">
+				<UButton
+					class="rounded-t-none aspect-square justify-center"
+					color="neutral"
+					variant="outline"
+				>
 					<MinusIcon class="size-4"></MinusIcon>
 				</UButton>
 			</div>
-			<UDropdownMenu :content="{ align: 'start', side: 'right' }" :items="layerItems" :modal="false">
+			<UDropdownMenu
+				:content="{ align: 'start', side: 'right' }"
+				:items="layerItems"
+				:modal="false"
+			>
 				<button
-class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
-					:class="{ 'text-background bg-foreground hover:bg-foreground': activeLayer !== 'none' }" type="button">
+					class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-xs shadow-lg"
+					:class="{ 'text-background bg-foreground hover:bg-foreground': activeLayer !== 'none' }"
+					type="button"
+				>
 					<span class="sr-only">Toggle Layers</span>
 					<LayersIcon class="size-4"></LayersIcon>
 				</button>
@@ -412,8 +442,10 @@ class="bg-background hover:bg-elevated p-3 border border-border rounded-lg text-
 		<canvas ref="deckCanvas" class="size-full absolute inset-0"></canvas>
 
 		<MapTooltip
-v-if="tooltip"
+			v-if="tooltip"
 			class="absolute z-30 pointer-events-none max-w-xs -translate-x-1/2 -translate-y-[calc(100%+12px)]"
-			:entry="tooltip.entry" :style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }" />
+			:entry="tooltip.entry"
+			:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
+		/>
 	</div>
 </template>

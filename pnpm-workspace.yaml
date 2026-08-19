@@ -3,9 +3,11 @@ packages:
 
 catalog:
   "@lucide/vue": ^1.21.0
-  "@nuxt/eslint": ^1.16.0
-  eslint: ^9.39.2
+  lefthook: ^2.1.10
+  "npm-run-all2": ^9.0.2
   nuxt: ^4.5.1
+  oxfmt: ^0.59.0
+  oxlint: ^1.74.0
   vue: ^3.5.38
   tailwindcss: ^4.3.1
   typescript: ^6.0.2
@@ -48,8 +50,8 @@ allowBuilds:
   "@parcel/watcher": true
   "better-sqlite3": true
   "esbuild": true
+  lefthook: true
   "maplibre-gl": true
   "sharp": true
-  "simple-git-hooks": true
   "unrs-resolver": true
   "vue-demi": true

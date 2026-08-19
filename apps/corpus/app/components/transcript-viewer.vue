@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { APITranscriptFileData, Event, TimestampEvent } from "@/types/api";
 import { useVirtualizer } from "@tanstack/vue-virtual";
+
+import type { APITranscriptFileData, Event, TimestampEvent } from "@/types/api";
 
 const props = defineProps<{
 	fileData: Array<APITranscriptFileData> | undefined;
@@ -40,7 +41,7 @@ const chunkedSpeakerEvents = computed(() => {
 			timestampSet.add(ev.start_time + "–" + ev.end_time);
 		});
 	});
-	const timestamps = Array.from(timestampSet).sort();
+	const timestamps = Array.from(timestampSet).toSorted();
 
 	const speakerMap: Record<number, Event[]> = {};
 

@@ -3,7 +3,6 @@ import { BookmarkIcon, ChevronLeft, ChevronRight, Download } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
-
 import type { APITranscriptsWithBookmark } from "@/types/api";
 
 definePageMeta({

@@ -77,8 +77,9 @@ export async function editUserPassword(userId: number, password: string) {
 }
 
 /**
- * Sets the user with the given id into inactive. This function sets an active user into inactive state.
- * If the user is inactive the user will be made active again
+ * Sets the user with the given id into inactive. This function sets an active user into inactive
+ * state. If the user is inactive the user will be made active again
+ *
  * @param userId UserId of the user that will be set inactive or active.
  */
 export async function setUserActiveState(userId: number, activeType: Inactivetype) {

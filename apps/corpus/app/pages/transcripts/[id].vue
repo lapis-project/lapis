@@ -1,13 +1,6 @@
 <!-- eslint-disable vuejs-accessibility/media-has-caption -->
 <script setup lang="ts">
-import {
-	ChevronRight,
-	DownloadIcon,
-	FileText,
-	PauseIcon,
-	PlayIcon,
-	SquareIcon,
-} from "@lucide/vue";
+import { ChevronRight, DownloadIcon, FileText, PauseIcon, PlayIcon, SquareIcon } from "@lucide/vue";
 
 import { useAudioController } from "@/composables/use-audio-controller";
 
@@ -36,6 +29,7 @@ const transcriptMetadata = computed(() => {
 });
 
 const transcriptFileData = computed(() => {
+	// oxlint-disable-next-line eslint/no-console -- Useful development output
 	console.log(previewResponse.value?.fileData.data);
 	return previewResponse.value?.fileData.data;
 });
@@ -106,6 +100,7 @@ function togglePlayback() {
 	if (!audioRef.value) return;
 
 	if (!waveformReady.value) {
+		// oxlint-disable-next-line eslint/no-console -- Useful development output
 		console.log("loading...");
 		isLoading.value = true;
 		return;
@@ -146,7 +141,7 @@ const audioSrc = computed(() => {
 
 onMounted(() => {
 	const val = route.params.id;
-	const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? currentId.value);
+	const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
 	currentId.value = isNaN(selection) ? null : selection;
 });
 
@@ -165,7 +160,7 @@ onScopeDispose(() => {
 watch(
 	() => route.params.id,
 	(val) => {
-		const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? null);
+		const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
 		currentId.value = isNaN(selection) ? null : selection;
 	},
 );

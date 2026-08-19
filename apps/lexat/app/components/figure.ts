@@ -1,16 +1,13 @@
 import { findChildrenInRange, mergeAttributes, Node, nodeInputRule, Tracker } from "@tiptap/core";
 
 export interface FigureOptions {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	HTMLAttributes: Record<string, any>;
 }
 
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
 		figure: {
-			/**
-			 * Add a figure element
-			 */
+			/** Add a figure element */
 			setFigure: (options: {
 				src: string;
 				alt?: string;
@@ -18,14 +15,10 @@ declare module "@tiptap/core" {
 				caption?: string;
 			}) => ReturnType;
 
-			/**
-			 * Converts an image to a figure
-			 */
+			/** Converts an image to a figure */
 			imageToFigure: () => ReturnType;
 
-			/**
-			 * Converts a figure to an image
-			 */
+			/** Converts a figure to an image */
 			figureToImage: () => ReturnType;
 		};
 	}
@@ -142,7 +135,6 @@ export const Figure = Node.create<FigureOptions>({
 						return commands.insertContentAt(range, {
 							type: this.name,
 							attrs: {
-								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 								src: node.attrs.src,
 							},
 						});
@@ -181,7 +173,6 @@ export const Figure = Node.create<FigureOptions>({
 						return commands.insertContentAt(range, {
 							type: "image",
 							attrs: {
-								// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 								src: node.attrs.src,
 							},
 						});

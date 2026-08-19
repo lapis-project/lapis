@@ -79,13 +79,14 @@ const questions = new Hono<AppEnv>()
 	})
 	/**
 	 * Retrieves a list of entries of a specific phenomenon filtered by survey round(s) and project id
-	 * @route GET /questions
+	 *
 	 * @param {string} surveyId - The unique identifier of survey rounds (can be optional)
 	 * @param {string} projectId - The unique identifier of the project (can be optional)
 	 * @param {string} phenomenonId - The unique identifier of the phenomenon
 	 * @returns {Array} 200 - JSON array contains answers for every place which contains an array of
-	 * informants that are ordered by age group, eachof which containing the answers array
+	 *   informants that are ordered by age group, eachof which containing the answers array
 	 * @returns {Object} 500 - JSON object containing an error message if the database query fails.
+	 * @route GET /questions
 	 */
 	.get("/", vValidator("query", surveyResponseSchema), async (c) => {
 		const { phenomenonId, projectId } = c.req.valid("query");
@@ -128,7 +129,7 @@ const questions = new Hono<AppEnv>()
 	})
 	.get("/table/:id", async (c) => {
 		const phenomenonId = c.req.param("id");
-		const { project, page, offset, pageSize, lowerAge, upperAge, orderBy, dir } = c.req.query();
+		const { page, offset, pageSize, lowerAge, upperAge, orderBy, dir } = c.req.query();
 
 		/*query
 		 * orderBy can receive the parameters which influence the order of the result query for the table view
@@ -214,11 +215,6 @@ const questions = new Hono<AppEnv>()
 		const upperAgeParsed = Number.isNaN(upperAge) ? 100 : Number(upperAge);
 
 		const queryOffset = (pageNumParsed - 1) * pageSizeParsed + offsetParsed;
-		let projectIdParsed = Number(project);
-		if (Number.isNaN(project) || Number(project) < 0) {
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			projectIdParsed = 0;
-		}
 
 		const fetchedResponses = await getResultsByPhaen(
 			Number(phenomenonId),
@@ -270,8 +266,9 @@ const questions = new Hono<AppEnv>()
 		);
 	})
 	/**
-	 * Get all annotations from the database by the provided projectId
-	 * ProjectId is required and has to be a positive number else the response will be 400
+	 * Get all annotations from the database by the provided projectId ProjectId is required and has
+	 * to be a positive number else the response will be 400
+	 *
 	 * @param projectId - The project id to get all annotations from
 	 * @returns All annotations from the database by the provided projectId
 	 * @status 200 Returns all annotations from the database by the provided projectId
@@ -305,9 +302,10 @@ const questions = new Hono<AppEnv>()
 		return c.json(fetchedAnnotations, 200);
 	})
 	/**
-	 * Gets all the varieties (register in the frontend) from the frontend
-	 * Returns them in a hierarchical structure
-	 * If there are no varieties in the database, the query will return a status code 404
+	 * Gets all the varieties (register in the frontend) from the frontend Returns them in a
+	 * hierarchical structure If there are no varieties in the database, the query will return a
+	 * status code 404
+	 *
 	 * @returns All varieties from the frontend
 	 * @status 200 Returns all varieties from the frontend
 	 * @status 404 Returns error if no varieties are found
@@ -333,9 +331,9 @@ const questions = new Hono<AppEnv>()
 		return c.json(phenomenaWithSignedUrls, 200);
 	})
 	/**
-	 * This endpoint checks if a phenomenon has already an image.
-	 * Will return the link of the image if a link is already saved
-	 * Will return an empty object if the phenomenon does not have an image assigned
+	 * This endpoint checks if a phenomenon has already an image. Will return the link of the image if
+	 * a link is already saved Will return an empty object if the phenomenon does not have an image
+	 * assigned
 	 */
 	.get("/phen/:id", async (c) => {
 		const phenId = c.req.param("id");

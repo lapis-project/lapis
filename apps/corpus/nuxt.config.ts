@@ -5,7 +5,6 @@ import tailwindcss from "@tailwindcss/vite";
 import { defaultLocale, files } from "./app/config/i18n.config";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
-console.log("Using nuxt.config.ts from:", __filename);
 
 export default defineNuxtConfig({
 	alias: {
@@ -32,13 +31,6 @@ export default defineNuxtConfig({
 
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
-	},
-
-	eslint: {
-		config: {
-			autoInit: false,
-			standalone: true,
-		},
 	},
 
 	extends: ["../shadcn"],
@@ -78,14 +70,7 @@ export default defineNuxtConfig({
 		dirs: ["./app/config/"],
 	},
 
-	modules: [
-		"nuxt-svgo",
-		"@nuxt/eslint",
-		"@nuxt/image",
-		"@nuxtjs/color-mode",
-		"@nuxtjs/i18n",
-		"@vueuse/nuxt",
-	],
+	modules: ["nuxt-svgo", "@nuxt/image", "@nuxtjs/color-mode", "@nuxtjs/i18n", "@vueuse/nuxt"],
 
 	nitro: {
 		compressPublicAssets: true,

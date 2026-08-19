@@ -1,6 +1,5 @@
 import { includes } from "@acdh-oeaw/lib";
 import type { LocaleObject } from "vue-i18n-routing";
-
 import type de from "~~/i18n/messages/de.json";
 import type en from "~~/i18n/messages/en.json";
 

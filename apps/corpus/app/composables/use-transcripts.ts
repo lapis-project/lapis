@@ -1,5 +1,6 @@
-import type { APITranscriptsWithBookmark, APITranscripts } from "@/types/api";
 import { computed, ref } from "vue";
+
+import type { APITranscriptsWithBookmark, APITranscripts } from "@/types/api";
 
 export function useTranscripts(projectId: number) {
 	const env = useRuntimeConfig();
@@ -22,6 +23,7 @@ export function useTranscripts(projectId: number) {
 				return;
 			}
 
+			// oxlint-disable-next-line eslint/no-console -- Useful development output
 			console.log("endpoint, corpus: ", data.value);
 
 			response.value = (data.value ?? []).map((item) => ({

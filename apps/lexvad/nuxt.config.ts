@@ -33,13 +33,6 @@ export default defineNuxtConfig({
 		enabled: process.env.NODE_ENV === "development",
 	},
 
-	eslint: {
-		config: {
-			autoInit: false,
-			standalone: true,
-		},
-	},
-
 	extends: ["../ui"],
 
 	experimental: {
@@ -79,13 +72,12 @@ export default defineNuxtConfig({
 
 	modules: [
 		"nuxt-svgo",
-		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
 		"@pinia/nuxt",
-		'@nuxt/ui',
+		"@nuxt/ui",
 	],
 
 	nitro: {

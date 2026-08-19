@@ -1,15 +1,5 @@
 <!-- eslint-disable import-x/no-named-as-default -->
 <script setup lang="ts">
-import CharacterCount from "@tiptap/extension-character-count";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import { TableKit } from "@tiptap/extension-table";
-import TextAlign from "@tiptap/extension-text-align";
-import Underline from "@tiptap/extension-underline";
-import type { Level } from "@tiptap/pm";
-import StarterKit from "@tiptap/starter-kit";
-import { Editor, EditorContent } from "@tiptap/vue-3";
-import type { InferResponseType } from "hono/client";
 import {
 	AlignCenterIcon,
 	AlignJustifyIcon,
@@ -27,6 +17,16 @@ import {
 	UnderlineIcon,
 	UndoIcon,
 } from "@lucide/vue";
+import CharacterCount from "@tiptap/extension-character-count";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+import { TableKit } from "@tiptap/extension-table";
+import TextAlign from "@tiptap/extension-text-align";
+import Underline from "@tiptap/extension-underline";
+import type { Level } from "@tiptap/pm";
+import StarterKit from "@tiptap/starter-kit";
+import { Editor, EditorContent } from "@tiptap/vue-3";
+import type { InferResponseType } from "hono/client";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { toast } from "vue-sonner";
 

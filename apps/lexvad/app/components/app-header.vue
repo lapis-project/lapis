@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 const t = useTranslations();
 
 const links = computed(() => {
@@ -8,7 +7,7 @@ const links = computed(() => {
 		{ to: "/", label: t("AppHeader.links.home"), class: "lg:hidden uppercase text-foreground" },
 		{ to: "/about", label: "Über das Projekt", class: "uppercase text-foreground" },
 		{ to: "/map", label: "Kartierung", class: "uppercase text-foreground" },
- ];
+	];
 });
 </script>
 
@@ -22,7 +21,7 @@ const links = computed(() => {
 			</LapisBrandWrapper>
 		</template>
 
-		<UNavigationMenu :items="links" variant="link" :highlight="true" :highlight-color="'primary'"/>
+		<UNavigationMenu :items="links" variant="link" :highlight="true" :highlight-color="'primary'" />
 
 		<template #right>
 			<ClientOnly>

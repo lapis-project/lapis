@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactiveOmit } from "@vueuse/core";
 import { CircleIcon } from "@lucide/vue";
+import { reactiveOmit } from "@vueuse/core";
 import {
 	RadioGroupIndicator,
 	RadioGroupItem,

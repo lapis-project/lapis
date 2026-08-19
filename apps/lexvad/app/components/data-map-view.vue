@@ -47,7 +47,11 @@ function updateSidebar(question: string, variant?: string) {
 					<UButton
 						class="absolute right-0 top-0 size-6 p-1 m-1 text-muted-foreground"
 						variant="ghost"
-						@click="() => {splitMode = false}"
+						@click="
+							() => {
+								splitMode = false;
+							}
+						"
 					>
 						<X></X>
 						<span class="sr-only">{{ t("MapsPage.controls.close-split-view") }}</span>

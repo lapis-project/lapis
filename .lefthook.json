@@ -1,0 +1,28 @@
+{
+	"commit-msg": {
+		"commands": {
+			"commitlint": {
+				"run": "pnpm exec commitlint --edit {1}"
+			}
+		}
+	},
+	"pre-commit": {
+		"parallel": false,
+		"commands": {
+			"oxlint": {
+				"glob": "**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue}",
+				"run": "pnpm exec oxlint --fix --no-error-on-unmatched-pattern {staged_files}",
+				"stage_fixed": true
+			},
+			"stylelint": {
+				"glob": "**/*.{css,vue}",
+				"run": "pnpm exec stylelint --allow-empty-input --cache --fix {staged_files}",
+				"stage_fixed": true
+			},
+			"oxfmt": {
+				"run": "pnpm exec oxfmt --no-error-on-unmatched-pattern --write {staged_files}",
+				"stage_fixed": true
+			}
+		}
+	}
+}

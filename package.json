@@ -1,10 +1,70 @@
 {
 	"name": "lapis",
 	"description": "Monorepo for Lapis",
+	"license": "MIT",
 	"author": "Kilian Kukelka",
 	"type": "module",
-	"license": "MIT",
-	"packageManager": "pnpm@11.13.0+sha512.88d94724d8f2e6c186744a5584c6e59ecac869ec7ba15e9cb4cd628e8dc7066820b2481d8ee3b51ea8da323a7378068aa58c556a3720d32b7c20a051d088363a",
+	"scripts": {
+		"build:backend": "pnpm -F backend build",
+		"build:corpus": "pnpm -F corpus build",
+		"build:lexat": "pnpm -F lexat build",
+		"build:lexvad": "pnpm -F lexvad build",
+		"build:lioe": "pnpm -F lioe build",
+		"build:shadcn": "pnpm -F shadcn build",
+		"build:ui": "pnpm -F ui build",
+		"build:wboe": "pnpm -F wboe build",
+		"clean:workspace": "node ./scripts/clean-workspace.mjs",
+		"clean:workspace:dry": "node ./scripts/clean-workspace.mjs --dry-run",
+		"dev-test:backend": "pnpm -F backend dev-test",
+		"dev:backend": "pnpm -F backend dev",
+		"dev:corpus": "pnpm -F corpus dev",
+		"dev:lexat": "pnpm -F lexat dev",
+		"dev:lexvad": "pnpm -F lexvad dev",
+		"dev:lioe": "pnpm -F lioe dev",
+		"dev:wboe": "pnpm -F wboe dev",
+		"format:check": "oxfmt --check",
+		"format:fix": "oxfmt --write",
+		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
+		"lint:code:check": "oxlint",
+		"lint:code:fix": "oxlint --fix",
+		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
+		"lint:styles:check": "stylelint \"./**/*.@(css|vue)\" --cache --ignore-path ./.gitignore --ignore-pattern \"**/dist/**\" --ignore-pattern \"**/.nuxt/**\" --ignore-pattern \"**/.output/**\"",
+		"lint:styles:fix": "stylelint \"./**/*.@(css|vue)\" --cache --fix --ignore-path ./.gitignore --ignore-pattern \"**/dist/**\" --ignore-pattern \"**/.nuxt/**\" --ignore-pattern \"**/.output/**\"",
+		"start:backend": "pnpm -F backend start",
+		"start:corpus": "pnpm -F corpus start",
+		"start:lexat": "pnpm -F lexat start",
+		"start:lexvad": "pnpm -F lexvad start",
+		"start:lioe": "pnpm -F lioe start",
+		"start:wboe": "pnpm -F wboe start"
+	},
+	"dependencies": {},
+	"devDependencies": {
+		"@acdh-oeaw/commitlint-config": "^3.0.0",
+		"@commitlint/cli": "^20.5.0",
+		"@types/node": "^25.9.4",
+		"lefthook": "catalog:",
+		"node-gyp": "^12.4.0",
+		"npm-run-all2": "^8.0.4",
+		"oxfmt": "^0.59.0",
+		"oxlint": "catalog:",
+		"stylelint": "^17.13.0",
+		"typescript": "catalog:"
+	},
+	"commitlint": {
+		"extends": "@acdh-oeaw/commitlint-config"
+	},
+	"browserslist": {
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		],
+		"production": [
+			">=0.75%",
+			"not dead",
+			"not op_mini all"
+		]
+	},
 	"devEngines": {
 		"runtime": {
 			"name": "node",
@@ -19,75 +79,5 @@
 			"onFail": "download"
 		}
 	},
-	"scripts": {
-		"prepare": "run-s setup",
-		"setup": "is-ci || simple-git-hooks",
-		"format:check": "prettier . --cache --check",
-		"build:backend": "pnpm -F backend build",
-		"build:corpus": "pnpm -F corpus build",
-		"build:lexat": "pnpm -F lexat build",
-		"build:lexvad": "pnpm -F lexvad build",
-		"build:lioe": "pnpm -F lioe build",
-		"build:shadcn": "pnpm -F shadcn build",
-		"build:ui": "pnpm -F ui build",
-		"build:wboe": "pnpm -F wboe build",
-		"clean:workspace": "node ./scripts/clean-workspace.mjs",
-		"clean:workspace:dry": "node ./scripts/clean-workspace.mjs --dry-run",
-		"dev:backend": "pnpm -F backend dev",
-		"dev:corpus": "pnpm -F corpus dev",
-		"dev:lexat": "pnpm -F lexat dev",
-		"dev:lexvad": "pnpm -F lexvad dev",
-		"dev:lioe": "pnpm -F lioe dev",
-		"dev:wboe": "pnpm -F wboe dev",
-		"dev-test:backend": "pnpm -F backend dev-test",
-		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
-		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
-		"lint:code:check": "eslint . --cache",
-		"lint:code:fix": "pnpm run lint:code:check --fix",
-		"lint:styles:check": "stylelint \"./**/*.@(css|vue)\" --cache --ignore-path ./.gitignore",
-		"lint:styles:fix": "pnpm run lint:styles:check --fix",
-		"start:backend": "pnpm -F backend start",
-		"start:corpus": "pnpm -F corpus start",
-		"start:lexat": "pnpm -F lexat start",
-		"start:lexvad": "pnpm -F lexvad start",
-		"start:lioe": "pnpm -F lioe start",
-		"start:wboe": "pnpm -F wboe start"
-	},
-	"devDependencies": {
-		"@acdh-oeaw/commitlint-config": "^3.0.0",
-		"@acdh-oeaw/prettier-config": "^2.0.1",
-		"@commitlint/cli": "^20.5.0",
-		"@types/node": "^25.9.4",
-		"is-ci": "^4.1.0",
-		"lint-staged": "^16.4.0",
-		"node-gyp": "^12.4.0",
-		"npm-run-all2": "^8.0.4",
-		"prettier": "^3.8.4",
-		"simple-git-hooks": "^2.13.1",
-		"typescript": "catalog:"
-	},
-	"browserslist": {
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		],
-		"production": [
-			">=0.75%",
-			"not dead",
-			"not op_mini all"
-		]
-	},
-	"commitlint": {
-		"extends": "@acdh-oeaw/commitlint-config"
-	},
-	"prettier": "@acdh-oeaw/prettier-config",
-	"simple-git-hooks": {
-		"commit-msg": "pnpm exec commitlint --edit",
-		"pre-commit": "pnpm exec lint-staged"
-	},
-	"lint-staged": {
-		"*": "prettier --cache --ignore-unknown --write"
-	},
-	"dependencies": {}
+	"packageManager": "pnpm@11.13.0+sha512.88d94724d8f2e6c186744a5584c6e59ecac869ec7ba15e9cb4cd628e8dc7066820b2481d8ee3b51ea8da323a7378068aa58c556a3720d32b7c20a051d088363a"
 }

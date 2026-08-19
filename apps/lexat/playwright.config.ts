@@ -1,10 +1,10 @@
 import { join } from "node:path";
+import os from "os";
 
 import { defineConfig, devices } from "@playwright/test";
 import { isCI } from "ci-info";
 import { config as dotenv } from "dotenv";
 import { expand } from "dotenv-expand";
-import os from "os";
 
 for (const envFilePath of [
 	".env.dev.local",

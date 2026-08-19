@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/unbound-method */
 /*
  * watergis/maplibre-gl-export
  * https://github.com/watergis/maplibre-gl-export
@@ -112,7 +110,8 @@ export default class PrintableAreaManager {
 
 	/**
 	 * Convert mm/inch to pixel
-	 * @param length mm/inch length
+	 *
+	 * @param length Mm/inch length
 	 * @param conversionFactor DPI value. default is 96.
 	 */
 	private toPixels(length: number, conversionFactor = 96) {

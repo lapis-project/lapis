@@ -19,7 +19,7 @@ const { getRegionPattern, getRegionPatternFill } = useColorStore();
 
 const data = computed(() =>
 	Object.entries(getRegionsForVariant(props.question, props.variant, mode.value))
-		.sort((a, b) => b[1] - a[1])
+		.toSorted((a, b) => b[1] - a[1])
 		.map(([label, value]) => ({ label, value })),
 );
 

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { FileText, MapPinned, Microscope, UserRound } from "@lucide/vue";
 import {
 	ArcElement,
 	BarElement,
@@ -10,7 +11,6 @@ import {
 	Tooltip,
 } from "chart.js";
 import type { InferResponseType } from "hono/client";
-import { FileText, MapPinned, Microscope, UserRound } from "@lucide/vue";
 import { Bar, Doughnut } from "vue-chartjs";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, ArcElement, CategoryScale, LinearScale);

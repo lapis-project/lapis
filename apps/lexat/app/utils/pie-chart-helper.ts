@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-plus-operands */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as THREE from "three";
 
 import type { WebGLContext } from "@/components/geo-map.client.vue";
@@ -10,15 +5,8 @@ import type { WebGLContext } from "@/components/geo-map.client.vue";
 /**
  * Replicates the "icon-size" expression in MapLibre.
  *
- * "icon-size": [
- *   "interpolate", ["linear"],
- *   ["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
- *   0,    0.09,
- *   0.5,  0.1,
- *   1,    0.2,
- *   2,    0.3,
- *   3,    0.5
- * ]
+ * "icon-size": [ "interpolate", ["linear"], ["/", ["ln", ["max", ["get", "answerCount"], 1]],
+ * ["ln", 10]], 0, 0.09, 0.5, 0.1, 1, 0.2, 2, 0.3, 3, 0.5 ]
  *
  * @param {number} answerCount - The answer count value.
  * @returns {number} - The corresponding scale factor.

@@ -1,3 +1,1 @@
-export default defineNuxtConfig({
-	modules: ["@nuxt/eslint"],
-});
+export default defineNuxtConfig({});

@@ -37,7 +37,7 @@ const sortedData = computed(() => {
 	if (!sortCriterion.value || props.serverSideSorting) {
 		return props.data;
 	}
-	return [...props.data].sort((a, b) => {
+	return [...props.data].toSorted((a, b) => {
 		let result = 0;
 		const sortValueA = a[sortCriterion.value];
 		const sortValueB = b[sortCriterion.value];

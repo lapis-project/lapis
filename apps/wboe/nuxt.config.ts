@@ -21,13 +21,6 @@ export default defineNuxtConfig({
 		enabled: process.env.NODE_ENV === "development",
 	},
 
-	eslint: {
-		config: {
-			autoInit: false,
-			standalone: true,
-		},
-	},
-
 	extends: ["../ui"],
 
 	i18n: {
@@ -59,7 +52,6 @@ export default defineNuxtConfig({
 		"nuxt-svgo",
 		"@nuxtjs/seo",
 		"@nuxt/content",
-		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",

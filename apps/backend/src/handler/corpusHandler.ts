@@ -20,12 +20,9 @@ import { getAllTranscripts, transcriptDetailView } from "@/db/corpusRepository.t
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
-import {
-	streamFile,
-	streamJsonWithMetadata,
-	validateTranscriptId,
-} from "@/lib/fileStreamHelper.ts";
+import { streamFile, validateTranscriptId } from "@/lib/fileStreamHelper.ts";
 import { searchRequest } from "@/search/index.ts";
+import type { TranscriptToken } from "@/types/apiTypes.ts";
 import type { paths } from "@/types/noske.d.ts";
 
 const SearchQuerySchema = object({
@@ -316,19 +313,45 @@ const corpus = new Hono<AppEnv>()
 			// 2. Fetch metadata from database
 			const transcriptData = await transcriptDetailView(parsedId);
 
-			// 3. Construct file path using DATA_DIR constant for consistency
+			// 3. Read and process transcript file
 			const filePath = join(DATA_DIR, "json", `${String(parsedId)}.json`);
 
-			// 4. Stream JSON with metadata stitched in
-			return streamJsonWithMetadata(c, {
-				filePath,
-				prefix: {
+			// Read file to transform the data structure
+			const fs = await import("node:fs/promises");
+			const fileContent = await fs.readFile(filePath, "utf-8");
+			const transcriptJson = JSON.parse(fileContent);
+
+			// 4. Group tokens by ID_Inf_id into events
+			const tokensByInformant = new Map<number, Array<TranscriptToken>>();
+
+			for (const token of transcriptJson.transcript_data) {
+				const infId = token.ID_Inf_id;
+				if (!tokensByInformant.has(infId)) {
+					tokensByInformant.set(infId, []);
+				}
+				tokensByInformant.get(infId)!.push(token);
+			}
+
+			// Convert Map to events object
+			const events: Record<string, Array<TranscriptToken>> = {};
+			for (const [infId, tokens] of tokensByInformant.entries()) {
+				events[String(infId)] = tokens;
+			}
+
+			// 5. Return transformed response
+			return c.json(
+				{
 					metadata: transcriptData,
+					transcript_data: {
+						events,
+						tokenset_definitions: transcriptJson.tokenset_definitions as Record<
+							string,
+							Array<string>
+						>,
+					},
 				},
-				contentKey: "transcript_data",
-				enableCompression: true,
-				enableCaching: true,
-			});
+				200,
+			);
 		},
 	);
 

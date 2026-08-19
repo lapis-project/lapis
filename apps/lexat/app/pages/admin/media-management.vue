@@ -55,7 +55,7 @@ const { isOverDropZone } = useDropZone(dropZoneRef, {
 	},
 });
 
-// limit uploads tp 5MB in bytes
+// Limit uploads to 5 MB in bytes.
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const addFiles = (files: Array<File>) => {
@@ -126,7 +126,16 @@ const processAssets = async () => {
 		} catch (error) {
 			console.error(`Error uploading file ${asset.file.name}:`, error);
 			asset.status = "error";
-			toast.error(`Failed to upload ${asset.file.name}`);
+			const statusCode =
+				typeof error === "object" && error !== null && "statusCode" in error
+					? error.statusCode
+					: undefined;
+
+			toast.error(
+				statusCode === 413
+					? `Failed to upload ${asset.file.name}: the server rejected the file as too large.`
+					: `Failed to upload ${asset.file.name}`,
+			);
 		}
 	}
 
@@ -308,12 +317,22 @@ const canProcess = computed(
 						:key="asset.id"
 						class="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group"
 					>
-						<div class="col-span-5 flex items-center gap-4">
+						<div class="col-span-5 flex min-w-0 items-center gap-4">
 							<div
-								class="w-12 h-12 rounded border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 shrink-0"
+								class="w-20 h-20 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 shrink-0 shadow-sm"
 							>
-								<img :alt="asset.category ?? ''" class="object-cover" :src="asset.previewUrl" />
+								<img
+									:alt="asset.file.name"
+									class="w-full h-full object-cover"
+									:src="asset.previewUrl"
+								/>
 							</div>
+							<p
+								class="min-w-0 truncate text-sm font-medium text-gray-700 dark:text-gray-300"
+								:title="asset.file.name"
+							>
+								{{ asset.file.name }}
+							</p>
 						</div>
 
 						<div class="col-span-5">
@@ -431,7 +450,7 @@ const canProcess = computed(
 				>
 					<div class="col-span-3">
 						<div
-							class="w-16 h-16 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 shrink-0 shadow-sm"
+							class="w-20 h-20 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 shrink-0 shadow-sm"
 						>
 							<img
 								v-if="phen.stimulus_media"

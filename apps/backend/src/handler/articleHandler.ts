@@ -10,21 +10,21 @@ import { getAllArticlesByProject, getArticleByAlias } from "../db/articleReposit
 const articles = new Hono<AppEnv>()
 
 	/**
-	 * Fetches all articles by project id which have the status as published.
-	 * Will return this in a paged format as a json. The page size is 20 by default and it starts from page 1 with an offset of 0.
-	 * The projectId is passed as a parameter in the URL and is required.
+	 * Fetches all articles by project id which have the status as published. Will return this in a
+	 * paged format as a json. The page size is 20 by default and it starts from page 1 with an offset
+	 * of 0. The projectId is passed as a parameter in the URL and is required.
 	 *
-	 * searchTerm, page, offset, pageSize, category, sort and language (lang) are optional query parameters and will be included if they are provided.
-	 * The sort parameter takes a string which can be "type" (where the articles are then sorted by their post_type) or
-	 * date where the articles are sorted in descending order by their publish date.
-	 * Another possiblity is sort=variable which will then sort the resulting articles by their assigned
-	 * phenomenon
+	 * SearchTerm, page, offset, pageSize, category, sort and language (lang) are optional query
+	 * parameters and will be included if they are provided. The sort parameter takes a string which
+	 * can be "type" (where the articles are then sorted by their post_type) or date where the
+	 * articles are sorted in descending order by their publish date. Another possiblity is
+	 * sort=variable which will then sort the resulting articles by their assigned phenomenon
 	 *
-	 * @returns status code 400 if the projectId is not a number
-	 * @returns status code 201 with an result object containing the articles, the total number of articles and the current page.
-	 * The articles are in a result array under the key articles. If there are no results the array is empty.
-	 * prev and next contain the links for the previous and next pages if they exist.
-	 * totalResults delivers the total number of results over all pages
+	 * @returns Status code 400 if the projectId is not a number
+	 * @returns Status code 201 with an result object containing the articles, the total number of
+	 *   articles and the current page. The articles are in a result array under the key articles. If
+	 *   there are no results the array is empty. prev and next contain the links for the previous and
+	 *   next pages if they exist. totalResults delivers the total number of results over all pages
 	 */
 
 	.get("/articles/:project", async (c) => {
@@ -129,12 +129,12 @@ const articles = new Hono<AppEnv>()
 	})
 
 	/**
-	 * Fetches an article by its alias.
-	 * The provided alias needs to be at least 5 characters long.
-	 * The resulting object contains all information about the article as well as the linked phenomenona, the authors and the linked bibliographies
+	 * Fetches an article by its alias. The provided alias needs to be at least 5 characters long. The
+	 * resulting object contains all information about the article as well as the linked phenomenona,
+	 * the authors and the linked bibliographies
 	 *
-	 * @returns status code 400 if the provided alias is not a string or too short
-	 * @returns status code 201 with the article object. If no article was found the object is empty
+	 * @returns Status code 400 if the provided alias is not a string or too short
+	 * @returns Status code 201 with the article object. If no article was found the object is empty
 	 */
 
 	.get("/detail/:alias", async (c) => {

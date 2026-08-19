@@ -96,12 +96,13 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Constructor
+	 *
 	 * @param map MaplibreMap object
-	 * @param size layout size. default is A4
-	 * @param dpi dpi value. deafult is 300
-	 * @param format image format. default is PNG
-	 * @param unit length unit. default is mm
-	 * @param fileName file name. default is 'map'
+	 * @param size Layout size. default is A4
+	 * @param dpi Dpi value. deafult is 300
+	 * @param format Image format. default is PNG
+	 * @param unit Length unit. default is mm
+	 * @param fileName File name. default is 'map'
 	 */
 	constructor(
 		map: MaplibreMap,
@@ -173,9 +174,7 @@ export abstract class MapGeneratorBase {
 		return renderMap;
 	}
 
-	/**
-	 * Generate and download Map image
-	 */
+	/** Generate and download Map image */
 	generate(includeLegend: boolean) {
 		// eslint-disable-next-line
 		const this_ = this;
@@ -227,14 +226,6 @@ export abstract class MapGeneratorBase {
 			});
 		});
 
-		const waitIf = (condition: boolean, callback: () => void) => {
-			if (condition) {
-				renderMap.once("idle", callback);
-			} else {
-				callback();
-			}
-		};
-
 		// Render map
 		let renderMap = this.getRenderedMap(container, style);
 
@@ -282,8 +273,9 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Get icon width against exported map size by using fraction rate
+	 *
 	 * @param renderMap Map object
-	 * @param fraction adjust icon size by using this fraction rate. Default is 8%
+	 * @param fraction Adjust icon size by using this fraction rate. Default is 8%
 	 * @returns Icon width calculated
 	 */
 	private getIconWidth(renderMap: MaplibreMap, fraction: number) {
@@ -295,6 +287,7 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Get element position's pixel values based on selected position setting
+	 *
 	 * @param renderMap Map object
 	 * @param position Position of element inserted
 	 * @param offset Offset value to adjust position
@@ -447,8 +440,9 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Add HTMLElement with ID "variantLegend" or "regionLegend" to map object
+	 *
 	 * @param renderMap Map object
-	 * @returns void
+	 * @returns Void
 	 */
 	private addLegend(
 		renderMap: MaplibreMap,
@@ -569,8 +563,9 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Convert canvas to PNG
+	 *
 	 * @param canvas Canvas element
-	 * @param fileName file name
+	 * @param fileName File name
 	 */
 	private toPNG(canvas: HTMLCanvasElement, fileName: string) {
 		const a = document.createElement("a");
@@ -582,8 +577,9 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Convert canvas to JPEG
+	 *
 	 * @param canvas Canvas element
-	 * @param fileName file name
+	 * @param fileName File name
 	 */
 	private toJPEG(canvas: HTMLCanvasElement, fileName: string) {
 		const uri = canvas.toDataURL("image/jpeg", 0.85);
@@ -596,8 +592,9 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Convert canvas to SVG
+	 *
 	 * @param canvas Canvas element
-	 * @param fileName file name
+	 * @param fileName File name
 	 */
 	private toSVG(canvas: HTMLCanvasElement, fileName: string) {
 		const uri = canvas.toDataURL("image/png");
@@ -626,7 +623,8 @@ export abstract class MapGeneratorBase {
 
 	/**
 	 * Convert mm/inch to pixel
-	 * @param length mm/inch length
+	 *
+	 * @param length Mm/inch length
 	 * @param conversionFactor DPI value. default is 96.
 	 */
 	private toPixels(length: number, conversionFactor = 96) {

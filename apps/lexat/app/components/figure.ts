@@ -8,9 +8,7 @@ export interface FigureOptions {
 declare module "@tiptap/core" {
 	interface Commands<ReturnType> {
 		figure: {
-			/**
-			 * Add a figure element
-			 */
+			/** Add a figure element */
 			setFigure: (options: {
 				src: string;
 				alt?: string;
@@ -18,14 +16,10 @@ declare module "@tiptap/core" {
 				caption?: string;
 			}) => ReturnType;
 
-			/**
-			 * Converts an image to a figure
-			 */
+			/** Converts an image to a figure */
 			imageToFigure: () => ReturnType;
 
-			/**
-			 * Converts a figure to an image
-			 */
+			/** Converts a figure to an image */
 			figureToImage: () => ReturnType;
 		};
 	}

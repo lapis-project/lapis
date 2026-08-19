@@ -10,15 +10,8 @@ import type { WebGLContext } from "@/components/geo-map.client.vue";
 /**
  * Replicates the "icon-size" expression in MapLibre.
  *
- * "icon-size": [
- *   "interpolate", ["linear"],
- *   ["/", ["ln", ["max", ["get", "answerCount"], 1]], ["ln", 10]],
- *   0,    0.09,
- *   0.5,  0.1,
- *   1,    0.2,
- *   2,    0.3,
- *   3,    0.5
- * ]
+ * "icon-size": [ "interpolate", ["linear"], ["/", ["ln", ["max", ["get", "answerCount"], 1]],
+ * ["ln", 10]], 0, 0.09, 0.5, 0.1, 1, 0.2, 2, 0.3, 3, 0.5 ]
  *
  * @param {number} answerCount - The answer count value.
  * @returns {number} - The corresponding scale factor.

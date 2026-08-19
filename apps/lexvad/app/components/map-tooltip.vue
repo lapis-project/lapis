@@ -8,11 +8,12 @@ const multipleEntries = computed(() => (props.entry?.Variante?.split(";")?.lengt
 
 <template>
 	<UCard
-:ui="{
-		root: 'divide-none min-w-42 bg-background/95',
-		body: 'p-3 sm:p-3',
-		header: 'p-3 text-sm text-left sm:p-3 pb-0 sm:pb-0',
-	}">
+		:ui="{
+			root: 'divide-none min-w-42 bg-background/95',
+			body: 'p-3 sm:p-3',
+			header: 'p-3 text-sm text-left sm:p-3 pb-0 sm:pb-0',
+		}"
+	>
 		<template #header>
 			<span class="font-semibold">{{ entry?.Ort }}</span>
 		</template>

@@ -59,8 +59,9 @@ user.use("/roles/*", checkIfPrivilegedForAdminOrHigher);
 
 user
 	/**
-	 * Gets all users by their role and returns them in an array with a status code of 200.
-	 * Will return a status code of 400 if the role does not exist.
+	 * Gets all users by their role and returns them in an array with a status code of 200. Will
+	 * return a status code of 400 if the role does not exist.
+	 *
 	 * @param {string} roleName - The role name which will be searched for
 	 * @returns {Array} - An array of users with the specified role
 	 */
@@ -78,16 +79,17 @@ user
 	})
 
 	/**
-	 * Edits the user role of the user with the provided id. The userrole can only be edited by admins or superadmins.
-	 * Admins are able to edit the userrole of all users which are not admins or superadmins.
-	 * superadmins can edit the userrole of all users.
+	 * Edits the user role of the user with the provided id. The userrole can only be edited by admins
+	 * or superadmins. Admins are able to edit the userrole of all users which are not admins or
+	 * superadmins. superadmins can edit the userrole of all users.
+	 *
 	 * @param {number} id - The id of the user which will have their role edited
 	 * @returns {Object} - The edited user object
-	 * @returns status code 200 with the edited user object if everything is successful and the user data has been edited
-	 * @returns status code 400 if the provided id is not a number.
-	 * @returns status code 403 if the user is not allowed to edit the user role.
-	 * @returns status code 404 if the user with the provided id does not exist.
-	 *
+	 * @returns Status code 200 with the edited user object if everything is successful and the user
+	 *   data has been edited
+	 * @returns Status code 400 if the provided id is not a number.
+	 * @returns Status code 403 if the user is not allowed to edit the user role.
+	 * @returns Status code 404 if the user with the provided id does not exist.
 	 */
 	.put("/roles/:id", vValidator("json", editRoleSchema), async (c) => {
 		const userId = Number(c.req.param("id"));
@@ -124,16 +126,16 @@ user
 
 	/**
 	 * Edits the user data of the user with the provided id. The user can only edit their own data.
-	 * Admins are able to edit the data of all users which are not admins or superadmins.
-	 * superadmins can edit the data of all users.
-	 * The handler expects an object where username, email and firstname are required and the lastname is optional
+	 * Admins are able to edit the data of all users which are not admins or superadmins. superadmins
+	 * can edit the data of all users. The handler expects an object where username, email and
+	 * firstname are required and the lastname is optional
 	 *
 	 * @param {number} id - The id of the user which will be edited
 	 * @returns {Object} - The edited user object
-	 * @returns status code 200 with the edited user object if everything is successful.
-	 * @returns status code 400 if the provided id is not a number.
-	 * @returns status code 403 if the user is not allowed to edit the user data.
-	 * @returns status code 404 if the user with the provided id does not exist.
+	 * @returns Status code 200 with the edited user object if everything is successful.
+	 * @returns Status code 400 if the provided id is not a number.
+	 * @returns Status code 403 if the user is not allowed to edit the user data.
+	 * @returns Status code 404 if the user with the provided id does not exist.
 	 */
 	.put("/data/:id", vValidator("json", editUserDataSchema), async (c) => {
 		const userId = Number(c.req.param("id")); // Cast param to Number immediately
@@ -162,17 +164,18 @@ user
 	})
 
 	/**
-	 * Changes the password of the user with the provided id. The user can only change their own password.
-	 * Admins are able to change the password of all users which are not admins or superadmins.
-	 * superadmins can change the password of all users.
+	 * Changes the password of the user with the provided id. The user can only change their own
+	 * password. Admins are able to change the password of all users which are not admins or
+	 * superadmins. superadmins can change the password of all users.
 	 *
 	 * The password is in the body of the request and needs to be a string
+	 *
 	 * @param {number} id - The id of the user which will have their password changed
 	 * @returns {Object} - The number of updated rows
-	 * @returns status code 200 with the number of updated rows if everything is successful.
-	 * @returns status code 400 if the provided id is not a number.
-	 * @returns status code 403 if the user is not allowed to change the password.
-	 * @returns status code 404 if the user with the provided id does not exist.
+	 * @returns Status code 200 with the number of updated rows if everything is successful.
+	 * @returns Status code 400 if the provided id is not a number.
+	 * @returns Status code 403 if the user is not allowed to change the password.
+	 * @returns Status code 404 if the user with the provided id does not exist.
 	 */
 	.put("/password/:id", vValidator("json", editPasswordSchema), async (c) => {
 		const userId = Number(c.req.param("id"));
@@ -209,12 +212,11 @@ user
 	/**
 	 * Gets single user by its id and returns the corresponding user object.
 	 *
-	 *
 	 * @param {number} id - The id of the user which will be returned
 	 * @returns {Object} - The user object
-	 * @returns status code 200 with the user object if everything is successful.
-	 * @returns status code 400 if the provided id is not a number.
-	 * @returns status code 404 if the user with the provided id does not exist.
+	 * @returns Status code 200 with the user object if everything is successful.
+	 * @returns Status code 400 if the provided id is not a number.
+	 * @returns Status code 404 if the user with the provided id does not exist.
 	 */
 	.get("/:id", async (c) => {
 		const userId = Number(c.req.param("id"));

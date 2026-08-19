@@ -172,8 +172,8 @@ const points = computed(() => {
 });
 
 /**
- * Reduce size of geojson payload, which has an impact on performance,
- * because `maplibre-gl` will serialize geojson features when sending them to the webworker.
+ * Reduce size of geojson payload, which has an impact on performance, because `maplibre-gl` will
+ * serialize geojson features when sending them to the webworker.
  */
 const features = computed(() => {
 	return entities.value.map((entity) => {

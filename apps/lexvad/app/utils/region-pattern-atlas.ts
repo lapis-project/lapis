@@ -5,8 +5,8 @@ import {
 } from "@/stores/use-color-store";
 
 /**
- * Atlas pixels per pattern unit. The tiles are defined at SVG scale (4-8 units),
- * which is far too coarse to magnify to the tile sizes used on the map.
+ * Atlas pixels per pattern unit. The tiles are defined at SVG scale (4-8 units), which is far too
+ * coarse to magnify to the tile sizes used on the map.
  */
 export const PATTERN_RESOLUTION = 16;
 
@@ -18,15 +18,14 @@ export interface RegionPatternAtlas {
 }
 
 /**
- * Rasterises the region patterns into a single sprite sheet, laid out as one row
- * of tiles. deck.gl cannot reference the SVG `<pattern>` defs the charts use, so
- * `FillStyleExtension` gets the same shapes rendered to a canvas instead.
+ * Rasterises the region patterns into a single sprite sheet, laid out as one row of tiles. deck.gl
+ * cannot reference the SVG `<pattern>` defs the charts use, so `FillStyleExtension` gets the same
+ * shapes rendered to a canvas instead.
  *
- * Every sprite is surrounded by a one-tile gutter holding the wrapped
- * continuation of the pattern. deck samples the atlas with linear filtering and
- * `clamp-to-edge`, so texels along a frame's edge otherwise blend with whatever
- * sits next to it — which shows up as pale seams along the tile grid, one texel
- * wide in the atlas but many pixels wide once magnified on the map.
+ * Every sprite is surrounded by a one-tile gutter holding the wrapped continuation of the pattern.
+ * deck samples the atlas with linear filtering and `clamp-to-edge`, so texels along a frame's edge
+ * otherwise blend with whatever sits next to it — which shows up as pale seams along the tile grid,
+ * one texel wide in the atlas but many pixels wide once magnified on the map.
  *
  * Browser only — returns `null` when there is no 2d context.
  */

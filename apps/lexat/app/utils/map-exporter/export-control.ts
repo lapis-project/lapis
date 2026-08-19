@@ -47,6 +47,7 @@ import {
 
 /**
  * Maplibre GL Export Control.
+ *
  * @param {Object} targets - Object of layer.id and title
  */
 export default class MaplibreExportControl implements IControl {

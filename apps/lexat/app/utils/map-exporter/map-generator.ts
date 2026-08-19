@@ -44,12 +44,13 @@ import {
 export default class MapGenerator extends MapGeneratorBase {
 	/**
 	 * Constructor
+	 *
 	 * @param map MaplibreMap object
-	 * @param size layout size. default is A4
-	 * @param dpi dpi value. deafult is 300
-	 * @param format image format. default is PNG
-	 * @param unit length unit. default is mm
-	 * @param fileName file name. default is 'map'
+	 * @param size Layout size. default is A4
+	 * @param dpi Dpi value. deafult is 300
+	 * @param format Image format. default is PNG
+	 * @param unit Length unit. default is mm
+	 * @param fileName File name. default is 'map'
 	 */
 	constructor(
 		map: MaplibreMap,

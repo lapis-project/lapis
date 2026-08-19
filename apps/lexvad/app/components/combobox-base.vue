@@ -49,8 +49,15 @@ function selectOption(option: DropdownOption) {
 
 <template>
 	<UPopover v-model:open="open" :content="{ align: 'start', side: 'bottom' }">
-		<UButton aria-controls="popover-content" :aria-expanded="open" class="justify-between bg-card"
-			:class="[props.width]" :data-testid="props.dataTestid" role="combobox" variant="outline">
+		<UButton
+			aria-controls="popover-content"
+			:aria-expanded="open"
+			class="justify-between bg-card"
+			:class="[props.width]"
+			:data-testid="props.dataTestid"
+			role="combobox"
+			variant="outline"
+		>
 			<span class="truncate">
 				{{
 					model
@@ -64,20 +71,32 @@ function selectOption(option: DropdownOption) {
 		<template #content>
 			<div id="popover-content" class="p-0" :class="[props.width]" role="listbox">
 				<template v-if="hasSearch">
-					<UInput v-model="search" class="w-full"
-						:placeholder="t('Combobox.search', { placeholder: props.placeholder })" variant="none" />
+					<UInput
+						v-model="search"
+						class="w-full"
+						:placeholder="t('Combobox.search', { placeholder: props.placeholder })"
+						variant="none"
+					/>
 					<USeparator />
 				</template>
 				<div class="max-h-64 overflow-y-auto p-1">
 					<p v-if="hasSearch && !filteredOptions.length" class="py-6 text-center text-sm">
 						{{ t("Combobox.empty", { placeholder: props.placeholder }) }}
 					</p>
-					<button v-for="question in filteredOptions" :key="question.id"
+					<button
+						v-for="question in filteredOptions"
+						:key="question.id"
 						:aria-selected="model === question.value"
-						class="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent" role="option"
-						type="button" @click="selectOption(question)">
+						class="flex w-full items-center rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+						role="option"
+						type="button"
+						@click="selectOption(question)"
+					>
 						{{ question.label }}
-						<Check class="ml-auto size-4" :class="model === question.value ? 'opacity-100' : 'opacity-0'" />
+						<Check
+							class="ml-auto size-4"
+							:class="model === question.value ? 'opacity-100' : 'opacity-0'"
+						/>
 					</button>
 				</div>
 			</div>

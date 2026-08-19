@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactiveOmit } from "@vueuse/core";
 import { X } from "@lucide/vue";
+import { reactiveOmit } from "@vueuse/core";
 import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from "reka-ui";
 import type { HTMLAttributes } from "vue";
 

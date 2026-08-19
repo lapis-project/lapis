@@ -25,14 +25,14 @@ function removeSelection() {
 
 onMounted(() => {
 	const val = route.query.selection;
-	const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? currentId.value);
+	const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
 	currentId.value = isNaN(selection) ? null : selection;
 });
 
 watch(
 	() => route.query.selection,
 	(val) => {
-		const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? null);
+		const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
 		currentId.value = isNaN(selection) ? null : selection;
 	},
 );

@@ -5,78 +5,51 @@ import { createGzip } from "node:zlib";
 import type { Context } from "hono";
 import { stream } from "hono/streaming";
 
-/**
- * Options for file streaming
- */
+/** Options for file streaming */
 export interface StreamFileOptions {
-	/**
-	 * The absolute file path to stream
-	 */
+	/** The absolute file path to stream */
 	filePath: string;
 
-	/**
-	 * Content-Type header value
-	 */
+	/** Content-Type header value */
 	contentType: string;
 
-	/**
-	 * Enable gzip compression (default: true for files > 1MB)
-	 */
+	/** Enable gzip compression (default: true for files > 1MB) */
 	enableCompression?: boolean;
 
-	/**
-	 * Enable caching headers with ETag (default: true)
-	 */
+	/** Enable caching headers with ETag (default: true) */
 	enableCaching?: boolean;
 
-	/**
-	 * Custom chunk size in bytes (default: 256KB for large files)
-	 */
+	/** Custom chunk size in bytes (default: 256KB for large files) */
 	chunkSize?: number;
 
-	/**
-	 * Optional callback for progress tracking
-	 */
+	/** Optional callback for progress tracking */
 	onProgress?: (bytesRead: number, totalBytes: number) => void;
 }
 
-/**
- * Options for streaming JSON with additional data prepended/appended
- */
+/** Options for streaming JSON with additional data prepended/appended */
 export interface StreamJsonWithMetadataOptions {
-	/**
-	 * The absolute file path to the JSON file
-	 */
+	/** The absolute file path to the JSON file */
 	filePath: string;
 
-	/**
-	 * Data to prepend before the file content (will be JSON stringified)
-	 */
+	/** Data to prepend before the file content (will be JSON stringified) */
 	prefix?: Record<string, unknown>;
 
-	/**
-	 * Data to append after the file content (will be JSON stringified)
-	 */
+	/** Data to append after the file content (will be JSON stringified) */
 	suffix?: Record<string, unknown>;
 
-	/**
-	 * Key name for the file content in the resulting JSON (default: "data")
-	 */
+	/** Key name for the file content in the resulting JSON (default: "data") */
 	contentKey?: string;
 
-	/**
-	 * Enable gzip compression (default: true)
-	 */
+	/** Enable gzip compression (default: true) */
 	enableCompression?: boolean;
 
-	/**
-	 * Enable caching headers with ETag (default: true)
-	 */
+	/** Enable caching headers with ETag (default: true) */
 	enableCaching?: boolean;
 }
 
 /**
  * Validates that a file path is safe and exists
+ *
  * @param filePath - The file path to validate
  * @param maxSizeBytes - Maximum allowed file size in bytes (default: 10MB)
  * @returns Object with validation result and file stats
@@ -106,8 +79,8 @@ export function validateFile(
 }
 
 /**
- * Generates an ETag for a file based on its modification time and size
- * This is faster than hashing the entire file content
+ * Generates an ETag for a file based on its modification time and size This is faster than hashing
+ * the entire file content
  */
 export function generateETag(stats: Stats): string {
 	const hash = createHash("md5");
@@ -117,17 +90,13 @@ export function generateETag(stats: Stats): string {
 	return `"${hash.digest("hex")}"`;
 }
 
-/**
- * Checks if the client's cached version is still valid
- */
+/** Checks if the client's cached version is still valid */
 export function checkCacheHeaders(c: Context, etag: string): boolean {
 	const ifNoneMatch = c.req.header("If-None-Match");
 	return ifNoneMatch === etag;
 }
 
-/**
- * Determines if compression should be used based on file size and client support
- */
+/** Determines if compression should be used based on file size and client support */
 export function shouldCompress(c: Context, fileSize: number, enableCompression?: boolean): boolean {
 	if (enableCompression === false) {
 		return false;
@@ -144,20 +113,17 @@ export function shouldCompress(c: Context, fileSize: number, enableCompression?:
 }
 
 /**
- * Streams a file to the client with optimizations:
- * - Content-Length header for progress tracking
- * - ETag/Last-Modified for caching
- * - Gzip compression for large files
- * - Proper error handling with HTTP status codes
- * - Optimized chunk size for 4-5MB files
+ * Streams a file to the client with optimizations: - Content-Length header for progress tracking -
+ * ETag/Last-Modified for caching - Gzip compression for large files - Proper error handling with
+ * HTTP status codes - Optimized chunk size for 4-5MB files
  *
  * @example
- * ```typescript
- * return streamFile(c, {
- *   filePath: '/path/to/file.json',
- *   contentType: 'application/json',
- * });
- * ```
+ * 	```typescript
+ * 	return streamFile(c, {
+ * 		filePath: "/path/to/file.json",
+ * 		contentType: "application/json",
+ * 	});
+ * 	```;
  */
 export function streamFile(c: Context, options: StreamFileOptions) {
 	const {
@@ -234,18 +200,18 @@ export function streamFile(c: Context, options: StreamFileOptions) {
 }
 
 /**
- * Streams a JSON file with additional metadata prepended/appended
- * Useful for stitching together metadata + large JSON data without loading everything into memory
+ * Streams a JSON file with additional metadata prepended/appended Useful for stitching together
+ * metadata + large JSON data without loading everything into memory
  *
  * @example
- * ```typescript
- * return streamJsonWithMetadata(c, {
- *   filePath: '/path/to/data.json',
- *   prefix: { metadata: { id: 123, name: 'Test' } },
- *   contentKey: 'transcript_data',
- * });
- * // Output: {"metadata":{"id":123,"name":"Test"},"transcript_data":<file contents>}
- * ```
+ * 	```typescript
+ * 	return streamJsonWithMetadata(c, {
+ * 		filePath: "/path/to/data.json",
+ * 		prefix: { metadata: { id: 123, name: "Test" } },
+ * 		contentKey: "transcript_data",
+ * 	});
+ * 	// Output: {"metadata":{"id":123,"name":"Test"},"transcript_data":<file contents>}
+ * 	```;
  */
 export function streamJsonWithMetadata(c: Context, options: StreamJsonWithMetadataOptions) {
 	const {
@@ -388,10 +354,7 @@ export function streamJsonWithMetadata(c: Context, options: StreamJsonWithMetada
 	});
 }
 
-/**
- * Validates and sanitizes a transcript ID
- * Returns null if invalid
- */
+/** Validates and sanitizes a transcript ID Returns null if invalid */
 export function validateTranscriptId(id: string): string | null {
 	const safeId = id.replace(/[^\w-]/g, "");
 

@@ -1,13 +1,14 @@
 {
 	"css.validate": false,
 	"editor.codeActionsOnSave": {
-		"source.fixAll": "explicit"
+		"source.fixAll.oxc": "explicit",
+		"source.fixAll.stylelint": "explicit"
 	},
 	"search.exclude": {
 		"**/node_modules": true,
 		"pnpm-lock.yaml": true
 	},
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.defaultFormatter": "oxc.oxc-vscode",
 	"editor.formatOnSaveMode": "file", // required to format on save
 	"editor.formatOnSave": true,
 	"editor.inlayHints.enabled": "offUnlessPressed",
@@ -17,19 +18,6 @@
 	},
 	"editor.rulers": [100],
 	"editor.stickyScroll.enabled": true,
-	"eslint.enable": true,
-	"eslint.validate": ["javascript", "typescript", "vue"],
-	// "eslint.workingDirectories": [{ "mode": "auto" }],
-	"eslint.workingDirectories": [
-		{ "directory": "./apps/lexat", "changeProcessCWD": true },
-		{ "directory": "./apps/lexvad", "changeProcessCWD": true },
-		{ "directory": "./apps/lioe", "changeProcessCWD": true },
-		{ "directory": "./apps/corpus", "changeProcessCWD": true },
-		{ "directory": "./apps/backend", "changeProcessCWD": true },
-		{ "directory": "./apps/shadcn", "changeProcessCWD": true },
-		{ "directory": "./apps/ui", "changeProcessCWD": true },
-		{ "directory": "./apps/wboe", "changeProcessCWD": true }
-	],
 	"files.associations": {
 		"*.css": "tailwindcss"
 	},
@@ -43,7 +31,9 @@
 	"i18n-ally.sortKeys": true,
 	"i18n-ally.tabStyle": "tab",
 	"less.validate": false,
-	"prettier.ignorePath": ".prettierignore",
+	"oxc.enable.oxfmt": true,
+	"oxc.enable.oxlint": true,
+	"oxc.requireConfig": true,
 	"scss.validate": false,
 	"stylelint.enable": true,
 	"stylelint.snippet": ["css", "postcss", "tailwindcss", "vue"],
@@ -52,11 +42,6 @@
 	"tailwindCSS.experimental.classRegex": ["class:\\s*?[\"'`]([^\"'`]*).*?,"], // https://tiptap.dev/docs/editor/getting-started/style-editor
 	"tailwindCSS.classAttributes": ["active-class", "inactive-class"],
 	"terminal.integrated.enablePersistentSessions": false,
-	"typescript.enablePromptUseWorkspaceTsdk": true,
-	"typescript.inlayHints.parameterNames.enabled": "all",
-	"typescript.preferences.importModuleSpecifier": "non-relative",
-	"typescript.preferences.preferTypeOnlyAutoImports": true,
-	"typescript.tsdk": "node_modules/typescript/lib",
 	"workbench.editor.labelFormat": "medium",
 	"workbench.tree.enableStickyScroll": true,
 	"[markdown][mdc]": {

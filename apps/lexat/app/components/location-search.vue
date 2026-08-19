@@ -23,10 +23,9 @@ const props = withDefaults(defineProps<Props>(), {
 // local input state
 const search = ref("");
 
-/** list to show:
- * - if search has text -> filter all options by search
- * - else if there are selected values -> show ONLY selected values
- * - else -> show nothing (and we won't render the group)
+/**
+ * List to show: - if search has text -> filter all options by search - else if there are selected
+ * values -> show ONLY selected values - else -> show nothing (and we won't render the group)
  */
 const displayedOptions = computed<Array<ComboboxOption>>(() => {
 	const q = search.value.trim().toLowerCase();

@@ -18,14 +18,16 @@ const searchSchema = object({
 const bibliography = new Hono<AppEnv>()
 	/**
 	 * Retrieves a paginated list of bibliography entries from the database.
-	 * * This endpoint automatically calculates and includes absolute URLs for the
-	 * current, next, and previous pages based on the incoming request URL to
-	 * facilitate the frontend navigation.
-	 * * @route GET /bib
+	 *
+	 * - This endpoint automatically calculates and includes absolute URLs for the current, next, and
+	 *   previous pages based on the incoming request URL to facilitate the frontend navigation.
+	 *
 	 * @param {number} page - The current page number (validated by paginationSchema).
 	 * @param {number} pageSize - The number of items per page (validated by paginationSchema).
-	 * @returns {Object} 200 - JSON object containing the data payload, total page count, and pagination URLs (`currentUrl`, `nextUrl`, `prevUrl`).
+	 * @returns {Object} 200 - JSON object containing the data payload, total page count, and
+	 *   pagination URLs (`currentUrl`, `nextUrl`, `prevUrl`).
 	 * @returns {Object} 500 - JSON object containing an error message if the database query fails.
+	 * @route GET /bib
 	 */
 	.get("/", vValidator("query", paginationSchema), async (c) => {
 		const { page, pageSize } = c.req.valid("query");
@@ -56,10 +58,13 @@ const bibliography = new Hono<AppEnv>()
 	})
 	/**
 	 * Retrieves a single bibliography entry based on its unique Zotero identifier from the database.
-	 * * @route GET /bib/single
-	 * @param {string} bib_id - The unique identifier for the bibliography entry (validated by searchSchema).
+	 * *
+	 *
+	 * @param {string} bib_id - The unique identifier for the bibliography entry (validated by
+	 *   searchSchema).
 	 * @returns {Object} 200 - JSON object containing the specific bibliography entry data.
 	 * @returns {Object} 500 - JSON object containing an error message if the database query fails.
+	 * @route GET /bib/single
 	 */
 	.get("/single", vValidator("query", searchSchema), async (c) => {
 		const { bib_id } = c.req.valid("query");

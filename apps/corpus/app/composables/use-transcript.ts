@@ -1,6 +1,6 @@
-import type { APITranscript } from "@/types/api";
-
 import { computed, ref } from "vue";
+
+import type { APITranscript } from "@/types/api";
 
 export function useTranscript(id: Ref<number | null>, format: string) {
 	const env = useRuntimeConfig();

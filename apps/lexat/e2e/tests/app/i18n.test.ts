@@ -19,8 +19,8 @@ test.describe("i18n", () => {
 		test.use({ locale: "de" });
 
 		/**
-		 * FIXME: Currently, this breaks when pre-rendering the page via `routeRules`.
-		 * This is an upstream issue in `@nuxtjs/i18n`.
+		 * FIXME: Currently, this breaks when pre-rendering the page via `routeRules`. This is an
+		 * upstream issue in `@nuxtjs/i18n`.
 		 */
 		test.fixme("with supported locale", async ({ page }) => {
 			await page.goto("/");

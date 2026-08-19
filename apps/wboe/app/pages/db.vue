@@ -12,7 +12,6 @@ useSeoMeta({
 
 import type { TableColumn } from "@nuxt/ui";
 import { computed, h, ref, resolveComponent } from "vue";
-
 import type { WboeTableRow } from "~~/server/api/db.get";
 
 const UCheckbox = resolveComponent("UCheckbox");

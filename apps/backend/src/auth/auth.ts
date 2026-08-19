@@ -40,8 +40,8 @@ export async function createSession(userId: number): Promise<Session> {
 }
 
 /**
- * Validates a session ID and returns the session and user data
- * Handles session extension (sliding window) automatically
+ * Validates a session ID and returns the session and user data Handles session extension (sliding
+ * window) automatically
  */
 export async function validateSession(
 	sessionId: string,

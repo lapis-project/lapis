@@ -3,6 +3,6 @@ export const initialViewState = {
 	// latitude: 48.208191950123414 /** Vienna */,
 	longitude: 13.3458 /** Austria */,
 	latitude: 47.6964 /** Austria */,
-	pitch: 0 /** degrees */,
+	pitch: 0 /** Degrees */,
 	zoom: 6,
 };

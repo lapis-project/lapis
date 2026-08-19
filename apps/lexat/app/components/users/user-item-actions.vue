@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { CircleChevronUp, KeyRound } from "@lucide/vue";
 import { toTypedSchema } from "@vee-validate/zod";
 import type { InferResponseType } from "hono/client";
-import { CircleChevronUp, KeyRound } from "@lucide/vue";
 import { toast } from "vue-sonner";
 import * as z from "zod";
 

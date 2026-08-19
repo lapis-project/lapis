@@ -112,7 +112,8 @@ export default class PrintableAreaManager {
 
 	/**
 	 * Convert mm/inch to pixel
-	 * @param length mm/inch length
+	 *
+	 * @param length Mm/inch length
 	 * @param conversionFactor DPI value. default is 96.
 	 */
 	private toPixels(length: number, conversionFactor = 96) {

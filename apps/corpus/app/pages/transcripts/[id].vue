@@ -1,13 +1,6 @@
 <!-- eslint-disable vuejs-accessibility/media-has-caption -->
 <script setup lang="ts">
-import {
-	ChevronRight,
-	DownloadIcon,
-	FileText,
-	PauseIcon,
-	PlayIcon,
-	SquareIcon,
-} from "@lucide/vue";
+import { ChevronRight, DownloadIcon, FileText, PauseIcon, PlayIcon, SquareIcon } from "@lucide/vue";
 
 import { useAudioController } from "@/composables/use-audio-controller";
 
@@ -146,7 +139,7 @@ const audioSrc = computed(() => {
 
 onMounted(() => {
 	const val = route.params.id;
-	const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? currentId.value);
+	const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
 	currentId.value = isNaN(selection) ? null : selection;
 });
 
@@ -165,7 +158,7 @@ onScopeDispose(() => {
 watch(
 	() => route.params.id,
 	(val) => {
-		const selection = Array.isArray(val) ? Number(val[0]) : (Number(val) ?? null);
+		const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
 		currentId.value = isNaN(selection) ? null : selection;
 	},
 );

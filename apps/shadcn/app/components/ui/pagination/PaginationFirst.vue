@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { reactiveOmit } from "@vueuse/core";
 import { ChevronLeftIcon } from "@lucide/vue";
+import { reactiveOmit } from "@vueuse/core";
 import { PaginationFirst, type PaginationFirstProps, useForwardProps } from "reka-ui";
 import type { HTMLAttributes } from "vue";
 

@@ -39,7 +39,7 @@ const createNewArticle = async () => {
 			method: "POST",
 			credentials: "include",
 		});
-		await await navigateTo(localePath(`/admin/articles/${result.articleId.id}`));
+		await navigateTo(localePath(`/admin/articles/${result.articleId.id}`));
 	} catch (error) {
 		console.error(error);
 		toast.error("Could not create new article");

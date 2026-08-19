@@ -10,6 +10,7 @@ export interface TableColumn {
 
 /**
  * Escapes CSV values by doubling internal quotes and enclosing strings in quotes.
+ *
  * @param value - The value to escape.
  * @returns The escaped CSV value as a string.
  */
@@ -25,6 +26,7 @@ const escapeCSVValue = (value: number | string): string => {
 
 /**
  * Generates and downloads a CSV file based on the provided data and columns.
+ *
  * @param data - Array of data entries.
  * @param columns - Array of table column definitions.
  * @param fileName - Optional file name for the downloaded CSV. Defaults to "table-data.csv".

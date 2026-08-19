@@ -16,18 +16,12 @@
 		"vue": "catalog:"
 	},
 	"devDependencies": {
-		"@acdh-oeaw/eslint-config": "^2.0.13",
-		"@acdh-oeaw/eslint-config-nuxt": "^2.0.19",
-		"@acdh-oeaw/eslint-config-vue": "^2.0.17",
 		"@acdh-oeaw/stylelint-config": "^3.0.3",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
-		"@nuxt/eslint": "catalog:",
 		"@types/node": "^25.9.4",
-		"eslint": "catalog:",
-		"eslint-config-flat-gitignore": "^2.3.0",
+		"npm-run-all2": "catalog:",
 		"stylelint": "^17.13.0",
 		"typescript": "catalog:",
-		"typescript-eslint": "^8.61.1",
 		"vite": "catalog:",
 		"vue-tsc": "^3.3.5"
 	},
@@ -42,22 +36,6 @@
 			"not dead",
 			"not op_mini all"
 		]
-	},
-	"lint-staged": {
-		"*.@(vue)": [
-			"eslint --cache --fix",
-			"stylelint --cache --fix --allow-empty-input",
-			"prettier --cache --cache-location ./.prettiercache --write"
-		],
-		"*.@(js|ts)": [
-			"eslint --cache --fix",
-			"prettier --cache --cache-location ./.prettiercache --write"
-		],
-		"*.@(css)": [
-			"stylelint --cache --fix",
-			"prettier --cache --cache-location ./.prettiercache --write"
-		],
-		"*.!(css|js|ts|vue),!./@(content|public)/**": "prettier --cache --cache-location ./.prettiercache --ignore-unknown --write"
 	},
 	"stylelint": {
 		"extends": "@acdh-oeaw/stylelint-config"

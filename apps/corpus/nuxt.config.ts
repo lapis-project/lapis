@@ -34,13 +34,6 @@ export default defineNuxtConfig({
 		enabled: process.env.NODE_ENV === "development",
 	},
 
-	eslint: {
-		config: {
-			autoInit: false,
-			standalone: true,
-		},
-	},
-
 	extends: ["../shadcn"],
 
 	experimental: {
@@ -78,14 +71,7 @@ export default defineNuxtConfig({
 		dirs: ["./app/config/"],
 	},
 
-	modules: [
-		"nuxt-svgo",
-		"@nuxt/eslint",
-		"@nuxt/image",
-		"@nuxtjs/color-mode",
-		"@nuxtjs/i18n",
-		"@vueuse/nuxt",
-	],
+	modules: ["nuxt-svgo", "@nuxt/image", "@nuxtjs/color-mode", "@nuxtjs/i18n", "@vueuse/nuxt"],
 
 	nitro: {
 		compressPublicAssets: true,

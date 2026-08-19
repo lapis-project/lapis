@@ -8,17 +8,17 @@
 		"analyze": "nuxt analyze",
 		"build": "NODE_OPTIONS=--max_old_space_size=8192 nuxt build --dotenv ./.env.local",
 		"dev": "nuxt dev --dotenv ./.env.dev.local",
+		"format:check": "oxfmt --check",
+		"format:fix": "oxfmt --write",
+		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
+		"lint:code:check": "oxlint",
+		"lint:code:fix": "oxlint --fix",
+		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
+		"lint:styles:check": "stylelint \"./**/*.@(css|vue)\" --cache --ignore-path ./.gitignore",
+		"lint:styles:fix": "stylelint \"./**/*.@(css|vue)\" --cache --fix --ignore-path ./.gitignore",
 		"postinstall": "nuxt prepare",
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.dev.local",
-		"format:check": "prettier . \"!./@(content|public)/**\" --cache --cache-location ./.prettiercache --check",
-		"format:fix": "pnpm run format:check --write --ignore-path ../../.prettierignore",
-		"lint:check": "run-p --continue-on-error \"lint:*:check\"",
-		"lint:fix": "run-p --continue-on-error \"lint:*:fix\"",
-		"lint:code:check": "eslint . --cache",
-		"lint:code:fix": "pnpm run lint:code:check --fix",
-		"lint:styles:check": "stylelint \"./**/*.@(css|vue)\" --cache --ignore-path ./.gitignore",
-		"lint:styles:fix": "pnpm run lint:styles:check --fix",
 		"types:check": "nuxt typecheck",
 		"validate": "run-p format:check lint:check types:check test test:e2e"
 	},
@@ -43,22 +43,15 @@
 		"vue": "catalog:"
 	},
 	"devDependencies": {
-		"@acdh-oeaw/eslint-config": "^2.0.13",
-		"@acdh-oeaw/eslint-config-nuxt": "^2.0.19",
-		"@acdh-oeaw/eslint-config-playwright": "^2.0.15",
-		"@acdh-oeaw/eslint-config-vue": "^2.0.17",
 		"@acdh-oeaw/stylelint-config": "^3.0.3",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
-		"@nuxt/eslint": "catalog:",
 		"@types/node": "^25.9.4",
 		"dotenv": "^17.4.1",
 		"dotenv-expand": "^12.0.3",
-		"eslint": "catalog:",
-		"eslint-config-flat-gitignore": "^2.3.0",
+		"npm-run-all2": "catalog:",
 		"schema-dts": "^2.0.0",
 		"stylelint": "^17.13.0",
 		"typescript": "catalog:",
-		"typescript-eslint": "^8.61.1",
 		"vue-tsc": "^3.3.5"
 	},
 	"browserslist": {
@@ -72,22 +65,6 @@
 			"not dead",
 			"not op_mini all"
 		]
-	},
-	"lint-staged": {
-		"*.@(vue)": [
-			"eslint --cache --fix",
-			"stylelint --cache --fix --allow-empty-input",
-			"prettier --cache --cache-location ./.prettiercache --write"
-		],
-		"*.@(js|ts)": [
-			"eslint --cache --fix",
-			"prettier --cache --cache-location ./.prettiercache --write"
-		],
-		"*.@(css)": [
-			"stylelint --cache --fix",
-			"prettier --cache --cache-location ./.prettiercache --write"
-		],
-		"*.!(css|js|ts|vue),!./@(content|public)/**": "prettier --cache --cache-location ./.prettiercache --ignore-unknown --write"
 	},
 	"stylelint": {
 		"extends": "@acdh-oeaw/stylelint-config"

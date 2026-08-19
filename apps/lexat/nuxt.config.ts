@@ -33,13 +33,6 @@ export default defineNuxtConfig({
 		enabled: process.env.NODE_ENV === "development",
 	},
 
-	eslint: {
-		config: {
-			autoInit: false,
-			standalone: true,
-		},
-	},
-
 	extends: ["../shadcn"],
 
 	experimental: {
@@ -79,7 +72,6 @@ export default defineNuxtConfig({
 
 	modules: [
 		"nuxt-svgo",
-		"@nuxt/eslint",
 		"@nuxt/image",
 		"@nuxt/scripts",
 		"@nuxtjs/color-mode",

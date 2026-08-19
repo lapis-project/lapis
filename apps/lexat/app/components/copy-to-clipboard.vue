@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useClipboard } from "@vueuse/core";
 import { CheckIcon, ClipboardIcon } from "@lucide/vue";
+import { useClipboard } from "@vueuse/core";
 import { toast } from "vue-sonner";
 
 const props = defineProps<{

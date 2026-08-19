@@ -69,9 +69,10 @@ const media = new Hono()
 		}
 	})
 	/**
-	 * Uploads and assigns a new stimulus image for a specific phenomenon.
-	 * If an image already exists for this phenomenon, it is deleted from S3 first to prevent orphaned files.
-	 * * @returns JSON object containing the newly generated signed `imageUrl` and a success `message`.
+	 * Uploads and assigns a new stimulus image for a specific phenomenon. If an image already exists
+	 * for this phenomenon, it is deleted from S3 first to prevent orphaned files. *
+	 *
+	 * @returns JSON object containing the newly generated signed `imageUrl` and a success `message`.
 	 * @status 200 - File uploaded to S3 and database updated successfully.
 	 * @status 400 - Provided ID is missing or invalid.
 	 * @status 500 - Internal server error during S3 upload or database update.
@@ -107,9 +108,10 @@ const media = new Hono()
 		}
 	})
 	/**
-	 * Deletes the stimulus image associated with a specific phenomenon.
-	 * Removes the file from S3 and sets the stimulus_media field to null in the database.
-	 * * @returns JSON object containing a success or error `message`.
+	 * Deletes the stimulus image associated with a specific phenomenon. Removes the file from S3 and
+	 * sets the stimulus_media field to null in the database. *
+	 *
+	 * @returns JSON object containing a success or error `message`.
 	 * @status 200 - Image deleted from S3 and database updated successfully.
 	 * @status 400 - Provided ID is missing or invalid.
 	 * @status 404 - No existing image was found for the given phenomenon ID.

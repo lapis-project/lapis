@@ -78,7 +78,6 @@ watch(
 	props,
 	() => {
 		deck?.setProps({ layers: createLayers() });
-		console.log("update");
 	},
 	{ deep: true },
 );

@@ -21,7 +21,7 @@ const links = computed(() => {
 			</LapisBrandWrapper>
 		</template>
 
-		<UNavigationMenu :items="links" variant="link" :highlight="true" :highlight-color="'primary'" />
+		<UNavigationMenu :highlight="true" :highlight-color="'primary'" :items="links" variant="link" />
 
 		<template #right>
 			<ClientOnly>

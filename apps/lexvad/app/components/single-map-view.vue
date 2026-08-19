@@ -37,7 +37,7 @@ const uniqueVariants = computed(() => {
 			label: v.label,
 			count: v.abs,
 		}))
-		.sort((a, b) => b.count - a.count);
+		.toSorted((a, b) => b.count - a.count);
 });
 const activeVariants = ref<Array<string>>([]);
 

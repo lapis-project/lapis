@@ -117,7 +117,7 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 				level: 1,
 				group: variant.annotation_name?.toLocaleLowerCase(),
 			}))
-			.sort((a, b) => {
+			.toSorted((a, b) => {
 				// extract priority values from the specialOrder object or default to 0
 				const priorityA =
 					a.label && a.label in specialOrder

@@ -23,6 +23,7 @@ export function useTranscripts(projectId: number) {
 				return;
 			}
 
+			// oxlint-disable-next-line eslint/no-console -- Useful development output
 			console.log("endpoint, corpus: ", data.value);
 
 			response.value = (data.value ?? []).map((item) => ({

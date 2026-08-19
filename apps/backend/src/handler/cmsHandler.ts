@@ -166,7 +166,6 @@ cms
 			try {
 				await linkAuthorsToPost(articleIdParsed, body.authors);
 			} catch (e) {
-				// eslint-disable-next-line @typescript-eslint/restrict-template-expressions
 				return c.json(`Error while updating author, ${e}`, 500);
 			}
 		}

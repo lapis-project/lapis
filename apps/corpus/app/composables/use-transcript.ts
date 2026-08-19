@@ -32,6 +32,7 @@ export function useTranscript(id: Ref<number | null>, format: string) {
 				return;
 			}
 
+			// oxlint-disable-next-line eslint/no-console -- Useful development output
 			console.log("backend transcript json", data.value);
 
 			response.value = data.value as APITranscript;

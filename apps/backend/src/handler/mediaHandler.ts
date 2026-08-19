@@ -1,4 +1,3 @@
-/* eslint-disable n/no-unsupported-features/node-builtins */
 import { log } from "@acdh-oeaw/lib";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";

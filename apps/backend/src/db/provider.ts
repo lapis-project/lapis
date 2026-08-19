@@ -13,7 +13,7 @@ export class SqlFileMigrationProvider implements MigrationProvider {
 
 		const files = await fs.readdir(migrationsPath);
 
-		for (const file of files.filter((f) => f.endsWith(".sql")).sort()) {
+		for (const file of files.filter((f) => f.endsWith(".sql")).toSorted()) {
 			const content = await fs.readFile(path.join(migrationsPath, file), "utf8");
 
 			// Only implement up migrations

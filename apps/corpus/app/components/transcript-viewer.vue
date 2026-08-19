@@ -41,7 +41,7 @@ const chunkedSpeakerEvents = computed(() => {
 			timestampSet.add(ev.start_time + "–" + ev.end_time);
 		});
 	});
-	const timestamps = Array.from(timestampSet).sort();
+	const timestamps = Array.from(timestampSet).toSorted();
 
 	const speakerMap: Record<number, Event[]> = {};
 

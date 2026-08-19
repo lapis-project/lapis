@@ -22,7 +22,7 @@ const distributionMode = ref<"region" | "bundesland">("region");
 const variantCount = computed(() => {
 	return countAnswersForQuestion(props.activeQuestion ?? "")
 		.map((entry) => ({ ...entry, value: entry.rel }))
-		.sort((a, b) => b.value - a.value);
+		.toSorted((a, b) => b.value - a.value);
 });
 
 const answerCount = computed(() => getValuesForQuestion(props.activeQuestion).length);
@@ -42,7 +42,7 @@ const cooccurrences = computed(() => {
 	);
 	const total = Object.values(regionalCooccurrences).reduce((a, b) => a + b, 0);
 	return Object.entries(regionalCooccurrences)
-		.sort((a, b) => b[1] - a[1])
+		.toSorted((a, b) => b[1] - a[1])
 		.map((entry) => ({
 			label: entry[0],
 			value: entry[1] / total,

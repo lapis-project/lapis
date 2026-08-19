@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-floating-promises */
 /*
  * watergis/maplibre-gl-export
  * https://github.com/watergis/maplibre-gl-export
@@ -146,7 +144,6 @@ export abstract class MapGeneratorBase {
 			if (!marker) continue;
 			const style = marker.getAttribute("style");
 			if (!style) continue;
-			// eslint-disable-next-line regexp/no-super-linear-backtracking
 			const translateRegex = /translate\(([^,]+)px,\s*([^,]+)px\)/;
 			const match = translateRegex.exec(style);
 			if (!match) continue;
@@ -221,7 +218,6 @@ export abstract class MapGeneratorBase {
 			Object.keys(src).forEach((key) => {
 				// delete properties if value is undefined.
 				// for instance, raster-dem might has undefined value in "url" and "bounds"
-				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 				if (!src[key]) delete src[key];
 			});
 		});
@@ -349,7 +345,6 @@ export abstract class MapGeneratorBase {
 		const containerDiv = renderMap.getContainer();
 		const elementPosition = this.attributionOptions.position ?? "bottom-right";
 		const pixels = this.getElementPosition(renderMap, elementPosition, 8);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const width = pixels[0];
 		const lngLat = renderMap.unproject(pixels);
 

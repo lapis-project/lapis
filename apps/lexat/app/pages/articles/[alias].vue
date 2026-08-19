@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-/* eslint-disable vue/no-v-html */
 import { ArrowLeft, Database, MapPin } from "@lucide/vue";
 import type { InferResponseType } from "hono/client";
 
@@ -81,7 +80,7 @@ const bibliography = computed(() => {
 	}
 	return article.value.bibliography
 		.map((b) => b.data.data.extra)
-		.sort(
+		.toSorted(
 			(a, b) => a.localeCompare(b, "de", { sensitivity: "base" }), // locale-aware alphabetical sort
 		);
 });

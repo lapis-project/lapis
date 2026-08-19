@@ -279,7 +279,7 @@ const dataPoints = computed(() => {
 		return createGeoJsonFeature(entity, mappedColors.value);
 	});
 
-	return geoJsonPoints.sort((a, b) => b.properties.answerCount! - a.properties.answerCount!);
+	return geoJsonPoints.toSorted((a, b) => b.properties.answerCount! - a.properties.answerCount!);
 });
 
 // const stateCapitals = computed(() => {
@@ -312,7 +312,7 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 			level: 1,
 			group: variant.anno.toLocaleLowerCase(),
 		}))
-		.sort((a, b) => {
+		.toSorted((a, b) => {
 			// extract priority values from the specialOrder object or default to 0
 			const priorityA = specialOrder[a.label] ?? 0;
 			const priorityB = specialOrder[b.label] ?? 0;
@@ -669,7 +669,7 @@ const initializeFromUrl = () => {
 	}
 	const simplifiedViewParam = route.query.sv;
 	if (typeof simplifiedViewParam === "string") {
-		simplifiedView.value = simplifiedViewParam === "false" ? false : true;
+		simplifiedView.value = simplifiedViewParam !== "false";
 	}
 
 	const colorParams = getQueryArray(route, "c");

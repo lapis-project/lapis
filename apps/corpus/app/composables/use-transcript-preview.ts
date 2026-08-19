@@ -29,6 +29,7 @@ export function useTranscriptPreview(id: Ref<number | null>) {
 				return;
 			}
 
+			// oxlint-disable-next-line eslint/no-console -- Useful development output
 			console.log("backend, transcript id: ", data.value);
 			response.value = data.value as APITranscriptPreview;
 			status.value = "success";

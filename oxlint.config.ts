@@ -29,6 +29,8 @@ const config = defineConfig({
 		"eslint/no-shadow": "off",
 		"eslint/no-underscore-dangle": "off",
 		"eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+		"import/no-named-as-default": "off",
+		"import/no-named-as-default-member": "off",
 		"import/no-unassigned-import": ["warn", { allow: ["**/*.css"] }],
 		"typescript/no-non-null-assertion": "off",
 		"typescript/no-unsafe-type-assertion": "off",

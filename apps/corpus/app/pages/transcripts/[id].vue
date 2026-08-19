@@ -29,6 +29,7 @@ const transcriptMetadata = computed(() => {
 });
 
 const transcriptFileData = computed(() => {
+	// oxlint-disable-next-line eslint/no-console -- Useful development output
 	console.log(previewResponse.value?.fileData.data);
 	return previewResponse.value?.fileData.data;
 });
@@ -99,6 +100,7 @@ function togglePlayback() {
 	if (!audioRef.value) return;
 
 	if (!waveformReady.value) {
+		// oxlint-disable-next-line eslint/no-console -- Useful development output
 		console.log("loading...");
 		isLoading.value = true;
 		return;

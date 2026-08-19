@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/unbound-method */
 /*
  * watergis/maplibre-gl-export
  * https://github.com/watergis/maplibre-gl-export

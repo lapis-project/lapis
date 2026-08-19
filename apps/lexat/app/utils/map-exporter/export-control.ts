@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/unbound-method */
 /*
  * watergis/maplibre-gl-export
  * https://github.com/watergis/maplibre-gl-export
@@ -185,7 +182,7 @@ export default class MaplibreExportControl implements IControl {
 			const orientValue = pageOrientation.value;
 			let pageSizeValue = JSON.parse(pageSize.value) as SizeType;
 			if (orientValue === PageOrientation.Portrait) {
-				pageSizeValue = pageSizeValue.reverse();
+				pageSizeValue = pageSizeValue.toReversed();
 			}
 			this.generateMap(
 				map,
@@ -344,7 +341,7 @@ export default class MaplibreExportControl implements IControl {
 		const orientValue = pageOrientation.value;
 		let pageSizeValue = JSON.parse(pageSize.value) as SizeType;
 		if (orientValue === PageOrientation.Portrait) {
-			pageSizeValue = pageSizeValue.reverse();
+			pageSizeValue = pageSizeValue.toReversed();
 		}
 		this.printableArea.updateArea(pageSizeValue[0], pageSizeValue[1]);
 	}

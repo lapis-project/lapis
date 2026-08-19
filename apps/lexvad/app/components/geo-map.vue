@@ -131,7 +131,7 @@ function _getDominantVariant(d: Array<GeoJSON.Feature<GeoJSON.Point>>) {
 			variantCount[v]!++;
 		}),
 	);
-	const sortedVariants = Object.entries(variantCount).sort((a, b) => b[1] - a[1]);
+	const sortedVariants = Object.entries(variantCount).toSorted((a, b) => b[1] - a[1]);
 	return sortedVariants[0]![0];
 }
 
@@ -274,7 +274,7 @@ function _joinEntries(entries: Array<GeoJSON.Feature>) {
 	return Object.fromEntries(
 		Object.entries(reducedEntries).map((e) => [
 			e[0],
-			[...new Set(e[1].flat())].sort((a, b) => String(a).localeCompare(String(b))).join("; "),
+			[...new Set(e[1].flat())].toSorted((a, b) => String(a).localeCompare(String(b))).join("; "),
 		]),
 	);
 }

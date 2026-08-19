@@ -62,7 +62,7 @@
 			"variable": {
 				"title": "Phenomenon",
 				"placeholder": "Phenomenon",
-				"tooltip": "Concept in question"
+				"tooltip": "Concept in question in the original DWA questionnaire"
 			},
 			"variants": {
 				"title": "Variants",
@@ -81,7 +81,7 @@
 				"bundeslaender": "Federal states"
 			},
 			"compare": "Compare",
-			"open-sidebar": "Details",
+			"open-sidebar": "Data insights",
 			"close-split-view": "Close split view"
 		},
 		"sidebar": {

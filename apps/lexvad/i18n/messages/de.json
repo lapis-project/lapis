@@ -62,7 +62,7 @@
 			"variable": {
 				"title": "Phänomen",
 				"placeholder": "Phänomen",
-				"tooltip": "Abgefragtes Konzept"
+				"tooltip": "Abgefragtes Konzept im originalen DWA-Bogen"
 			},
 			"variants": {
 				"title": "Varianten",
@@ -81,7 +81,7 @@
 				"bundeslaender": "Bundesländer"
 			},
 			"compare": "Vergleichen",
-			"open-sidebar": "Details",
+			"open-sidebar": "Dateneinblicke",
 			"close-split-view": "Geteilte Ansicht schließen"
 		},
 		"sidebar": {

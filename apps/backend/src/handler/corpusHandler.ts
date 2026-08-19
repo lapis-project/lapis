@@ -334,14 +334,17 @@ const corpus = new Hono<AppEnv>()
 
 			// Convert Map to events object
 			const events: Record<string, Array<TranscriptToken>> = {};
+			const unique_informant_ids: Array<number> = [];
 			for (const [infId, tokens] of tokensByInformant.entries()) {
 				events[String(infId)] = tokens;
+				unique_informant_ids.push(infId);
 			}
 
 			// 5. Return transformed response
 			return c.json(
 				{
 					metadata: transcriptData,
+					unique_informant_ids,
 					transcript_data: {
 						events,
 						tokenset_definitions: transcriptJson.tokenset_definitions as Record<

@@ -26,7 +26,11 @@ import {
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
-import { streamFile, validateTranscriptId } from "@/lib/fileStreamHelper.ts";
+import {
+	streamFile,
+	streamJsonWithMetadata,
+	validateTranscriptId,
+} from "@/lib/fileStreamHelper.ts";
 import { searchRequest } from "@/search/index.ts";
 import { resolveAudioFileForInstanceId } from "@/service/audioService.ts";
 import type { TranscriptToken } from "@/types/apiTypes.ts";

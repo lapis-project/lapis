@@ -8,11 +8,24 @@ const { countAnswersForQuestion, getNotationsForVariant, getRegionalCooccurrence
 	useQuestions();
 const { getColorsForQuestion } = useColorStore();
 
-const props = defineProps<{
-	activeQuestion: string;
-	activeVariant: string;
-}>();
-const selectedVariant = toRef(props.activeVariant);
+const props = withDefaults(
+	defineProps<{
+		activeQuestion: string;
+		activeVariant: string;
+		side?: "left" | "right";
+	}>(),
+	{
+		side: "right",
+	},
+);
+const selectedVariant = ref(props.activeVariant);
+
+watch(
+	() => props.activeVariant,
+	(variant) => {
+		selectedVariant.value = variant;
+	},
+);
 const distributionMode = ref<"region" | "bundesland">("region");
 
 const variantCount = computed(() => {
@@ -58,18 +71,18 @@ const tabItems = computed(() => [
 	<USidebar
 		collapsible="offcanvas"
 		:open="open"
-		side="right"
+		:side="side"
 		:ui="{
 			header: 'pb-0',
 			body: 'p-0  mb-(--ui-header-height)',
-			container: 'h-full top-(--ui-header-height)',
-			root: ['[--sidebar-width:25rem]'],
+			container: 'h-full top-(--ui-header-height) bg-background',
+			root: ['[--sidebar-width:clamp(16rem,22vw,25rem)]'],
 		}"
 		variant="sidebar"
 	>
 		<template #header>
 			<div class="flex flex-row items-center justify-between w-full">
-				<span class="uppercase font-semibold text-sm">
+				<span class="uppercase font-semibold text-xs">
 					{{ t("MapsPage.sidebar.labels.data-insights") }}
 				</span>
 				<UButton

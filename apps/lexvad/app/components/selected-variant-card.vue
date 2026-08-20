@@ -27,6 +27,7 @@ const t = useTranslations();
 					{{ count }}
 				</div>
 			</div>
+			<!-- TODO: link this to the Belegdb later -->
 			<div class="rounded-lg bg-background p-2 px-3 w-full border">
 				<div class="font-semibold text-muted-foreground text-xs">
 					{{ t("SelectedVariantCard.notations") }}

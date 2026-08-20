@@ -5,10 +5,6 @@
 		},
 		"navigation-main": "Main"
 	},
-	"CategoryCard": {
-		"category": "Category",
-		"noun": "Noun"
-	},
 	"Clipboard": {
 		"copy": "Copy",
 		"copied": "Copied",
@@ -66,7 +62,7 @@
 			"variable": {
 				"title": "Phenomenon",
 				"placeholder": "Phenomenon",
-				"tooltip": "Concept in question"
+				"tooltip": "Concept in question in the original DWA questionnaire"
 			},
 			"variants": {
 				"title": "Variants",
@@ -85,13 +81,13 @@
 				"bundeslaender": "Federal states"
 			},
 			"compare": "Compare",
-			"open-sidebar": "Details",
+			"open-sidebar": "Data insights",
 			"close-split-view": "Close split view"
 		},
 		"sidebar": {
 			"variable": "Phenomenon",
 			"variant": "Variant",
-			"region": "Dialectal region",
+			"region": "Spatial patterns",
 			"places": "{n} Place | {n} Places",
 			"labels": {
 				"data-insights": "Data insights"
@@ -108,10 +104,16 @@
 		},
 		"title": "Page not found"
 	},
+	"RegionDistributionCard": {
+		"title": "Distribution of all variants"
+	},
 	"SelectedPhenomenonCard": {
 		"title": "Selected phenomenon",
 		"forms": "Forms",
-		"variants": "Variants"
+		"variants": "Variants",
+		"categories": {
+			"noun": "Noun"
+		}
 	},
 	"SelectedVariantCard": {
 		"title": "Selected variant",

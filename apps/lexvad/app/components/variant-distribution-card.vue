@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { VisDonut, VisSingleContainer } from "@unovis/vue";
-
 const props = defineProps<{
 	question: string;
 	variant: string;
@@ -15,15 +13,13 @@ const modeItems = computed(() => [
 	{ label: t("VariantDistributionCard.state"), value: "bundesland" },
 ]);
 
-const { getRegionPattern, getRegionPatternFill } = useColorStore();
+const { getRegionPattern, getRegionPatternFill, getColorForVariant } = useColorStore();
 
 const data = computed(() =>
 	Object.entries(getRegionsForVariant(props.question, props.variant, mode.value))
 		.toSorted((a, b) => b[1] - a[1])
 		.map(([label, value]) => ({ label, value })),
 );
-
-const color = (d: (typeof data.value)[0]) => getRegionPatternFill(d.label);
 
 const legendItems = computed(() => {
 	const total = data.value.reduce((sum, d) => sum + d.value, 0);
@@ -35,6 +31,10 @@ const legendItems = computed(() => {
 		color: getRegionPattern(d.label).color,
 	}));
 });
+const mapData = computed(() =>
+	Object.fromEntries(legendItems.value.map((entry) => [entry.label, entry.value])),
+);
+const mapColor = computed(() => getColorForVariant(props.question, props.variant) ?? "#000000");
 </script>
 
 <template>
@@ -46,21 +46,18 @@ const legendItems = computed(() => {
 
 			<USelect
 				v-model="mode"
-				class="uppercase font-semibold text-muted-foreground text-xs min-h-0 py-0 px-0"
+				class="uppercase font-semibold text-muted-foreground text-xs min-h-0"
 				:items="modeItems"
 				size="sm"
-				variant="none"
+				variant="outline"
 			/>
 		</div>
-		<VisSingleContainer class="w-full h-52" :data="data">
-			<VisDonut
-				:arc-width="30"
-				:color="color"
-				:pad-angle="0.025"
-				:radius="80"
-				:value="(d: (typeof data)[0]) => d.value"
-			/>
-		</VisSingleContainer>
+		<SimpleHeatMap
+			class="w-full h-52"
+			:color="mapColor"
+			:data="mapData"
+			:mode="mode"
+		></SimpleHeatMap>
 		<div v-for="entry in legendItems" :key="entry.label" class="my-2 text-xs">
 			<div class="my-0.5">
 				<svg class="inline-block align-[-2px]" height="12" viewBox="0 0 12 12" width="12">

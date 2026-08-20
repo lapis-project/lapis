@@ -4,19 +4,28 @@ import { X } from "@lucide/vue";
 const open = defineModel<boolean>("open", { default: false });
 
 const t = useTranslations();
-const {
-	countAnswersForQuestion,
-	getValuesForQuestion,
-	getNotationsForVariant,
-	getRegionalCooccurrencesForVariant,
-} = useQuestions();
+const { countAnswersForQuestion, getNotationsForVariant, getRegionalCooccurrencesForVariant } =
+	useQuestions();
 const { getColorsForQuestion } = useColorStore();
 
-const props = defineProps<{
-	activeQuestion: string;
-	activeVariant: string;
-}>();
-const selectedVariant = toRef(props.activeVariant);
+const props = withDefaults(
+	defineProps<{
+		activeQuestion: string;
+		activeVariant: string;
+		side?: "left" | "right";
+	}>(),
+	{
+		side: "right",
+	},
+);
+const selectedVariant = ref(props.activeVariant);
+
+watch(
+	() => props.activeVariant,
+	(variant) => {
+		selectedVariant.value = variant;
+	},
+);
 const distributionMode = ref<"region" | "bundesland">("region");
 
 const variantCount = computed(() => {
@@ -24,8 +33,6 @@ const variantCount = computed(() => {
 		.map((entry) => ({ ...entry, value: entry.rel }))
 		.toSorted((a, b) => b.value - a.value);
 });
-
-const answerCount = computed(() => getValuesForQuestion(props.activeQuestion).length);
 
 const activeVariantCount = computed(
 	() => variantCount.value.find((v) => v.label === selectedVariant.value)?.abs ?? 0,
@@ -56,7 +63,6 @@ const colors = computed(() => {
 
 const tabItems = computed(() => [
 	{ label: t("MapsPage.sidebar.variable"), value: "phenomenon", slot: "phenomenon" as const },
-	{ label: t("MapsPage.sidebar.variant"), value: "variant", slot: "variant" as const },
 	{ label: t("MapsPage.sidebar.region"), value: "region", slot: "region" as const },
 ]);
 </script>
@@ -65,18 +71,18 @@ const tabItems = computed(() => [
 	<USidebar
 		collapsible="offcanvas"
 		:open="open"
-		side="right"
+		:side="side"
 		:ui="{
-			header: 'pb-0',
+			header: 'pb-0 min-h-12 text-muted-foreground',
 			body: 'p-0  mb-(--ui-header-height)',
-			container: 'h-full top-(--ui-header-height)',
-			root: ['[--sidebar-width:25rem]'],
+			container: 'h-full top-(--ui-header-height) bg-background',
+			root: ['[--sidebar-width:clamp(16rem,22vw,25rem)]'],
 		}"
 		variant="sidebar"
 	>
 		<template #header>
 			<div class="flex flex-row items-center justify-between w-full">
-				<span class="uppercase font-semibold text-sm">
+				<span class="uppercase font-semibold text-xs">
 					{{ t("MapsPage.sidebar.labels.data-insights") }}
 				</span>
 				<UButton
@@ -100,24 +106,23 @@ const tabItems = computed(() => [
 			:ui="{
 				list: 'w-full border-b border-border',
 				label: 'text-wrap',
-				trigger: 'flex-1 uppercase text-xs font-semibold tracking-wide leading-tight',
+				trigger: 'flex-1 uppercase text-xs font-semibold tracking-wide leading-tight py-3',
 			}"
 			variant="link"
 		>
 			<template #phenomenon>
 				<div class="p-2 flex flex-col gap-4">
 					<SelectedPhenomenonCard
+						:badges="[t('SelectedPhenomenonCard.categories.noun')]"
 						class="w-full"
-						:count="answerCount"
 						:phenomenon="activeQuestion"
-						:variants="variantCount.length"
-					></SelectedPhenomenonCard>
+					>
+					</SelectedPhenomenonCard>
 					<VariantOverviewCard class="w-full" :colors="colors" :data="variantCount">
 					</VariantOverviewCard>
-					<CategoryCard class="w-full"></CategoryCard>
 				</div>
 			</template>
-			<template #variant>
+			<template #region>
 				<div class="p-2 flex flex-col gap-4">
 					<SelectedVariantCard
 						class="w-full"
@@ -143,23 +148,12 @@ const tabItems = computed(() => [
 						:subtitle="t(`VariantOverviewCard.cooccurrences-subtitle-${distributionMode}`)"
 						:title="t('VariantOverviewCard.regional-cooccurrences')"
 					></VariantOverviewCard>
-				</div>
-			</template>
-			<template #region>
-				<div class="p-2 flex flex-col gap-4">
-					<SelectedPhenomenonCard
-						class="w-full"
-						:count="answerCount"
-						:phenomenon="activeQuestion"
-						:variants="variantCount.length"
-					></SelectedPhenomenonCard>
 					<RegionDistributionCard
 						v-model:mode="distributionMode"
 						:colors="colors"
 						:question="activeQuestion"
 					>
 					</RegionDistributionCard>
-					<CategoryCard class="w-full"></CategoryCard>
 				</div>
 			</template>
 		</UTabs>

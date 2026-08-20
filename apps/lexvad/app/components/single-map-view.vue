@@ -16,14 +16,17 @@ const _props = withDefaults(
 	},
 );
 
-const emit = defineEmits(["toggle-compare-mode", "toggle-sidebar"]);
+const emit = defineEmits<{
+	"toggle-compare-mode": [];
+	"toggle-sidebar": [question: string | null, variant: string | undefined];
+}>();
+
+const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
 
 const t = useTranslations();
 
 const { setDefaultColorsForQuestion, hasQuestion, getColorForVariant, getColorsForQuestion } =
 	useColorStore();
-
-const activeQuestion = ref<string | null>("Gießkanne");
 const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } = useQuestions();
 
 const mappedQuestions = computed(() => {
@@ -43,7 +46,6 @@ const activeVariants = ref<Array<string>>([]);
 
 function resetSelection() {
 	activeVariants.value = [];
-	activeQuestion.value = null;
 }
 
 onMounted(() => {
@@ -100,7 +102,7 @@ const legendVariants = computed(() => {
 <template>
 	<div class="relative flex flex-col gap-5">
 		<div class="flex gap-2">
-			<div class="grow rounded-lg border p-5 max-w-full">
+			<div class="grow min-w-0 rounded-lg border p-5 max-w-full">
 				<div class="flex gap-5 pb-5 border-b border-muted max-w-full flex-wrap">
 					<div id="phenomenon" class="w-full flex-1">
 						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold text-muted-foreground">
@@ -162,8 +164,8 @@ const legendVariants = computed(() => {
 						</div>
 					</template>
 				</div>
-				<div class="mt-5 flex justify-between">
-					<div class="flex gap-2 items-center">
+				<div class="mt-5 flex flex-wrap items-center gap-2 justify-between">
+					<div class="flex flex-wrap gap-2 items-center">
 						<span class="uppercase text-muted font-semibold text-xs">Kartentyp</span>
 						<UTabs
 							v-model="mapMode"

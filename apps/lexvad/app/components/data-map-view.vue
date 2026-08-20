@@ -1,57 +1,96 @@
 <script lang="ts" setup>
 import { X } from "@lucide/vue";
 
+type MapPosition = "left" | "right";
+
+interface SidebarState {
+	open: boolean;
+	question: string;
+	variant: string;
+}
+
 const t = useTranslations();
 const { allQuestions, getValuesForQuestion } = useQuestions();
 
 const splitMode = ref(false);
-const sidebarOpen = ref(false);
 
-const activeQuestion = ref<string>(allQuestions[0] ?? "Gießkanne");
-const activeVariant = ref<string>(getValuesForQuestion(activeQuestion.value)[0] ?? "");
-
-function updateSidebar(question: string, variant?: string) {
-	const selectedVariant = variant ?? getValuesForQuestion(question)[0] ?? "";
-	if (!sidebarOpen.value) {
-		activeQuestion.value = question;
-		activeVariant.value = selectedVariant;
-		sidebarOpen.value = true;
-		return;
-	}
-	if (activeQuestion.value !== question || activeVariant.value !== selectedVariant) {
-		activeQuestion.value = question;
-		activeVariant.value = selectedVariant;
-		return;
-	}
-	sidebarOpen.value = false;
+function createSidebarState(): SidebarState {
+	const question = allQuestions[0] ?? "Gießkanne";
+	return {
+		open: false,
+		question,
+		variant: getValuesForQuestion(question)[0] ?? "",
+	};
 }
+
+const sidebars = ref<Record<MapPosition, SidebarState>>({
+	left: createSidebarState(),
+	right: createSidebarState(),
+});
+
+function updateSidebar(position: MapPosition, question: string | null, variant?: string) {
+	const sidebar = sidebars.value[position];
+	const selectedQuestion = question ?? sidebar.question;
+	const selectedVariant = variant ?? getValuesForQuestion(selectedQuestion)[0] ?? "";
+	if (!sidebar.open) {
+		sidebar.question = selectedQuestion;
+		sidebar.variant = selectedVariant;
+		sidebar.open = true;
+		return;
+	}
+	if (sidebar.question !== selectedQuestion || sidebar.variant !== selectedVariant) {
+		sidebar.question = selectedQuestion;
+		sidebar.variant = selectedVariant;
+		return;
+	}
+	sidebar.open = false;
+}
+
+function closeSplitMode() {
+	splitMode.value = false;
+	sidebars.value.right.open = false;
+}
+
+watch(
+	() => [sidebars.value.left.question, sidebars.value.right.question],
+	() => {
+		sidebars.value.left.variant = getValuesForQuestion(sidebars.value.left.question)[0] ?? "";
+		sidebars.value.right.variant = getValuesForQuestion(sidebars.value.right.question)[0] ?? "";
+	},
+);
 </script>
 
 <template>
 	<div class="flex min-h-0">
-		<div class="flex-1 min-w-0">
+		<AppSidebar
+			v-if="splitMode"
+			v-model:open="sidebars.left.open"
+			:active-question="sidebars.left.question"
+			:active-variant="sidebars.left.variant"
+			side="left"
+		></AppSidebar>
+
+		<div class="container mx-auto min-w-0 flex-1 px-4">
 			<div class="flex gap-5 justify-center relative">
 				<SingleMapView
-					class="grow shrink"
+					class="min-w-0 flex-1"
 					:split-mode="splitMode"
 					@toggle-compare-mode="splitMode = true"
-					@toggle-sidebar="updateSidebar"
+					@toggle-sidebar="(question, variant) => updateSidebar('left', question, variant)"
+					v-model:question="sidebars.left.question"
 				/>
 				<template v-if="splitMode">
 					<div class="divide-accent border-l h-150 self-end"></div>
 					<SingleMapView
-						class="grow shrink"
+						class="min-w-0 flex-1"
 						:split-mode="splitMode"
-						@toggle-sidebar="updateSidebar"
+						@toggle-sidebar="(question, variant) => updateSidebar('right', question, variant)"
+						v-model:question="sidebars.right.question"
 					/>
 					<UButton
 						class="absolute right-0 top-0 size-6 p-1 m-1 text-muted-foreground"
 						variant="ghost"
-						@click="
-							() => {
-								splitMode = false;
-							}
-						"
+						@click="closeSplitMode"
 					>
 						<X></X>
 						<span class="sr-only">{{ t("MapsPage.controls.close-split-view") }}</span>
@@ -61,9 +100,18 @@ function updateSidebar(question: string, variant?: string) {
 		</div>
 
 		<AppSidebar
-			v-model:open="sidebarOpen"
-			:active-question="activeQuestion"
-			:active-variant="activeVariant"
+			v-if="splitMode"
+			v-model:open="sidebars.right.open"
+			:active-question="sidebars.right.question"
+			:active-variant="sidebars.right.variant"
+			side="right"
+		></AppSidebar>
+		<AppSidebar
+			v-else
+			v-model:open="sidebars.left.open"
+			:active-question="sidebars.left.question"
+			:active-variant="sidebars.left.variant"
+			side="right"
 		></AppSidebar>
 	</div>
 </template>

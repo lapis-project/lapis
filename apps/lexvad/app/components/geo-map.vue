@@ -2,7 +2,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
-import { type Color, Deck } from "@deck.gl/core";
+import { Deck } from "@deck.gl/core";
 import {
 	FillStyleExtension,
 	type FillStyleExtensionProps,
@@ -56,13 +56,6 @@ const INITIAL_VIEW_STATE = {
 	zoom: 6,
 	pitch: 0,
 	bearing: 0,
-};
-
-const hexToRgb = (hex: string, alpha = 255): Color => {
-	const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-	return result
-		? [parseInt(result[1]!, 16), parseInt(result[2]!, 16), parseInt(result[3]!, 16), alpha]
-		: [0, 0, 0, alpha];
 };
 
 const points = computed(() => props.data.map((entry) => point(entry.coordinates, entry)));
@@ -166,8 +159,8 @@ function createHexagonLayer() {
 const PATTERN_TILE_METERS = 10000;
 
 type RegionProperties = (typeof regions)["features"][0]["properties"];
-type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
-type BundeslandFeature = (typeof bundeslaender)["features"][0];
+export type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
+export type BundeslandFeature = (typeof bundeslaender)["features"][0];
 const activeLayer = ref<MapLayer>("none");
 
 function createPatternLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
@@ -336,8 +329,10 @@ watch(
 );
 
 onBeforeUnmount(() => {
+	const gl = deckCanvas.value?.getContext("webgl2");
 	deck?.finalize();
 	deck = null;
+	gl?.getExtension("WEBGL_lose_context")?.loseContext();
 	map?.remove();
 	map = null;
 });

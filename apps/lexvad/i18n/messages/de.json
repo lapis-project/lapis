@@ -5,10 +5,6 @@
 		},
 		"navigation-main": "Hauptnavigation"
 	},
-	"CategoryCard": {
-		"category": "Kategorie",
-		"noun": "Nomen"
-	},
 	"Clipboard": {
 		"copy": "Kopieren",
 		"copied": "Kopiert",
@@ -66,7 +62,7 @@
 			"variable": {
 				"title": "Phänomen",
 				"placeholder": "Phänomen",
-				"tooltip": "Abgefragtes Konzept"
+				"tooltip": "Abgefragtes Konzept im originalen DWA-Bogen"
 			},
 			"variants": {
 				"title": "Varianten",
@@ -85,13 +81,13 @@
 				"bundeslaender": "Bundesländer"
 			},
 			"compare": "Vergleichen",
-			"open-sidebar": "Details",
+			"open-sidebar": "Dateneinblicke",
 			"close-split-view": "Geteilte Ansicht schließen"
 		},
 		"sidebar": {
 			"variable": "Phänomen",
 			"variant": "Variante",
-			"region": "Dialektaler Raum",
+			"region": "Raumbilder",
 			"places": "{n} Ort | {n} Orte",
 			"labels": {
 				"data-insights": "Dateneinblicke"
@@ -108,10 +104,16 @@
 		},
 		"title": "Seite nicht gefunden"
 	},
+	"RegionDistributionCard": {
+		"title": "Verteilung aller Varianten"
+	},
 	"SelectedPhenomenonCard": {
 		"title": "Ausgewähltes Phänomen",
 		"forms": "Bögen",
-		"variants": "Varianten"
+		"variants": "Varianten",
+		"categories": {
+			"noun": "Substantiv"
+		}
 	},
 	"SelectedVariantCard": {
 		"title": "Ausgewählte Variante",
@@ -131,13 +133,13 @@
 	},
 	"VariantDistributionCard": {
 		"title": "Verteilung nach",
-		"dialectal-region": "Dialektzone",
+		"dialectal-region": "Dialektregion",
 		"state": "Bundesland"
 	},
 	"VariantOverviewCard": {
 		"title": "Varianten-Übersicht",
 		"regional-cooccurrences": "Regionale Kovorkommnisse",
-		"cooccurrences-subtitle-region": "Andere Varianten in denselben Dialektzonen",
+		"cooccurrences-subtitle-region": "Andere Varianten in denselben Dialektregionen",
 		"cooccurrences-subtitle-bundesland": "Andere Varianten in denselben Bundesländern"
 	},
 	"VariantSelectionCard": {

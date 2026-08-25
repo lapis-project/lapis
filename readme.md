@@ -7,7 +7,7 @@ For details on the project's architecture, see [Architecture](architecture.md).
 ## Requirements
 
 - `Node` >=24.19
-- `pnpm` >=11.13 (can be enabled through [corepack](https://pnpm.io/installation#using-corepack) via
+- `pnpm` >=11.23 (can be enabled through [corepack](https://pnpm.io/installation#using-corepack) via
   `corepack enable pnpm`)
 - [docker](https://docs.docker.com/engine/install/ubuntu/) (for local development)
 - Optional: [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) for node

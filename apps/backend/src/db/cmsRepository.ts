@@ -49,8 +49,7 @@ export async function getAllUserPhenKat(project_id: string) {
 			eb.val("user").as("category"),
 		])
 		.innerJoin("user_has_role", "user_account.id", "user_has_role.user_id")
-		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id")
-		.where("user_roles.role_name", "=", "editor");
+		.innerJoin("user_roles", "user_has_role.role_id", "user_roles.id");
 	const projectIdParsed = parseInt(project_id);
 	if (Number.isNaN(projectIdParsed) || projectIdParsed < 0) {
 		return await selectAllPhaen

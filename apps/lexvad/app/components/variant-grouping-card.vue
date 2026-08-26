@@ -61,6 +61,7 @@ function setVariants(group: VariantGroup, variants: Array<string>) {
 
 function ungroup(group: VariantGroup) {
 	commit(current.value.filter((g) => g.id !== group.id));
+	clearDropTarget();
 }
 
 const newGroupZone = ref<Array<string>>([]);

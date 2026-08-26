@@ -69,7 +69,7 @@ const mapColor = computed(
 				<span class="ml-2">{{ entry.label }}</span>
 				<span class="float-right">
 					<span class="mr-2 text-muted-foreground">{{ entry.secondary }}</span>
-					<span class="font-semibold">{{ (entry.value * 100).toFixed(0) }}%</span></span
+					<span>{{ (entry.value * 100).toFixed(0) }}%</span></span
 				>
 			</div>
 			<svg class="block w-full" height="4">

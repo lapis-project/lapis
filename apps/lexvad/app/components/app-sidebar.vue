@@ -60,6 +60,7 @@ const groupCount = computed(() => {
 				label: groupDisplayLabel(group),
 				abs,
 				value: answerCount.value > 0 ? abs / answerCount.value : 0,
+				secondary: `${t("MapsPage.sidebar.places", abs)}`,
 			};
 		})
 		.toSorted((a, b) => b.value - a.value);

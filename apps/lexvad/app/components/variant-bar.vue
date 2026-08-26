@@ -17,7 +17,7 @@ defineProps<{
 			<slot name="label"></slot>
 			<span class="ml-auto flex shrink-0 items-center gap-2">
 				<span class="text-muted-foreground">{{ secondary }}</span>
-				<span class="font-semibold">{{ (value * 100).toFixed(0) }}%</span>
+				<span>{{ (value * 100).toFixed(0) }}%</span>
 				<slot name="actions"></slot>
 			</span>
 		</div>

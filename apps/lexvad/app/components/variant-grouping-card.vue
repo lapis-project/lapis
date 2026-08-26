@@ -133,7 +133,7 @@ function commitRenaming(group: VariantGroup) {
 						v-if="editedGroupId === group.id"
 						ref="labelInput"
 						v-model="editedLabel"
-						class="min-w-0 flex-1 rounded-sm border border-input bg-background px-1 font-semibold"
+						class="min-w-0 flex-1 rounded-sm border border-input bg-background px-1"
 						:placeholder="t('VariantGroupingCard.group-name')"
 						@blur="commitRenaming(group)"
 						@keydown.enter="commitRenaming(group)"
@@ -141,7 +141,7 @@ function commitRenaming(group: VariantGroup) {
 					/>
 					<button
 						v-else
-						class="truncate font-semibold"
+						class="truncate"
 						:title="t('VariantGroupingCard.rename')"
 						type="button"
 						@click="startRenaming(group)"
@@ -185,7 +185,7 @@ function commitRenaming(group: VariantGroup) {
 							></span>
 							<span class="truncate">{{ variant }}</span>
 							<span class="ml-auto shrink-0 text-muted-foreground">
-								{{ countByVariant[variant] ?? 0 }}
+								{{ t("MapsPage.sidebar.places", countByVariant[variant] ?? 0) }}
 							</span>
 						</div>
 						<VariantBar

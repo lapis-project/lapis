@@ -18,6 +18,10 @@ function groupCount(group: VariantGroup) {
 	return countByGroup.value[group.id] ?? 0;
 }
 
+const total = computed(() =>
+	Object.values(countByGroup.value).reduce((prev, curr) => prev + curr, 0),
+);
+
 function isVisible(variant: string) {
 	return props.activeVariants.length === 0 || props.activeVariants.includes(variant);
 }
@@ -49,9 +53,16 @@ const shownGroups = computed(() =>
 						class="size-2 shrink-0 rounded-full"
 						:style="{ backgroundColor: getColorForGroup(question, group) }"
 					></div>
-					<span class="truncate font-semibold max-w-24">{{ groupDisplayLabel(group) }}</span>
+					<span class="truncate font-normal max-w-24">{{ groupDisplayLabel(group) }}</span>
 				</div>
-				<span class="text-muted-foreground">{{ groupCount(group) }}</span>
+				<span class="gap-2 flex">
+					<span class="text-muted-foreground">{{
+						t("MapsPage.sidebar.places", groupCount(group))
+					}}</span>
+					<span class="font-normal"
+						>{{ ((100 * groupCount(group)) / total).toFixed(0) }}%</span
+					></span
+				>
 			</li>
 		</ul>
 	</div>

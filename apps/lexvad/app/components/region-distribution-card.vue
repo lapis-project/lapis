@@ -81,15 +81,16 @@ const rows = computed(() =>
 
 		<div v-for="row in rows" :key="row.label" class="mb-2.5 text-xs">
 			<div class="flex justify-between items-baseline mb-1">
-				<span class="font-semibold">{{ row.label }}</span>
-				<span class="font-semibold">{{ row.total }}</span>
+				<span>{{ row.label }}</span>
+				<span>{{ t("MapsPage.sidebar.places", row.total) }}</span>
 			</div>
 			<div class="w-full">
 				<div class="flex h-4 rounded overflow-hidden w-full">
 					<div
 						v-for="segment in row.segments"
 						:key="segment.id"
-						class="h-full text-center text-white content-center text-nowrap overflow-hidden px-1"
+						tabindex="0"
+						class="h-full text-center text-white content-center text-nowrap overflow-hidden px-1 hover:min-w-fit focus:min-w-fit"
 						:style="{
 							width: `${(segment.value / row.total) * 100}%`,
 							backgroundColor: segment.color,

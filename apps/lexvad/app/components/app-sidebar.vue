@@ -1,31 +1,33 @@
 <script setup lang="ts">
 import { X } from "@lucide/vue";
 
+import type { VariantGroup } from "@/composables/use-variant-groups";
+
 const open = defineModel<boolean>("open", { default: false });
 
 const t = useTranslations();
-const { countAnswersForQuestion, getNotationsForVariant, getRegionalCooccurrencesForVariant } =
-	useQuestions();
-const { getColorsForQuestion } = useColorStore();
-
 const props = withDefaults(
 	defineProps<{
 		activeQuestion: string;
 		activeVariant: string;
 		side?: "left" | "right";
+		mapId: string;
 	}>(),
 	{
 		side: "right",
 	},
 );
-const selectedVariant = ref(props.activeVariant);
+const {
+	countAnswersForQuestion,
+	countAnswersForGroups,
+	filterDataByQuestionAndVariant,
+	getNotationsForVariant,
+	getRegionalCooccurrencesForVariant,
+} = useQuestions();
+const { getColorForGroup } = useColorStore();
+const { byGroup, groupDisplayLabel, normaliseGroups, groupsForMap } = useVariantGroups();
+const storedGroups = groupsForMap(props.mapId, () => props.activeQuestion);
 
-watch(
-	() => props.activeVariant,
-	(variant) => {
-		selectedVariant.value = variant;
-	},
-);
 const distributionMode = ref<"region" | "bundesland">("region");
 
 const variantCount = computed(() => {
@@ -34,32 +36,89 @@ const variantCount = computed(() => {
 		.toSorted((a, b) => b.value - a.value);
 });
 
+const groups = computed({
+	get() {
+		return normaliseGroups(
+			storedGroups.value,
+			variantCount.value.map((v) => v.label),
+		);
+	},
+	set(next: Array<VariantGroup>) {
+		storedGroups.value = next;
+	},
+});
+
+const answerCount = computed(() => filterDataByQuestionAndVariant(props.activeQuestion).length);
+
+const groupCount = computed(() => {
+	const counts = countAnswersForGroups(props.activeQuestion, groups.value);
+	return groups.value
+		.map((group) => {
+			const abs = counts[group.id] ?? 0;
+			return {
+				id: group.id,
+				label: groupDisplayLabel(group),
+				abs,
+				value: answerCount.value > 0 ? abs / answerCount.value : 0,
+			};
+		})
+		.toSorted((a, b) => b.value - a.value);
+});
+
+function groupIdForVariant(variant: string) {
+	const group = groups.value.find((g) => g.variants.includes(variant));
+	return group?.id ?? groupCount.value[0]?.id ?? "";
+}
+
+const selectedGroupId = ref(groupIdForVariant(props.activeVariant));
+
+watch(
+	() => [props.activeQuestion, props.activeVariant],
+	() => {
+		selectedGroupId.value = groupIdForVariant(props.activeVariant);
+	},
+);
+
+watch(groups, () => {
+	if (!groups.value.some((group) => group.id === selectedGroupId.value))
+		selectedGroupId.value = groupIdForVariant(props.activeVariant);
+});
+
+const selectedGroup = computed(() => groups.value.find((g) => g.id === selectedGroupId.value));
+const selectedVariants = computed(() => selectedGroup.value?.variants ?? []);
+const selectedLabel = computed(() =>
+	selectedGroup.value ? groupDisplayLabel(selectedGroup.value) : "",
+);
+
 const activeVariantCount = computed(
-	() => variantCount.value.find((v) => v.label === selectedVariant.value)?.abs ?? 0,
+	() => groupCount.value.find((v) => v.id === selectedGroupId.value)?.abs ?? 0,
 );
 const notations = computed(() => [
-	...new Set(getNotationsForVariant(props.activeQuestion, selectedVariant.value)),
+	...new Set(getNotationsForVariant(props.activeQuestion, selectedVariants.value)),
 ]);
 
 const cooccurrences = computed(() => {
 	const regionalCooccurrences = getRegionalCooccurrencesForVariant(
 		props.activeQuestion,
-		selectedVariant.value,
+		selectedVariants.value,
 		distributionMode.value,
+		groups.value,
 	);
 	const total = Object.values(regionalCooccurrences).reduce((a, b) => a + b, 0);
+	const labels = byGroup(groups.value, groupDisplayLabel);
 	return Object.entries(regionalCooccurrences)
 		.toSorted((a, b) => b[1] - a[1])
-		.map((entry) => ({
-			label: entry[0],
-			value: entry[1] / total,
-			secondary: `${t("MapsPage.sidebar.places", entry[1])}`,
+		.map(([id, count]) => ({
+			id,
+			label: labels[id] ?? id,
+			value: count / total,
+			secondary: `${t("MapsPage.sidebar.places", count)}`,
 		}));
 });
 
-const colors = computed(() => {
-	return getColorsForQuestion(props.activeQuestion) ?? {};
-});
+const colors = computed(() =>
+	byGroup(groups.value, (group) => getColorForGroup(props.activeQuestion, group)),
+);
 
 const tabItems = computed(() => [
 	{ label: t("MapsPage.sidebar.variable"), value: "phenomenon", slot: "phenomenon" as const },
@@ -116,28 +175,32 @@ const tabItems = computed(() => [
 						:badges="[t('SelectedPhenomenonCard.categories.noun')]"
 						class="w-full"
 						:phenomenon="activeQuestion"
-					>
-					</SelectedPhenomenonCard>
-					<VariantOverviewCard class="w-full" :colors="colors" :data="variantCount">
-					</VariantOverviewCard>
+					></SelectedPhenomenonCard>
+					<VariantGroupingCard
+						v-model:groups="groups"
+						class="w-full"
+						:colors="colors"
+						:data="groupCount"
+						:variants="variantCount"
+					></VariantGroupingCard>
 				</div>
 			</template>
 			<template #region>
 				<div class="p-2 flex flex-col gap-4">
 					<SelectedVariantCard
 						class="w-full"
-						:color="colors[selectedVariant] ?? ''"
+						:color="colors[selectedGroupId] ?? ''"
 						:count="activeVariantCount"
 						:notations="notations.length"
-						:variant="selectedVariant"
+						:variant="selectedLabel"
 					>
 					</SelectedVariantCard>
-					<VariantSelectionCard v-model="selectedVariant" :colors="colors" :data="variantCount">
+					<VariantSelectionCard v-model="selectedGroupId" :colors="colors" :data="groupCount">
 					</VariantSelectionCard>
 					<VariantDistributionCard
 						v-model:mode="distributionMode"
 						:question="activeQuestion"
-						:variant="selectedVariant"
+						:variants="selectedVariants"
 					>
 					</VariantDistributionCard>
 
@@ -151,6 +214,7 @@ const tabItems = computed(() => [
 					<RegionDistributionCard
 						v-model:mode="distributionMode"
 						:colors="colors"
+						:groups="groups"
 						:question="activeQuestion"
 					>
 					</RegionDistributionCard>

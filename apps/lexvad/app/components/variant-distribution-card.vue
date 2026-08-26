@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
 	question: string;
-	variant: string;
+	variants: Array<string>;
 }>();
 
 const t = useTranslations();
@@ -16,7 +16,7 @@ const modeItems = computed(() => [
 const { getRegionPattern, getRegionPatternFill, getColorForVariant } = useColorStore();
 
 const data = computed(() =>
-	Object.entries(getRegionsForVariant(props.question, props.variant, mode.value))
+	Object.entries(getRegionsForVariant(props.question, props.variants, mode.value))
 		.toSorted((a, b) => b[1] - a[1])
 		.map(([label, value]) => ({ label, value })),
 );
@@ -34,7 +34,10 @@ const legendItems = computed(() => {
 const mapData = computed(() =>
 	Object.fromEntries(legendItems.value.map((entry) => [entry.label, entry.value])),
 );
-const mapColor = computed(() => getColorForVariant(props.question, props.variant) ?? "#000000");
+
+const mapColor = computed(
+	() => getColorForVariant(props.question, props.variants[0] ?? "") ?? "#000000",
+);
 </script>
 
 <template>

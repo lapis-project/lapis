@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-	data: Array<{ label: string; value: number }>;
+	data: Array<{ id: string; label: string; value: number }>;
 	colors: Record<string, string>;
 }>();
 
@@ -23,18 +23,18 @@ const model = defineModel<string>();
 				wrapper: 'w-auto',
 				label: 'contents',
 			}"
-			value-key="label"
+			value-key="id"
 		>
 			<template #label="{ item, modelValue }">
 				<span
 					class="flex items-center gap-1.5 rounded-full border border-border p-1 px-2 text-xs transition-[background] cursor-pointer"
-					:class="modelValue === item.label ? 'border-0 text-white' : 'bg-card'"
-					:style="modelValue === item.label ? { backgroundColor: colors[item.label] } : undefined"
+					:class="modelValue === item.value ? 'border-0 text-white' : 'bg-card'"
+					:style="modelValue === item.value ? { backgroundColor: colors[item.value] } : undefined"
 				>
 					<div
 						class="size-2 rounded-full"
 						:style="{
-							backgroundColor: modelValue === item.label ? '#fff' : colors[item.label],
+							backgroundColor: modelValue === item.value ? '#fff' : colors[item.value],
 						}"
 					></div>
 

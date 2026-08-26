@@ -7,10 +7,9 @@ import {
 	SquareSplitHorizontalIcon,
 } from "@lucide/vue";
 
-import type { LegendGroup } from "@/components/map-legend.vue";
-
-const _props = withDefaults(
+const props = withDefaults(
 	defineProps<{
+		mapId: string;
 		splitMode?: boolean;
 	}>(),
 	{
@@ -24,18 +23,17 @@ const emit = defineEmits<{
 }>();
 
 const t = useTranslations();
+const { setDefaultColorsForQuestion, hasQuestion, getColorForGroup } = useColorStore();
+const { byVariant, normaliseGroups, groupsForMap } = useVariantGroups();
 
-const { setDefaultColorsForQuestion, hasQuestion, getColorForVariant, getColorsForQuestion } =
-	useColorStore();
-
-const activeQuestion = ref<string | null>("Gießkanne");
+const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
 const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } = useQuestions();
 
 const mappedQuestions = computed(() => {
 	return allQuestions.map((q) => ({ label: q, value: q }));
 });
 const uniqueVariants = computed(() => {
-	return countAnswersForQuestion(activeQuestion.value ?? "")
+	return countAnswersForQuestion(activeQuestion.value)
 		.map((v) => ({
 			anno: v.label,
 			value: v.label,
@@ -46,16 +44,17 @@ const uniqueVariants = computed(() => {
 });
 const activeVariants = ref<Array<string>>([]);
 
-const variantGroups = ref<Array<LegendGroup>>([]);
-const variantColors = computed(() => {
-	const question = activeQuestion.value ?? "";
-	return Object.fromEntries(
-		variantGroups.value.flatMap((group) => {
-			const color = getColorForVariant(question, group.variants[0] ?? "") ?? "";
-			return group.variants.map((variant) => [variant, color]);
-		}),
-	);
-});
+const storedGroups = groupsForMap(props.mapId, () => activeQuestion.value);
+const variantGroups = computed(() =>
+	normaliseGroups(
+		storedGroups.value,
+		uniqueVariants.value.map((v) => v.value),
+	),
+);
+
+const variantColors = computed(() =>
+	byVariant(variantGroups.value, (group) => getColorForGroup(activeQuestion.value, group)),
+);
 
 function resetSelection() {
 	activeVariants.value = [];
@@ -76,7 +75,6 @@ watch(activeQuestion, () => {
 			uniqueVariants.value.map((v) => v.label),
 		);
 	activeVariants.value = [];
-	variantGroups.value = [];
 });
 
 const mapMode = ref<"point" | "area">("point");
@@ -94,7 +92,7 @@ const data = computed(() => {
 	const variantsInUse = activeVariants.value.length
 		? activeVariants.value
 		: uniqueVariants.value.map((v) => v.value);
-	return filterDataByQuestionAndVariant(activeQuestion.value ?? "", variantsInUse).map((entry) => ({
+	return filterDataByQuestionAndVariant(activeQuestion.value, variantsInUse).map((entry) => ({
 		coordinates: [Number(entry.Longitude), Number(entry.Latitude)] as [number, number],
 		color:
 			variantColors.value[entry.variants.filter((v) => variantsInUse.includes(v))[0] ?? ""] ?? "",
@@ -222,11 +220,10 @@ const data = computed(() => {
 			<MapLegend
 				v-if="uniqueVariants.length"
 				id="variantLegend"
-				v-model:groups="variantGroups"
 				:active-variants="activeVariants"
 				class="absolute bottom-4 right-0 z-10 mr-4 max-h-[70%] overflow-y-auto"
-				:question="activeQuestion ?? ''"
-				:variants="uniqueVariants"
+				:groups="variantGroups"
+				:question="activeQuestion"
 			/>
 			<div v-if="height && width" class="w-full h-full">
 				<GeoMap :colors="variantColors" :data="data" :mode="mapMode"> </GeoMap>

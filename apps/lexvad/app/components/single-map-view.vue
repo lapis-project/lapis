@@ -7,8 +7,9 @@ import {
 	SquareSplitHorizontalIcon,
 } from "@lucide/vue";
 
-const _props = withDefaults(
+const props = withDefaults(
 	defineProps<{
+		mapId: string;
 		splitMode?: boolean;
 	}>(),
 	{
@@ -21,19 +22,18 @@ const emit = defineEmits<{
 	"toggle-sidebar": [question: string | null, variant: string | undefined];
 }>();
 
-const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
-
 const t = useTranslations();
+const { setDefaultColorsForQuestion, hasQuestion, getColorForGroup } = useColorStore();
+const { byVariant, normaliseGroups, groupsForMap } = useVariantGroups();
 
-const { setDefaultColorsForQuestion, hasQuestion, getColorForVariant, getColorsForQuestion } =
-	useColorStore();
+const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
 const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } = useQuestions();
 
 const mappedQuestions = computed(() => {
 	return allQuestions.map((q) => ({ label: q, value: q }));
 });
 const uniqueVariants = computed(() => {
-	return countAnswersForQuestion(activeQuestion.value ?? "")
+	return countAnswersForQuestion(activeQuestion.value)
 		.map((v) => ({
 			anno: v.label,
 			value: v.label,
@@ -43,6 +43,18 @@ const uniqueVariants = computed(() => {
 		.toSorted((a, b) => b.count - a.count);
 });
 const activeVariants = ref<Array<string>>([]);
+
+const storedGroups = groupsForMap(props.mapId, () => activeQuestion.value);
+const variantGroups = computed(() =>
+	normaliseGroups(
+		storedGroups.value,
+		uniqueVariants.value.map((v) => v.value),
+	),
+);
+
+const variantColors = computed(() =>
+	byVariant(variantGroups.value, (group) => getColorForGroup(activeQuestion.value, group)),
+);
 
 function resetSelection() {
 	activeVariants.value = [];
@@ -80,22 +92,13 @@ const data = computed(() => {
 	const variantsInUse = activeVariants.value.length
 		? activeVariants.value
 		: uniqueVariants.value.map((v) => v.value);
-	return filterDataByQuestionAndVariant(activeQuestion.value ?? "", variantsInUse).map((entry) => ({
+	return filterDataByQuestionAndVariant(activeQuestion.value, variantsInUse).map((entry) => ({
 		coordinates: [Number(entry.Longitude), Number(entry.Latitude)] as [number, number],
 		color:
-			getColorForVariant(
-				activeQuestion.value ?? "",
-				entry.variants.filter((v) => variantsInUse.includes(v))[0] ?? "",
-			) ?? "",
+			variantColors.value[entry.variants.filter((v) => variantsInUse.includes(v))[0] ?? ""] ?? "",
 		name: entry.Ort,
 		...entry,
 	}));
-});
-
-const legendVariants = computed(() => {
-	return uniqueVariants.value.filter(
-		(v) => activeVariants.value.length === 0 || activeVariants.value.includes(v.value),
-	);
 });
 </script>
 
@@ -214,42 +217,16 @@ const legendVariants = computed(() => {
 			</div>
 		</div>
 		<VisualisationContainer v-slot="{ height, width }" class="border h-[600px]" :fullscreen="false">
-			<div
-				v-if="legendVariants.length"
+			<MapLegend
+				v-if="uniqueVariants.length"
 				id="variantLegend"
-				class="absolute bottom-4 right-0 z-10 mr-4"
-				data-testid="variantLegend"
-			>
-				<div
-					class="rounded-md text-xs border border-input bg-background p-3 text-sm text-foreground shadow-md"
-				>
-					<ul class="space-y-0.5">
-						<li
-							v-for="variant in legendVariants"
-							:key="variant.anno"
-							class="flex items-center gap-4 justify-between"
-						>
-							<div class="flex gap-2">
-								<div
-									class="size-2 rounded-full self-center"
-									:style="{
-										backgroundColor: getColorForVariant(activeQuestion ?? '', variant.anno),
-									}"
-								></div>
-								<span>{{ variant.anno }}</span>
-							</div>
-							<span class="text-muted-foreground">{{ variant.count }}</span>
-						</li>
-					</ul>
-				</div>
-			</div>
+				:active-variants="activeVariants"
+				class="absolute bottom-4 right-0 z-10 mr-4 max-h-[70%] overflow-y-auto"
+				:groups="variantGroups"
+				:question="activeQuestion"
+			/>
 			<div v-if="height && width" class="w-full h-full">
-				<GeoMap
-					:colors="getColorsForQuestion(activeQuestion ?? '') ?? {}"
-					:data="data"
-					:mode="mapMode"
-				>
-				</GeoMap>
+				<GeoMap :colors="variantColors" :data="data" :mode="mapMode"> </GeoMap>
 			</div>
 		</VisualisationContainer>
 	</div>

@@ -1,6 +1,8 @@
 import { assert } from "@acdh-oeaw/lib";
 import { defineStore } from "pinia";
 
+import type { VariantGroup } from "@/composables/use-variant-groups";
+
 export interface RegionPattern {
 	id: string;
 	/** Tile width and height in user space units. */
@@ -112,6 +114,10 @@ export const useColorStore = defineStore("colors", () => {
 		return colors.value[question];
 	}
 
+	function getColorForGroup(question: string, group: VariantGroup) {
+		return getColorForVariant(question, group.variants[0] ?? "") ?? "";
+	}
+
 	function hasQuestion(question: string) {
 		return question in colors.value && colors.value[question] !== undefined;
 	}
@@ -132,6 +138,7 @@ export const useColorStore = defineStore("colors", () => {
 	return {
 		hasQuestion,
 		getColorForVariant,
+		getColorForGroup,
 		getColorsForQuestion,
 		setDefaultColorsForQuestion,
 		regionPatterns,

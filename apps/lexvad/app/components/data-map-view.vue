@@ -68,6 +68,7 @@ watch(
 			:active-question="sidebars.left.question"
 			:active-variant="sidebars.left.variant"
 			side="left"
+			map-id="left"
 		></AppSidebar>
 
 		<div class="container mx-auto min-w-0 flex-1 px-4">
@@ -78,6 +79,7 @@ watch(
 					@toggle-compare-mode="splitMode = true"
 					@toggle-sidebar="(question, variant) => updateSidebar('left', question, variant)"
 					v-model:question="sidebars.left.question"
+					map-id="left"
 				/>
 				<template v-if="splitMode">
 					<div class="divide-accent border-l h-150 self-end"></div>
@@ -86,6 +88,7 @@ watch(
 						:split-mode="splitMode"
 						@toggle-sidebar="(question, variant) => updateSidebar('right', question, variant)"
 						v-model:question="sidebars.right.question"
+						map-id="right"
 					/>
 					<UButton
 						class="absolute right-0 top-0 size-6 p-1 m-1 text-muted-foreground"
@@ -104,6 +107,7 @@ watch(
 			v-model:open="sidebars.right.open"
 			:active-question="sidebars.right.question"
 			:active-variant="sidebars.right.variant"
+			map-id="right"
 			side="right"
 		></AppSidebar>
 		<AppSidebar
@@ -111,6 +115,7 @@ watch(
 			v-model:open="sidebars.left.open"
 			:active-question="sidebars.left.question"
 			:active-variant="sidebars.left.variant"
+			map-id="left"
 			side="right"
 		></AppSidebar>
 	</div>

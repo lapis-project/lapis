@@ -3,6 +3,7 @@ import { booleanPointInPolygon, point } from "@turf/turf";
 import bundeslaender from "@/assets/data/bundeslaender.json";
 import regions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import _data from "@/assets/data/DWA_Pilot_Variablen.json";
+import type { VariantGroup } from "@/composables/use-variant-groups";
 
 const _regularData = _data.map((entry) => {
 	const p = point([Number(entry.Longitude), Number(entry.Latitude)]);
@@ -85,7 +86,7 @@ function countAnswersForQuestion(question: string) {
 	return countAnswers;
 }
 
-function getNotationsForVariant(question: string, variant: string) {
+function getNotationsForVariant(question: string, variant: string | Array<string>) {
 	return filterDataByQuestionAndVariant(question, variant).flatMap((entry) =>
 		entry.Variante?.split(";").map((v) => v.trim()),
 	);
@@ -93,7 +94,7 @@ function getNotationsForVariant(question: string, variant: string) {
 
 function getRegionsForVariant(
 	question: string,
-	variant: string,
+	variant: string | Array<string>,
 	key: "region" | "bundesland",
 ): Record<string, number> {
 	const matchingEntries = filterDataByQuestionAndVariant(question, variant);
@@ -106,36 +107,38 @@ function getRegionsForVariant(
 	);
 }
 
+function countAnswersForGroups(question: string, groups: Array<VariantGroup>) {
+	const { countEntriesByGroup } = useVariantGroups();
+	return countEntriesByGroup(filterDataByQuestionAndVariant(question), groups);
+}
+
 function getRegionalCooccurrencesForVariant(
 	question: string,
-	variant: string,
+	variant: string | Array<string>,
 	key: "region" | "bundesland",
+	groups: Array<VariantGroup>,
 ) {
-	const matchingEntries = filterDataByQuestionAndVariant(question, variant);
+	const { countEntriesByGroup } = useVariantGroups();
+	const variants = Array.isArray(variant) ? variant : [variant];
+	const matchingEntries = filterDataByQuestionAndVariant(question, variants);
 	const matchingRegions = new Set(matchingEntries.map((entry) => entry[key]));
 	const cooccurrences = filterDataByQuestionAndVariant(question)
 		.filter((entry) => matchingRegions.has(entry[key]))
-		.flatMap((entry) => entry.variants)
-		.filter((v) => v !== variant);
-	return Object.fromEntries(
-		[...new Set(cooccurrences)].map((entry) => [
-			entry,
-			cooccurrences.filter((e) => e === entry).length,
-		]),
-	);
+		.map((entry) => ({ variants: entry.variants.filter((v) => !variants.includes(v)) }));
+	return countEntriesByGroup(cooccurrences, groups);
 }
 
-function getVariantsForRegion(question: string, region: string, key: "region" | "bundesland") {
+function getVariantsForRegion(
+	question: string,
+	region: string,
+	key: "region" | "bundesland",
+	groups: Array<VariantGroup>,
+) {
+	const { countEntriesByGroup } = useVariantGroups();
 	const matchingEntries = filterDataByQuestionAndVariant(question).filter(
 		(entry) => entry[key] === region,
 	);
-	const matchingVariants = matchingEntries.flatMap((entry) => entry.variants);
-	return Object.fromEntries(
-		[...new Set(matchingVariants)].map((entry) => [
-			entry,
-			matchingVariants.filter((e) => e === entry).length,
-		]),
-	);
+	return countEntriesByGroup(matchingEntries, groups);
 }
 
 export function useQuestions() {
@@ -145,6 +148,7 @@ export function useQuestions() {
 		allBundeslaender,
 		getValuesForQuestion,
 		countAnswersForQuestion,
+		countAnswersForGroups,
 		getNotationsForVariant,
 		getRegionsForVariant,
 		getRegionalCooccurrencesForVariant,

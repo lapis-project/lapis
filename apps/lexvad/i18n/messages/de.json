@@ -84,6 +84,9 @@
 			"open-sidebar": "Dateneinblicke",
 			"close-split-view": "Geteilte Ansicht schließen"
 		},
+		"legend": {
+			"title": "Legende"
+		},
 		"sidebar": {
 			"variable": "Phänomen",
 			"variant": "Variante",
@@ -135,6 +138,14 @@
 		"title": "Verteilung nach",
 		"dialectal-region": "Dialektregion",
 		"state": "Bundesland"
+	},
+	"VariantGroupingCard": {
+		"title": "Varianten-Übersicht",
+		"new-group": "Aus Gruppe entfernen",
+		"new-group-hint": "Variante hierher ziehen, um sie aus der Gruppe zu entfernen",
+		"group-name": "Gruppenname",
+		"rename": "Gruppe umbenennen",
+		"ungroup": "Gruppierung aufheben"
 	},
 	"VariantOverviewCard": {
 		"title": "Varianten-Übersicht",

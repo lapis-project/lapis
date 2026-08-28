@@ -37,20 +37,23 @@ const app = new Hono<AppEnv>()
 						.split(",")
 						.map((el) => el.trim())
 				: "",
-			allowMethods: ["GET", "POST", "PUT", "DELETE"],
+			allowMethods: ["GET", "HEAD", "POST", "PUT", "DELETE"],
 			allowHeaders: [
 				"Content-Type",
 				"Authorization",
+				"If-Modified-Since",
+				"If-None-Match",
+				"Range",
 				"X-Custom-Header",
 				"Upgrade-Insecure-Requests",
 			],
-			exposeHeaders: [],
+			exposeHeaders: ["Accept-Ranges", "Content-Range", "Content-Length", "ETag", "Last-Modified"],
 			maxAge: 600,
 			credentials: true,
 		}),
 	)
 	.use("*", async (c: AppContext, next) => {
-		if (c.req.method === "GET") {
+		if (c.req.method === "GET" || c.req.method === "HEAD") {
 			return next();
 		}
 		const originHeader = c.req.header("Origin") ?? null;

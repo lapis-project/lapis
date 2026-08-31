@@ -16,6 +16,8 @@ export async function getAllTranscripts(
 		comment_search_mode?: "simple" | "regex";
 		transcript_name?: string;
 		instance_id?: number;
+		settings?: Array<string>;
+		projects?: Array<string>;
 	},
 ) {
 	let query = db
@@ -32,8 +34,7 @@ export async function getAllTranscripts(
 		.innerJoin("informant", "informant.id", "informant_survey_conducted.informant_id")
 		.innerJoin("age_group", "age_group.id", "informant.age_group_id")
 		.innerJoin("informant_lives_in_place", "informant_lives_in_place.informant_id", "informant.id")
-		.innerJoin("place", "place.id", "informant_lives_in_place.place_id")
-		.where("project.id", "=", project_id);
+		.innerJoin("place", "place.id", "informant_lives_in_place.place_id");
 
 	// Apply optional filters
 	if (filters?.age_lower !== undefined) {
@@ -71,10 +72,19 @@ export async function getAllTranscripts(
 	if (filters?.instance_id) {
 		query = query.where("survey_conducted.instance_id", "=", filters.instance_id);
 	}
+	if (filters?.settings?.length) {
+		query = query.where("survey_type.survey_type_name", "in", filters.settings);
+	}
+	if (filters?.projects?.length) {
+		query = query.where("project.project_name", "in", filters.projects);
+	} else {
+		query = query.where("project.id", "=", project_id);
+	}
 
 	return await query
 		.select(({ eb, fn }) => [
 			eb.ref("survey_conducted.comment").as("transcript_name"),
+			eb.ref("project.project_name").as("project_name"),
 			eb.ref("survey_conducted.conducted_on").as("conducted_on"),
 			eb.ref("survey_conducted.instance_id").as("instance_id"),
 			eb.ref("survey.id").as("survey_id"),
@@ -116,6 +126,7 @@ export async function getAllTranscripts(
 			"place.lat",
 			"place.lon",
 			"place.plz",
+			"project.project_name",
 		])
 		.execute();
 }

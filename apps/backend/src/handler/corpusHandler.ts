@@ -198,8 +198,8 @@ const corpus = new Hono<AppEnv>()
 			return c.json({ error: "Internal Server Error" }, 500);
 		}
 	})
-	.get("/transcript/:id/:format", (c) => {
-		const id = c.req.param("id");
+	.get("/transcript/:transcript_id/:format", (c) => {
+		const id = c.req.param("transcript_id");
 		const format = c.req.param("format"); // 'xml' or 'json'
 
 		// 1. Validate transcript ID (Security Critical)
@@ -244,6 +244,8 @@ const corpus = new Hono<AppEnv>()
 			comment_search_mode?: "simple" | "regex";
 			transcript_name?: string;
 			instance_id?: number;
+			settings?: Array<string>;
+			projects?: Array<string>;
 		} = {};
 
 		if (rawQuery.age_lower) {
@@ -297,7 +299,7 @@ const corpus = new Hono<AppEnv>()
 		if (rawQuery.instance_id) {
 			const instance_id = Number(rawQuery.instance_id);
 			if (Number.isNaN(instance_id)) {
-				return c.json("Invalid standard_competence parameter", 400);
+				return c.json("Invalid instance_id parameter", 400);
 			}
 			filters.instance_id = instance_id;
 		}
@@ -306,20 +308,30 @@ const corpus = new Hono<AppEnv>()
 			filters.transcript_name = rawQuery.transcript_name;
 		}
 
+		const settings = c.req.queries("settings");
+		if (settings?.length) {
+			filters.settings = settings;
+		}
+
+		const projects = c.req.queries("projects");
+		if (projects?.length) {
+			filters.projects = projects;
+		}
+
 		const response = await getAllTranscripts(parsedId, filters);
 
 		return c.json(response, 200);
 	})
 	.get(
-		"/preview/:id",
+		"/preview/:transcript_id",
 		vValidator(
 			"param",
 			object({
-				id: string(),
+				transcript_id: string(),
 			}),
 		),
 		async (c) => {
-			const id = c.req.param("id");
+			const id = c.req.param("transcript_id");
 
 			// 1. Validate transcript ID
 			const safeId = validateTranscriptId(id);

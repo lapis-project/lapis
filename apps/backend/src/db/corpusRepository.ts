@@ -133,6 +133,7 @@ export async function transcriptDetailView(transcript_id: number) {
 		.select(({ eb, fn }) => [
 			"survey_conducted.conducted_on",
 			eb.ref("survey_conducted.instance_id").as("transcript_id"),
+			"survey_conducted.audio_link",
 			"place.place_name",
 			"place.plz",
 			"place.lat",
@@ -152,6 +153,7 @@ export async function transcriptDetailView(transcript_id: number) {
 		.groupBy([
 			"survey_conducted.instance_id",
 			"survey_conducted.conducted_on",
+			"survey_conducted.audio_link",
 			"place.place_name",
 			"place.lat",
 			"place.lon",

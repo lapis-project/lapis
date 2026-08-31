@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Transcript: Transcript_314</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Digital Humanities Project</p>
+      </publicationStmt>
+      <sourceDesc>
+        <xi:include href="standoff_informants.xml" xpointer="project_informants"/>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff type="feature-declarations">
+    <fs xml:id="fs_3037888_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #MG #Nas #Ons #Ons- #sPal #sPal- #sPal-t"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_3037922_dioe">
+      <f name="dioe_tags">
+        <fs feats="#igReal #igVar #LautNach #MG #P"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_3037925_dioe">
+      <f name="dioe_tags">
+        <fs feats="#igReal #igVar #LautNach #P #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_3037955_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #Ons #Ons- #P #sPal #sPal- #sPal-t #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_3037956_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #Ons #Ons- #P #sPal #sPal- #sPal-t #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_3037987_dioe">
+      <f name="dioe_tags">
+        <fs feats="#igReal #igVar #LautNach #P #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_3037997_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #Ons #Ons- #P #sPal #sPal- #sPal-t #Vvel"/>
+      </f>
+    </fs>
+  </standOff>
+  <standOff type="timestamps">
+    <timeline unit="s">
+      <when xml:id="TL_0" absolute="0:00:16.933000"/>
+      <when xml:id="TL_1" absolute="0:00:18.933000"/>
+      <when xml:id="TL_2" absolute="0:00:21.880000"/>
+      <when xml:id="TL_3" absolute="0:00:24.693000"/>
+      <when xml:id="TL_4" absolute="0:00:26"/>
+      <when xml:id="TL_5" absolute="0:00:28.160000"/>
+      <when xml:id="TL_6" absolute="0:00:30.160000"/>
+      <when xml:id="TL_7" absolute="0:00:31.226000"/>
+      <when xml:id="TL_8" absolute="0:00:34.146000"/>
+      <when xml:id="TL_9" absolute="0:00:36.013000"/>
+      <when xml:id="TL_10" absolute="0:00:38.013000"/>
+      <when xml:id="TL_11" absolute="0:00:40.300000"/>
+      <when xml:id="TL_12" absolute="0:00:41.646000"/>
+      <when xml:id="TL_13" absolute="0:00:44.926000"/>
+      <when xml:id="TL_14" absolute="0:00:47.773000"/>
+      <when xml:id="TL_15" absolute="0:00:51.173000"/>
+      <when xml:id="TL_16" absolute="0:00:52.980000"/>
+      <when xml:id="TL_17" absolute="0:00:55.533000"/>
+      <when xml:id="TL_18" absolute="0:00:57.013000"/>
+      <when xml:id="TL_19" absolute="0:01:00.353000"/>
+      <when xml:id="TL_20" absolute="0:01:02.353000"/>
+    </timeline>
+  </standOff>
+  <text>
+    <body>
+      <div>
+        <u who="#spk_118" start="#TL_0" end="#TL_1">
+          <w xml:id="t3037883" start="#TL_0" end="#TL_1">Nordwind</w>
+        </u>
+        <u who="#spk_624" start="#TL_0" end="#TL_1">
+          <w xml:id="t3037887" start="#TL_0" end="#TL_1">XXX</w>
+        </u>
+        <u who="#spk_118" start="#TL_0" end="#TL_19"><w xml:id="t3037884" start="#TL_0" end="#TL_1">und</w> <w xml:id="t3037885" start="#TL_0" end="#TL_1">Sonne</w> <w xml:id="t3037886" start="#TL_0" end="#TL_1">.</w> <w xml:id="t3037888" ana="#fs_3037888_dioe" start="#TL_1" end="#TL_2">einst</w> <w xml:id="t3037889" start="#TL_1" end="#TL_2">stritten</w> <w xml:id="t3037890" start="#TL_1" end="#TL_2">sich</w> <w xml:id="t3037891" start="#TL_1" end="#TL_2">Nordwind</w> <w xml:id="t3037892" start="#TL_1" end="#TL_2">und</w> <w xml:id="t3037893" start="#TL_1" end="#TL_2">Sonne</w> <w xml:id="t3037894" start="#TL_1" end="#TL_2">,</w> <w xml:id="t3037895" start="#TL_2" end="#TL_3">wer</w> <w xml:id="t3037896" start="#TL_2" end="#TL_3">von</w> <w xml:id="t3037897" start="#TL_2" end="#TL_3">ihnen</w> <w xml:id="t3037898" start="#TL_2" end="#TL_3">beiden</w> <w xml:id="t3037899" start="#TL_2" end="#TL_3">wohl</w> <w xml:id="t3037900" start="#TL_2" end="#TL_3">der</w> <w xml:id="t3037901" start="#TL_2" end="#TL_3">Stärkere</w> <w xml:id="t3037902" start="#TL_2" end="#TL_3">wäre</w> <w xml:id="t3037903" start="#TL_2" end="#TL_3">,</w> <w xml:id="t3037904" start="#TL_3" end="#TL_4">als</w> <w xml:id="t3037905" start="#TL_3" end="#TL_4">ein</w> <w xml:id="t3037906" start="#TL_3" end="#TL_4">Wanderer</w> <w xml:id="t3037907" start="#TL_3" end="#TL_4">,</w> <w xml:id="t3037908" start="#TL_4" end="#TL_5">der</w> <w xml:id="t3037909" start="#TL_4" end="#TL_5">in</w> <w xml:id="t3037910" start="#TL_4" end="#TL_5">einen</w> <w xml:id="t3037911" start="#TL_4" end="#TL_5">warmen</w> <w xml:id="t3037912" start="#TL_4" end="#TL_5">Mantel</w> <w xml:id="t3037913" start="#TL_4" end="#TL_5">gehüllt</w> <w xml:id="t3037914" start="#TL_4" end="#TL_5">war</w> <w xml:id="t3037915" start="#TL_4" end="#TL_5">,</w> <w xml:id="t3037916" start="#TL_5" end="#TL_6">des</w> <w xml:id="t3037917" start="#TL_5" end="#TL_6">Weges</w> <w xml:id="t3037918" start="#TL_5" end="#TL_6">daherkam</w> <w xml:id="t3037919" start="#TL_5" end="#TL_6">.</w> <w xml:id="t3037920" start="#TL_6" end="#TL_7">sie</w> <w xml:id="t3037921" start="#TL_6" end="#TL_7">wurden</w> <w xml:id="t3037922" ana="#fs_3037922_dioe" start="#TL_6" end="#TL_7">einig</w> <w xml:id="t3037923" start="#TL_6" end="#TL_7">,</w> <w xml:id="t3037924" start="#TL_7" end="#TL_8">dass</w> <w xml:id="t3037925" ana="#fs_3037925_dioe" start="#TL_7" end="#TL_8">derjenige</w> <w xml:id="t3037926" start="#TL_7" end="#TL_8">für</w> <w xml:id="t3037927" start="#TL_7" end="#TL_8">den</w> <w xml:id="t3037928" start="#TL_7" end="#TL_8">Stärkeren</w> <w xml:id="t3037929" start="#TL_7" end="#TL_8">gelten</w> <w xml:id="t3037930" start="#TL_7" end="#TL_8">sollte</w> <w xml:id="t3037931" start="#TL_7" end="#TL_8">,</w> <w xml:id="t3037932" start="#TL_8" end="#TL_9">der</w> <w xml:id="t3037933" start="#TL_8" end="#TL_9">den</w> <w xml:id="t3037934" start="#TL_8" end="#TL_9">Wanderer</w> <w xml:id="t3037935" start="#TL_8" end="#TL_9">zwingen</w> <w xml:id="t3037936" start="#TL_8" end="#TL_9">würde</w> <w xml:id="t3037937" start="#TL_8" end="#TL_9">,</w> <w xml:id="t3037938" start="#TL_9" end="#TL_10">seinen</w> <w xml:id="t3037939" start="#TL_9" end="#TL_10">Mantel</w> <w xml:id="t3037940" start="#TL_9" end="#TL_10">abzunehmen</w> <w xml:id="t3037941" start="#TL_9" end="#TL_10">.</w> <w xml:id="t3037942" start="#TL_10" end="#TL_11">der</w> <w xml:id="t3037943" start="#TL_10" end="#TL_11">Nordwind</w> <w xml:id="t3037944" start="#TL_10" end="#TL_11">blies</w> <w xml:id="t3037945" start="#TL_10" end="#TL_11">mit</w> <w xml:id="t3037946" start="#TL_10" end="#TL_11">aller</w> <w xml:id="t3037947" start="#TL_10" end="#TL_11">Macht</w> <w xml:id="t3037948" start="#TL_10" end="#TL_11">,</w> <w xml:id="t3037949" start="#TL_11" end="#TL_12">aber</w> <w xml:id="t3037950" start="#TL_11" end="#TL_12">je</w> <w xml:id="t3037951" start="#TL_11" end="#TL_12">mehr</w> <w xml:id="t3037952" start="#TL_11" end="#TL_12">er</w> <w xml:id="t3037953" start="#TL_11" end="#TL_12">blies</w> <w xml:id="t3037954" start="#TL_11" end="#TL_12">,</w> <w xml:id="t3037955" ana="#fs_3037955_dioe" start="#TL_12" end="#TL_13">desto</w> <w xml:id="t3037956" ana="#fs_3037956_dioe" start="#TL_12" end="#TL_13">fester</w> <w xml:id="t3037957" start="#TL_12" end="#TL_13">hüllte</w> <w xml:id="t3037958" start="#TL_12" end="#TL_13">sich</w> <w xml:id="t3037959" start="#TL_12" end="#TL_13">der</w> <w xml:id="t3037960" start="#TL_12" end="#TL_13">Wanderer</w> <w xml:id="t3037961" start="#TL_12" end="#TL_13">in</w> <w xml:id="t3037962" start="#TL_12" end="#TL_13">seinen</w> <w xml:id="t3037963" start="#TL_12" end="#TL_13">Mantel</w> <w xml:id="t3037964" start="#TL_12" end="#TL_13">ein</w> <w xml:id="t3037965" start="#TL_12" end="#TL_13">.</w> <w xml:id="t3037966" start="#TL_13" end="#TL_14">endlich</w> <w xml:id="t3037967" start="#TL_13" end="#TL_14">gab</w> <w xml:id="t3037968" start="#TL_13" end="#TL_14">der</w> <w xml:id="t3037969" start="#TL_13" end="#TL_14">Nordwind</w> <w xml:id="t3037970" start="#TL_13" end="#TL_14">den</w> <w xml:id="t3037971" start="#TL_13" end="#TL_14">Kampf</w> <w xml:id="t3037972" start="#TL_13" end="#TL_14">auf</w> <w xml:id="t3037973" start="#TL_13" end="#TL_14">.</w> <w xml:id="t3037974" start="#TL_14" end="#TL_15">nun</w> <w xml:id="t3037975" start="#TL_14" end="#TL_15">erwärmte</w> <w xml:id="t3037976" start="#TL_14" end="#TL_15">die</w> <w xml:id="t3037977" start="#TL_14" end="#TL_15">Sonne</w> <w xml:id="t3037978" start="#TL_14" end="#TL_15">die</w> <w xml:id="t3037979" start="#TL_14" end="#TL_15">Luft</w> <w xml:id="t3037980" start="#TL_14" end="#TL_15">mit</w> <w xml:id="t3037981" start="#TL_14" end="#TL_15">ihren</w> <w xml:id="t3037982" start="#TL_14" end="#TL_15">freundlichen</w> <w xml:id="t3037983" start="#TL_14" end="#TL_15">Strahlen</w> <w xml:id="t3037984" start="#TL_15" end="#TL_16">und</w> <w xml:id="t3037985" start="#TL_15" end="#TL_16">schon</w> <w xml:id="t3037986" start="#TL_15" end="#TL_16">nach</w> <w xml:id="t3037987" ana="#fs_3037987_dioe" start="#TL_15" end="#TL_16">wenigen</w> <w xml:id="t3037988" start="#TL_15" end="#TL_16">Augenblicken</w> <w xml:id="t3037989" start="#TL_16" end="#TL_17">zog</w> <w xml:id="t3037990" start="#TL_16" end="#TL_17">der</w> <w xml:id="t3037991" start="#TL_16" end="#TL_17">Wanderer</w> <w xml:id="t3037992" start="#TL_16" end="#TL_17">seinen</w> <w xml:id="t3037993" start="#TL_16" end="#TL_17">Mantel</w> <w xml:id="t3037994" start="#TL_16" end="#TL_17">aus</w> <w xml:id="t3037995" start="#TL_16" end="#TL_17">.</w> <w xml:id="t3037996" start="#TL_17" end="#TL_18">da</w> <w xml:id="t3037997" ana="#fs_3037997_dioe" start="#TL_17" end="#TL_18">musste</w> <w xml:id="t3037998" start="#TL_17" end="#TL_18">der</w> <w xml:id="t3037999" start="#TL_17" end="#TL_18">Nordwind</w> <w xml:id="t3038000" start="#TL_17" end="#TL_18">zugeben</w> <w xml:id="t3038001" start="#TL_17" end="#TL_18">,</w> <w xml:id="t3038002" start="#TL_18" end="#TL_19">dass</w> <w xml:id="t3038003" start="#TL_18" end="#TL_19">die</w> <w xml:id="t3038004" start="#TL_18" end="#TL_19">Sonne</w> <w xml:id="t3038005" start="#TL_18" end="#TL_19">von</w> <w xml:id="t3038006" start="#TL_18" end="#TL_19">ihnen</w> <w xml:id="t3038007" start="#TL_18" end="#TL_19">beiden</w> <w xml:id="t3038008" start="#TL_18" end="#TL_19">der</w> <w xml:id="t3038009" start="#TL_18" end="#TL_19">Stärkere</w> <w xml:id="t3038010" start="#TL_18" end="#TL_19">war</w> <w xml:id="t3038011" start="#TL_18" end="#TL_19">.</w></u>
+        <u who="#spk_624" start="#TL_19" end="#TL_20">
+          <w xml:id="t3038013" start="#TL_19" end="#TL_20">XXX</w>
+        </u>
+        <u who="#spk_118" start="#TL_19" end="#TL_20">
+          <w xml:id="t3038012" start="#TL_19" end="#TL_20">XXX</w>
+        </u>
+      </div>
+    </body>
+  </text>
+</TEI>

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Transcript: Transcript_724</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Digital Humanities Project</p>
+      </publicationStmt>
+      <sourceDesc>
+        <xi:include href="standoff_informants.xml" xpointer="project_informants"/>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff type="feature-declarations"/>
+  <standOff type="timestamps">
+    <timeline unit="s">
+      <when xml:id="TL_0" absolute="0:00:00"/>
+      <when xml:id="TL_1" absolute="0:01:14.426000"/>
+      <when xml:id="TL_2" absolute="0:01:15.519000"/>
+    </timeline>
+  </standOff>
+  <text>
+    <body>
+      <div>
+        <u who="#spk_634" start="#TL_0" end="#TL_1">
+          <w xml:id="t6330330" start="#TL_0" end="#TL_1"></w>
+        </u>
+        <u who="#spk_921" start="#TL_0" end="#TL_1">
+          <w xml:id="t6330331" start="#TL_0" end="#TL_1"></w>
+        </u>
+        <u who="#spk_922" start="#TL_0" end="#TL_1">
+          <w xml:id="t6330337" start="#TL_0" end="#TL_1"></w>
+        </u>
+        <u who="#spk_921" start="#TL_1" end="#TL_2"><w xml:id="t6330332" start="#TL_1" end="#TL_2"></w> <w xml:id="t6330333" start="#TL_1" end="#TL_2"></w> <w xml:id="t6330334" start="#TL_1" end="#TL_2"></w> <w xml:id="t6330335" start="#TL_1" end="#TL_2"></w> <w xml:id="t6330336" start="#TL_1" end="#TL_2"></w></u>
+      </div>
+    </body>
+  </text>
+</TEI>

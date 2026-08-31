@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Transcript: Transcript_214</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Digital Humanities Project</p>
+      </publicationStmt>
+      <sourceDesc>
+        <xi:include href="standoff_informants.xml" xpointer="project_informants"/>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff type="feature-declarations"/>
+  <standOff type="timestamps">
+    <timeline unit="s">
+      <when xml:id="TL_0" absolute="0:00:00"/>
+      <when xml:id="TL_1" absolute="0:00:26.793000"/>
+    </timeline>
+  </standOff>
+  <text>
+    <body>
+      <div>
+        <u who="#spk_371" start="#TL_0" end="#TL_1">
+          <w xml:id="t2571454" lemma="ja" type="PART" start="#TL_0" end="#TL_1">ja</w>
+        </u>
+        <u who="#spk_467" start="#TL_0" end="#TL_1">
+          <w xml:id="t2571456" lemma="hi" type="X" start="#TL_0" end="#TL_1">hi</w>
+        </u>
+        <u who="#spk_619" start="#TL_0" end="#TL_1">
+          <w xml:id="t2571455" lemma="ha" type="X" start="#TL_0" end="#TL_1">ha</w>
+        </u>
+      </div>
+    </body>
+  </text>
+</TEI>

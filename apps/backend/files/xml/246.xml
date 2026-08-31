@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Transcript: Transcript_246</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Digital Humanities Project</p>
+      </publicationStmt>
+      <sourceDesc>
+        <xi:include href="standoff_informants.xml" xpointer="project_informants"/>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff type="feature-declarations">
+    <fs xml:id="fs_2585049_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aeDiph #ae-Diph #eiReal #F #LautNach #LautVor #MG #mhd. /ei/ #Nas #Ons #Ons- #sPal #sPal- #sPal-t"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584988_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #MG #Ons #Ons+ #P #sPal #sPal+ #sPal-t"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585003_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aeDiph #ae-Diph #eiReal #LautNach #LautVor #mhd. /ei/ #P"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585054_dioe">
+      <f name="dioe_tags">
+        <fs feats="#k #kReal #kVar #LautNach #LautVor #MG #Ons #Ons+ #P #sPal #sPal+ #sPal-t #Vpal #Vvel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584933_dioe">
+      <f name="dioe_tags">
+        <fs feats="#k #kReal #kVar #LautNach #LautVor #Ons #Ons+ #Vvel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584934_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aeDiph #ae-Diph #eiReal #igReal #igVar #LautNach #LautVor #MG #mhd. /ei/ #Nas #P"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585000_dioe">
+      <f name="dioe_tags">
+        <fs feats="#igReal #igVar #LautNach #P #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585020_dioe">
+      <f name="dioe_tags">
+        <fs feats="#k #kReal #kVar #L #LautNach #LautVor #MG #Ons #Ons+ #P #sPal #sPal+ #sPal-t #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585015_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aeDiph #ae-Diph #F #iReal #LautNach #LautVor #mhd. /î/ #Nas"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585026_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aReal #aVar #dumpf- #F #LautNach #LautVor #mhd. /a/ #Nas #Wurzel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584993_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aReal #aVar #dumpf- #LautNach #LautVor #MG #mhd. /a/ #P #Wurzel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584970_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #Ons #Ons- #P #sPal #sPal- #sPal-t #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585050_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #Ons #Ons- #P #sPal #sPal- #sPal-t #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584991_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aeDiph #ae-Diph #F #iReal #LautNach #LautVor #mhd. /î/ #Nas"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584966_dioe">
+      <f name="dioe_tags">
+        <fs feats="#k #kReal #kVar #LautNach #LautVor #MG #Ons #Ons+ #Vvel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584935_dioe">
+      <f name="dioe_tags">
+        <fs feats="#au/aoDiph #au/ao-Diph #auReal #auVar #F #LautNach #LautVor #MG #mhd. /û/ #Wurzel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585059_dioe">
+      <f name="dioe_tags">
+        <fs feats="#? #euReal #euVar #L #LautNach #LautVor #mhd. /iu/ #Nas #Wurzel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585057_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #MG #Ons #Ons+ #P #sPal #sPal+ #sPal-t"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584986_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aReal #aVar #dumpf- #F #LautNach #LautVor #mhd. /â/ #Nas #Wurzel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584992_dioe">
+      <f name="dioe_tags">
+        <fs feats="#igReal #igVar #LautNach #P #Vpal"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2584943_dioe">
+      <f name="dioe_tags">
+        <fs feats="#au/aoDiph #au/ao-Diph #auReal #auVar #LautNach #LautVor #MG #mhd. /ou/ #P #Wurzel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585009_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aeDiph #ae-Diph #F #iReal #LautNach #LautVor #mhd. /î/ #Nas"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585043_dioe">
+      <f name="dioe_tags">
+        <fs feats="#au/aoDiph #au/ao-Diph #auReal #auVar #F #LautNach #LautVor #MG #mhd. /û/ #Wurzel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585006_dioe">
+      <f name="dioe_tags">
+        <fs feats="#LautNach #LautVor #Ons #Ons- #P #sPal #sPal- #sPal-t #Vvel"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585016_dioe">
+      <f name="dioe_tags">
+        <fs feats="#aeDiph #ae-Diph #eiReal #LautNach #LautVor #mhd. /ei/ #P"/>
+      </f>
+    </fs>
+    <fs xml:id="fs_2585027_dioe">
+      <f name="dioe_tags">
+        <fs feats="#k #kReal #kVar #L #LautNach #LautVor #MG #Ons #Ons+ #P #sPal #sPal+ #sPal-t"/>
+      </f>
+    </fs>
+  </standOff>
+  <standOff type="timestamps">
+    <timeline unit="s">
+      <when xml:id="TL_0" absolute="0:00:00"/>
+      <when xml:id="TL_1" absolute="0:00:17.112000"/>
+      <when xml:id="TL_2" absolute="0:00:19.112000"/>
+      <when xml:id="TL_3" absolute="0:00:19.500000"/>
+      <when xml:id="TL_4" absolute="0:00:19.938000"/>
+      <when xml:id="TL_5" absolute="0:00:21.386000"/>
+      <when xml:id="TL_6" absolute="0:00:22.510000"/>
+      <when xml:id="TL_7" absolute="0:00:22.892000"/>
+      <when xml:id="TL_8" absolute="0:00:23.319000"/>
+      <when xml:id="TL_9" absolute="0:00:23.879000"/>
+      <when xml:id="TL_10" absolute="0:00:24.485000"/>
+      <when xml:id="TL_11" absolute="0:00:26.245000"/>
+      <when xml:id="TL_12" absolute="0:00:28.445000"/>
+      <when xml:id="TL_13" absolute="0:00:30.325000"/>
+      <when xml:id="TL_14" absolute="0:00:31.413000"/>
+      <when xml:id="TL_15" absolute="0:00:32.104000"/>
+      <when xml:id="TL_16" absolute="0:00:34.397000"/>
+      <when xml:id="TL_17" absolute="0:00:34.986000"/>
+      <when xml:id="TL_18" absolute="0:00:35.985000"/>
+      <when xml:id="TL_19" absolute="0:00:37.985000"/>
+      <when xml:id="TL_20" absolute="0:00:39.985000"/>
+      <when xml:id="TL_21" absolute="0:00:42.585000"/>
+      <when xml:id="TL_22" absolute="0:00:44.072000"/>
+      <when xml:id="TL_23" absolute="0:00:44.396000"/>
+      <when xml:id="TL_24" absolute="0:00:44.847000"/>
+      <when xml:id="TL_25" absolute="0:00:47.591000"/>
+      <when xml:id="TL_26" absolute="0:00:50.651000"/>
+      <when xml:id="TL_27" absolute="0:00:55.687000"/>
+      <when xml:id="TL_28" absolute="0:00:56.365000"/>
+      <when xml:id="TL_29" absolute="0:01:00.964000"/>
+      <when xml:id="TL_30" absolute="0:01:03.731000"/>
+      <when xml:id="TL_31" absolute="0:01:05.188000"/>
+      <when xml:id="TL_32" absolute="0:01:05.519000"/>
+      <when xml:id="TL_33" absolute="0:01:05.695000"/>
+      <when xml:id="TL_34" absolute="0:01:06.245000"/>
+      <when xml:id="TL_35" absolute="0:01:06.524000"/>
+      <when xml:id="TL_36" absolute="0:01:10.451000"/>
+    </timeline>
+  </standOff>
+  <text>
+    <body>
+      <div>
+        <u who="#spk_91" start="#TL_0" end="#TL_36"><w xml:id="t2584972" lemma="XXXNordwind" type="PROPN" start="#TL_0" end="#TL_1">XXX</w> <w xml:id="t2584971" lemma=" " type="SPACE" start="#TL_1" end="#TL_2">Nordwind</w> <w xml:id="t2585030" lemma="und" type="CCONJ" start="#TL_1" end="#TL_2">und</w> <w xml:id="t2585010" lemma="sonnen" type="NOUN" start="#TL_1" end="#TL_2">Sonne</w> <pc xml:id="t2585024" start="#TL_1" end="#TL_2">.</pc> <w xml:id="t2585049" lemma="Einst" type="ADV" ana="#fs_2585049_dioe" start="#TL_2" end="#TL_3">Einst</w> <w xml:id="t2584988" lemma="streiten" type="VERB" ana="#fs_2584988_dioe" start="#TL_3" end="#TL_4">stritten</w> <w xml:id="t2584955" lemma="sich" type="PRON" start="#TL_4" end="#TL_5">sich</w> <w xml:id="t2584994" lemma="Nordwind" type="NOUN" start="#TL_4" end="#TL_5">Nordwind</w> <w xml:id="t2584946" lemma="und" type="CCONJ" start="#TL_4" end="#TL_5">und</w> <w xml:id="t2584951" lemma="sonnen" type="NOUN" start="#TL_4" end="#TL_5">Sonne</w> <pc xml:id="t2585005" start="#TL_4" end="#TL_5">,</pc> <w xml:id="t2584965" lemma="wer" type="PRON" start="#TL_5" end="#TL_6">wer</w> <w xml:id="t2585040" lemma="von" type="ADP" start="#TL_5" end="#TL_6">von</w> <w xml:id="t2584937" lemma="ich" type="PRON" start="#TL_5" end="#TL_6">ihnen</w> <w xml:id="t2585003" lemma="beid" type="PRON" ana="#fs_2585003_dioe" start="#TL_6" end="#TL_7">beiden</w> <w xml:id="t2585028" lemma="wohl" type="ADV" start="#TL_7" end="#TL_8">wohl</w> <w xml:id="t2584938" lemma="der" type="DET" start="#TL_7" end="#TL_8">der</w> <w xml:id="t2585054" lemma="Stärkere" type="NOUN" ana="#fs_2585054_dioe" start="#TL_8" end="#TL_9">Stärkere</w> <w xml:id="t2584973" lemma="sein" type="AUX" start="#TL_9" end="#TL_10">wäre</w> <pc xml:id="t2585038" start="#TL_9" end="#TL_10">,</pc> <w xml:id="t2585012" lemma="als" type="ADP" start="#TL_10" end="#TL_11">als</w> <w xml:id="t2585019" lemma="einen" type="DET" start="#TL_10" end="#TL_11">ein</w> <w xml:id="t2585031" lemma="Wanderer" type="NOUN" start="#TL_10" end="#TL_11">Wanderer</w> <pc xml:id="t2584961" start="#TL_10" end="#TL_11">,</pc> <w xml:id="t2584981" lemma="der" type="DET" start="#TL_11" end="#TL_12">der</w> <w xml:id="t2584989" lemma="in" type="ADP" start="#TL_11" end="#TL_12">in</w> <w xml:id="t2584999" lemma="einer" type="DET" start="#TL_11" end="#TL_12">einem</w> <w xml:id="t2585014" lemma="warm" type="ADJ" start="#TL_11" end="#TL_12">warmen</w> <w xml:id="t2584968" lemma="Mantel" type="NOUN" start="#TL_11" end="#TL_12">Mantel</w> <w xml:id="t2585023" lemma="hüllen" type="VERB" start="#TL_11" end="#TL_12">gehüllt</w> <w xml:id="t2584949" lemma="sein" type="AUX" start="#TL_11" end="#TL_12">war</w> <pc xml:id="t2584964" start="#TL_11" end="#TL_12">,</pc> <w xml:id="t2584947" lemma="der" type="DET" start="#TL_12" end="#TL_13">des</w> <w xml:id="t2584976" lemma="Weg" type="NOUN" start="#TL_12" end="#TL_13">Weges</w> <w xml:id="t2584933" lemma="daherkommen" type="VERB" ana="#fs_2584933_dioe" start="#TL_12" end="#TL_13">daherkam</w> <pc xml:id="t2585060" start="#TL_12" end="#TL_13">.</pc> <w xml:id="t2584985" lemma="ich" type="PRON" start="#TL_13" end="#TL_14">Sie</w> <w xml:id="t2585025" lemma="werden" type="AUX" start="#TL_13" end="#TL_14">wurden</w> <w xml:id="t2584934" lemma="einigen" type="ADJ" ana="#fs_2584934_dioe" start="#TL_14" end="#TL_15">einig</w> <pc xml:id="t2584948" start="#TL_14" end="#TL_15">,</pc> <w xml:id="t2584978" lemma="dass" type="SCONJ" start="#TL_15" end="#TL_16">dass</w> <w xml:id="t2585000" lemma="derjenige" type="PRON" ana="#fs_2585000_dioe" start="#TL_15" end="#TL_16">derjenige</w> <w xml:id="t2585032" lemma="für" type="ADP" start="#TL_15" end="#TL_16">für</w> <w xml:id="t2585051" lemma="der" type="DET" start="#TL_15" end="#TL_16">den</w> <w xml:id="t2585020" lemma="Stärkere" type="NOUN" ana="#fs_2585020_dioe" start="#TL_16" end="#TL_17">Stärkeren</w> <w xml:id="t2585011" lemma="gelten" type="VERB" start="#TL_17" end="#TL_18">gelten</w> <w xml:id="t2584953" lemma="sollen" type="VERB" start="#TL_17" end="#TL_18">sollte</w> <pc xml:id="t2584975" start="#TL_17" end="#TL_18">,</pc> <w xml:id="t2584952" lemma="der" type="DET" start="#TL_18" end="#TL_19">der</w> <w xml:id="t2584983" lemma="der" type="DET" start="#TL_18" end="#TL_19">den</w> <w xml:id="t2584997" lemma="Wanderer" type="NOUN" start="#TL_18" end="#TL_19">Wanderer</w> <w xml:id="t2585004" lemma="zwingen" type="VERB" start="#TL_18" end="#TL_19">zwingen</w> <w xml:id="t2584958" lemma="werden" type="AUX" start="#TL_18" end="#TL_19">würde</w> <pc xml:id="t2585042" start="#TL_18" end="#TL_19">,</pc> <w xml:id="t2585015" lemma="seinen" type="DET" ana="#fs_2585015_dioe" start="#TL_19" end="#TL_20">seinen</w> <w xml:id="t2585062" lemma="Mantel" type="NOUN" start="#TL_19" end="#TL_20">Mantel</w> <w xml:id="t2584990" lemma="abnehmen" type="VERB" start="#TL_19" end="#TL_20">abzunehmen</w> <pc xml:id="t2584950" start="#TL_19" end="#TL_20">.</pc> <w xml:id="t2584979" lemma="der" type="DET" start="#TL_20" end="#TL_21">Der</w> <w xml:id="t2585037" lemma="Nordwind" type="NOUN" start="#TL_20" end="#TL_21">Nordwind</w> <w xml:id="t2584940" lemma="blasen" type="VERB" start="#TL_20" end="#TL_21">blies</w> <w xml:id="t2584944" lemma="mit" type="ADP" start="#TL_20" end="#TL_21">mit</w> <w xml:id="t2585045" lemma="all" type="DET" start="#TL_20" end="#TL_21">aller</w> <w xml:id="t2585026" lemma="Macht" type="NOUN" ana="#fs_2585026_dioe" start="#TL_20" end="#TL_21">Macht</w> <pc xml:id="t2585035" start="#TL_20" end="#TL_21">,</pc> <w xml:id="t2584993" lemma="aber" type="CCONJ" ana="#fs_2584993_dioe" start="#TL_21" end="#TL_22">aber</w> <w xml:id="t2584942" lemma="je" type="ADV" start="#TL_21" end="#TL_22">je</w> <w xml:id="t2584982" lemma="mehr" type="ADV" start="#TL_21" end="#TL_22">mehr</w> <w xml:id="t2584998" lemma="ich" type="PRON" start="#TL_21" end="#TL_22">er</w> <w xml:id="t2585047" lemma="blasen" type="VERB" start="#TL_21" end="#TL_22">blies</w> <pc xml:id="t2585021" start="#TL_21" end="#TL_22">,</pc> <w xml:id="t2584970" lemma="desto" type="ADV" ana="#fs_2584970_dioe" start="#TL_22" end="#TL_23">desto</w> <w xml:id="t2585050" lemma="fest" type="ADJ" ana="#fs_2585050_dioe" start="#TL_23" end="#TL_24">fester</w> <w xml:id="t2585058" lemma="hüllen" type="VERB" start="#TL_24" end="#TL_25">hüllt</w> <w xml:id="t2585001" lemma="sich" type="PRON" start="#TL_24" end="#TL_25">sich</w> <w xml:id="t2585061" lemma="der" type="DET" start="#TL_24" end="#TL_25">der</w> <w xml:id="t2585013" lemma="Wanderer" type="NOUN" start="#TL_24" end="#TL_25">Wanderer</w> <w xml:id="t2584957" lemma="in" type="ADP" start="#TL_24" end="#TL_25">in</w> <w xml:id="t2584991" lemma="seinen" type="DET" ana="#fs_2584991_dioe" start="#TL_24" end="#TL_25">seinen</w> <w xml:id="t2584963" lemma="Mantel" type="NOUN" start="#TL_24" end="#TL_25">Mantel</w> <w xml:id="t2584987" lemma="einen" type="ADP" start="#TL_24" end="#TL_25">ein</w> <pc xml:id="t2585029" start="#TL_24" end="#TL_25">.</pc> <w xml:id="t2585041" lemma="Endlich" type="ADV" start="#TL_25" end="#TL_26">Endlich</w> <w xml:id="t2584984" lemma="geben" type="VERB" start="#TL_25" end="#TL_26">gab</w> <w xml:id="t2585036" lemma="der" type="DET" start="#TL_25" end="#TL_26">der</w> <w xml:id="t2584967" lemma="Nordwind" type="NOUN" start="#TL_25" end="#TL_26">Nordwind</w> <w xml:id="t2585055" lemma="der" type="DET" start="#TL_25" end="#TL_26">den</w> <w xml:id="t2584966" lemma="Kampf" type="NOUN" ana="#fs_2584966_dioe" start="#TL_25" end="#TL_26">Kampf</w> <w xml:id="t2584935" lemma="auf" type="ADP" ana="#fs_2584935_dioe" start="#TL_25" end="#TL_26">auf</w> <pc xml:id="t2585017" start="#TL_25" end="#TL_26">.</pc> <w xml:id="t2585046" lemma="Nun" type="ADV" start="#TL_26" end="#TL_27">Nun</w> <w xml:id="t2584960" lemma="erwärmen" type="VERB" start="#TL_26" end="#TL_27">erwärmte</w> <w xml:id="t2585002" lemma="der" type="DET" start="#TL_26" end="#TL_27">die</w> <w xml:id="t2584936" lemma="sonnen" type="NOUN" start="#TL_26" end="#TL_27">Sonne</w> <w xml:id="t2585053" lemma="der" type="DET" start="#TL_26" end="#TL_27">die</w> <w xml:id="t2585034" lemma="Luft" type="NOUN" start="#TL_26" end="#TL_27">Luft</w> <w xml:id="t2584939" lemma="mit" type="ADP" start="#TL_26" end="#TL_27">mit</w> <w xml:id="t2584941" start="#TL_26" end="#TL_27">ihrer/</w> <w xml:id="t2584945" lemma="mein" type="DET" start="#TL_26" end="#TL_27">ihren</w> <w xml:id="t2585059" lemma="freundlich" type="ADJ" ana="#fs_2585059_dioe" start="#TL_26" end="#TL_27">freundlichen</w> <w xml:id="t2585057" lemma="Strahl" type="NOUN" ana="#fs_2585057_dioe" start="#TL_27" end="#TL_28">Strahlen</w> <w xml:id="t2585008" lemma="und" type="CCONJ" start="#TL_28" end="#TL_29">und</w> <w xml:id="t2584954" lemma="schon" type="ADV" start="#TL_28" end="#TL_29">schon</w> <w xml:id="t2584986" lemma="nach" type="ADP" ana="#fs_2584986_dioe" start="#TL_28" end="#TL_29">nach</w> <w xml:id="t2584992" lemma="wenig" type="DET" ana="#fs_2584992_dioe" start="#TL_28" end="#TL_29">wenigen</w> <w xml:id="t2584943" lemma="Augenblicken" type="NOUN" ana="#fs_2584943_dioe" start="#TL_28" end="#TL_29">Augenblicken</w> <w xml:id="t2584977" lemma="ziehen" type="VERB" start="#TL_28" end="#TL_29">zog</w> <w xml:id="t2585022" lemma="der" type="DET" start="#TL_28" end="#TL_29">der</w> <w xml:id="t2584932" lemma="Wanderer" type="NOUN" start="#TL_28" end="#TL_29">Wanderer</w> <w xml:id="t2585009" lemma="seinen" type="DET" ana="#fs_2585009_dioe" start="#TL_28" end="#TL_29">seinen</w> <w xml:id="t2584969" lemma="Mantel" type="NOUN" start="#TL_28" end="#TL_29">Mantel</w> <w xml:id="t2585043" lemma="aus" type="ADP" ana="#fs_2585043_dioe" start="#TL_28" end="#TL_29">aus</w> <pc xml:id="t2585007" start="#TL_28" end="#TL_29">.</pc> <w xml:id="t2584962" lemma="der" type="DET" start="#TL_29" end="#TL_30">Das</w> <w xml:id="t2585006" lemma="musste" type="ADJ" ana="#fs_2585006_dioe" start="#TL_29" end="#TL_30">musste</w> <w xml:id="t2584980" lemma="der" type="DET" start="#TL_29" end="#TL_30">der</w> <w xml:id="t2585056" lemma="Nordwind" type="NOUN" start="#TL_29" end="#TL_30">Nordwind</w> <w xml:id="t2585033" lemma="zugeben" type="VERB" start="#TL_29" end="#TL_30">zugeben</w> <pc xml:id="t2584959" start="#TL_29" end="#TL_30">,</pc> <w xml:id="t2585052" lemma="dass" type="SCONJ" start="#TL_30" end="#TL_31">dass</w> <w xml:id="t2584996" lemma="der" type="DET" start="#TL_30" end="#TL_31">die</w> <w xml:id="t2584956" lemma="sonnen" type="NOUN" start="#TL_30" end="#TL_31">Sonne</w> <w xml:id="t2585018" lemma="von" type="ADP" start="#TL_30" end="#TL_31">von</w> <w xml:id="t2585048" lemma="ich" type="PRON" start="#TL_30" end="#TL_31">ihnen</w> <w xml:id="t2585016" lemma="beid" type="PRON" ana="#fs_2585016_dioe" start="#TL_31" end="#TL_32">beiden</w> <w xml:id="t2585044" lemma="der" type="DET" start="#TL_32" end="#TL_33">der</w> <w xml:id="t2585027" lemma="Stärkere" type="NOUN" ana="#fs_2585027_dioe" start="#TL_33" end="#TL_34">Stärkere</w> <w xml:id="t2584974" lemma="sein" type="AUX" start="#TL_34" end="#TL_35">war</w> <pc xml:id="t2584995" start="#TL_34" end="#TL_35">.</pc> <w xml:id="t2585039" lemma="XXX" type="PROPN" start="#TL_35" end="#TL_36">XXX</w></u>
+      </div>
+    </body>
+  </text>
+</TEI>

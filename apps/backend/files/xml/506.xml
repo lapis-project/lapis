@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Transcript: Transcript_506</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Digital Humanities Project</p>
+      </publicationStmt>
+      <sourceDesc>
+        <xi:include href="standoff_informants.xml" xpointer="project_informants"/>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff type="feature-declarations"/>
+  <standOff type="timestamps">
+    <timeline unit="s">
+      <when xml:id="TL_0" absolute="0:00:00"/>
+      <when xml:id="TL_1" absolute="0:00:06.317000"/>
+      <when xml:id="TL_2" absolute="0:00:07.691000"/>
+      <when xml:id="TL_3" absolute="0:00:08.995000"/>
+      <when xml:id="TL_4" absolute="0:00:10.608000"/>
+      <when xml:id="TL_5" absolute="0:00:12.608000"/>
+      <when xml:id="TL_6" absolute="0:00:13.169000"/>
+      <when xml:id="TL_7" absolute="0:00:15.169000"/>
+      <when xml:id="TL_8" absolute="0:00:15.673000"/>
+      <when xml:id="TL_9" absolute="0:00:18.708000"/>
+      <when xml:id="TL_10" absolute="0:00:20.708000"/>
+      <when xml:id="TL_11" absolute="0:00:22.443000"/>
+      <when xml:id="TL_12" absolute="0:00:24.443000"/>
+      <when xml:id="TL_13" absolute="0:00:25.873000"/>
+      <when xml:id="TL_14" absolute="0:00:27.873000"/>
+      <when xml:id="TL_15" absolute="0:00:29.104000"/>
+      <when xml:id="TL_16" absolute="0:00:29.408000"/>
+      <when xml:id="TL_17" absolute="0:00:34.782000"/>
+      <when xml:id="TL_18" absolute="0:00:36.782000"/>
+      <when xml:id="TL_19" absolute="0:00:38.782000"/>
+      <when xml:id="TL_20" absolute="0:00:42.721000"/>
+      <when xml:id="TL_21" absolute="0:00:43.165000"/>
+      <when xml:id="TL_22" absolute="0:00:44.356000"/>
+      <when xml:id="TL_23" absolute="0:00:45.904000"/>
+      <when xml:id="TL_24" absolute="0:00:46.634000"/>
+      <when xml:id="TL_25" absolute="0:00:50.313000"/>
+      <when xml:id="TL_26" absolute="0:00:51.013000"/>
+      <when xml:id="TL_27" absolute="0:00:53.582000"/>
+      <when xml:id="TL_28" absolute="0:00:54.430000"/>
+      <when xml:id="TL_29" absolute="0:00:56.156000"/>
+      <when xml:id="TL_30" absolute="0:00:57.204000"/>
+      <when xml:id="TL_31" absolute="0:00:58.821000"/>
+      <when xml:id="TL_32" absolute="0:00:59.900000"/>
+      <when xml:id="TL_33" absolute="0:01:02.526000"/>
+      <when xml:id="TL_34" absolute="0:01:08.282000"/>
+      <when xml:id="TL_35" absolute="0:01:10.282000"/>
+      <when xml:id="TL_36" absolute="0:01:12.069000"/>
+      <when xml:id="TL_37" absolute="0:01:12.500000"/>
+      <when xml:id="TL_38" absolute="0:01:13.604000"/>
+      <when xml:id="TL_39" absolute="0:01:14.743000"/>
+      <when xml:id="TL_40" absolute="0:01:16.743000"/>
+      <when xml:id="TL_41" absolute="0:01:20.391000"/>
+      <when xml:id="TL_42" absolute="0:01:22.034000"/>
+      <when xml:id="TL_43" absolute="0:01:22.886000"/>
+      <when xml:id="TL_44" absolute="0:01:23.826000"/>
+      <when xml:id="TL_45" absolute="0:01:25.134000"/>
+      <when xml:id="TL_46" absolute="0:01:27.134000"/>
+      <when xml:id="TL_47" absolute="0:01:28.547000"/>
+      <when xml:id="TL_48" absolute="0:01:29.830000"/>
+      <when xml:id="TL_49" absolute="0:01:30.786000"/>
+      <when xml:id="TL_50" absolute="0:01:32.047000"/>
+      <when xml:id="TL_51" absolute="0:01:33.213000"/>
+      <when xml:id="TL_52" absolute="0:01:35.213000"/>
+      <when xml:id="TL_53" absolute="0:01:37.213000"/>
+      <when xml:id="TL_54" absolute="0:01:39.843000"/>
+      <when xml:id="TL_55" absolute="0:01:42.317000"/>
+      <when xml:id="TL_56" absolute="0:01:43.569000"/>
+      <when xml:id="TL_57" absolute="0:01:45.126000"/>
+      <when xml:id="TL_58" absolute="0:01:46.004000"/>
+      <when xml:id="TL_59" absolute="0:01:48.382000"/>
+      <when xml:id="TL_60" absolute="0:01:51.078000"/>
+      <when xml:id="TL_61" absolute="0:01:54.443000"/>
+      <when xml:id="TL_62" absolute="0:01:55.617000"/>
+      <when xml:id="TL_63" absolute="0:01:56.786000"/>
+    </timeline>
+  </standOff>
+  <text>
+    <body>
+      <div>
+        <u who="#spk_59" start="#TL_0" end="#TL_5"><w xml:id="t5520527" start="#TL_0" end="#TL_1">XXX</w> <w xml:id="t5520528" start="#TL_1" end="#TL_2">Wie</w> <w xml:id="t5520529" start="#TL_1" end="#TL_2">schalten</w> <w xml:id="t5520530" start="#TL_1" end="#TL_2">wir</w> <w xml:id="t5520531" start="#TL_1" end="#TL_2">das</w> <w xml:id="t5520532" start="#TL_1" end="#TL_2">ab</w> <w xml:id="t5520533" start="#TL_1" end="#TL_2">?</w> <w xml:id="t5520534" start="#TL_2" end="#TL_3">XXX</w> <w xml:id="t5520535" start="#TL_3" end="#TL_4">also</w> <w xml:id="t5520536" start="#TL_3" end="#TL_4">abschalten</w> <w xml:id="t5520537" start="#TL_3" end="#TL_4">brauchen</w> <w xml:id="t5520538" start="#TL_3" end="#TL_4">wir</w> <w xml:id="t5520539" start="#TL_3" end="#TL_4">das</w> <w xml:id="t5520540" start="#TL_3" end="#TL_4">nicht</w> <w xml:id="t5520541" start="#TL_3" end="#TL_4">?</w> <w xml:id="t5520542" start="#TL_4" end="#TL_5">XXX</w></u>
+        <u who="#spk_63" start="#TL_5" end="#TL_6">
+          <w xml:id="t5520546" start="#TL_5" end="#TL_6">XXX</w>
+        </u>
+        <u who="#spk_59" start="#TL_5" end="#TL_6"><w xml:id="t5520543" start="#TL_5" end="#TL_6">na</w> <w xml:id="t5520544" start="#TL_5" end="#TL_6">gut</w> <w xml:id="t5520545" start="#TL_5" end="#TL_6">.</w></u>
+        <u who="#spk_63" start="#TL_6" end="#TL_7">
+          <w xml:id="t5520547" start="#TL_6" end="#TL_7">XXX</w>
+        </u>
+        <u who="#spk_59" start="#TL_7" end="#TL_8"><w xml:id="t5520548" start="#TL_7" end="#TL_8">na</w> <w xml:id="t5520549" start="#TL_7" end="#TL_8">gut</w> <w xml:id="t5520550" start="#TL_7" end="#TL_8">.</w></u>
+        <u who="#spk_63" start="#TL_8" end="#TL_11"><w xml:id="t5520551" start="#TL_8" end="#TL_9">XXX</w> <w xml:id="t5520561" start="#TL_9" end="#TL_10">(lachen)</w> <w xml:id="t5520552" start="#TL_10" end="#TL_11">dann</w> <w xml:id="t5520553" start="#TL_10" end="#TL_11">nehme</w> <w xml:id="t5520554" start="#TL_10" end="#TL_11">ich</w> <w xml:id="t5520555" start="#TL_10" end="#TL_11">gleich</w> <w xml:id="t5520556" start="#TL_10" end="#TL_11">etwas</w> <w xml:id="t5520557" start="#TL_10" end="#TL_11">mit</w> <w xml:id="t5520558" start="#TL_10" end="#TL_11">da</w> <w xml:id="t5520559" start="#TL_10" end="#TL_11">ja</w> <w xml:id="t5520560" start="#TL_10" end="#TL_11">?</w></u>
+        <u who="#spk_59" start="#TL_11" end="#TL_12"><w xml:id="t5520562" start="#TL_11" end="#TL_12">ja</w> <w xml:id="t5520563" start="#TL_11" end="#TL_12">nimm</w> <w xml:id="t5520564" start="#TL_11" end="#TL_12">ein</w> <w xml:id="t5520565" start="#TL_11" end="#TL_12">Salz</w> <w xml:id="t5520566" start="#TL_11" end="#TL_12">mit</w> <w xml:id="t5520567" start="#TL_11" end="#TL_12">.</w></u>
+        <u who="#spk_63" start="#TL_12" end="#TL_13"><w xml:id="t5520568" start="#TL_12" end="#TL_13">ist</w> <w xml:id="t5520569" start="#TL_12" end="#TL_13">eh</w> <w xml:id="t5520570" start="#TL_12" end="#TL_13">alles</w> <w xml:id="t5520571" start="#TL_12" end="#TL_13">da</w> <w xml:id="t5520572" start="#TL_12" end="#TL_13">.</w></u>
+        <u who="#spk_59" start="#TL_13" end="#TL_14"><w xml:id="t5520573" start="#TL_13" end="#TL_14">warte</w> <w xml:id="t5520574" start="#TL_13" end="#TL_14">ich</w> <w xml:id="t5520575" start="#TL_13" end="#TL_14">bringe</w> <w xml:id="t5520576" start="#TL_13" end="#TL_14">ein</w> <w xml:id="t5520577" start="#TL_13" end="#TL_14">Glaserl</w> <w xml:id="t5520578" start="#TL_13" end="#TL_14">Wasser</w> <w xml:id="t5520579" start="#TL_13" end="#TL_14">.</w></u>
+        <u who="#spk_63" start="#TL_14" end="#TL_15"><w xml:id="t5520580" start="#TL_14" end="#TL_15">nimmst</w> <w xml:id="t5520581" start="#TL_14" end="#TL_15">du</w> <w xml:id="t5520582" start="#TL_14" end="#TL_15">dir</w> <w xml:id="t5520583" start="#TL_14" end="#TL_15">was</w> <w xml:id="t5520584" start="#TL_14" end="#TL_15">zu</w> <w xml:id="t5520585" start="#TL_14" end="#TL_15">trinken</w> <w xml:id="t5520586" start="#TL_14" end="#TL_15">gelt</w> <w xml:id="t5520587" start="#TL_14" end="#TL_15">.</w></u>
+        <u who="#spk_59" start="#TL_15" end="#TL_17"><w xml:id="t5520588" start="#TL_15" end="#TL_16">ja</w> <w xml:id="t5520589" start="#TL_15" end="#TL_16">.</w> <w xml:id="t5520590" start="#TL_16" end="#TL_17">(5)</w></u>
+        <u who="#spk_63" start="#TL_17" end="#TL_27"><w xml:id="t5520591" start="#TL_17" end="#TL_18">ich</w> <w xml:id="t5520592" start="#TL_17" end="#TL_18">komme</w> <w xml:id="t5520593" start="#TL_17" end="#TL_18">dann</w> <w xml:id="t5520594" start="#TL_17" end="#TL_18">um</w> <w xml:id="t5520595" start="#TL_17" end="#TL_18">fünf</w> <w xml:id="t5520596" start="#TL_17" end="#TL_18">wieder</w> <w xml:id="t5520597" start="#TL_17" end="#TL_18">.</w> <w xml:id="t5520598" start="#TL_18" end="#TL_19">ja</w> <w xml:id="t5520599" start="#TL_18" end="#TL_19">das</w> <w xml:id="t5520600" start="#TL_18" end="#TL_19">könnt</w> <w xml:id="t5520601" start="#TL_18" end="#TL_19">ihr</w> <w xml:id="t5520602" start="#TL_18" end="#TL_19">ruhig</w> <w xml:id="t5520603" start="#TL_18" end="#TL_19">dort</w> <w xml:id="t5520604" start="#TL_18" end="#TL_19">stehen</w> <w xml:id="t5520605" start="#TL_18" end="#TL_19">lassen</w> <w xml:id="t5520606" start="#TL_18" end="#TL_19">.</w> <w xml:id="t5520607" start="#TL_19" end="#TL_20">(unverständlich)</w> <w xml:id="t5520608" start="#TL_20" end="#TL_21">das</w> <w xml:id="t5520609" start="#TL_20" end="#TL_21">nehmen</w> <w xml:id="t5520610" start="#TL_20" end="#TL_21">wir</w> <w xml:id="t5520611" start="#TL_20" end="#TL_21">mit</w> <w xml:id="t5520612" start="#TL_20" end="#TL_21">.</w> <w xml:id="t5520613" start="#TL_21" end="#TL_22">passt</w> <w xml:id="t5520614" start="#TL_21" end="#TL_22">.</w> <w xml:id="t5520615" start="#TL_22" end="#TL_23">XXX</w> <w xml:id="t5520616" start="#TL_23" end="#TL_24">(lachen)</w> <w xml:id="t5520617" start="#TL_24" end="#TL_25">XXX</w> <w xml:id="t5520618" start="#TL_25" end="#TL_26">ha</w> <w xml:id="t5520621" start="#TL_25" end="#TL_26">,</w> <w xml:id="t5520619" start="#TL_25" end="#TL_26">nein</w> <w xml:id="t5520620" start="#TL_25" end="#TL_26">.</w> <w xml:id="t5520622" start="#TL_26" end="#TL_27">(4)</w></u>
+        <u who="#spk_59" start="#TL_27" end="#TL_28"><w xml:id="t5520624" start="#TL_27" end="#TL_28">wir</w> <w xml:id="t5520625" start="#TL_27" end="#TL_28">haben</w> <w xml:id="t5520626" start="#TL_27" end="#TL_28">ja</w> <w xml:id="t5520627" start="#TL_27" end="#TL_28">keine</w> <w xml:id="t5520628" start="#TL_27" end="#TL_28">.</w></u>
+        <u who="#spk_63" start="#TL_27" end="#TL_28">
+          <w xml:id="t5520623" start="#TL_27" end="#TL_28">XX</w>
+        </u>
+        <u who="#spk_59" start="#TL_28" end="#TL_29">
+          <w xml:id="t5520629" start="#TL_28" end="#TL_29">(unverständlich)</w>
+        </u>
+        <u who="#spk_63" start="#TL_29" end="#TL_30"><w xml:id="t5520630" start="#TL_29" end="#TL_30">magst</w> <w xml:id="t5520631" start="#TL_29" end="#TL_30">du</w> <w xml:id="t5520632" start="#TL_29" end="#TL_30">ein</w> <w xml:id="t5520633" start="#TL_29" end="#TL_30">Wasser</w> <w xml:id="t5520634" start="#TL_29" end="#TL_30">oder</w> <w xml:id="t5520635" start="#TL_29" end="#TL_30">?</w></u>
+        <u who="#spk_59" start="#TL_30" end="#TL_31"><w xml:id="t5520636" start="#TL_30" end="#TL_31">nein</w> <w xml:id="t5520637" start="#TL_30" end="#TL_31">schütte</w> <w xml:id="t5520638" start="#TL_30" end="#TL_31">ihm</w> <w xml:id="t5520639" start="#TL_30" end="#TL_31">ein</w> <w xml:id="t5520640" start="#TL_30" end="#TL_31">Mineral</w> <w xml:id="t5520641" start="#TL_30" end="#TL_31">ein</w> <w xml:id="t5520642" start="#TL_30" end="#TL_31">.</w></u>
+        <u who="#spk_63" start="#TL_31" end="#TL_32"><w xml:id="t5520643" start="#TL_31" end="#TL_32">naja</w> <w xml:id="t5520644" start="#TL_31" end="#TL_32">.</w></u>
+        <u who="#spk_59" start="#TL_32" end="#TL_35"><w xml:id="t5520645" start="#TL_32" end="#TL_33">normal</w> <w xml:id="t5520646" start="#TL_32" end="#TL_33">trinke</w> <w xml:id="t5520647" start="#TL_32" end="#TL_33">ich</w> <w xml:id="t5520648" start="#TL_32" end="#TL_33">das</w> <w xml:id="t5520650" start="#TL_32" end="#TL_33">,</w> <unclear start="#TL_32" end="#TL_33"/> <w xml:id="t5520651" start="#TL_32" end="#TL_33">.</w> <unclear start="#TL_33" end="#TL_34"/> <unclear start="#TL_34" end="#TL_35"/> <w xml:id="t5520654" start="#TL_34" end="#TL_35">kannst</w> <w xml:id="t5520655" start="#TL_34" end="#TL_35">du</w> <w xml:id="t5520656" start="#TL_34" end="#TL_35">auch</w> <w xml:id="t5520657" start="#TL_34" end="#TL_35">dem</w> <w xml:id="t5520658" start="#TL_34" end="#TL_35">Markus</w> <w xml:id="t5520659" start="#TL_34" end="#TL_35">geben</w> <w xml:id="t5520660" start="#TL_34" end="#TL_35">oder</w> <w xml:id="t5520661" start="#TL_34" end="#TL_35">?</w></u>
+        <u who="#spk_63" start="#TL_35" end="#TL_36"><w xml:id="t5520662" start="#TL_35" end="#TL_36">vier</w> <w xml:id="t5520663" start="#TL_35" end="#TL_36">gelt</w> <w xml:id="t5520664" start="#TL_35" end="#TL_36">musst</w> <w xml:id="t5520665" start="#TL_35" end="#TL_36">du</w> <w xml:id="t5520666" start="#TL_35" end="#TL_36">auf</w> <w xml:id="t5520667" start="#TL_35" end="#TL_36">?</w></u>
+        <u who="#spk_59" start="#TL_36" end="#TL_37"><w xml:id="t5520668" start="#TL_36" end="#TL_37">mhm</w> <w xml:id="t5520669" start="#TL_36" end="#TL_37">.</w></u>
+        <u who="#spk_63" start="#TL_37" end="#TL_38"><w xml:id="t5520670" start="#TL_37" end="#TL_38">ja</w> <w xml:id="t5520671" start="#TL_37" end="#TL_38">?</w></u>
+        <u who="#spk_59" start="#TL_38" end="#TL_39"><w xml:id="t5520675" start="#TL_38" end="#TL_39">das</w> <w xml:id="t5520676" start="#TL_38" end="#TL_39">was</w></u>
+        <u who="#spk_63" start="#TL_38" end="#TL_39"><w xml:id="t5520672" start="#TL_38" end="#TL_39">(ganz</w> <w xml:id="t5520673" start="#TL_38" end="#TL_39">recht</w> <w xml:id="t5520674" start="#TL_38" end="#TL_39">hast)</w></u>
+        <u who="#spk_59" start="#TL_39" end="#TL_41"><w xml:id="t5520677" start="#TL_39" end="#TL_40">was</w> <w xml:id="t5520678" start="#TL_39" end="#TL_40">dann</w> <w xml:id="t5520679" start="#TL_39" end="#TL_40">nichts</w> <w xml:id="t5520680" start="#TL_39" end="#TL_40">essen</w> <w xml:id="t5520681" start="#TL_39" end="#TL_40">wollen</w> <w xml:id="t5520682" start="#TL_39" end="#TL_40">.</w> <pause duration="5s" start="#TL_40" end="#TL_41"/> <w xml:id="t5520684" start="#TL_40" end="#TL_41">wie</w> <w xml:id="t5520685" start="#TL_40" end="#TL_41">du</w> <w xml:id="t5520686" start="#TL_40" end="#TL_41">willst</w> <w xml:id="t5520687" start="#TL_40" end="#TL_41">.</w></u>
+        <u who="#spk_63" start="#TL_41" end="#TL_43"><w xml:id="t5520688" start="#TL_41" end="#TL_42">okay</w> <w xml:id="t5520689" start="#TL_41" end="#TL_42">also</w> <w xml:id="t5520690" start="#TL_41" end="#TL_42">um</w> <w xml:id="t5520691" start="#TL_41" end="#TL_42">fünf</w> <w xml:id="t5520692" start="#TL_41" end="#TL_42">sind</w> <w xml:id="t5520693" start="#TL_41" end="#TL_42">wir</w> <w xml:id="t5520694" start="#TL_41" end="#TL_42">wieder</w> <w xml:id="t5520695" start="#TL_41" end="#TL_42">da</w> <w xml:id="t5520696" start="#TL_41" end="#TL_42">.</w> <w xml:id="t5520697" start="#TL_42" end="#TL_43">einfach</w></u>
+        <u who="#spk_59" start="#TL_43" end="#TL_44"><w xml:id="t5520700" start="#TL_43" end="#TL_44">ja</w> <w xml:id="t5520701" start="#TL_43" end="#TL_44">.</w></u>
+        <u who="#spk_63" start="#TL_43" end="#TL_47"><w xml:id="t5520698" start="#TL_43" end="#TL_44">rühren</w> <w xml:id="t5520699" start="#TL_43" end="#TL_44">.</w> <w xml:id="t5520702" start="#TL_44" end="#TL_45">sehr</w> <w xml:id="t5520703" start="#TL_44" end="#TL_45">gut</w> <w xml:id="t5520704" start="#TL_44" end="#TL_45">.</w> <pause duration="2s" start="#TL_45" end="#TL_46"/> <w xml:id="t5520706" start="#TL_45" end="#TL_46">gut</w> <w xml:id="t5520707" start="#TL_45" end="#TL_46">dann</w> <w xml:id="t5520708" start="#TL_45" end="#TL_46">.</w> <w xml:id="t5520709" start="#TL_46" end="#TL_47">bis</w> <w xml:id="t5520710" start="#TL_46" end="#TL_47">nachher</w> <w xml:id="t5520711" start="#TL_46" end="#TL_47">.</w></u>
+        <u who="#spk_59" start="#TL_47" end="#TL_49"><w xml:id="t5520712" start="#TL_47" end="#TL_48">XXX</w> <w xml:id="t5520713" start="#TL_48" end="#TL_49">bis</w> <w xml:id="t5520714" start="#TL_48" end="#TL_49">später</w> <w xml:id="t5520715" start="#TL_48" end="#TL_49">.</w></u>
+        <u who="#spk_63" start="#TL_49" end="#TL_50"><w xml:id="t5520716" start="#TL_49" end="#TL_50">bis</w> <w xml:id="t5520717" start="#TL_49" end="#TL_50">später</w> <w xml:id="t5520718" start="#TL_49" end="#TL_50">.</w></u>
+        <u who="#spk_59" start="#TL_50" end="#TL_52"><incident start="#TL_50" end="#TL_51"><desc>lachen</desc></incident> <w xml:id="t5520720" start="#TL_51" end="#TL_52">das</w> <w xml:id="t5520721" start="#TL_51" end="#TL_52">ist</w> <w xml:id="t5520722" start="#TL_51" end="#TL_52">schon</w> <w xml:id="t5520723" start="#TL_51" end="#TL_52">[Pieringersch]O</w> <w xml:id="t5520724" start="#TL_51" end="#TL_52">gelernt</w> <w xml:id="t5520725" start="#TL_51" end="#TL_52">.</w></u>
+        <u who="#spk_63" start="#TL_52" end="#TL_53"><incident start="#TL_52" end="#TL_53"><desc>lachen</desc></incident> <w xml:id="t5520727" start="#TL_52" end="#TL_53">na</w> <w xml:id="t5520728" start="#TL_52" end="#TL_53">gut</w> <w xml:id="t5520729" start="#TL_52" end="#TL_53">.</w></u>
+        <u who="#spk_59" start="#TL_53" end="#TL_56"><pause duration="2s" start="#TL_53" end="#TL_54"/> <w xml:id="t5520731" start="#TL_53" end="#TL_54">so</w> <w xml:id="t5520732" start="#TL_53" end="#TL_54">.</w> <w xml:id="t5520733" start="#TL_54" end="#TL_55">schreit</w> <w xml:id="t5520734" start="#TL_54" end="#TL_55">halt</w> <w xml:id="t5520735" start="#TL_54" end="#TL_55">runter</w> <w xml:id="t5520736" start="#TL_54" end="#TL_55">,</w> <w xml:id="t5520737" start="#TL_55" end="#TL_56">da</w> <w xml:id="t5520738" start="#TL_55" end="#TL_56">musst</w> <w xml:id="t5520739" start="#TL_55" end="#TL_56">du</w> <w xml:id="t5520740" start="#TL_55" end="#TL_56">etwas</w> <w xml:id="t5520741" start="#TL_55" end="#TL_56">sagen</w> <w xml:id="t5520742" start="#TL_55" end="#TL_56">.</w></u>
+        <u who="#spk_63" start="#TL_56" end="#TL_57"><w xml:id="t5520743" start="#TL_56" end="#TL_57">das</w> <w xml:id="t5520744" start="#TL_56" end="#TL_57">(räuspern)</w> <w xml:id="t5520745" start="#TL_56" end="#TL_57">,</w></u>
+        <u who="#spk_59" start="#TL_57" end="#TL_58">
+          <unclear start="#TL_57" end="#TL_58"/>
+        </u>
+        <u who="#spk_63" start="#TL_57" end="#TL_63"><w xml:id="t5520747" start="#TL_57" end="#TL_58">das</w> <w xml:id="t5520748" start="#TL_57" end="#TL_58">liebs=</w> <w xml:id="t5520779" start="#TL_58" end="#TL_59">te</w> <w xml:id="t5520753" start="#TL_58" end="#TL_59">,</w> <w xml:id="t5520749" start="#TL_58" end="#TL_59">also</w> <w xml:id="t5520750" start="#TL_58" end="#TL_59">mein</w> <w xml:id="t5520751" start="#TL_58" end="#TL_59">liebstes</w> <w xml:id="t5520752" start="#TL_58" end="#TL_59">Hobby</w> <w xml:id="t5520754" start="#TL_58" end="#TL_59">,</w> <w xml:id="t5520755" start="#TL_59" end="#TL_60">in</w> <w xml:id="t5520756" start="#TL_59" end="#TL_60">der</w> <w xml:id="t5520757" start="#TL_59" end="#TL_60">Freizeit</w> <w xml:id="t5520758" start="#TL_59" end="#TL_60">ist</w> <w xml:id="t5520759" start="#TL_59" end="#TL_60">Fußball</w> <w xml:id="t5520760" start="#TL_59" end="#TL_60">spielen</w> <w xml:id="t5520761" start="#TL_59" end="#TL_60">,</w> <w xml:id="t5520762" start="#TL_60" end="#TL_61">und</w> <w xml:id="t5520763" start="#TL_60" end="#TL_61">dann</w> <w xml:id="t5520764" start="#TL_60" end="#TL_61">habe</w> <w xml:id="t5520765" start="#TL_60" end="#TL_61">ich</w> <unclear start="#TL_60" end="#TL_61"/> <w xml:id="t5520767" start="#TL_60" end="#TL_61">gehen</w> <w xml:id="t5520768" start="#TL_60" end="#TL_61">,</w> <w xml:id="t5520769" start="#TL_61" end="#TL_62">dann</w> <w xml:id="t5520770" start="#TL_61" end="#TL_62">arbeite</w> <w xml:id="t5520771" start="#TL_61" end="#TL_62">ich</w> <w xml:id="t5520772" start="#TL_61" end="#TL_62">überall</w> <w xml:id="t5520773" start="#TL_61" end="#TL_62">,</w> <w xml:id="t5520774" start="#TL_62" end="#TL_63">weil__s</w> <w xml:id="t5520775" start="#TL_62" end="#TL_63">halt</w> <w xml:id="t5520776" start="#TL_62" end="#TL_63">was</w> <w xml:id="t5520777" start="#TL_62" end="#TL_63">gibt</w> <w xml:id="t5520778" start="#TL_62" end="#TL_63">,</w></u>
+      </div>
+    </body>
+  </text>
+</TEI>

@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Transcript: Transcript_253</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Digital Humanities Project</p>
+      </publicationStmt>
+      <sourceDesc>
+        <xi:include href="standoff_informants.xml" xpointer="project_informants"/>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff type="feature-declarations"/>
+  <standOff type="timestamps">
+    <timeline unit="s">
+      <when xml:id="TL_0" absolute="0:00:00.554000"/>
+      <when xml:id="TL_1" absolute="0:00:00.902000"/>
+      <when xml:id="TL_2" absolute="0:00:01.226000"/>
+    </timeline>
+  </standOff>
+  <text>
+    <body>
+      <div>
+        <u who="#spk_61" start="#TL_0" end="#TL_1"><w xml:id="t4356249" start="#TL_0" end="#TL_1">test</w> <w xml:id="t4356251" start="#TL_0" end="#TL_1">test</w> <w xml:id="t4356253" start="#TL_0" end="#TL_1">abc</w> <w xml:id="t4356250" start="#TL_0" end="#TL_1">abc</w> <w xml:id="t4356252" start="#TL_0" end="#TL_1">cde</w> <w xml:id="t4356255" start="#TL_0" end="#TL_1">cde</w> <w xml:id="t4356254" start="#TL_0" end="#TL_1">fgf</w> <w xml:id="t4356256" start="#TL_0" end="#TL_1">fgf</w></u>
+        <u who="#spk_626" start="#TL_1" end="#TL_2"><w xml:id="t4356257" start="#TL_1" end="#TL_2">abc</w> <w xml:id="t4356258" start="#TL_1" end="#TL_2">abc</w> <w xml:id="t4356260" start="#TL_1" end="#TL_2">def</w> <w xml:id="t4356259" start="#TL_1" end="#TL_2">def</w></u>
+      </div>
+    </body>
+  </text>
+</TEI>

@@ -1,0 +1,470 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Transcript: Transcript_676</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Digital Humanities Project</p>
+      </publicationStmt>
+      <sourceDesc>
+        <xi:include href="standoff_informants.xml" xpointer="project_informants"/>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff type="feature-declarations"/>
+  <standOff type="timestamps">
+    <timeline unit="s">
+      <when xml:id="TL_0" absolute="0:00:00"/>
+      <when xml:id="TL_1" absolute="0:00:17.553000"/>
+      <when xml:id="TL_2" absolute="0:00:19.553000"/>
+      <when xml:id="TL_3" absolute="0:00:20.406000"/>
+      <when xml:id="TL_4" absolute="0:00:25.646000"/>
+      <when xml:id="TL_5" absolute="0:00:28.806000"/>
+      <when xml:id="TL_6" absolute="0:00:32.766000"/>
+      <when xml:id="TL_7" absolute="0:00:34.433000"/>
+      <when xml:id="TL_8" absolute="0:00:36.486000"/>
+      <when xml:id="TL_9" absolute="0:00:38.200000"/>
+      <when xml:id="TL_10" absolute="0:00:39.046000"/>
+      <when xml:id="TL_11" absolute="0:00:39.466000"/>
+      <when xml:id="TL_12" absolute="0:00:40.046000"/>
+      <when xml:id="TL_13" absolute="0:00:41.240000"/>
+      <when xml:id="TL_14" absolute="0:00:41.500000"/>
+      <when xml:id="TL_15" absolute="0:00:43.860000"/>
+      <when xml:id="TL_16" absolute="0:00:44.272000"/>
+      <when xml:id="TL_17" absolute="0:00:44.993000"/>
+      <when xml:id="TL_18" absolute="0:00:46.646000"/>
+      <when xml:id="TL_19" absolute="0:00:47.266000"/>
+      <when xml:id="TL_20" absolute="0:00:48.426000"/>
+      <when xml:id="TL_21" absolute="0:00:49.286000"/>
+      <when xml:id="TL_22" absolute="0:00:51.133000"/>
+      <when xml:id="TL_23" absolute="0:00:52.326000"/>
+      <when xml:id="TL_24" absolute="0:00:53.886000"/>
+      <when xml:id="TL_25" absolute="0:00:55.600000"/>
+      <when xml:id="TL_26" absolute="0:00:57.293000"/>
+      <when xml:id="TL_27" absolute="0:00:57.680000"/>
+      <when xml:id="TL_28" absolute="0:01:00.206000"/>
+      <when xml:id="TL_29" absolute="0:01:00.540000"/>
+      <when xml:id="TL_30" absolute="0:01:01.020000"/>
+      <when xml:id="TL_31" absolute="0:01:02.626000"/>
+      <when xml:id="TL_32" absolute="0:01:04.846000"/>
+      <when xml:id="TL_33" absolute="0:01:06.786000"/>
+      <when xml:id="TL_34" absolute="0:01:07.180000"/>
+      <when xml:id="TL_35" absolute="0:01:08.686000"/>
+      <when xml:id="TL_36" absolute="0:01:09.006000"/>
+      <when xml:id="TL_37" absolute="0:01:09.485000"/>
+      <when xml:id="TL_38" absolute="0:01:10.393000"/>
+      <when xml:id="TL_39" absolute="0:01:10.920000"/>
+      <when xml:id="TL_40" absolute="0:01:11.773000"/>
+      <when xml:id="TL_41" absolute="0:01:12.020000"/>
+      <when xml:id="TL_42" absolute="0:01:12.780000"/>
+      <when xml:id="TL_43" absolute="0:01:13.060000"/>
+      <when xml:id="TL_44" absolute="0:01:13.746000"/>
+      <when xml:id="TL_45" absolute="0:01:15.080000"/>
+      <when xml:id="TL_46" absolute="0:01:15.626000"/>
+      <when xml:id="TL_47" absolute="0:01:15.986000"/>
+      <when xml:id="TL_48" absolute="0:01:16.506000"/>
+      <when xml:id="TL_49" absolute="0:01:16.660000"/>
+      <when xml:id="TL_50" absolute="0:01:17.700000"/>
+      <when xml:id="TL_51" absolute="0:01:18.166000"/>
+      <when xml:id="TL_52" absolute="0:01:18.713000"/>
+      <when xml:id="TL_53" absolute="0:01:19.733000"/>
+      <when xml:id="TL_54" absolute="0:01:21.973000"/>
+      <when xml:id="TL_55" absolute="0:01:22.346000"/>
+      <when xml:id="TL_56" absolute="0:01:22.853000"/>
+      <when xml:id="TL_57" absolute="0:01:23.480000"/>
+      <when xml:id="TL_58" absolute="0:01:24.246000"/>
+      <when xml:id="TL_59" absolute="0:01:24.960000"/>
+      <when xml:id="TL_60" absolute="0:01:26.213000"/>
+      <when xml:id="TL_61" absolute="0:01:31.265000"/>
+      <when xml:id="TL_62" absolute="0:01:33.320000"/>
+      <when xml:id="TL_63" absolute="0:01:34.500000"/>
+      <when xml:id="TL_64" absolute="0:01:35.893000"/>
+      <when xml:id="TL_65" absolute="0:01:36.420000"/>
+      <when xml:id="TL_66" absolute="0:01:36.753000"/>
+      <when xml:id="TL_67" absolute="0:01:38.013000"/>
+      <when xml:id="TL_68" absolute="0:01:39.446000"/>
+      <when xml:id="TL_69" absolute="0:01:42.160000"/>
+      <when xml:id="TL_70" absolute="0:01:42.326000"/>
+      <when xml:id="TL_71" absolute="0:01:42.652000"/>
+      <when xml:id="TL_72" absolute="0:01:43.973000"/>
+      <when xml:id="TL_73" absolute="0:01:44.372000"/>
+      <when xml:id="TL_74" absolute="0:01:44.773000"/>
+      <when xml:id="TL_75" absolute="0:01:45.566000"/>
+      <when xml:id="TL_76" absolute="0:01:45.920000"/>
+      <when xml:id="TL_77" absolute="0:01:46.740000"/>
+      <when xml:id="TL_78" absolute="0:01:47.880000"/>
+      <when xml:id="TL_79" absolute="0:01:48.566000"/>
+      <when xml:id="TL_80" absolute="0:01:50.913000"/>
+      <when xml:id="TL_81" absolute="0:01:53.193000"/>
+      <when xml:id="TL_82" absolute="0:01:53.640000"/>
+      <when xml:id="TL_83" absolute="0:01:54.626000"/>
+      <when xml:id="TL_84" absolute="0:01:56.093000"/>
+      <when xml:id="TL_85" absolute="0:02:00.733000"/>
+      <when xml:id="TL_86" absolute="0:02:01.633000"/>
+      <when xml:id="TL_87" absolute="0:02:05.966000"/>
+      <when xml:id="TL_88" absolute="0:02:07.966000"/>
+      <when xml:id="TL_89" absolute="0:02:09.038000"/>
+      <when xml:id="TL_90" absolute="0:02:09.312000"/>
+      <when xml:id="TL_91" absolute="0:02:10.106000"/>
+      <when xml:id="TL_92" absolute="0:02:10.933000"/>
+      <when xml:id="TL_93" absolute="0:02:11.666000"/>
+      <when xml:id="TL_94" absolute="0:02:12.246000"/>
+      <when xml:id="TL_95" absolute="0:02:12.746000"/>
+      <when xml:id="TL_96" absolute="0:02:13.186000"/>
+      <when xml:id="TL_97" absolute="0:02:14.773000"/>
+      <when xml:id="TL_98" absolute="0:02:14.953000"/>
+      <when xml:id="TL_99" absolute="0:02:15.333000"/>
+      <when xml:id="TL_100" absolute="0:02:16.093000"/>
+      <when xml:id="TL_101" absolute="0:02:16.200000"/>
+      <when xml:id="TL_102" absolute="0:02:16.526000"/>
+      <when xml:id="TL_103" absolute="0:02:17.333000"/>
+      <when xml:id="TL_104" absolute="0:02:17.533000"/>
+      <when xml:id="TL_105" absolute="0:02:18.300000"/>
+      <when xml:id="TL_106" absolute="0:02:20.493000"/>
+      <when xml:id="TL_107" absolute="0:02:21.033000"/>
+      <when xml:id="TL_108" absolute="0:02:21.740000"/>
+      <when xml:id="TL_109" absolute="0:02:22.413000"/>
+      <when xml:id="TL_110" absolute="0:02:22.880000"/>
+      <when xml:id="TL_111" absolute="0:02:23.153000"/>
+      <when xml:id="TL_112" absolute="0:02:23.420000"/>
+      <when xml:id="TL_113" absolute="0:02:23.713000"/>
+      <when xml:id="TL_114" absolute="0:02:24.013000"/>
+      <when xml:id="TL_115" absolute="0:02:25"/>
+      <when xml:id="TL_116" absolute="0:02:25.846000"/>
+      <when xml:id="TL_117" absolute="0:02:25.992000"/>
+      <when xml:id="TL_118" absolute="0:02:26.160000"/>
+      <when xml:id="TL_119" absolute="0:02:26.513000"/>
+      <when xml:id="TL_120" absolute="0:02:27.533000"/>
+      <when xml:id="TL_121" absolute="0:02:30.533000"/>
+      <when xml:id="TL_122" absolute="0:02:31.566000"/>
+      <when xml:id="TL_123" absolute="0:02:32.846000"/>
+      <when xml:id="TL_124" absolute="0:02:32.966000"/>
+      <when xml:id="TL_125" absolute="0:02:33.160000"/>
+      <when xml:id="TL_126" absolute="0:02:33.446000"/>
+      <when xml:id="TL_127" absolute="0:02:34.973000"/>
+      <when xml:id="TL_128" absolute="0:02:35.180000"/>
+      <when xml:id="TL_129" absolute="0:02:35.392000"/>
+      <when xml:id="TL_130" absolute="0:02:35.805000"/>
+      <when xml:id="TL_131" absolute="0:02:35.993000"/>
+      <when xml:id="TL_132" absolute="0:02:36.660000"/>
+      <when xml:id="TL_133" absolute="0:02:37.013000"/>
+      <when xml:id="TL_134" absolute="0:02:37.933000"/>
+      <when xml:id="TL_135" absolute="0:02:38.326000"/>
+      <when xml:id="TL_136" absolute="0:02:38.666000"/>
+      <when xml:id="TL_137" absolute="0:02:39.986000"/>
+      <when xml:id="TL_138" absolute="0:02:40.553000"/>
+      <when xml:id="TL_139" absolute="0:02:40.846000"/>
+      <when xml:id="TL_140" absolute="0:02:41.173000"/>
+      <when xml:id="TL_141" absolute="0:02:41.453000"/>
+      <when xml:id="TL_142" absolute="0:02:42.305000"/>
+      <when xml:id="TL_143" absolute="0:02:42.526000"/>
+      <when xml:id="TL_144" absolute="0:02:43"/>
+      <when xml:id="TL_145" absolute="0:02:43.546000"/>
+      <when xml:id="TL_146" absolute="0:02:44.700000"/>
+      <when xml:id="TL_147" absolute="0:02:45.220000"/>
+      <when xml:id="TL_148" absolute="0:02:46.013000"/>
+      <when xml:id="TL_149" absolute="0:02:46.553000"/>
+      <when xml:id="TL_150" absolute="0:02:47.366000"/>
+      <when xml:id="TL_151" absolute="0:02:47.880000"/>
+      <when xml:id="TL_152" absolute="0:02:48.486000"/>
+      <when xml:id="TL_153" absolute="0:02:50.606000"/>
+      <when xml:id="TL_154" absolute="0:02:51.366000"/>
+      <when xml:id="TL_155" absolute="0:02:54.333000"/>
+      <when xml:id="TL_156" absolute="0:02:55.446000"/>
+      <when xml:id="TL_157" absolute="0:02:56.940000"/>
+      <when xml:id="TL_158" absolute="0:02:58.773000"/>
+      <when xml:id="TL_159" absolute="0:02:59.753000"/>
+      <when xml:id="TL_160" absolute="0:03:00.086000"/>
+      <when xml:id="TL_161" absolute="0:03:01.673000"/>
+      <when xml:id="TL_162" absolute="0:03:05.573000"/>
+      <when xml:id="TL_163" absolute="0:03:07.466000"/>
+      <when xml:id="TL_164" absolute="0:03:09.140000"/>
+      <when xml:id="TL_165" absolute="0:03:10.213000"/>
+      <when xml:id="TL_166" absolute="0:03:11.846000"/>
+      <when xml:id="TL_167" absolute="0:03:12.353000"/>
+      <when xml:id="TL_168" absolute="0:03:12.700000"/>
+      <when xml:id="TL_169" absolute="0:03:13.913000"/>
+      <when xml:id="TL_170" absolute="0:03:17.580000"/>
+      <when xml:id="TL_171" absolute="0:03:18.553000"/>
+      <when xml:id="TL_172" absolute="0:03:20.526000"/>
+      <when xml:id="TL_173" absolute="0:03:20.633000"/>
+      <when xml:id="TL_174" absolute="0:03:21.020000"/>
+      <when xml:id="TL_175" absolute="0:03:22.233000"/>
+      <when xml:id="TL_176" absolute="0:03:22.471000"/>
+      <when xml:id="TL_177" absolute="0:03:23.060000"/>
+      <when xml:id="TL_178" absolute="0:03:23.293000"/>
+      <when xml:id="TL_179" absolute="0:03:23.680000"/>
+      <when xml:id="TL_180" absolute="0:03:23.886000"/>
+      <when xml:id="TL_181" absolute="0:03:24.440000"/>
+      <when xml:id="TL_182" absolute="0:03:25.400000"/>
+      <when xml:id="TL_183" absolute="0:03:25.875000"/>
+      <when xml:id="TL_184" absolute="0:03:25.880000"/>
+      <when xml:id="TL_185" absolute="0:03:26.960000"/>
+      <when xml:id="TL_186" absolute="0:03:27.079000"/>
+      <when xml:id="TL_187" absolute="0:03:27.766000"/>
+      <when xml:id="TL_188" absolute="0:03:27.966000"/>
+      <when xml:id="TL_189" absolute="0:03:28.440000"/>
+      <when xml:id="TL_190" absolute="0:03:28.886000"/>
+      <when xml:id="TL_191" absolute="0:03:30.640000"/>
+      <when xml:id="TL_192" absolute="0:03:30.646000"/>
+      <when xml:id="TL_193" absolute="0:03:40.113000"/>
+    </timeline>
+  </standOff>
+  <text>
+    <body>
+      <div>
+        <u who="#spk_633" start="#TL_0" end="#TL_1">
+          <w xml:id="t5783783" start="#TL_0" end="#TL_1"></w>
+        </u>
+        <u who="#spk_805" start="#TL_0" end="#TL_1">
+          <w xml:id="t5770040" start="#TL_0" end="#TL_1"></w>
+        </u>
+        <u who="#spk_806" start="#TL_0" end="#TL_1">
+          <w xml:id="t5770048" start="#TL_0" end="#TL_1"></w>
+        </u>
+        <u who="#spk_805" start="#TL_1" end="#TL_9"><w xml:id="t5770041" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770042" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770043" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770044" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770045" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770046" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770058" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770047" start="#TL_1" end="#TL_2"></w> <w xml:id="t5770150" start="#TL_2" end="#TL_3"></w> <w xml:id="t5770188" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770189" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770190" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770191" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770192" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770193" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770194" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770195" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770196" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770197" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770198" start="#TL_3" end="#TL_4"></w> <w xml:id="t5770199" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770200" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770201" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770202" start="#TL_4" end="#TL_5"></w> <w xml:id="t5771570" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770203" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770204" start="#TL_4" end="#TL_5"></w> <w xml:id="t5783784" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770205" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770206" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770207" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770208" start="#TL_4" end="#TL_5"></w> <w xml:id="t5770209" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770210" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770211" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770212" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770213" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770215" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770214" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770216" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770217" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770218" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770219" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770220" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770221" start="#TL_5" end="#TL_6"></w> <w xml:id="t5770222" start="#TL_6" end="#TL_7"></w> <w xml:id="t5783785" start="#TL_6" end="#TL_7"></w> <w xml:id="t5770223" start="#TL_6" end="#TL_7"></w> <w xml:id="t5770224" start="#TL_6" end="#TL_7"></w> <w xml:id="t5770225" start="#TL_6" end="#TL_7"></w> <w xml:id="t5770226" start="#TL_6" end="#TL_7"></w> <w xml:id="t5770227" start="#TL_6" end="#TL_7"></w> <w xml:id="t5770228" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770229" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770230" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770231" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770232" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770233" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770234" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770235" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770236" start="#TL_7" end="#TL_8"></w> <w xml:id="t5770237" start="#TL_8" end="#TL_9"></w> <w xml:id="t5770238" start="#TL_8" end="#TL_9"></w> <w xml:id="t5770239" start="#TL_8" end="#TL_9"></w> <w xml:id="t5770240" start="#TL_8" end="#TL_9"></w> <w xml:id="t5770241" start="#TL_8" end="#TL_9"></w> <w xml:id="t5770242" start="#TL_8" end="#TL_9"></w> <w xml:id="t5770243" start="#TL_8" end="#TL_9"></w> <w xml:id="t5771571" start="#TL_8" end="#TL_9"></w></u>
+        <u who="#spk_806" start="#TL_9" end="#TL_10"><w xml:id="t5770249" start="#TL_9" end="#TL_10"></w> <w xml:id="t5770250" start="#TL_9" end="#TL_10"></w> <w xml:id="t5770251" start="#TL_9" end="#TL_10"></w> <w xml:id="t5770252" start="#TL_9" end="#TL_10"></w></u>
+        <u who="#spk_805" start="#TL_9" end="#TL_10"><w xml:id="t5770244" start="#TL_9" end="#TL_10"></w> <w xml:id="t5771572" start="#TL_9" end="#TL_10"></w> <w xml:id="t5770245" start="#TL_9" end="#TL_10"></w></u>
+        <u who="#spk_806" start="#TL_10" end="#TL_11">
+          <w xml:id="t5770247" start="#TL_10" end="#TL_11"></w>
+        </u>
+        <u who="#spk_805" start="#TL_10" end="#TL_11"><w xml:id="t5770248" start="#TL_10" end="#TL_11"></w> <w xml:id="t5770246" start="#TL_10" end="#TL_11"></w></u>
+        <u who="#spk_806" start="#TL_11" end="#TL_12">
+          <w xml:id="t5770256" start="#TL_11" end="#TL_12"></w>
+        </u>
+        <u who="#spk_805" start="#TL_11" end="#TL_12"><w xml:id="t5770253" start="#TL_11" end="#TL_12"></w> <w xml:id="t5770254" start="#TL_11" end="#TL_12"></w> <w xml:id="t5770255" start="#TL_11" end="#TL_12"></w></u>
+        <u who="#spk_806" start="#TL_12" end="#TL_13">
+          <w xml:id="t5770257" start="#TL_12" end="#TL_13"></w>
+        </u>
+        <u who="#spk_805" start="#TL_12" end="#TL_13"><w xml:id="t5770258" start="#TL_12" end="#TL_13"></w> <w xml:id="t5770259" start="#TL_12" end="#TL_13"></w> <w xml:id="t5770260" start="#TL_12" end="#TL_13"></w> <w xml:id="t5770261" start="#TL_12" end="#TL_13"></w></u>
+        <u who="#spk_806" start="#TL_13" end="#TL_14">
+          <w xml:id="t5770262" start="#TL_13" end="#TL_14"></w>
+        </u>
+        <u who="#spk_805" start="#TL_14" end="#TL_16"><w xml:id="t5770263" start="#TL_14" end="#TL_15"></w> <w xml:id="t5770264" start="#TL_14" end="#TL_15"></w> <w xml:id="t5770265" start="#TL_14" end="#TL_15"></w> <w xml:id="t5770266" start="#TL_14" end="#TL_15"></w> <w xml:id="t5770267" start="#TL_14" end="#TL_15"></w> <w xml:id="t5770268" start="#TL_14" end="#TL_15"></w> <w xml:id="t5770270" start="#TL_14" end="#TL_15"></w> <w xml:id="t5770185" start="#TL_15" end="#TL_16"></w></u>
+        <u who="#spk_806" start="#TL_16" end="#TL_17">
+          <w xml:id="t5770187" start="#TL_16" end="#TL_17"></w>
+        </u>
+        <u who="#spk_805" start="#TL_16" end="#TL_18"><w xml:id="t5770186" start="#TL_16" end="#TL_17"></w> <w xml:id="t5770181" start="#TL_17" end="#TL_18"></w> <w xml:id="t5770182" start="#TL_17" end="#TL_18"></w> <w xml:id="t5770183" start="#TL_17" end="#TL_18"></w> <w xml:id="t5770184" start="#TL_17" end="#TL_18"></w></u>
+        <u who="#spk_806" start="#TL_18" end="#TL_19"><w xml:id="t5770179" start="#TL_18" end="#TL_19"></w> <w xml:id="t5770180" start="#TL_18" end="#TL_19"></w></u>
+        <u who="#spk_805" start="#TL_19" end="#TL_27"><w xml:id="t5770174" start="#TL_19" end="#TL_20"></w> <w xml:id="t5770175" start="#TL_19" end="#TL_20"></w> <w xml:id="t5770176" start="#TL_19" end="#TL_20"></w> <w xml:id="t5770177" start="#TL_19" end="#TL_20"></w> <w xml:id="t5770178" start="#TL_19" end="#TL_20"></w> <w xml:id="t5770171" start="#TL_20" end="#TL_21"></w> <w xml:id="t5770172" start="#TL_20" end="#TL_21"></w> <w xml:id="t5770173" start="#TL_20" end="#TL_21"></w> <w xml:id="t5770163" start="#TL_21" end="#TL_22"></w> <w xml:id="t5770164" start="#TL_21" end="#TL_22"></w> <w xml:id="t5770165" start="#TL_21" end="#TL_22"></w> <w xml:id="t5771573" start="#TL_21" end="#TL_22"></w> <w xml:id="t5770166" start="#TL_21" end="#TL_22"></w> <w xml:id="t5770167" start="#TL_21" end="#TL_22"></w> <w xml:id="t5770168" start="#TL_21" end="#TL_22"></w> <w xml:id="t5770170" start="#TL_21" end="#TL_22"></w> <w xml:id="t5770151" start="#TL_22" end="#TL_23"></w> <w xml:id="t5770152" start="#TL_22" end="#TL_23"></w> <w xml:id="t5770153" start="#TL_22" end="#TL_23"></w> <w xml:id="t5770154" start="#TL_22" end="#TL_23"></w> <w xml:id="t5770155" start="#TL_22" end="#TL_23"></w> <w xml:id="t5770156" start="#TL_23" end="#TL_24"></w> <w xml:id="t5770157" start="#TL_23" end="#TL_24"></w> <w xml:id="t5770158" start="#TL_23" end="#TL_24"></w> <w xml:id="t5770159" start="#TL_23" end="#TL_24"></w> <w xml:id="t5770160" start="#TL_23" end="#TL_24"></w> <w xml:id="t5770161" start="#TL_23" end="#TL_24"></w> <w xml:id="t5770162" start="#TL_23" end="#TL_24"></w> <w xml:id="t5770271" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770272" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770273" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770274" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770275" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770276" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770277" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770278" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770279" start="#TL_24" end="#TL_25"></w> <w xml:id="t5770280" start="#TL_25" end="#TL_26"></w> <w xml:id="t5770281" start="#TL_26" end="#TL_27"></w></u>
+        <u who="#spk_806" start="#TL_27" end="#TL_28">
+          <w xml:id="t5770289" start="#TL_27" end="#TL_28"></w>
+        </u>
+        <u who="#spk_805" start="#TL_27" end="#TL_28"><w xml:id="t5770377" start="#TL_27" end="#TL_28"></w> <w xml:id="t5770282" start="#TL_27" end="#TL_28"></w> <w xml:id="t5770283" start="#TL_27" end="#TL_28"></w> <w xml:id="t5770284" start="#TL_27" end="#TL_28"></w> <w xml:id="t5770285" start="#TL_27" end="#TL_28"></w> <w xml:id="t5770286" start="#TL_27" end="#TL_28"></w> <w xml:id="t5770287" start="#TL_27" end="#TL_28"></w> <w xml:id="t5770288" start="#TL_27" end="#TL_28"></w></u>
+        <u who="#spk_806" start="#TL_28" end="#TL_30"><w xml:id="t5770290" start="#TL_28" end="#TL_29"></w> <w xml:id="t5770292" start="#TL_29" end="#TL_30"></w></u>
+        <u who="#spk_805" start="#TL_29" end="#TL_30">
+          <w xml:id="t5770291" start="#TL_29" end="#TL_30"></w>
+        </u>
+        <u who="#spk_806" start="#TL_30" end="#TL_31">
+          <w xml:id="t5770302" start="#TL_30" end="#TL_31"></w>
+        </u>
+        <u who="#spk_805" start="#TL_30" end="#TL_34"><w xml:id="t5770293" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770294" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770295" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770296" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770297" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770298" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770299" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770300" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770301" start="#TL_30" end="#TL_31"></w> <w xml:id="t5770304" start="#TL_31" end="#TL_32"></w> <w xml:id="t5783786" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770305" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770306" start="#TL_31" end="#TL_32"></w> <w xml:id="t5783787" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770308" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770309" start="#TL_31" end="#TL_32"></w> <w xml:id="t5783788" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770311" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770315" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770316" start="#TL_31" end="#TL_32"></w> <w xml:id="t5770317" start="#TL_32" end="#TL_33"></w> <w xml:id="t5770318" start="#TL_32" end="#TL_33"></w> <w xml:id="t5770319" start="#TL_32" end="#TL_33"></w> <w xml:id="t5770320" start="#TL_32" end="#TL_33"></w> <w xml:id="t5783789" start="#TL_32" end="#TL_33"></w> <w xml:id="t5770321" start="#TL_32" end="#TL_33"></w> <w xml:id="t5770322" start="#TL_32" end="#TL_33"></w> <w xml:id="t5770323" start="#TL_32" end="#TL_33"></w> <w xml:id="t5770324" start="#TL_33" end="#TL_34"></w> <w xml:id="t5770325" start="#TL_33" end="#TL_34"></w> <w xml:id="t5770326" start="#TL_33" end="#TL_34"></w> <w xml:id="t5770327" start="#TL_33" end="#TL_34"></w></u>
+        <u who="#spk_806" start="#TL_34" end="#TL_35">
+          <w xml:id="t5770332" start="#TL_34" end="#TL_35"></w>
+        </u>
+        <u who="#spk_805" start="#TL_34" end="#TL_35"><w xml:id="t5770378" start="#TL_34" end="#TL_35"></w> <w xml:id="t5770328" start="#TL_34" end="#TL_35"></w> <w xml:id="t5770329" start="#TL_34" end="#TL_35"></w> <w xml:id="t5770330" start="#TL_34" end="#TL_35"></w> <w xml:id="t5770331" start="#TL_34" end="#TL_35"></w></u>
+        <u who="#spk_806" start="#TL_35" end="#TL_36">
+          <w xml:id="t5770334" start="#TL_35" end="#TL_36"></w>
+        </u>
+        <u who="#spk_805" start="#TL_35" end="#TL_36">
+          <w xml:id="t5770333" start="#TL_35" end="#TL_36"></w>
+        </u>
+        <u who="#spk_806" start="#TL_36" end="#TL_37">
+          <w xml:id="t5783790" start="#TL_36" end="#TL_37"></w>
+        </u>
+        <u who="#spk_805" start="#TL_36" end="#TL_39"><w xml:id="t5770338" start="#TL_36" end="#TL_37"></w> <w xml:id="t5770339" start="#TL_36" end="#TL_37"></w> <w xml:id="t5770340" start="#TL_36" end="#TL_37"></w> <w xml:id="t5770341" start="#TL_36" end="#TL_37"></w> <w xml:id="t5770379" start="#TL_37" end="#TL_38"></w> <w xml:id="t5770342" start="#TL_37" end="#TL_38"></w> <w xml:id="t5770343" start="#TL_37" end="#TL_38"></w> <w xml:id="t5770344" start="#TL_37" end="#TL_38"></w> <w xml:id="t5770345" start="#TL_38" end="#TL_39"></w></u>
+        <u who="#spk_806" start="#TL_39" end="#TL_40"><w xml:id="t5770350" start="#TL_39" end="#TL_40"></w> <w xml:id="t5770351" start="#TL_39" end="#TL_40"></w> <w xml:id="t5770352" start="#TL_39" end="#TL_40"></w></u>
+        <u who="#spk_805" start="#TL_39" end="#TL_41"><w xml:id="t5770346" start="#TL_39" end="#TL_40"></w> <w xml:id="t5770347" start="#TL_39" end="#TL_40"></w> <w xml:id="t5770348" start="#TL_39" end="#TL_40"></w> <w xml:id="t5770349" start="#TL_39" end="#TL_40"></w> <w xml:id="t5770353" start="#TL_40" end="#TL_41"></w> <w xml:id="t5770356" start="#TL_40" end="#TL_41"></w></u>
+        <u who="#spk_806" start="#TL_41" end="#TL_42">
+          <w xml:id="t5770357" start="#TL_41" end="#TL_42"></w>
+        </u>
+        <u who="#spk_805" start="#TL_41" end="#TL_42"><w xml:id="t5770380" start="#TL_41" end="#TL_42"></w> <w xml:id="t5770354" start="#TL_41" end="#TL_42"></w> <w xml:id="t5770355" start="#TL_41" end="#TL_42"></w></u>
+        <u who="#spk_806" start="#TL_42" end="#TL_43"><w xml:id="t5770381" start="#TL_42" end="#TL_43"></w> <w xml:id="t5770358" start="#TL_42" end="#TL_43"></w></u>
+        <u who="#spk_805" start="#TL_42" end="#TL_44"><w xml:id="t5770359" start="#TL_42" end="#TL_43"></w> <w xml:id="t5770362" start="#TL_43" end="#TL_44"></w> <w xml:id="t5770363" start="#TL_43" end="#TL_44"></w> <w xml:id="t5771574" start="#TL_43" end="#TL_44"></w> <w xml:id="t5770364" start="#TL_43" end="#TL_44"></w></u>
+        <u who="#spk_806" start="#TL_44" end="#TL_45"><w xml:id="t5770366" start="#TL_44" end="#TL_45"></w> <w xml:id="t5771576" start="#TL_44" end="#TL_45"></w> <w xml:id="t5771575" start="#TL_44" end="#TL_45"></w> <w xml:id="t5770370" start="#TL_44" end="#TL_45"></w> <w xml:id="t5770367" start="#TL_44" end="#TL_45"></w> <w xml:id="t5770368" start="#TL_44" end="#TL_45"></w></u>
+        <u who="#spk_805" start="#TL_44" end="#TL_45">
+          <w xml:id="t5770369" start="#TL_44" end="#TL_45"></w>
+        </u>
+        <u who="#spk_806" start="#TL_45" end="#TL_47"><w xml:id="t5770371" start="#TL_45" end="#TL_46"></w> <w xml:id="t5770372" start="#TL_45" end="#TL_46"></w> <w xml:id="t5770373" start="#TL_46" end="#TL_47"></w> <w xml:id="t5770374" start="#TL_46" end="#TL_47"></w></u>
+        <u who="#spk_805" start="#TL_46" end="#TL_49"><w xml:id="t5770375" start="#TL_46" end="#TL_47"></w> <w xml:id="t5783791" start="#TL_46" end="#TL_47"></w> <w xml:id="t5770382" start="#TL_47" end="#TL_48"></w> <w xml:id="t5770376" start="#TL_47" end="#TL_48"></w> <w xml:id="t5770384" start="#TL_48" end="#TL_49"></w></u>
+        <u who="#spk_806" start="#TL_49" end="#TL_50"><w xml:id="t5770385" start="#TL_49" end="#TL_50"></w> <w xml:id="t5770386" start="#TL_49" end="#TL_50"></w> <w xml:id="t5770387" start="#TL_49" end="#TL_50"></w></u>
+        <u who="#spk_805" start="#TL_50" end="#TL_51"><w xml:id="t5770388" start="#TL_50" end="#TL_51"></w> <w xml:id="t5770389" start="#TL_50" end="#TL_51"></w></u>
+        <u who="#spk_806" start="#TL_51" end="#TL_52"><w xml:id="t5770392" start="#TL_51" end="#TL_52"></w> <w xml:id="t5770393" start="#TL_51" end="#TL_52"></w> <w xml:id="t5770394" start="#TL_51" end="#TL_52"></w></u>
+        <u who="#spk_805" start="#TL_51" end="#TL_52"><w xml:id="t5770419" start="#TL_51" end="#TL_52"></w> <w xml:id="t5770390" start="#TL_51" end="#TL_52"></w> <w xml:id="t5770391" start="#TL_51" end="#TL_52"></w></u>
+        <u who="#spk_806" start="#TL_52" end="#TL_56"><w xml:id="t5770395" start="#TL_52" end="#TL_53"></w> <w xml:id="t5770396" start="#TL_52" end="#TL_53"></w> <w xml:id="t5783792" start="#TL_52" end="#TL_53"></w> <w xml:id="t5783793" start="#TL_52" end="#TL_53"></w> <w xml:id="t5770397" start="#TL_52" end="#TL_53"></w> <w xml:id="t5770398" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770399" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770400" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770401" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770402" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770403" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770404" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770405" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770406" start="#TL_53" end="#TL_54"></w> <w xml:id="t5770407" start="#TL_54" end="#TL_55"></w> <w xml:id="t5770408" start="#TL_55" end="#TL_56"></w></u>
+        <u who="#spk_805" start="#TL_55" end="#TL_56"><w xml:id="t5770409" start="#TL_55" end="#TL_56"></w> <w xml:id="t5770410" start="#TL_55" end="#TL_56"></w></u>
+        <u who="#spk_806" start="#TL_56" end="#TL_57">
+          <w xml:id="t5770412" start="#TL_56" end="#TL_57"></w>
+        </u>
+        <u who="#spk_805" start="#TL_56" end="#TL_57">
+          <w xml:id="t5770411" start="#TL_56" end="#TL_57"></w>
+        </u>
+        <u who="#spk_806" start="#TL_57" end="#TL_58">
+          <w xml:id="t5770416" start="#TL_57" end="#TL_58"></w>
+        </u>
+        <u who="#spk_805" start="#TL_57" end="#TL_58"><w xml:id="t5770413" start="#TL_57" end="#TL_58"></w> <w xml:id="t5770414" start="#TL_57" end="#TL_58"></w> <w xml:id="t5770415" start="#TL_57" end="#TL_58"></w></u>
+        <u who="#spk_806" start="#TL_58" end="#TL_59">
+          <w xml:id="t5770418" start="#TL_58" end="#TL_59"></w>
+        </u>
+        <u who="#spk_805" start="#TL_58" end="#TL_65"><w xml:id="t5770417" start="#TL_58" end="#TL_59"></w> <w xml:id="t5770420" start="#TL_59" end="#TL_60"></w> <w xml:id="t5770421" start="#TL_59" end="#TL_60"></w> <w xml:id="t5770422" start="#TL_59" end="#TL_60"></w> <w xml:id="t5770427" start="#TL_60" end="#TL_61"></w> <w xml:id="t5771577" start="#TL_60" end="#TL_61"></w> <w xml:id="t5771578" start="#TL_60" end="#TL_61"></w> <w xml:id="t5771579" start="#TL_60" end="#TL_61"></w> <w xml:id="t5771580" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770428" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770429" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770430" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770431" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770432" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770433" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770434" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770435" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770436" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770437" start="#TL_60" end="#TL_61"></w> <w xml:id="t5770438" start="#TL_61" end="#TL_62"></w> <w xml:id="t5770439" start="#TL_61" end="#TL_62"></w> <w xml:id="t5770440" start="#TL_61" end="#TL_62"></w> <w xml:id="t5770441" start="#TL_61" end="#TL_62"></w> <w xml:id="t5783794" start="#TL_61" end="#TL_62"></w> <w xml:id="t5770442" start="#TL_61" end="#TL_62"></w> <w xml:id="t5770443" start="#TL_61" end="#TL_62"></w> <w xml:id="t5770444" start="#TL_61" end="#TL_62"></w> <w xml:id="t5770445" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770446" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770447" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770448" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770449" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770450" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770451" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770452" start="#TL_62" end="#TL_63"></w> <w xml:id="t5770453" start="#TL_63" end="#TL_64"></w> <w xml:id="t5770454" start="#TL_63" end="#TL_64"></w> <w xml:id="t5770455" start="#TL_63" end="#TL_64"></w> <w xml:id="t5770456" start="#TL_63" end="#TL_64"></w> <w xml:id="t5771581" start="#TL_63" end="#TL_64"></w> <w xml:id="t5770458" start="#TL_64" end="#TL_65"></w> <w xml:id="t5770459" start="#TL_64" end="#TL_65"></w></u>
+        <u who="#spk_806" start="#TL_65" end="#TL_66"><w xml:id="t5770460" start="#TL_65" end="#TL_66"></w> <w xml:id="t5770461" start="#TL_65" end="#TL_66"></w> <w xml:id="t5770462" start="#TL_65" end="#TL_66"></w></u>
+        <u who="#spk_805" start="#TL_65" end="#TL_68"><w xml:id="t5770463" start="#TL_65" end="#TL_66"></w> <w xml:id="t5770464" start="#TL_66" end="#TL_67"></w> <w xml:id="t5770465" start="#TL_66" end="#TL_67"></w> <w xml:id="t5783795" start="#TL_66" end="#TL_67"></w> <w xml:id="t5770467" start="#TL_66" end="#TL_67"></w> <w xml:id="t5770468" start="#TL_66" end="#TL_67"></w> <w xml:id="t5770470" start="#TL_66" end="#TL_67"></w> <w xml:id="t5770469" start="#TL_66" end="#TL_67"></w> <w xml:id="t5770471" start="#TL_67" end="#TL_68"></w> <w xml:id="t5770472" start="#TL_67" end="#TL_68"></w> <w xml:id="t5770473" start="#TL_67" end="#TL_68"></w> <w xml:id="t5770474" start="#TL_67" end="#TL_68"></w> <w xml:id="t5770475" start="#TL_67" end="#TL_68"></w></u>
+        <u who="#spk_806" start="#TL_68" end="#TL_69"><w xml:id="t5770476" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770477" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770478" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770479" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770480" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770481" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770482" start="#TL_68" end="#TL_69"></w></u>
+        <u who="#spk_805" start="#TL_68" end="#TL_69"><w xml:id="t5770483" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770484" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770486" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770485" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770487" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770488" start="#TL_68" end="#TL_69"></w> <w xml:id="t5770489" start="#TL_68" end="#TL_69"></w></u>
+        <u who="#spk_806" start="#TL_69" end="#TL_70">
+          <w xml:id="t5770491" start="#TL_69" end="#TL_70"></w>
+        </u>
+        <u who="#spk_805" start="#TL_69" end="#TL_70"><w xml:id="t5770507" start="#TL_69" end="#TL_70"></w> <w xml:id="t5770490" start="#TL_69" end="#TL_70"></w></u>
+        <u who="#spk_806" start="#TL_70" end="#TL_72"><w xml:id="t5770508" start="#TL_70" end="#TL_71"></w> <w xml:id="t5770492" start="#TL_70" end="#TL_71"></w> <w xml:id="t5770499" start="#TL_71" end="#TL_72"></w></u>
+        <u who="#spk_805" start="#TL_71" end="#TL_73"><w xml:id="t5770493" start="#TL_71" end="#TL_72"></w> <w xml:id="t5770494" start="#TL_71" end="#TL_72"></w> <w xml:id="t5770495" start="#TL_71" end="#TL_72"></w> <w xml:id="t5770496" start="#TL_71" end="#TL_72"></w> <w xml:id="t5770497" start="#TL_71" end="#TL_72"></w> <w xml:id="t5770498" start="#TL_71" end="#TL_72"></w> <w xml:id="t5770502" start="#TL_72" end="#TL_73"></w></u>
+        <u who="#spk_806" start="#TL_73" end="#TL_74"><w xml:id="t5770504" start="#TL_73" end="#TL_74"></w> <w xml:id="t5770505" start="#TL_73" end="#TL_74"></w></u>
+        <u who="#spk_805" start="#TL_73" end="#TL_76"><w xml:id="t5770503" start="#TL_73" end="#TL_74"></w> <w xml:id="t5770506" start="#TL_74" end="#TL_75"></w> <w xml:id="t5770509" start="#TL_75" end="#TL_76"></w> <w xml:id="t5770510" start="#TL_75" end="#TL_76"></w></u>
+        <u who="#spk_806" start="#TL_76" end="#TL_77"><w xml:id="t5770513" start="#TL_76" end="#TL_77"></w> <w xml:id="t5770514" start="#TL_76" end="#TL_77"></w> <w xml:id="t5770515" start="#TL_76" end="#TL_77"></w></u>
+        <u who="#spk_805" start="#TL_76" end="#TL_79"><w xml:id="t5770511" start="#TL_76" end="#TL_77"></w> <w xml:id="t5770512" start="#TL_76" end="#TL_77"></w> <w xml:id="t5770539" start="#TL_77" end="#TL_78"></w> <w xml:id="t5770516" start="#TL_77" end="#TL_78"></w> <w xml:id="t5770517" start="#TL_77" end="#TL_78"></w> <w xml:id="t5770518" start="#TL_77" end="#TL_78"></w> <w xml:id="t5770519" start="#TL_77" end="#TL_78"></w> <w xml:id="t5770520" start="#TL_78" end="#TL_79"></w> <w xml:id="t5770521" start="#TL_78" end="#TL_79"></w> <w xml:id="t5770522" start="#TL_78" end="#TL_79"></w></u>
+        <u who="#spk_806" start="#TL_79" end="#TL_82"><w xml:id="t5770523" start="#TL_79" end="#TL_80"></w> <w xml:id="t5770524" start="#TL_79" end="#TL_80"></w> <w xml:id="t5770525" start="#TL_79" end="#TL_80"></w> <w xml:id="t5770527" start="#TL_79" end="#TL_80"></w> <w xml:id="t5770528" start="#TL_79" end="#TL_80"></w> <w xml:id="t5770529" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770530" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770531" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770532" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770533" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770534" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770535" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770536" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770537" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770538" start="#TL_80" end="#TL_81"></w> <w xml:id="t5770540" start="#TL_81" end="#TL_82"></w></u>
+        <u who="#spk_805" start="#TL_82" end="#TL_83"><w xml:id="t5770541" start="#TL_82" end="#TL_83"></w> <w xml:id="t5770542" start="#TL_82" end="#TL_83"></w> <w xml:id="t5770543" start="#TL_82" end="#TL_83"></w></u>
+        <u who="#spk_806" start="#TL_83" end="#TL_85"><w xml:id="t5770544" start="#TL_83" end="#TL_84"></w> <w xml:id="t5770545" start="#TL_83" end="#TL_84"></w> <w xml:id="t5770546" start="#TL_83" end="#TL_84"></w> <w xml:id="t5770547" start="#TL_83" end="#TL_84"></w> <w xml:id="t5770548" start="#TL_83" end="#TL_84"></w> <w xml:id="t5770549" start="#TL_83" end="#TL_84"></w> <w xml:id="t5770550" start="#TL_84" end="#TL_85"></w> <w xml:id="t5770551" start="#TL_84" end="#TL_85"></w> <w xml:id="t5770552" start="#TL_84" end="#TL_85"></w> <w xml:id="t5770553" start="#TL_84" end="#TL_85"></w> <w xml:id="t5770554" start="#TL_84" end="#TL_85"></w> <w xml:id="t5770555" start="#TL_84" end="#TL_85"></w> <w xml:id="t5770556" start="#TL_84" end="#TL_85"></w> <w xml:id="t5770557" start="#TL_84" end="#TL_85"></w></u>
+        <u who="#spk_805" start="#TL_85" end="#TL_86"><w xml:id="t5770558" start="#TL_85" end="#TL_86"></w> <w xml:id="t5770559" start="#TL_85" end="#TL_86"></w> <w xml:id="t5770560" start="#TL_85" end="#TL_86"></w> <w xml:id="t5770561" start="#TL_85" end="#TL_86"></w></u>
+        <u who="#spk_806" start="#TL_86" end="#TL_90"><w xml:id="t5770562" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770563" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770564" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770565" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770566" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770567" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770568" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770569" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770570" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770571" start="#TL_86" end="#TL_87"></w> <w xml:id="t5770572" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770573" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770574" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770575" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770576" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770579" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770577" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770578" start="#TL_87" end="#TL_88"></w> <w xml:id="t5770580" start="#TL_88" end="#TL_89"></w> <w xml:id="t5770581" start="#TL_88" end="#TL_89"></w> <w xml:id="t5770582" start="#TL_88" end="#TL_89"></w> <w xml:id="t5770583" start="#TL_88" end="#TL_89"></w> <w xml:id="t5770584" start="#TL_88" end="#TL_89"></w> <w xml:id="t5770619" start="#TL_89" end="#TL_90"></w> <w xml:id="t5770585" start="#TL_89" end="#TL_90"></w></u>
+        <u who="#spk_805" start="#TL_89" end="#TL_91"><w xml:id="t5770586" start="#TL_89" end="#TL_90"></w> <w xml:id="t5770587" start="#TL_89" end="#TL_90"></w> <w xml:id="t5770620" start="#TL_90" end="#TL_91"></w> <w xml:id="t5770588" start="#TL_90" end="#TL_91"></w></u>
+        <u who="#spk_806" start="#TL_91" end="#TL_92"><w xml:id="t5770592" start="#TL_91" end="#TL_92"></w> <w xml:id="t5770593" start="#TL_91" end="#TL_92"></w> <w xml:id="t5770594" start="#TL_91" end="#TL_92"></w> <w xml:id="t5770595" start="#TL_91" end="#TL_92"></w></u>
+        <u who="#spk_805" start="#TL_91" end="#TL_93"><w xml:id="t5770589" start="#TL_91" end="#TL_92"></w> <w xml:id="t5770590" start="#TL_91" end="#TL_92"></w> <w xml:id="t5770596" start="#TL_92" end="#TL_93"></w> <w xml:id="t5771582" start="#TL_92" end="#TL_93"></w> <w xml:id="t5771583" start="#TL_92" end="#TL_93"></w> <w xml:id="t5771584" start="#TL_92" end="#TL_93"></w></u>
+        <u who="#spk_806" start="#TL_93" end="#TL_94"><w xml:id="t5770602" start="#TL_93" end="#TL_94"></w> <w xml:id="t5770603" start="#TL_93" end="#TL_94"></w></u>
+        <u who="#spk_805" start="#TL_93" end="#TL_94"><w xml:id="t5770598" start="#TL_93" end="#TL_94"></w> <w xml:id="t5770599" start="#TL_93" end="#TL_94"></w></u>
+        <u who="#spk_806" start="#TL_94" end="#TL_96"><w xml:id="t5770604" start="#TL_94" end="#TL_95"></w> <w xml:id="t5770605" start="#TL_94" end="#TL_95"></w> <w xml:id="t5783796" start="#TL_94" end="#TL_95"></w> <w xml:id="t5770606" start="#TL_95" end="#TL_96"></w> <w xml:id="t5770607" start="#TL_95" end="#TL_96"></w></u>
+        <u who="#spk_805" start="#TL_95" end="#TL_96"><w xml:id="t5770608" start="#TL_95" end="#TL_96"></w> <w xml:id="t5770609" start="#TL_95" end="#TL_96"></w> <w xml:id="t5770610" start="#TL_95" end="#TL_96"></w></u>
+        <u who="#spk_806" start="#TL_96" end="#TL_97"><w xml:id="t5770611" start="#TL_96" end="#TL_97"></w> <w xml:id="t5783797" start="#TL_96" end="#TL_97"></w> <w xml:id="t5770612" start="#TL_96" end="#TL_97"></w> <w xml:id="t5770613" start="#TL_96" end="#TL_97"></w> <w xml:id="t5770614" start="#TL_96" end="#TL_97"></w> <w xml:id="t5770615" start="#TL_96" end="#TL_97"></w> <w xml:id="t5770616" start="#TL_96" end="#TL_97"></w> <w xml:id="t5770617" start="#TL_96" end="#TL_97"></w></u>
+        <u who="#spk_805" start="#TL_97" end="#TL_98"><w xml:id="t5770618" start="#TL_97" end="#TL_98"></w> <w xml:id="t5771585" start="#TL_97" end="#TL_98"></w></u>
+        <u who="#spk_806" start="#TL_98" end="#TL_99"><w xml:id="t5770627" start="#TL_98" end="#TL_99"></w> <w xml:id="t5771590" start="#TL_98" end="#TL_99"></w> <w xml:id="t5771591" start="#TL_98" end="#TL_99"></w></u>
+        <u who="#spk_805" start="#TL_98" end="#TL_101"><w xml:id="t5771595" start="#TL_98" end="#TL_99"></w> <w xml:id="t5771596" start="#TL_99" end="#TL_100"></w> <w xml:id="t5771589" start="#TL_99" end="#TL_100"></w> <w xml:id="t5771587" start="#TL_100" end="#TL_101"></w> <w xml:id="t5771588" start="#TL_100" end="#TL_101"></w></u>
+        <u who="#spk_806" start="#TL_101" end="#TL_102">
+          <w xml:id="t5771586" start="#TL_101" end="#TL_102"></w>
+        </u>
+        <u who="#spk_805" start="#TL_101" end="#TL_102">
+          <w xml:id="t5771592" start="#TL_101" end="#TL_102"></w>
+        </u>
+        <u who="#spk_806" start="#TL_102" end="#TL_103"><w xml:id="t5770622" start="#TL_102" end="#TL_103"></w> <w xml:id="t5770623" start="#TL_102" end="#TL_103"></w> <w xml:id="t5770624" start="#TL_102" end="#TL_103"></w></u>
+        <u who="#spk_805" start="#TL_103" end="#TL_104">
+          <w xml:id="t5770629" start="#TL_103" end="#TL_104"></w>
+        </u>
+        <u who="#spk_806" start="#TL_104" end="#TL_105"><w xml:id="t5770631" start="#TL_104" end="#TL_105"></w> <w xml:id="t5770632" start="#TL_104" end="#TL_105"></w></u>
+        <u who="#spk_805" start="#TL_104" end="#TL_108"><w xml:id="t5770630" start="#TL_104" end="#TL_105"></w> <w xml:id="t5770633" start="#TL_105" end="#TL_106"></w> <w xml:id="t5770634" start="#TL_105" end="#TL_106"></w> <w xml:id="t5770635" start="#TL_105" end="#TL_106"></w> <w xml:id="t5770636" start="#TL_105" end="#TL_106"></w> <w xml:id="t5770637" start="#TL_105" end="#TL_106"></w> <w xml:id="t5770638" start="#TL_105" end="#TL_106"></w> <w xml:id="t5770639" start="#TL_105" end="#TL_106"></w> <w xml:id="t5770640" start="#TL_106" end="#TL_107"></w> <w xml:id="t5770641" start="#TL_106" end="#TL_107"></w> <w xml:id="t5770642" start="#TL_106" end="#TL_107"></w> <w xml:id="t5770643" start="#TL_107" end="#TL_108"></w> <w xml:id="t5770644" start="#TL_107" end="#TL_108"></w> <w xml:id="t5770645" start="#TL_107" end="#TL_108"></w></u>
+        <u who="#spk_806" start="#TL_108" end="#TL_109"><w xml:id="t5770646" start="#TL_108" end="#TL_109"></w> <w xml:id="t5770647" start="#TL_108" end="#TL_109"></w></u>
+        <u who="#spk_805" start="#TL_108" end="#TL_111"><w xml:id="t5770648" start="#TL_108" end="#TL_109"></w> <w xml:id="t5770649" start="#TL_108" end="#TL_109"></w> <w xml:id="t5770650" start="#TL_108" end="#TL_109"></w> <w xml:id="t5770651" start="#TL_109" end="#TL_110"></w> <w xml:id="t5783798" start="#TL_109" end="#TL_110"></w> <w xml:id="t5771597" start="#TL_110" end="#TL_111"></w></u>
+        <u who="#spk_806" start="#TL_111" end="#TL_112"><w xml:id="t5770652" start="#TL_111" end="#TL_112"></w> <w xml:id="t5770653" start="#TL_111" end="#TL_112"></w></u>
+        <u who="#spk_805" start="#TL_111" end="#TL_112"><w xml:id="t5771605" start="#TL_111" end="#TL_112"></w> <w xml:id="t5783799" start="#TL_111" end="#TL_112"></w></u>
+        <u who="#spk_806" start="#TL_112" end="#TL_113"><w xml:id="t5770654" start="#TL_112" end="#TL_113"></w> <w xml:id="t5770655" start="#TL_112" end="#TL_113"></w></u>
+        <u who="#spk_805" start="#TL_112" end="#TL_113">
+          <w xml:id="t5771600" start="#TL_112" end="#TL_113"></w>
+        </u>
+        <u who="#spk_806" start="#TL_113" end="#TL_114">
+          <w xml:id="t5770656" start="#TL_113" end="#TL_114"></w>
+        </u>
+        <u who="#spk_805" start="#TL_113" end="#TL_114">
+          <w xml:id="t5771602" start="#TL_113" end="#TL_114"></w>
+        </u>
+        <u who="#spk_806" start="#TL_114" end="#TL_115"><w xml:id="t5770657" start="#TL_114" end="#TL_115"></w> <w xml:id="t5770658" start="#TL_114" end="#TL_115"></w> <w xml:id="t5770659" start="#TL_114" end="#TL_115"></w> <w xml:id="t5770660" start="#TL_114" end="#TL_115"></w> <w xml:id="t5770661" start="#TL_114" end="#TL_115"></w></u>
+        <u who="#spk_805" start="#TL_114" end="#TL_115"><w xml:id="t5771603" start="#TL_114" end="#TL_115"></w> <w xml:id="t5771604" start="#TL_114" end="#TL_115"></w> <w xml:id="t5783800" start="#TL_114" end="#TL_115"></w></u>
+        <u who="#spk_806" start="#TL_115" end="#TL_117"><w xml:id="t5770662" start="#TL_115" end="#TL_116"></w> <w xml:id="t5770663" start="#TL_115" end="#TL_116"></w> <w xml:id="t5771608" start="#TL_116" end="#TL_117"></w></u>
+        <u who="#spk_805" start="#TL_116" end="#TL_117">
+          <w xml:id="t5770665" start="#TL_116" end="#TL_117"></w>
+        </u>
+        <u who="#spk_806" start="#TL_117" end="#TL_118"><w xml:id="t5771606" start="#TL_117" end="#TL_118"></w> <w xml:id="t5771607" start="#TL_117" end="#TL_118"></w></u>
+        <u who="#spk_805" start="#TL_117" end="#TL_118">
+          <w xml:id="t5770666" start="#TL_117" end="#TL_118"></w>
+        </u>
+        <u who="#spk_806" start="#TL_118" end="#TL_119">
+          <w xml:id="t5770668" start="#TL_118" end="#TL_119"></w>
+        </u>
+        <u who="#spk_805" start="#TL_118" end="#TL_119"><w xml:id="t5770684" start="#TL_118" end="#TL_119"></w> <w xml:id="t5770667" start="#TL_118" end="#TL_119"></w></u>
+        <u who="#spk_806" start="#TL_119" end="#TL_122"><w xml:id="t5770669" start="#TL_119" end="#TL_120"></w> <w xml:id="t5770670" start="#TL_119" end="#TL_120"></w> <w xml:id="t5770671" start="#TL_119" end="#TL_120"></w> <w xml:id="t5770672" start="#TL_119" end="#TL_120"></w> <w xml:id="t5770673" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770674" start="#TL_120" end="#TL_121"></w> <w xml:id="t5783801" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770675" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770676" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770677" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770678" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770679" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770680" start="#TL_120" end="#TL_121"></w> <w xml:id="t5770681" start="#TL_121" end="#TL_122"></w> <w xml:id="t5770682" start="#TL_121" end="#TL_122"></w> <w xml:id="t5770683" start="#TL_121" end="#TL_122"></w></u>
+        <u who="#spk_805" start="#TL_122" end="#TL_123"><w xml:id="t5770685" start="#TL_122" end="#TL_123"></w> <w xml:id="t5770686" start="#TL_122" end="#TL_123"></w></u>
+        <u who="#spk_806" start="#TL_123" end="#TL_124">
+          <w xml:id="t5770688" start="#TL_123" end="#TL_124"></w>
+        </u>
+        <u who="#spk_805" start="#TL_123" end="#TL_124"><w xml:id="t5770710" start="#TL_123" end="#TL_124"></w> <w xml:id="t5770687" start="#TL_123" end="#TL_124"></w></u>
+        <u who="#spk_806" start="#TL_124" end="#TL_126"><w xml:id="t5770711" start="#TL_124" end="#TL_125"></w> <w xml:id="t5770712" start="#TL_125" end="#TL_126"></w> <w xml:id="t5770689" start="#TL_125" end="#TL_126"></w></u>
+        <u who="#spk_805" start="#TL_125" end="#TL_128"><w xml:id="t5770690" start="#TL_125" end="#TL_126"></w> <w xml:id="t5770691" start="#TL_125" end="#TL_126"></w> <w xml:id="t5770692" start="#TL_126" end="#TL_127"></w> <w xml:id="t5770693" start="#TL_126" end="#TL_127"></w> <w xml:id="t5770694" start="#TL_126" end="#TL_127"></w> <w xml:id="t5770695" start="#TL_126" end="#TL_127"></w> <w xml:id="t5770696" start="#TL_126" end="#TL_127"></w> <w xml:id="t5770697" start="#TL_127" end="#TL_128"></w> <w xml:id="t5770698" start="#TL_127" end="#TL_128"></w></u>
+        <u who="#spk_806" start="#TL_128" end="#TL_129"><w xml:id="t5770701" start="#TL_128" end="#TL_129"></w> <w xml:id="t5770702" start="#TL_128" end="#TL_129"></w></u>
+        <u who="#spk_805" start="#TL_128" end="#TL_129">
+          <w xml:id="t5770713" start="#TL_128" end="#TL_129"></w>
+        </u>
+        <u who="#spk_806" start="#TL_129" end="#TL_130"><w xml:id="t5770703" start="#TL_129" end="#TL_130"></w> <w xml:id="t5770704" start="#TL_129" end="#TL_130"></w> <w xml:id="t5770705" start="#TL_129" end="#TL_130"></w></u>
+        <u who="#spk_805" start="#TL_129" end="#TL_130"><w xml:id="t5770699" start="#TL_129" end="#TL_130"></w> <w xml:id="t5770700" start="#TL_129" end="#TL_130"></w></u>
+        <u who="#spk_806" start="#TL_130" end="#TL_132"><w xml:id="t5770714" start="#TL_130" end="#TL_131"></w> <w xml:id="t5770715" start="#TL_131" end="#TL_132"></w> <w xml:id="t5770706" start="#TL_131" end="#TL_132"></w> <w xml:id="t5770707" start="#TL_131" end="#TL_132"></w></u>
+        <u who="#spk_805" start="#TL_131" end="#TL_133"><w xml:id="t5770708" start="#TL_131" end="#TL_132"></w> <w xml:id="t5770709" start="#TL_131" end="#TL_132"></w> <w xml:id="t5770716" start="#TL_132" end="#TL_133"></w> <w xml:id="t5770717" start="#TL_132" end="#TL_133"></w></u>
+        <u who="#spk_806" start="#TL_133" end="#TL_134"><w xml:id="t5770720" start="#TL_133" end="#TL_134"></w> <w xml:id="t5770721" start="#TL_133" end="#TL_134"></w> <w xml:id="t5770722" start="#TL_133" end="#TL_134"></w> <w xml:id="t5770723" start="#TL_133" end="#TL_134"></w></u>
+        <u who="#spk_805" start="#TL_133" end="#TL_134"><w xml:id="t5770756" start="#TL_133" end="#TL_134"></w> <w xml:id="t5770718" start="#TL_133" end="#TL_134"></w> <w xml:id="t5770719" start="#TL_133" end="#TL_134"></w></u>
+        <u who="#spk_806" start="#TL_134" end="#TL_135"><w xml:id="t5770757" start="#TL_134" end="#TL_135"></w> <w xml:id="t5770724" start="#TL_134" end="#TL_135"></w> <w xml:id="t5770725" start="#TL_134" end="#TL_135"></w> <w xml:id="t5770726" start="#TL_134" end="#TL_135"></w></u>
+        <u who="#spk_805" start="#TL_134" end="#TL_135">
+          <w xml:id="t5770727" start="#TL_134" end="#TL_135"></w>
+        </u>
+        <u who="#spk_806" start="#TL_135" end="#TL_138"><w xml:id="t5770728" start="#TL_135" end="#TL_136"></w> <w xml:id="t5770729" start="#TL_135" end="#TL_136"></w> <w xml:id="t5770758" start="#TL_136" end="#TL_137"></w> <w xml:id="t5770730" start="#TL_136" end="#TL_137"></w> <w xml:id="t5770731" start="#TL_136" end="#TL_137"></w> <w xml:id="t5770732" start="#TL_136" end="#TL_137"></w> <w xml:id="t5770733" start="#TL_136" end="#TL_137"></w> <w xml:id="t5770734" start="#TL_136" end="#TL_137"></w> <w xml:id="t5783802" start="#TL_136" end="#TL_137"></w> <w xml:id="t5770739" start="#TL_137" end="#TL_138"></w> <w xml:id="t5770740" start="#TL_137" end="#TL_138"></w> <w xml:id="t5770741" start="#TL_137" end="#TL_138"></w> <w xml:id="t5770742" start="#TL_137" end="#TL_138"></w> <w xml:id="t5770743" start="#TL_137" end="#TL_138"></w></u>
+        <u who="#spk_805" start="#TL_137" end="#TL_138"><w xml:id="t5770736" start="#TL_137" end="#TL_138"></w> <w xml:id="t5770737" start="#TL_137" end="#TL_138"></w> <w xml:id="t5770738" start="#TL_137" end="#TL_138"></w></u>
+        <u who="#spk_806" start="#TL_138" end="#TL_140"><w xml:id="t5770759" start="#TL_138" end="#TL_139"></w> <w xml:id="t5770760" start="#TL_139" end="#TL_140"></w> <w xml:id="t5783803" start="#TL_139" end="#TL_140"></w></u>
+        <u who="#spk_805" start="#TL_139" end="#TL_140">
+          <w xml:id="t5770745" start="#TL_139" end="#TL_140"></w>
+        </u>
+        <u who="#spk_806" start="#TL_140" end="#TL_141"><w xml:id="t5770746" start="#TL_140" end="#TL_141"></w> <w xml:id="t5770747" start="#TL_140" end="#TL_141"></w></u>
+        <u who="#spk_805" start="#TL_140" end="#TL_143"><w xml:id="t5770748" start="#TL_140" end="#TL_141"></w> <w xml:id="t5770761" start="#TL_141" end="#TL_142"></w> <w xml:id="t5770749" start="#TL_141" end="#TL_142"></w> <w xml:id="t5770750" start="#TL_141" end="#TL_142"></w> <w xml:id="t5770751" start="#TL_142" end="#TL_143"></w></u>
+        <u who="#spk_806" start="#TL_143" end="#TL_144"><w xml:id="t5770752" start="#TL_143" end="#TL_144"></w> <w xml:id="t5770753" start="#TL_143" end="#TL_144"></w></u>
+        <u who="#spk_805" start="#TL_143" end="#TL_144"><w xml:id="t5771609" start="#TL_143" end="#TL_144"></w> <w xml:id="t5770768" start="#TL_143" end="#TL_144"></w> <w xml:id="t5770754" start="#TL_143" end="#TL_144"></w></u>
+        <u who="#spk_806" start="#TL_144" end="#TL_145"><w xml:id="t5770764" start="#TL_144" end="#TL_145"></w> <w xml:id="t5770765" start="#TL_144" end="#TL_145"></w></u>
+        <u who="#spk_805" start="#TL_144" end="#TL_145"><w xml:id="t5770763" start="#TL_144" end="#TL_145"></w> <w xml:id="t5770769" start="#TL_144" end="#TL_145"></w></u>
+        <u who="#spk_806" start="#TL_145" end="#TL_149"><w xml:id="t5770766" start="#TL_145" end="#TL_146"></w> <w xml:id="t5770770" start="#TL_145" end="#TL_146"></w> <w xml:id="t5770771" start="#TL_145" end="#TL_146"></w> <w xml:id="t5770772" start="#TL_145" end="#TL_146"></w> <w xml:id="t5770773" start="#TL_146" end="#TL_147"></w> <w xml:id="t5770767" start="#TL_146" end="#TL_147"></w> <w xml:id="t5770774" start="#TL_147" end="#TL_148"></w> <w xml:id="t5770775" start="#TL_147" end="#TL_148"></w> <w xml:id="t5770776" start="#TL_147" end="#TL_148"></w> <w xml:id="t5770777" start="#TL_147" end="#TL_148"></w> <w xml:id="t5770778" start="#TL_147" end="#TL_148"></w> <w xml:id="t5770800" start="#TL_148" end="#TL_149"></w> <w xml:id="t5770779" start="#TL_148" end="#TL_149"></w> <w xml:id="t5771611" start="#TL_148" end="#TL_149"></w></u>
+        <u who="#spk_805" start="#TL_148" end="#TL_149"><w xml:id="t5770780" start="#TL_148" end="#TL_149"></w> <w xml:id="t5771610" start="#TL_148" end="#TL_149"></w> <w xml:id="t5770781" start="#TL_148" end="#TL_149"></w></u>
+        <u who="#spk_806" start="#TL_149" end="#TL_153"><w xml:id="t5770782" start="#TL_149" end="#TL_150"></w> <w xml:id="t5770783" start="#TL_149" end="#TL_150"></w> <w xml:id="t5770784" start="#TL_149" end="#TL_150"></w> <w xml:id="t5770785" start="#TL_150" end="#TL_151"></w> <w xml:id="t5770786" start="#TL_150" end="#TL_151"></w> <w xml:id="t5770787" start="#TL_150" end="#TL_151"></w> <w xml:id="t5770788" start="#TL_151" end="#TL_152"></w> <w xml:id="t5770789" start="#TL_151" end="#TL_152"></w> <w xml:id="t5770790" start="#TL_151" end="#TL_152"></w> <w xml:id="t5770791" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770792" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770793" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770794" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770796" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770795" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770797" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770798" start="#TL_152" end="#TL_153"></w> <w xml:id="t5770799" start="#TL_152" end="#TL_153"></w></u>
+        <u who="#spk_805" start="#TL_153" end="#TL_154"><w xml:id="t5770801" start="#TL_153" end="#TL_154"></w> <w xml:id="t5770802" start="#TL_153" end="#TL_154"></w> <w xml:id="t5770803" start="#TL_153" end="#TL_154"></w> <w xml:id="t5770804" start="#TL_153" end="#TL_154"></w></u>
+        <u who="#spk_806" start="#TL_154" end="#TL_160"><w xml:id="t5770805" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770806" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770807" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770808" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770809" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770810" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770811" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770812" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770813" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770814" start="#TL_154" end="#TL_155"></w> <w xml:id="t5770815" start="#TL_155" end="#TL_156"></w> <w xml:id="t5770816" start="#TL_155" end="#TL_156"></w> <w xml:id="t5770817" start="#TL_155" end="#TL_156"></w> <w xml:id="t5770818" start="#TL_155" end="#TL_156"></w> <w xml:id="t5770819" start="#TL_155" end="#TL_156"></w> <w xml:id="t5770820" start="#TL_155" end="#TL_156"></w> <w xml:id="t5770821" start="#TL_156" end="#TL_157"></w> <w xml:id="t5770822" start="#TL_156" end="#TL_157"></w> <w xml:id="t5770823" start="#TL_156" end="#TL_157"></w> <w xml:id="t5770824" start="#TL_156" end="#TL_157"></w> <w xml:id="t5770825" start="#TL_156" end="#TL_157"></w> <w xml:id="t5770826" start="#TL_156" end="#TL_157"></w> <w xml:id="t5770827" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770828" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770829" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770830" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770831" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770832" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770833" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770834" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770835" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770836" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770837" start="#TL_157" end="#TL_158"></w> <w xml:id="t5770838" start="#TL_158" end="#TL_159"></w> <w xml:id="t5770839" start="#TL_158" end="#TL_159"></w> <w xml:id="t5770840" start="#TL_158" end="#TL_159"></w> <w xml:id="t5770841" start="#TL_159" end="#TL_160"></w></u>
+        <u who="#spk_805" start="#TL_159" end="#TL_160"><w xml:id="t5770842" start="#TL_159" end="#TL_160"></w> <w xml:id="t5770843" start="#TL_159" end="#TL_160"></w></u>
+        <u who="#spk_806" start="#TL_160" end="#TL_165"><w xml:id="t5770844" start="#TL_160" end="#TL_161"></w> <w xml:id="t5770845" start="#TL_160" end="#TL_161"></w> <w xml:id="t5770846" start="#TL_160" end="#TL_161"></w> <w xml:id="t5770847" start="#TL_160" end="#TL_161"></w> <w xml:id="t5770848" start="#TL_160" end="#TL_161"></w> <w xml:id="t5770849" start="#TL_160" end="#TL_161"></w> <w xml:id="t5770850" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770851" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770852" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770853" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770854" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770855" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770856" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770857" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770858" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770859" start="#TL_161" end="#TL_162"></w> <w xml:id="t5770860" start="#TL_162" end="#TL_163"></w> <w xml:id="t5771612" start="#TL_162" end="#TL_163"></w> <w xml:id="t5770862" start="#TL_162" end="#TL_163"></w> <w xml:id="t5770863" start="#TL_162" end="#TL_163"></w> <w xml:id="t5770864" start="#TL_162" end="#TL_163"></w> <w xml:id="t5770865" start="#TL_162" end="#TL_163"></w> <w xml:id="t5770866" start="#TL_162" end="#TL_163"></w> <w xml:id="t5770867" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770868" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770869" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770870" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770871" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770872" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770873" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770874" start="#TL_163" end="#TL_164"></w> <w xml:id="t5770875" start="#TL_164" end="#TL_165"></w> <w xml:id="t5770876" start="#TL_164" end="#TL_165"></w> <w xml:id="t5770877" start="#TL_164" end="#TL_165"></w> <w xml:id="t5770878" start="#TL_164" end="#TL_165"></w> <w xml:id="t5770879" start="#TL_164" end="#TL_165"></w> <w xml:id="t5770880" start="#TL_164" end="#TL_165"></w> <w xml:id="t5770881" start="#TL_164" end="#TL_165"></w></u>
+        <u who="#spk_805" start="#TL_165" end="#TL_168"><w xml:id="t5771456" start="#TL_165" end="#TL_166"></w> <w xml:id="t5771457" start="#TL_166" end="#TL_167"></w> <w xml:id="t5771458" start="#TL_166" end="#TL_167"></w> <w xml:id="t5771459" start="#TL_167" end="#TL_168"></w></u>
+        <u who="#spk_806" start="#TL_168" end="#TL_170"><w xml:id="t5771462" start="#TL_168" end="#TL_169"></w> <w xml:id="t5771463" start="#TL_168" end="#TL_169"></w> <w xml:id="t5771464" start="#TL_168" end="#TL_169"></w> <w xml:id="t5783804" start="#TL_168" end="#TL_169"></w> <w xml:id="t5771466" start="#TL_168" end="#TL_169"></w> <w xml:id="t5771467" start="#TL_168" end="#TL_169"></w> <w xml:id="t5771468" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771469" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771470" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771471" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771472" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771473" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771474" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771475" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771476" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771477" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771478" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771479" start="#TL_169" end="#TL_170"></w> <w xml:id="t5771480" start="#TL_169" end="#TL_170"></w></u>
+        <u who="#spk_805" start="#TL_170" end="#TL_171"><w xml:id="t5771481" start="#TL_170" end="#TL_171"></w> <w xml:id="t5783805" start="#TL_170" end="#TL_171"></w> <w xml:id="t5771482" start="#TL_170" end="#TL_171"></w> <w xml:id="t5771483" start="#TL_170" end="#TL_171"></w></u>
+        <u who="#spk_806" start="#TL_171" end="#TL_172"><w xml:id="t5771485" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771490" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771501" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771491" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771492" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771493" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771494" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771495" start="#TL_171" end="#TL_172"></w></u>
+        <u who="#spk_805" start="#TL_171" end="#TL_172"><w xml:id="t5771484" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771486" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771487" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771488" start="#TL_171" end="#TL_172"></w> <w xml:id="t5771489" start="#TL_171" end="#TL_172"></w></u>
+        <u who="#spk_806" start="#TL_172" end="#TL_173"><w xml:id="t5771502" start="#TL_172" end="#TL_173"></w> <w xml:id="t5771496" start="#TL_172" end="#TL_173"></w></u>
+        <u who="#spk_805" start="#TL_172" end="#TL_173">
+          <w xml:id="t5771499" start="#TL_172" end="#TL_173"></w>
+        </u>
+        <u who="#spk_806" start="#TL_173" end="#TL_174"><w xml:id="t5771497" start="#TL_173" end="#TL_174"></w> <w xml:id="t5771498" start="#TL_173" end="#TL_174"></w></u>
+        <u who="#spk_805" start="#TL_173" end="#TL_175"><w xml:id="t5771503" start="#TL_173" end="#TL_174"></w> <w xml:id="t5771500" start="#TL_173" end="#TL_174"></w> <w xml:id="t5771509" start="#TL_174" end="#TL_175"></w> <w xml:id="t5771613" start="#TL_174" end="#TL_175"></w> <w xml:id="t5771505" start="#TL_174" end="#TL_175"></w> <w xml:id="t5771506" start="#TL_174" end="#TL_175"></w> <w xml:id="t5771507" start="#TL_174" end="#TL_175"></w> <w xml:id="t5771508" start="#TL_174" end="#TL_175"></w> <w xml:id="t5783806" start="#TL_174" end="#TL_175"></w></u>
+        <u who="#spk_806" start="#TL_175" end="#TL_176"><w xml:id="t5771511" start="#TL_175" end="#TL_176"></w> <w xml:id="t5771512" start="#TL_175" end="#TL_176"></w> <w xml:id="t5771513" start="#TL_175" end="#TL_176"></w></u>
+        <u who="#spk_805" start="#TL_175" end="#TL_176"><w xml:id="t5771510" start="#TL_175" end="#TL_176"></w> <w xml:id="t5771523" start="#TL_175" end="#TL_176"></w></u>
+        <u who="#spk_806" start="#TL_176" end="#TL_177"><w xml:id="t5771524" start="#TL_176" end="#TL_177"></w> <w xml:id="t5771515" start="#TL_176" end="#TL_177"></w> <w xml:id="t5771516" start="#TL_176" end="#TL_177"></w></u>
+        <u who="#spk_805" start="#TL_176" end="#TL_177">
+          <w xml:id="t5771514" start="#TL_176" end="#TL_177"></w>
+        </u>
+        <u who="#spk_806" start="#TL_177" end="#TL_179"><w xml:id="t5771525" start="#TL_177" end="#TL_178"></w> <w xml:id="t5771517" start="#TL_177" end="#TL_178"></w> <w xml:id="t5771518" start="#TL_178" end="#TL_179"></w> <w xml:id="t5771519" start="#TL_178" end="#TL_179"></w></u>
+        <u who="#spk_805" start="#TL_178" end="#TL_179">
+          <w xml:id="t5771520" start="#TL_178" end="#TL_179"></w>
+        </u>
+        <u who="#spk_806" start="#TL_179" end="#TL_180">
+          <w xml:id="t5771526" start="#TL_179" end="#TL_180"></w>
+        </u>
+        <u who="#spk_805" start="#TL_179" end="#TL_180"><w xml:id="t5771521" start="#TL_179" end="#TL_180"></w> <w xml:id="t5771522" start="#TL_179" end="#TL_180"></w></u>
+        <u who="#spk_806" start="#TL_180" end="#TL_181">
+          <w xml:id="t5771529" start="#TL_180" end="#TL_181"></w>
+        </u>
+        <u who="#spk_805" start="#TL_180" end="#TL_181"><w xml:id="t5771530" start="#TL_180" end="#TL_181"></w> <w xml:id="t5771531" start="#TL_180" end="#TL_181"></w></u>
+        <u who="#spk_806" start="#TL_181" end="#TL_183"><w xml:id="t5771532" start="#TL_181" end="#TL_182"></w> <w xml:id="t5771533" start="#TL_181" end="#TL_182"></w> <w xml:id="t5771534" start="#TL_181" end="#TL_182"></w> <w xml:id="t5771535" start="#TL_181" end="#TL_182"></w> <w xml:id="t5771536" start="#TL_182" end="#TL_183"></w></u>
+        <u who="#spk_805" start="#TL_182" end="#TL_183"><w xml:id="t5771551" start="#TL_182" end="#TL_183"></w> <w xml:id="t5771552" start="#TL_182" end="#TL_183"></w> <w xml:id="t5771553" start="#TL_182" end="#TL_183"></w></u>
+        <u who="#spk_806" start="#TL_184" end="#TL_186"><w xml:id="t5771537" start="#TL_184" end="#TL_185"></w> <w xml:id="t5771538" start="#TL_184" end="#TL_185"></w> <w xml:id="t5771539" start="#TL_184" end="#TL_185"></w> <w xml:id="t5771548" start="#TL_185" end="#TL_186"></w></u>
+        <u who="#spk_805" start="#TL_185" end="#TL_186"><w xml:id="t5771540" start="#TL_185" end="#TL_186"></w> <w xml:id="t5771541" start="#TL_185" end="#TL_186"></w></u>
+        <u who="#spk_806" start="#TL_186" end="#TL_188"><w xml:id="t5771549" start="#TL_186" end="#TL_187"></w> <w xml:id="t5771542" start="#TL_186" end="#TL_187"></w> <w xml:id="t5771543" start="#TL_186" end="#TL_187"></w> <w xml:id="t5771544" start="#TL_186" end="#TL_187"></w> <w xml:id="t5771545" start="#TL_186" end="#TL_187"></w> <w xml:id="t5771546" start="#TL_186" end="#TL_187"></w> <w xml:id="t5771550" start="#TL_187" end="#TL_188"></w> <w xml:id="t5771547" start="#TL_187" end="#TL_188"></w></u>
+        <u who="#spk_805" start="#TL_187" end="#TL_191"><w xml:id="t5771554" start="#TL_187" end="#TL_188"></w> <w xml:id="t5771555" start="#TL_187" end="#TL_188"></w> <w xml:id="t5771568" start="#TL_188" end="#TL_189"></w> <w xml:id="t5771556" start="#TL_188" end="#TL_189"></w> <w xml:id="t5771557" start="#TL_189" end="#TL_190"></w> <w xml:id="t5771558" start="#TL_189" end="#TL_190"></w> <w xml:id="t5771559" start="#TL_190" end="#TL_191"></w> <w xml:id="t5783807" start="#TL_190" end="#TL_191"></w> <w xml:id="t5771565" start="#TL_190" end="#TL_191"></w> <w xml:id="t5783808" start="#TL_190" end="#TL_191"></w> <w xml:id="t5783809" start="#TL_190" end="#TL_191"></w> <w xml:id="t5783810" start="#TL_190" end="#TL_191"></w> <w xml:id="t5783811" start="#TL_190" end="#TL_191"></w> <w xml:id="t5771614" start="#TL_190" end="#TL_191"></w> <w xml:id="t5771566" start="#TL_190" end="#TL_191"></w></u>
+        <u who="#spk_633" start="#TL_192" end="#TL_193">
+          <w xml:id="t5783812" start="#TL_192" end="#TL_193"></w>
+        </u>
+        <u who="#spk_806" start="#TL_192" end="#TL_193">
+          <w xml:id="t5783814" start="#TL_192" end="#TL_193"></w>
+        </u>
+        <u who="#spk_805" start="#TL_192" end="#TL_193">
+          <w xml:id="t5783813" start="#TL_192" end="#TL_193"></w>
+        </u>
+      </div>
+    </body>
+  </text>
+</TEI>

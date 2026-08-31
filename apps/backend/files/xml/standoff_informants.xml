@@ -1,0 +1,1911 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Standoff Personography for Project</title>
+      </titleStmt>
+      <publicationStmt>
+        <p>Not for publication.</p>
+      </publicationStmt>
+      <sourceDesc>
+        <p>Data derived from project's informant database.</p>
+      </sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <standOff>
+    <listPerson xml:id="project_informants">
+      <person xml:id="spk_11">
+        <persName>Informant 0030</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_621">
+        <persName>Informant EXP6</persName>
+        <sex value="not provided"/>
+      </person>
+      <person xml:id="spk_13">
+        <persName>Informant 0032</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_618">
+        <persName>Informant EXP3</persName>
+        <sex value="male"/>
+      </person>
+      <person xml:id="spk_9">
+        <persName>Informant 0028</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_14">
+        <persName>Informant 0044</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_620">
+        <persName>Informant EXP5</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_10">
+        <persName>Informant 0029</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_100">
+        <persName>Informant 0216</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_39">
+        <persName>Informant 0071</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_619">
+        <persName>Informant EXP4</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_35">
+        <persName>Informant 0300 </persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_81">
+        <persName>Informant 0051</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_65">
+        <persName>Informant 0031</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_626">
+        <persName>Informant EXP11</persName>
+        <sex value="male"/>
+      </person>
+      <person xml:id="spk_144">
+        <persName>Informant 0220</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_53">
+        <persName>Informant 0302</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_66">
+        <persName>Informant 0033</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_55">
+        <persName>Informant 0304</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_70">
+        <persName>Informant 0037</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_69">
+        <persName>Informant 0036</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_201">
+        <persName>Informant 0440</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_67">
+        <persName>Informant 0034</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_349">
+        <persName>Informant 0441</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_88">
+        <persName>Informant 0503</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_89">
+        <persName>Informant 0504</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_21">
+        <persName>Informant 0052</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_91">
+        <persName>Informant 0506</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_128">
+        <persName>Informant 0527</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_126">
+        <persName>Informant 0525</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_45">
+        <persName>Informant 0206</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_41">
+        <persName>Informant 0202</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_46">
+        <persName>Informant 0207</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_50">
+        <persName>Informant 0211</persName>
+        <sex value="female"/>
+        <age>ungeeignet (Mindestanforderungen)</age>
+      </person>
+      <person xml:id="spk_44">
+        <persName>Informant 0205</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_125">
+        <persName>Informant 0219</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_307">
+        <persName>Informant 0262</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_105">
+        <persName>Informant 0511</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_304">
+        <persName>Informant 0532</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_118">
+        <persName>Informant 0514</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_624">
+        <persName>Informant EXP9</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_108">
+        <persName>Informant 0515</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_617">
+        <persName>Informant EXP2</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_112">
+        <persName>Informant 0522</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_117">
+        <persName>Informant 0524</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_163">
+        <persName>Informant 0531</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_257">
+        <persName>Informant 0535</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_253">
+        <persName>Informant 0536</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_138">
+        <persName>Informant 0471</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_177">
+        <persName>Informant 0473</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_140">
+        <persName>Informant 0474</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_178">
+        <persName>Informant 0478</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_320">
+        <persName>Informant 0479</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_152">
+        <persName>Informant 0228</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_291">
+        <persName>Informant 0259</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_158">
+        <persName>Informant 0234</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_161">
+        <persName>Informant 0237</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_289">
+        <persName>Informant 0257</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_164">
+        <persName>Informant 0239</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_165">
+        <persName>Informant 0240</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_286">
+        <persName>Informant 0254</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_174">
+        <persName>Informant 0243</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_287">
+        <persName>Informant 0258</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_242">
+        <persName>Informant 0245</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_113">
+        <persName>Informant 0607</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_115">
+        <persName>Informant 0604</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_142">
+        <persName>Informant 0611</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_296">
+        <persName>Informant 0646</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_159">
+        <persName>Informant 0235</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_629">
+        <persName>Informant EXP14</persName>
+        <sex value="male"/>
+      </person>
+      <person xml:id="spk_173">
+        <persName>Informant 0242</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_288">
+        <persName>Informant 0255</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_275">
+        <persName>Informant 0251</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_308">
+        <persName>Informant 0263</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_290">
+        <persName>Informant 0261</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_491">
+        <persName>Informant 0667</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_330">
+        <persName>Informant 0264</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_334">
+        <persName>Informant 0268</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_319">
+        <persName>Informant 0280</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_340">
+        <persName>Informant 0274</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_496">
+        <persName>Informant 0669</persName>
+        <sex value="female"/>
+        <age>ungeeignet (Mindestanforderungen)</age>
+      </person>
+      <person xml:id="spk_351">
+        <persName>Informant 0283</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_368">
+        <persName>Informant 0291</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_369">
+        <persName>Informant 0292</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_487">
+        <persName>Informant 0299</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_442">
+        <persName>Informant 0294</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_443">
+        <persName>Informant 0295</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_481">
+        <persName>Informant 0298</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_52">
+        <persName>Informant 0301</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_102">
+        <persName>Informant 0308</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_370">
+        <persName>Informant 0323</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_362">
+        <persName>Informant 0319</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_363">
+        <persName>Informant 0320</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_365">
+        <persName>Informant 0322</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_456">
+        <persName>Informant 0327</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_468">
+        <persName>Informant 0330</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_467">
+        <persName>Informant 0331</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_457">
+        <persName>Informant 0354</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_460">
+        <persName>Informant 0356</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_482">
+        <persName>Informant 0366</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_486">
+        <persName>Informant 0370</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_488">
+        <persName>Informant 0371</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_85">
+        <persName>Informant 0500</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_86">
+        <persName>Informant 0501</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_90">
+        <persName>Informant 0505</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_95">
+        <persName>Informant 0510</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_94">
+        <persName>Informant 0509</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_129">
+        <persName>Informant 0528</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_130">
+        <persName>Informant 0529</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_188">
+        <persName>Informant 0612</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_119">
+        <persName>Informant 0602</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_228">
+        <persName>Informant 0629</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_190">
+        <persName>Informant 0614</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_197">
+        <persName>Informant 0622</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_248">
+        <persName>Informant 0635</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_258">
+        <persName>Informant 0636</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_283">
+        <persName>Informant 0641</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_357">
+        <persName>Informant 0663</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_348">
+        <persName>Informant 0661</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_321">
+        <persName>Informant 0660</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_477">
+        <persName>Informant 0666</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_360">
+        <persName>Informant 0664</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_493">
+        <persName>Informant 0668</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_461">
+        <persName>Informant 0357</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_451">
+        <persName>Informant 0325</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_6">
+        <persName>Informant 0025</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_5">
+        <persName>Informant 0024</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_8">
+        <persName>Informant 0027</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_7">
+        <persName>Informant 0026</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_26">
+        <persName>Informant 0057</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_25">
+        <persName>Informant 0056</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_83">
+        <persName>Informant 0307</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_37">
+        <persName>Informant 0067</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_502">
+        <persName>Informant 0373</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_43">
+        <persName>Informant 0204</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_49">
+        <persName>Informant 0209</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_143">
+        <persName>Informant 0218</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_48">
+        <persName>Informant 0210</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_322">
+        <persName>Informant 0443</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_97">
+        <persName>Informant 0213</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_99">
+        <persName>Informant 0215</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_154">
+        <persName>Informant 0230</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_241">
+        <persName>Informant 0244</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_474">
+        <persName>Informant 0335</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_478">
+        <persName>Informant 0365</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_571">
+        <persName>Informant 0496</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_570">
+        <persName>Informant 0495</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_500">
+        <persName>Informant 0444</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_501">
+        <persName>Informant 0491</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_139">
+        <persName>Informant 0472</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_553">
+        <persName>Informant 0475</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_371">
+        <persName>Informant 0324</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_61">
+        <persName>Informant 0006</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_121">
+        <persName>Informant 0609</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_634">
+        <persName>Informant EXP19</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_743">
+        <persName>Informant BKMS405</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_736">
+        <persName>Informant BKMS401</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_737">
+        <persName>Informant BKMS401_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_744">
+        <persName>Informant BKMS405_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_200">
+        <persName>Informant 0624</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_747">
+        <persName>Informant BKMS408</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_749">
+        <persName>Informant BKMS409</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_751">
+        <persName>Informant BKMS410</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_632">
+        <persName>Informant EXP17</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_710">
+        <persName>Informant 4082</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_469">
+        <persName>Informant 0361</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_215">
+        <persName>Informant 0626</persName>
+        <sex value="male"/>
+        <age>ungeeignet (Mindestanforderungen)</age>
+      </person>
+      <person xml:id="spk_640">
+        <persName>Informant 4088_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_717">
+        <persName>Informant 4088</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_207">
+        <persName>Informant 0625</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_722">
+        <persName>Informant 4093</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_755">
+        <persName>Informant 4093_G</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_633">
+        <persName>Informant EXP18</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_720">
+        <persName>Informant 4091</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_721">
+        <persName>Informant 4092</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_642">
+        <persName>Informant 4089_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_718">
+        <persName>Informant 4089</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_731">
+        <persName>Informant 4101</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_243">
+        <persName>Informant 0630</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_475">
+        <persName>Informant 0363</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_753">
+        <persName>Informant BKMS412</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_740">
+        <persName>Informant BKMS402</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_741">
+        <persName>Informant BKMS403</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_742">
+        <persName>Informant BKMS403_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_650">
+        <persName>Informant 4099_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_728">
+        <persName>Informant 4099</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_734">
+        <persName>Informant 4104</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_453">
+        <persName>Informant 0350</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_732">
+        <persName>Informant 4102</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_483">
+        <persName>Informant 0367</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_274">
+        <persName>Informant 0537</persName>
+        <sex value="male"/>
+        <age>ungeeignet (Mindestanforderungen)</age>
+      </person>
+      <person xml:id="spk_285">
+        <persName>Informant 0643</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_199">
+        <persName>Informant 0623</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_738">
+        <persName>Informant BKMS404</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_746">
+        <persName>Informant BKMS407</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_682">
+        <persName>Informant 4066</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_735">
+        <persName>Informant 4066_G</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_627">
+        <persName>Informant EXP12</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_745">
+        <persName>Informant BKMS406</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_643">
+        <persName>Informant 4094_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_723">
+        <persName>Informant 4094</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_490">
+        <persName>Informant 0482</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_202">
+        <persName>Informant 0533</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_778">
+        <persName>Informant 4105</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_779">
+        <persName>Informant 4106</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_794">
+        <persName>Informant BKMS411</persName>
+        <sex value="male"/>
+      </person>
+      <person xml:id="spk_266">
+        <persName>Informant 0639</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_754">
+        <persName>Informant BKMS413</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_780">
+        <persName>Informant 4107</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_781">
+        <persName>Informant 4108</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_59">
+        <persName>Informant 0004</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_63">
+        <persName>Informant 0008</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_355">
+        <persName>Informant 0662</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_795">
+        <persName>Informant 4023</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_796">
+        <persName>Informant 4023_F</persName>
+        <sex value="male"/>
+      </person>
+      <person xml:id="spk_366">
+        <persName>Informant 0665</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_763">
+        <persName>Informant BKMS414</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_777">
+        <persName>Informant 4006</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_532">
+        <persName>Informant 0544</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_525">
+        <persName>Informant 0543</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_802">
+        <persName>Informant BKMS415</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_803">
+        <persName>Informant BKMS417</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_801">
+        <persName>Informant BKMS416</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_212">
+        <persName>Informant 4001</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_216">
+        <persName>Informant 4002</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_217">
+        <persName>Informant 4003</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_635">
+        <persName>Informant 4003_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_789">
+        <persName>Informant 4003_K</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_226">
+        <persName>Informant 4004</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_204">
+        <persName>Informant  4005</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_206">
+        <persName>Informant 4008</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_220">
+        <persName>Informant 4009</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_630">
+        <persName>Informant EXP15</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_221">
+        <persName>Informant 4010</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_205">
+        <persName>Informant  4011</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_208">
+        <persName>Informant 4012</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_222">
+        <persName>Informant 4013</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_213">
+        <persName>Informant 4014</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_223">
+        <persName>Informant 4015</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_224">
+        <persName>Informant 4016</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_175">
+        <persName>Informant 4017</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_790">
+        <persName>Informant 4017_G</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_636">
+        <persName>Informant 4017_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_229">
+        <persName>Informant 4018</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_792">
+        <persName>Informant 4018_G2</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_791">
+        <persName>Informant 4018_G1</persName>
+        <sex value="male"/>
+      </person>
+      <person xml:id="spk_230">
+        <persName>Informant 4019</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_231">
+        <persName>Informant 4020</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_240">
+        <persName>Informant 4021</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_232">
+        <persName>Informant 4022</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_651">
+        <persName>Informant 4022_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_235">
+        <persName>Informant 4024</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_234">
+        <persName>Informant 4025</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_209">
+        <persName>Informant  4026</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_210">
+        <persName>Informant 4027</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_211">
+        <persName>Informant 4028</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_236">
+        <persName>Informant 4029</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_225">
+        <persName>Informant 4030</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_237">
+        <persName>Informant 4031</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_238">
+        <persName>Informant 4032</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_239">
+        <persName>Informant 4033</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_657">
+        <persName>Informant 4034</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_644">
+        <persName>Informant 4034_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_659">
+        <persName>Informant 4036</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_214">
+        <persName>Informant 4037</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_638">
+        <persName>Informant 4037_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_660">
+        <persName>Informant 4038</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_661">
+        <persName>Informant 4039</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_662">
+        <persName>Informant 4040</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_663">
+        <persName>Informant 4041</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_664">
+        <persName>Informant 4042</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_665">
+        <persName>Informant 4043</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_666">
+        <persName>Informant 4044</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_667">
+        <persName>Informant 4045</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_689">
+        <persName>Informant 4046</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_668">
+        <persName>Informant 4047</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_669">
+        <persName>Informant 4048</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_647">
+        <persName>Informant 4048_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_670">
+        <persName>Informant 4049</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_690">
+        <persName>Informant 4050</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_691">
+        <persName>Informant 4051</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_692">
+        <persName>Informant 4052</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_671">
+        <persName>Informant 4053</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_639">
+        <persName>Informant 4053_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_674">
+        <persName>Informant 4054</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_694">
+        <persName>Informant 4055</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_676">
+        <persName>Informant 4056</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_695">
+        <persName>Informant 4057</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_699">
+        <persName>Informant 4067</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_696">
+        <persName>Informant 4058</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_677">
+        <persName>Informant 4059</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_748">
+        <persName>Informant 4059_G</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_678">
+        <persName>Informant 4060</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_679">
+        <persName>Informant 4061</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_680">
+        <persName>Informant 4062</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_697">
+        <persName>Informant 4063</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_698">
+        <persName>Informant 4064</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_700">
+        <persName>Informant 4068</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_683">
+        <persName>Informant 4069</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_684">
+        <persName>Informant 4070</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_685">
+        <persName>Informant 4071</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_686">
+        <persName>Informant 4072</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_687">
+        <persName>Informant 4073</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_701">
+        <persName>Informant 4074</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_702">
+        <persName>Informant 4075</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_703">
+        <persName>Informant 4076</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_704">
+        <persName>Informant 4077</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_705">
+        <persName>Informant 4078</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_706">
+        <persName>Informant 4079</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_645">
+        <persName>Informant 4079_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_708">
+        <persName>Informant 4080</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_709">
+        <persName>Informant 4081</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_646">
+        <persName>Informant 4081_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_631">
+        <persName>Informant EXP16</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_711">
+        <persName>Informant 4083</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_648">
+        <persName>Informant 4083_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_712">
+        <persName>Informant 4084</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_714">
+        <persName>Informant 4085</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_715">
+        <persName>Informant 4086</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_716">
+        <persName>Informant 4087</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_719">
+        <persName>Informant 4090</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_724">
+        <persName>Informant 4095</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_725">
+        <persName>Informant 4096</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_637">
+        <persName>Informant 4096_F</persName>
+        <sex value="female"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_726">
+        <persName>Informant 4097</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_727">
+        <persName>Informant 4098</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_729">
+        <persName>Informant 4100</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_641">
+        <persName>Informant 4100_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_649">
+        <persName>Informant 4103_F</persName>
+        <sex value="male"/>
+        <age>Unspezifisch</age>
+      </person>
+      <person xml:id="spk_652">
+        <persName>Informant 4103</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_219">
+        <persName>Informant 4007</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_498">
+        <persName>Informant 0337</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_361">
+        <persName>Informant 0318</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_804">
+        <persName>Informant BKMS418</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_799">
+        <persName>Informant EXP20</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_809">
+        <persName>Informant 4116</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_452">
+        <persName>Informant 0326</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_811">
+        <persName>Informant BKMS419</persName>
+        <sex value="male"/>
+        <age>alt (65+) männlich</age>
+      </person>
+      <person xml:id="spk_812">
+        <persName>Informant BKMS419_F</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_497">
+        <persName>Informant 0336</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_503">
+        <persName>Informant 0483</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_808">
+        <persName>Informant 4115</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_807">
+        <persName>Informant 4114</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_810">
+        <persName>Informant 4117</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_805">
+        <persName>Informant 4112</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_806">
+        <persName>Informant 4113</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_110">
+        <persName>Informant 0039</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_797">
+        <persName>Informant 4110</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_798">
+        <persName>Informant 4111</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_96">
+        <persName>Informant 0455</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_249">
+        <persName>Informant 0456</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_16">
+        <persName>Informant 0047</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_15">
+        <persName>Informant 0045</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_364">
+        <persName>Informant 0321</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_473">
+        <persName>Informant 0334</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_281">
+        <persName>Informant 0538</persName>
+        <sex value="female"/>
+        <age>ungeeignet (Mindestanforderungen)</age>
+      </person>
+      <person xml:id="spk_203">
+        <persName>Informant 0534</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_306">
+        <persName>Informant 0539</persName>
+        <sex value="female"/>
+        <age>ungeeignet (Mindestanforderungen)</age>
+      </person>
+      <person xml:id="spk_916">
+        <persName>Informant BKMS420</persName>
+        <sex value="female"/>
+        <age>alt (65+) weiblich</age>
+      </person>
+      <person xml:id="spk_218">
+        <persName>Informant 0627</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_264">
+        <persName>Informant 0637</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_245">
+        <persName>Informant 0632</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_373">
+        <persName>Informant 0540</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_292">
+        <persName>Informant 0260</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_261">
+        <persName>Informant 0250</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_545">
+        <persName>Informant 0545</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_494">
+        <persName>Informant 0541</persName>
+        <sex value="male"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_295">
+        <persName>Informant 0650</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_294">
+        <persName>Informant 0645</persName>
+        <sex value="female"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_917">
+        <persName>Informant BKMS421</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_918">
+        <persName>Informant BKMS421_F</persName>
+        <sex value="female"/>
+      </person>
+      <person xml:id="spk_131">
+        <persName>Informant 0530</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_127">
+        <persName>Informant 0526</persName>
+        <sex value="male"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_920">
+        <persName>Informant BKMS423</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_919">
+        <persName>Informant BKMS422</persName>
+        <sex value="female"/>
+        <age>jung (20-30) weiblich</age>
+      </person>
+      <person xml:id="spk_350">
+        <persName>Informant 0282</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_356">
+        <persName>Informant 0287</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_354">
+        <persName>Informant 0286</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_284">
+        <persName>Informant 0642</persName>
+        <sex value="male"/>
+        <age>jung (18-35) -matura</age>
+      </person>
+      <person xml:id="spk_353">
+        <persName>Informant 0285</persName>
+        <sex value="female"/>
+        <age>Alt (65+)</age>
+      </person>
+      <person xml:id="spk_921">
+        <persName>Informant BKMS_424</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+      <person xml:id="spk_92">
+        <persName>Informant 0507</persName>
+        <sex value="female"/>
+        <age>jung (18-35) +matura</age>
+      </person>
+      <person xml:id="spk_922">
+        <persName>Informant BKMS_425</persName>
+        <sex value="male"/>
+        <age>jung (20-30) männlich</age>
+      </person>
+    </listPerson>
+  </standOff>
+</TEI>

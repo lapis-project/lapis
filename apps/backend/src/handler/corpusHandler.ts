@@ -237,6 +237,8 @@ const corpus = new Hono<AppEnv>()
 			gender?: string;
 			comment_search?: string;
 			comment_search_mode?: "simple" | "regex";
+			transcript_name?: string;
+			instance_id?: number;
 		} = {};
 
 		if (rawQuery.age_lower) {
@@ -285,6 +287,18 @@ const corpus = new Hono<AppEnv>()
 		if (rawQuery.comment_search) {
 			filters.comment_search = rawQuery.comment_search;
 			filters.comment_search_mode = rawQuery.comment_search_mode === "regex" ? "regex" : "simple";
+		}
+
+		if (rawQuery.instance_id) {
+			const instance_id = Number(rawQuery.instance_id);
+			if (Number.isNaN(instance_id)) {
+				return c.json("Invalid standard_competence parameter", 400);
+			}
+			filters.instance_id = instance_id;
+		}
+
+		if (rawQuery.transcript_name) {
+			filters.transcript_name = rawQuery.transcript_name;
 		}
 
 		const response = await getAllTranscripts(parsedId, filters);

@@ -14,6 +14,8 @@ export async function getAllTranscripts(
 		gender?: string;
 		comment_search?: string;
 		comment_search_mode?: "simple" | "regex";
+		transcript_name?: string;
+		instance_id?: number;
 	},
 ) {
 	let query = db
@@ -61,6 +63,13 @@ export async function getAllTranscripts(
 			// Simple case-insensitive substring match
 			query = query.where("survey_conducted.comment", "ilike", `%${filters.comment_search}%`);
 		}
+	}
+	if (filters?.transcript_name) {
+		query = query.where("survey_conducted.comment", "ilike", `%${filters?.transcript_name}%`);
+	}
+
+	if (filters?.instance_id) {
+		query = query.where("survey_conducted.instance_id", "=", filters.instance_id);
 	}
 
 	return await query

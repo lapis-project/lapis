@@ -2,6 +2,7 @@
 import { X } from "@lucide/vue";
 
 import type { VariantGroup } from "@/composables/use-variant-groups";
+import { useMapDataset } from "@/stores/use-dataset-store";
 
 const open = defineModel<boolean>("open", { default: false });
 
@@ -17,13 +18,14 @@ const props = withDefaults(
 		side: "right",
 	},
 );
+const datasetId = useMapDataset(props.mapId);
 const {
 	countAnswersForQuestion,
 	countAnswersForGroups,
 	filterDataByQuestionAndVariant,
 	getNotationsForVariant,
 	getRegionalCooccurrencesForVariant,
-} = useQuestions();
+} = useQuestions(datasetId);
 const { getColorForGroup } = useColorStore();
 const { byGroup, groupDisplayLabel, normaliseGroups, groupsForMap } = useVariantGroups();
 const storedGroups = groupsForMap(props.mapId, () => props.activeQuestion);
@@ -118,7 +120,7 @@ const cooccurrences = computed(() => {
 });
 
 const colors = computed(() =>
-	byGroup(groups.value, (group) => getColorForGroup(props.activeQuestion, group)),
+	byGroup(groups.value, (group) => getColorForGroup(datasetId.value, props.activeQuestion, group)),
 );
 
 const tabItems = computed(() => [
@@ -200,6 +202,7 @@ const tabItems = computed(() => [
 					</VariantSelectionCard>
 					<VariantDistributionCard
 						v-model:mode="distributionMode"
+						:dataset-id="datasetId"
 						:question="activeQuestion"
 						:variants="selectedVariants"
 					>
@@ -215,6 +218,7 @@ const tabItems = computed(() => [
 					<RegionDistributionCard
 						v-model:mode="distributionMode"
 						:colors="colors"
+						:dataset-id="datasetId"
 						:groups="groups"
 						:question="activeQuestion"
 					>

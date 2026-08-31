@@ -2,6 +2,7 @@
 import type { VariantGroup } from "@/composables/use-variant-groups";
 
 const props = defineProps<{
+	datasetId: string;
 	question: string;
 	activeVariants: Array<string>;
 	groups: Array<VariantGroup>;
@@ -10,7 +11,7 @@ const props = defineProps<{
 const t = useTranslations();
 const { getColorForGroup } = useColorStore();
 const { groupDisplayLabel } = useVariantGroups();
-const { countAnswersForGroups } = useQuestions();
+const { countAnswersForGroups } = useQuestions(() => props.datasetId);
 
 const countByGroup = computed(() => countAnswersForGroups(props.question, props.groups));
 
@@ -51,7 +52,7 @@ const shownGroups = computed(() =>
 				<div class="flex min-w-0 items-center gap-2">
 					<div
 						class="size-2 shrink-0 rounded-full"
-						:style="{ backgroundColor: getColorForGroup(question, group) }"
+						:style="{ backgroundColor: getColorForGroup(datasetId, question, group) }"
 					></div>
 					<span class="truncate font-normal max-w-24">{{ groupDisplayLabel(group) }}</span>
 				</div>

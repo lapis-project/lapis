@@ -1,7 +1,7 @@
-import { assert } from "@acdh-oeaw/lib";
 import { defineStore } from "pinia";
 
 import type { VariantGroup } from "@/composables/use-variant-groups";
+import { datasetScopedKey } from "@/utils/dataset";
 
 export interface RegionPattern {
 	id: string;
@@ -98,28 +98,30 @@ export const useColorStore = defineStore("colors", () => {
 
 	const colors = ref<Record<string, Record<string, string>>>({});
 
-	function setDefaultColorsForQuestion(question: string, variants: Array<string>) {
-		if (!(question in colors.value)) colors.value[question] = {};
-		assert(colors.value[question] !== undefined);
-		variants.forEach((v, idx) => {
-			colors.value[question]![v] = palette[idx % palette.length]!;
-		});
+	function setDefaultColorsForQuestion(
+		datasetId: string,
+		question: string,
+		variants: Array<string>,
+	) {
+		colors.value[datasetScopedKey(datasetId, question)] = Object.fromEntries(
+			variants.map((v, idx) => [v, palette[idx % palette.length]!]),
+		);
 	}
 
-	function getColorForVariant(question: string, variant: string) {
-		return colors.value[question]?.[variant];
+	function getColorForVariant(datasetId: string, question: string, variant: string) {
+		return colors.value[datasetScopedKey(datasetId, question)]?.[variant];
 	}
 
-	function getColorsForQuestion(question: string) {
-		return colors.value[question];
+	function getColorsForQuestion(datasetId: string, question: string) {
+		return colors.value[datasetScopedKey(datasetId, question)];
 	}
 
-	function getColorForGroup(question: string, group: VariantGroup) {
-		return getColorForVariant(question, group.variants[0] ?? "") ?? "";
+	function getColorForGroup(datasetId: string, question: string, group: VariantGroup) {
+		return getColorForVariant(datasetId, question, group.variants[0] ?? "") ?? "";
 	}
 
-	function hasQuestion(question: string) {
-		return question in colors.value && colors.value[question] !== undefined;
+	function hasQuestion(datasetId: string, question: string) {
+		return colors.value[datasetScopedKey(datasetId, question)] !== undefined;
 	}
 
 	function getRegionPattern(region: string) {

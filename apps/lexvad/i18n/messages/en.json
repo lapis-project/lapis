@@ -24,6 +24,69 @@
 		"empty": "No {placeholder} found",
 		"search": "Search {placeholder}..."
 	},
+	"DatasetList": {
+		"title": "Stored datasets",
+		"description": "The datasets you uploaded in this browser.",
+		"empty": "No custom datasets uploaded yet.",
+		"variables": "{n} variable | {n} variables",
+		"show-on-map": "Show on map",
+		"remove": "Delete dataset"
+	},
+	"DatasetSwitcher": {
+		"label": "Dataset",
+		"pilot-dataset": "DWA pilot data",
+		"custom-badge": "Custom data",
+		"manage": "Manage custom data",
+		"entries": "{n} entry | {n} entries"
+	},
+	"DatasetUpload": {
+		"title": "Upload a file",
+		"description": "CSV, TSV, JSON or GeoJSON with one row per place and answer.",
+		"dropzone-label": "Drop a file here or select one",
+		"dropzone-description": "CSV, TSV, JSON or GeoJSON",
+		"download-example": "Download example file",
+		"reset": "Reset",
+		"no-column": "— no column —",
+		"mapping-title": "Map columns",
+		"mapping-description": "Read {rows} rows. Check the automatically detected mapping. Fields marked with * are required.",
+		"name": "Dataset name",
+		"name-placeholder": "e.g. Survey 2026",
+		"save": "Add dataset",
+		"saved": "“{name}” was saved",
+		"saved-hint": "The dataset can now be selected on the maps page.",
+		"limit": "At most {max} rows are imported.",
+		"region": "Dialectal region",
+		"outside": "outside the mapped area",
+		"summary": {
+			"imported": "Imported rows",
+			"variables": "Variables",
+			"variants": "Variants"
+		},
+		"warnings": {
+			"skipped-coordinates": "Skipped {count} rows without valid coordinates.",
+			"skipped-variable": "Skipped {count} rows without a variable.",
+			"skipped-variant": "Skipped {count} rows without a variant.",
+			"outside-regions": "{count} places lie outside the dialectal regions and are missing from the spatial patterns.",
+			"truncated": "{count} rows were not imported because of the row limit."
+		},
+		"errors": {
+			"title": "Please note",
+			"parse": "The file could not be read. CSV, TSV, JSON or GeoJSON with a header row is expected.",
+			"missing-fields": "Please map these fields as well: {fields}.",
+			"storage": "The dataset is too large for browser storage and is only available in this session."
+		},
+		"fields": {
+			"Item": "Variable",
+			"Benennungsvariante": "Variant",
+			"Latitude": "Latitude",
+			"Longitude": "Longitude",
+			"Ort": "Place",
+			"Variante": "Dialect form",
+			"Kreis": "District",
+			"Land": "Country",
+			"PLZ": "Postal code"
+		}
+	},
 	"DefaultLayout": {
 		"meta": {
 			"description": "Sample description",
@@ -40,6 +103,18 @@
 		},
 		"title": "Something went wrong!",
 		"go-to-home": "Return to homepage"
+	},
+	"ExperimentalPage": {
+		"meta": {
+			"title": "Custom data"
+		},
+		"title": "Custom data",
+		"badge": "Experimental",
+		"lead": "Upload your own survey data and explore it with the same maps and analyses as the pilot data.",
+		"notice": {
+			"title": "Experimental feature",
+			"text": "Your data stays in this browser and is never sent to a server. It is stored locally and is lost when you clear your browser data."
+		}
 	},
 	"HomePage": {
 		"meta": {

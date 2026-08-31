@@ -1,6 +1,6 @@
 <script setup lang="ts">
 interface MapTooltipProps {
-	entry?: PilotDataType;
+	entry?: LocatedEntry;
 }
 const props = defineProps<MapTooltipProps>();
 const multipleEntries = computed(() => (props.entry?.Variante?.split(";")?.length ?? 0) >= 3);

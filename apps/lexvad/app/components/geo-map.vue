@@ -69,7 +69,7 @@ interface TooltipState {
 	y: number;
 	name?: string;
 	variants?: Array<string>;
-	entry?: PilotDataType;
+	entry?: LocatedEntry;
 }
 const tooltip = ref<TooltipState | null>(null);
 
@@ -91,8 +91,8 @@ function createScatterplotLayer(minimal = false) {
 		getRadius: minimal ? 100 : 2000,
 		lineWidthMinPixels: 1,
 		pickable: !minimal,
-		radiusMaxPixels: Math.max(3, (3 * points.value.length) / 1000),
-		radiusMinPixels: minimal ? 0 : Math.max(1, points.value.length / 1000),
+		radiusMaxPixels: Math.max(8, (3 * points.value.length) / 1000),
+		radiusMinPixels: minimal ? 0 : Math.max(3, points.value.length / 1000),
 		stroked: !minimal,
 	});
 }
@@ -255,7 +255,7 @@ function createLayers() {
 function _joinEntries(entries: Array<GeoJSON.Feature>) {
 	const reducedEntries = entries.reduce(
 		(acc, current) => {
-			Object.entries(current.properties as PilotDataType).forEach((e) =>
+			Object.entries(current.properties as LocatedEntry).forEach((e) =>
 				acc[e[0]]?.push(...String(e[1]!).split("; ")),
 			);
 			return acc;
@@ -299,7 +299,7 @@ onMounted(() => {
 				tooltip.value = {
 					x,
 					y,
-					entry: _joinEntries(object.points) as unknown as PilotDataType,
+					entry: _joinEntries(object.points) as unknown as LocatedEntry,
 				};
 			} else {
 				tooltip.value = {

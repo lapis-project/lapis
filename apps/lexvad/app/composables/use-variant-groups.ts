@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 
+import { datasetScopedKey } from "@/utils/dataset";
+
 export interface VariantGroup {
 	id: string;
 	label?: string;
@@ -66,16 +68,21 @@ function countEntriesByGroup(
 }
 
 const useVariantGroupStore = defineStore("variantGroups", () => {
+	const datasetStore = useDatasetStore();
 	const groupsByMap = ref<Record<string, Record<string, Array<VariantGroup>>>>({});
+
+	function scopedKey(mapId: string, question: string) {
+		return datasetScopedKey(datasetStore.datasetForMap(mapId), question);
+	}
 
 	/** Empty for a map or question without a grouping, which reads as "nothing is grouped". */
 	function getGroupsForMap(mapId: string, question: string) {
-		return groupsByMap.value[mapId]?.[question] ?? [];
+		return groupsByMap.value[mapId]?.[scopedKey(mapId, question)] ?? [];
 	}
 
 	function setGroupsForMap(mapId: string, question: string, groups: Array<VariantGroup>) {
 		const groupsByQuestion = (groupsByMap.value[mapId] ??= {});
-		groupsByQuestion[question] = groups;
+		groupsByQuestion[scopedKey(mapId, question)] = groups;
 	}
 
 	return {

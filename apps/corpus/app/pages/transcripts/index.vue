@@ -28,8 +28,6 @@ const bookmarkedIds = ref<Array<string>>([]);
 const { response, isPending, refreshTranscripts } = useTranscripts(2);
 const { response: kwicResponse, search, status } = useSearchKwic();
 
-const transcriptName = ref("");
-
 const transcripts = computed(() => {
 	return response.value;
 });
@@ -107,11 +105,10 @@ const handleSearch = (category: "instance_id" | "transcript_name", value: string
 		refreshTranscripts({ instance_id: Number(value.trim()) });
 	}
 };
-function handleSelection(id: string, currentName: string) {
+function handleSelection(id: string) {
 	const current = currentSelectionArray.value;
 	if (current.includes(id)) return;
 
-	transcriptName.value = currentName;
 	router.push({ query: { ...route.query, selection: [...current, id] } });
 }
 
@@ -165,6 +162,8 @@ watch(
 			standard_competence: q.standard_competence ? [Number(q.standard_competence)] : undefined,
 			age_lower: q.age_lower ? [Number(q.age_lower)] : undefined,
 			age_upper: q.age_upper ? [Number(q.age_upper)] : undefined,
+			projects: q.projects ? q.projects : undefined,
+			settings: q.settings ? q.settings : undefined,
 			transcript_name: category != null && category === "transcript_name" ? q.search : undefined,
 			instance_id: category != null && category === "instance_id" ? Number(q.search) : undefined,
 		};
@@ -472,7 +471,7 @@ function copyKwicLine(line: KwicLine) {
 				class="transition p-4 border border-foreground/20 rounded-b-lg rounded-tr-lg flex flex-col overflow-hidden"
 				:class="{ 'opacity-0 pointer-events-none transition-all': !showThirdColumn }"
 			>
-				<TranscriptDemoSidebar :transcripts="transcripts ?? []" :transcript-name="transcriptName" />
+				<TranscriptDemoSidebar :transcripts="transcripts ?? []" />
 			</div>
 		</div>
 	</main>

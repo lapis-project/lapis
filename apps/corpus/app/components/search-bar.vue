@@ -32,7 +32,7 @@ watch(
 </script>
 
 <template>
-	<form class="flex gap-4 items-end flex-shrink-0" @submit.prevent="handleSearch">
+	<form class="flex gap-4 items-end flex-shrink-0">
 		<Label class="sr-only" for="search">Suche</Label>
 
 		<div class="grid grid-cols-[auto_1fr_auto] items-center gap-4">

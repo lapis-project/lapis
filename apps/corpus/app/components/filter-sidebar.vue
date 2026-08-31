@@ -2,7 +2,9 @@
 import { BookmarkIcon, FileText, Folder, FolderOpen, Undo2 } from "@lucide/vue";
 import { TreeItem, TreeRoot } from "reka-ui";
 
+import { usePlaces } from "#imports";
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
+import { useSettingsProjectsFilter } from "@/composables/use-settings-projects";
 import type { Transcript } from "@/pages/transcripts/[id].vue";
 
 const router = useRouter();
@@ -11,6 +13,9 @@ const route = useRoute();
 const props = defineProps<{
 	transcripts: Array<Transcript>;
 }>();
+
+const { response: filter, isPending: isLoading } = useSettingsProjectsFilter();
+const { response: places, isPending, hasError } = usePlaces(2);
 
 const emit = defineEmits(["closeFilterSidebar", "handleBookmark", "handleSelection"]);
 
@@ -31,28 +36,48 @@ const ageRange = computed(() => {
 	};
 });
 
-const projectOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "PP01", value: "PP01" },
-	{ label: "PP02", value: "PP02" },
-	{ label: "PP03", value: "PP03" },
-	{ label: "PP04", value: "PP04" },
-	{ label: "PP05", value: "PP05" },
-	{ label: "PP06", value: "PP06" },
-	{ label: "PP08", value: "PP08" },
-	{ label: "PP10", value: "PP10" },
-	{ label: "PP11", value: "PP11" },
-]);
+// const projectOptions = ref<Array<{ label: string; value: string }>>([
+// 	{ label: "PP01", value: "PP01" },
+// 	{ label: "PP02", value: "PP02" },
+// 	{ label: "PP03", value: "PP03" },
+// 	{ label: "PP04", value: "PP04" },
+// 	{ label: "PP05", value: "PP05" },
+// 	{ label: "PP06", value: "PP06" },
+// 	{ label: "PP08", value: "PP08" },
+// 	{ label: "PP10", value: "PP10" },
+// 	{ label: "PP11", value: "PP11" },
+// ]);
 
-const settingOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "Interview", value: "Interview" },
-	{ label: "Gespräch ohne Explorator/in", value: "Gespräch ohne Explorator/in" },
-	{ label: "Übersetzungen", value: "Übersetzungen" },
-	{ label: "Vorlesen", value: "Vorlesen" },
-	{ label: "Papier-Fragebogen", value: "Papier-Fragebogen" },
-	{ label: "Online-Fragebogen", value: "Online-Fragebogen" },
-	{ label: "Fragebuch", value: "Fragebuch" },
-	{ label: "Experimente (SPT und andere)", value: "Experimente (SPT und andere)" },
-]);
+// const settingOptions = ref<Array<{ label: string; value: string }>>([
+// 	{ label: "Interview", value: "Interview" },
+// 	{ label: "Gespräch ohne Explorator/in", value: "Gespräch ohne Explorator/in" },
+// 	{ label: "Übersetzungen", value: "Übersetzungen" },
+// 	{ label: "Vorlesen", value: "Vorlesen" },
+// 	{ label: "Papier-Fragebogen", value: "Papier-Fragebogen" },
+// 	{ label: "Online-Fragebogen", value: "Online-Fragebogen" },
+// 	{ label: "Fragebuch", value: "Fragebuch" },
+// 	{ label: "Experimente (SPT und andere)", value: "Experimente (SPT und andere)" },
+// ]);
+
+const projectOptions = computed<Array<{ label: string; value: string }>>(() => {
+	return (filter.value?.projects ?? [])
+		.filter((project) => project.name != null)
+		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
+		.map((project) => ({
+			label: project.name!,
+			value: project.name!,
+		}));
+});
+
+const settingOptions = computed<Array<{ label: string; value: string }>>(() => {
+	return (filter.value?.settings ?? [])
+		.filter((setting) => setting.name != null)
+		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
+		.map((setting) => ({
+			label: setting.name!,
+			value: setting.name!,
+		}));
+});
 
 const ageGroupOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "18-35", value: "18-35" },
@@ -64,14 +89,15 @@ const genderOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Weiblich", value: "weiblich" },
 ]);
 
-const locationOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "Wien", value: "wien" },
-	{ label: "Graz", value: "graz" },
-	{ label: "Innsbruck", value: "innsbruck" },
-	{ label: "Linz", value: "linz" },
-	{ label: "Eisenstadt", value: "eisenstadt" },
-	{ label: "St. Pölten", value: "stpoelten" },
-]);
+const locationOptions = computed<Array<{ label: string; value: string }>>(() => {
+	return (places.value ?? [])
+		.filter((place) => place.place_name != null)
+		.toSorted((a, b) => a.place_name!.localeCompare(b.place_name!, "de"))
+		.map((place) => ({
+			label: place.place_name!,
+			value: place.place_name!,
+		}));
+});
 
 const dialectCompetenceEnabled = ref(false);
 const dialectCompetenceValue = ref<number[] | null>(null);
@@ -265,7 +291,6 @@ watch(
 								v-model="activeContext"
 								:options="projectOptions"
 								placeholder="Projektkontext wählen..."
-								:multiple="true"
 							></BaseSelect>
 							<Button size="icon" variant="outline" @click="activeContext = null"
 								><Undo2 class="size-4"

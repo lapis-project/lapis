@@ -6,10 +6,6 @@ const router = useRouter();
 
 const currentId = ref<number | null>(null);
 
-const props = defineProps<{
-	transcriptName: string;
-}>();
-
 const { response, isPending, refreshTranscripts } = useTranscriptPreview(currentId);
 
 const transcriptMetadata = computed(() => {
@@ -48,7 +44,7 @@ watch(
 	</div>
 	<div v-else>
 		<div class="mb-5 pb-3 border-b flex gap-2 items-end flex-shrink-0 overflow-x-auto">
-			<div v-for="item in transcriptMetadata" :key="item">
+			<div v-for="item in transcriptMetadata" :key="item.instance_id">
 				<div
 					:class="
 						currentId
@@ -57,7 +53,7 @@ watch(
 					"
 				>
 					<Button class="h-full m-0 size-fit cursor-pointer" size="icon" variant="transparent">
-						Transcript {{ props.transcriptName }}
+						Transcript {{ item.transcript_name }}
 					</Button>
 					<Button
 						class="h-full m-0 size-fit cursor-pointer"
@@ -93,9 +89,9 @@ watch(
 			</div>
 			<TabsContent class="p-4 text-sm text-muted-foreground space-y-2" value="info">
 				<div v-if="transcriptMetadata != null">
-					<div class="space-y-2" v-for="item in transcriptMetadata" :key="item">
+					<div class="space-y-2" v-for="item in transcriptMetadata" :key="item.instance_id">
 						<h2 class="text-lg font-semibold text-foreground">
-							Transcript {{ props.transcriptName }}
+							Transcript {{ item.transcript_name }}
 						</h2>
 						<ul class="space-y-3">
 							<li>

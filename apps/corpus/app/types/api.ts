@@ -8,11 +8,19 @@ export type APITranscriptsWithBookmark = (APITranscripts[number] & { bookmarked:
 type ExcludeStrings<T> = T extends string ? never : T;
 
 export type APITranscript = ExcludeStrings<
-	InferResponseType<ApiClient["corpus"]["transcript"][":id"][":format"]["$get"], 200>
+	InferResponseType<ApiClient["corpus"]["transcript"][":transcript_id"][":format"]["$get"], 200>
+>;
+
+export type APIPlaces = ExcludeStrings<
+	InferResponseType<ApiClient["corpus"]["place"][":id"]["$get"], 200>
+>;
+
+export type APIFilter = ExcludeStrings<
+	InferResponseType<ApiClient["corpus"]["filters"]["$get"], 200>
 >;
 
 export type TranscriptPreviewResponse = InferResponseType<
-	ApiClient["corpus"]["preview"][":id"]["$get"],
+	ApiClient["corpus"]["preview"][":transcript_id"]["$get"],
 	200
 >;
 
@@ -59,6 +67,8 @@ export interface TranscriptFilters {
 	gender?: string;
 	comment_search?: string;
 	comment_search_mode?: "simple" | "regex";
+	projects: Array<string>;
+	settings: Array<string>;
 	transcript_name?: string;
 	instance_id?: number;
 }

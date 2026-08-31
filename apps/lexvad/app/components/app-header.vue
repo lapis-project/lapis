@@ -7,6 +7,11 @@ const links = computed(() => {
 		{ to: "/", label: t("AppHeader.links.home"), class: "lg:hidden uppercase text-foreground" },
 		{ to: "/about", label: "Über das Projekt", class: "uppercase text-foreground" },
 		{ to: "/map", label: "Kartierung", class: "uppercase text-foreground" },
+		{
+			to: "/custom-data",
+			label: t("ExperimentalPage.title"),
+			class: "uppercase text-foreground",
+		},
 	];
 });
 </script>

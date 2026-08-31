@@ -2,6 +2,7 @@
 import type { VariantGroup } from "@/composables/use-variant-groups";
 
 const props = defineProps<{
+	datasetId: string;
 	question: string;
 	colors: Record<string, string>;
 	groups: Array<VariantGroup>;
@@ -9,7 +10,7 @@ const props = defineProps<{
 
 const t = useTranslations();
 const { byGroup, groupDisplayLabel } = useVariantGroups();
-const { getVariantsForRegion, allRegions, allBundeslaender } = useQuestions();
+const { getVariantsForRegion, allRegions, allBundeslaender } = useQuestions(() => props.datasetId);
 const mode = defineModel<"region" | "bundesland">("mode", { default: "region" });
 
 const labelById = computed(() => byGroup(props.groups, groupDisplayLabel));
@@ -19,7 +20,7 @@ function labelFor(id: string) {
 }
 
 const data = computed(() => {
-	const keys = mode.value === "region" ? allRegions : allBundeslaender;
+	const keys = mode.value === "region" ? allRegions.value : allBundeslaender.value;
 	return keys.map((label) => ({
 		label,
 		entries: Object.entries(

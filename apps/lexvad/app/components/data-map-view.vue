@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { X } from "@lucide/vue";
 
-type MapPosition = "left" | "right";
+const positions = ["left", "right"] as const;
+
+type MapPosition = (typeof positions)[number];
 
 interface SidebarState {
 	open: boolean;
@@ -10,28 +12,43 @@ interface SidebarState {
 }
 
 const t = useTranslations();
-const { allQuestions, getValuesForQuestion } = useQuestions();
+const datasetStore = useDatasetStore();
+const route = useRoute();
+
+const questions: Record<MapPosition, ReturnType<typeof useQuestions>> = {
+	left: useQuestions(() => datasetStore.datasetForMap("left")),
+	right: useQuestions(() => datasetStore.datasetForMap("right")),
+};
 
 const splitMode = ref(false);
 
-function createSidebarState(): SidebarState {
-	const question = allQuestions[0] ?? "Gießkanne";
+function defaultVariant(position: MapPosition, question: string) {
+	return questions[position].getValuesForQuestion(question)[0] ?? "";
+}
+
+function createSidebarState(position: MapPosition): SidebarState {
+	const question = questions[position].allQuestions.value[0] ?? "";
 	return {
 		open: false,
 		question,
-		variant: getValuesForQuestion(question)[0] ?? "",
+		variant: defaultVariant(position, question),
 	};
 }
 
+watchEffect(() => {
+	const id = route.query.dataset;
+	if (typeof id === "string") datasetStore.setDatasetForMap("left", id);
+});
+
 const sidebars = ref<Record<MapPosition, SidebarState>>({
-	left: createSidebarState(),
-	right: createSidebarState(),
+	left: createSidebarState("left"),
+	right: createSidebarState("right"),
 });
 
 function updateSidebar(position: MapPosition, question: string | null, variant?: string) {
 	const sidebar = sidebars.value[position];
 	const selectedQuestion = question ?? sidebar.question;
-	const selectedVariant = variant ?? getValuesForQuestion(selectedQuestion)[0] ?? "";
+	const selectedVariant = variant ?? defaultVariant(position, selectedQuestion);
 	if (!sidebar.open) {
 		sidebar.question = selectedQuestion;
 		sidebar.variant = selectedVariant;
@@ -51,13 +68,21 @@ function closeSplitMode() {
 	sidebars.value.right.open = false;
 }
 
-watch(
-	() => [sidebars.value.left.question, sidebars.value.right.question],
-	() => {
-		sidebars.value.left.variant = getValuesForQuestion(sidebars.value.left.question)[0] ?? "";
-		sidebars.value.right.variant = getValuesForQuestion(sidebars.value.right.question)[0] ?? "";
-	},
-);
+positions.forEach((position) => {
+	watch(
+		() => datasetStore.datasetForMap(position),
+		() => {
+			sidebars.value[position] = createSidebarState(position);
+		},
+	);
+
+	watch(
+		() => sidebars.value[position].question,
+		(question) => {
+			sidebars.value[position].variant = defaultVariant(position, question);
+		},
+	);
+});
 </script>
 
 <template>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const props = defineProps<{
+	datasetId: string;
 	question: string;
 	variants: Array<string>;
 }>();
 
 const t = useTranslations();
-const { getRegionsForVariant } = useQuestions();
+const { getRegionsForVariant } = useQuestions(() => props.datasetId);
 const mode = defineModel<"region" | "bundesland">("mode", { default: "region" });
 
 const modeItems = computed(() => [
@@ -36,7 +37,7 @@ const mapData = computed(() =>
 );
 
 const mapColor = computed(
-	() => getColorForVariant(props.question, props.variants[0] ?? "") ?? "#000000",
+	() => getColorForVariant(props.datasetId, props.question, props.variants[0] ?? "") ?? "#000000",
 );
 </script>
 

@@ -7,6 +7,8 @@ import {
 	SquareSplitHorizontalIcon,
 } from "@lucide/vue";
 
+import { useMapDataset } from "@/stores/use-dataset-store";
+
 const props = withDefaults(
 	defineProps<{
 		mapId: string;
@@ -25,12 +27,15 @@ const emit = defineEmits<{
 const t = useTranslations();
 const { setDefaultColorsForQuestion, hasQuestion, getColorForGroup } = useColorStore();
 const { byVariant, normaliseGroups, groupsForMap } = useVariantGroups();
+const datasetStore = useDatasetStore();
+const datasetId = useMapDataset(props.mapId);
 
 const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
-const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } = useQuestions();
+const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } =
+	useQuestions(datasetId);
 
 const mappedQuestions = computed(() => {
-	return allQuestions.map((q) => ({ label: q, value: q }));
+	return allQuestions.value.map((q) => ({ label: q, value: q }));
 });
 const uniqueVariants = computed(() => {
 	return countAnswersForQuestion(activeQuestion.value)
@@ -53,27 +58,28 @@ const variantGroups = computed(() =>
 );
 
 const variantColors = computed(() =>
-	byVariant(variantGroups.value, (group) => getColorForGroup(activeQuestion.value, group)),
+	byVariant(variantGroups.value, (group) =>
+		getColorForGroup(datasetId.value, activeQuestion.value, group),
+	),
 );
 
 function resetSelection() {
 	activeVariants.value = [];
 }
 
-onMounted(() => {
-	if (activeQuestion.value && !hasQuestion(activeQuestion.value))
+function ensureColors() {
+	if (activeQuestion.value && !hasQuestion(datasetId.value, activeQuestion.value))
 		setDefaultColorsForQuestion(
+			datasetId.value,
 			activeQuestion.value,
 			uniqueVariants.value.map((v) => v.label),
 		);
-});
+}
 
-watch(activeQuestion, () => {
-	if (activeQuestion.value && !hasQuestion(activeQuestion.value))
-		setDefaultColorsForQuestion(
-			activeQuestion.value,
-			uniqueVariants.value.map((v) => v.label),
-		);
+onMounted(ensureColors);
+
+watch([activeQuestion, datasetId], () => {
+	ensureColors();
 	activeVariants.value = [];
 });
 
@@ -106,6 +112,11 @@ const data = computed(() => {
 	<div class="relative flex flex-col gap-5">
 		<div class="flex gap-2">
 			<div class="grow min-w-0 rounded-lg border p-5 max-w-full">
+				<DatasetSwitcher
+					v-if="datasetStore.hasCustomDatasets"
+					class="pb-5 mb-5 border-b border-muted"
+					:map-id="mapId"
+				></DatasetSwitcher>
 				<div class="flex gap-5 pb-5 border-b border-muted max-w-full flex-wrap">
 					<div id="phenomenon" class="w-full flex-1">
 						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold text-muted-foreground">
@@ -222,6 +233,7 @@ const data = computed(() => {
 				id="variantLegend"
 				:active-variants="activeVariants"
 				class="absolute bottom-4 right-0 z-10 mr-4 max-h-[70%] overflow-y-auto"
+				:dataset-id="datasetId"
 				:groups="variantGroups"
 				:question="activeQuestion"
 			/>

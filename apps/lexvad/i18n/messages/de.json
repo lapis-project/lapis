@@ -24,6 +24,69 @@
 		"empty": "Keine {placeholder} gefunden",
 		"search": "{placeholder} suchen..."
 	},
+	"DatasetList": {
+		"title": "Gespeicherte Datensätze",
+		"description": "Ihre hochgeladenen Datensätze in diesem Browser.",
+		"empty": "Noch keine eigenen Datensätze hochgeladen.",
+		"variables": "{n} Variable | {n} Variablen",
+		"show-on-map": "Auf Karte anzeigen",
+		"remove": "Datensatz löschen"
+	},
+	"DatasetSwitcher": {
+		"label": "Datensatz",
+		"pilot-dataset": "DWA-Pilotdaten",
+		"custom-badge": "Eigene Daten",
+		"manage": "Eigene Daten verwalten",
+		"entries": "{n} Eintrag | {n} Einträge"
+	},
+	"DatasetUpload": {
+		"title": "Datei hochladen",
+		"description": "CSV, TSV, JSON oder GeoJSON mit einer Zeile pro Ort und Antwort.",
+		"dropzone-label": "Datei hierher ziehen oder auswählen",
+		"dropzone-description": "CSV, TSV, JSON oder GeoJSON",
+		"download-example": "Beispieldatei herunterladen",
+		"reset": "Zurücksetzen",
+		"no-column": "— keine Spalte —",
+		"mapping-title": "Spalten zuordnen",
+		"mapping-description": "{rows} Zeilen gelesen. Prüfen Sie die automatisch erkannte Zuordnung. Mit * markierte Felder sind erforderlich.",
+		"name": "Name des Datensatzes",
+		"name-placeholder": "z. B. Erhebung 2026",
+		"save": "Datensatz übernehmen",
+		"saved": "„{name}“ wurde gespeichert",
+		"saved-hint": "Der Datensatz steht jetzt auf der Kartierungsseite zur Auswahl.",
+		"limit": "Es werden maximal {max} Zeilen übernommen.",
+		"region": "Dialektregion",
+		"outside": "außerhalb des Kartenausschnitts",
+		"summary": {
+			"imported": "Übernommene Zeilen",
+			"variables": "Variablen",
+			"variants": "Varianten"
+		},
+		"warnings": {
+			"skipped-coordinates": "{count} Zeilen ohne gültige Koordinaten übersprungen.",
+			"skipped-variable": "{count} Zeilen ohne Variable übersprungen.",
+			"skipped-variant": "{count} Zeilen ohne Variante übersprungen.",
+			"outside-regions": "{count} Orte liegen außerhalb der Dialektregionen und fehlen in den Raumbildern.",
+			"truncated": "{count} Zeilen wurden wegen des Zeilenlimits nicht übernommen."
+		},
+		"errors": {
+			"title": "Hinweis",
+			"parse": "Die Datei konnte nicht gelesen werden. Erwartet werden CSV, TSV, JSON oder GeoJSON mit Kopfzeile.",
+			"missing-fields": "Bitte ordnen Sie noch folgende Felder zu: {fields}.",
+			"storage": "Der Datensatz ist zu groß für den Browserspeicher und steht nur in dieser Sitzung zur Verfügung."
+		},
+		"fields": {
+			"Item": "Variable",
+			"Benennungsvariante": "Benennungsvariante",
+			"Latitude": "Breitengrad",
+			"Longitude": "Längengrad",
+			"Ort": "Ort",
+			"Variante": "Dialektform",
+			"Kreis": "Kreis",
+			"Land": "Land",
+			"PLZ": "PLZ"
+		}
+	},
 	"DefaultLayout": {
 		"meta": {
 			"description": "Sample description",
@@ -40,6 +103,18 @@
 		},
 		"title": "Etwas ist schief gelaufen!",
 		"go-to-home": "Zur Startseite"
+	},
+	"ExperimentalPage": {
+		"meta": {
+			"title": "Eigene Daten"
+		},
+		"title": "Eigene Daten",
+		"badge": "Experimentell",
+		"lead": "Laden Sie eigene Erhebungsdaten hoch und zeigen Sie sie mit denselben Karten und Auswertungen wie die Pilotdaten an.",
+		"notice": {
+			"title": "Experimentelle Funktion",
+			"text": "Ihre Daten bleiben in diesem Browser und werden nicht an einen Server übertragen. Sie werden lokal gespeichert und gehen verloren, wenn Sie die Browserdaten löschen."
+		}
 	},
 	"HomePage": {
 		"meta": {

@@ -160,7 +160,6 @@ watch(
 
 		const filters: TranscriptFilters = {
 			loc_name: asArray(q.locations),
-			first_languages: asArray(q.first_languages),
 			gender: q.gender ? asArray(q.gender) : undefined,
 			dialect_competence: q.dialect_competence ? [Number(q.dialect_competence)] : undefined,
 			standard_competence: q.standard_competence ? [Number(q.standard_competence)] : undefined,
@@ -179,16 +178,13 @@ watch(
 			return true;
 		});
 
-		if (hasSearchFilters) {
-			await refreshTranscripts(filters);
-		}
+		await refreshTranscripts(hasSearchFilters ? filters : undefined);
 
 		const word = q.word ? String(q.word).trim() : "";
 		const lemma = q.lemma ? String(q.lemma).trim() : "";
 		const feats = q.feats ? String(q.feats).trim() : "";
 		const cql = q.query ? String(q.query).trim() : "";
 
-		// Backend requires an actual search term
 		const canSearchKwic = word.length > 0 || lemma.length > 0 || feats.length > 0 || cql.length > 0;
 
 		if (!canSearchKwic) {
@@ -213,8 +209,6 @@ watch(
 			settings: asArray(q.settings),
 
 			locations: asArray(q.locations),
-
-			first_languages: asArray(q.first_languages),
 
 			gender: q.gender as string,
 
@@ -328,12 +322,12 @@ function copyKwicLine(line: KwicLine) {
 							><Download class="size-4"
 						/></Button>
 					</div>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="plain">
+					<TabsContent class="flex-grow overflow-y-auto h-full" value="plain">
 						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						<div v-if="isPending" class="item-center m-auto">
+						<div v-if="isPending" class="item-center m-auto h-full">
 							<Spinner />
 						</div>
-						<div v-else>
+						<div v-if="!isPending && transcripts != null && transcripts.length > 0">
 							<p class="text-lg mb-3 flex-shrink-0">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
@@ -362,6 +356,9 @@ function copyKwicLine(line: KwicLine) {
 									</div>
 								</div>
 							</div>
+						</div>
+						<div v-else class="text-md text-muted-foreground justify-center flex m-auto h-full">
+							Keine Ergebnisse vorhanden.
 						</div>
 					</TabsContent>
 					<TabsContent class="flex flex-col flex-grow min-h-0" value="kwic">

@@ -16,7 +16,6 @@ const emit = defineEmits(["closeFilterSidebar", "handleBookmark", "handleSelecti
 
 const activeContext = ref<string | null>(null);
 const activeAgeGroup = ref<string | null>(null);
-const activeFirstLanguage = ref<string | null>(null);
 const activeGender = ref<string | null>(null);
 const activeSetting = ref<string | null>(null);
 const activeLocation = ref<string | null>(null);
@@ -63,15 +62,6 @@ const ageGroupOptions = ref<Array<{ label: string; value: string }>>([
 const genderOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Männlich", value: "männlich" },
 	{ label: "Weiblich", value: "weiblich" },
-]);
-
-const languageOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "Deutsch", value: "german" },
-	{ label: "Englisch", value: "english" },
-	{ label: "Spanisch", value: "spanish" },
-	{ label: "Französisch", value: "french" },
-	{ label: "Russisch", value: "russian" },
-	{ label: "Polnisch", value: "polish" },
 ]);
 
 const locationOptions = ref<Array<{ label: string; value: string }>>([
@@ -174,7 +164,6 @@ watch(
 		activeSetting,
 		activeAgeGroup,
 		activeLocation,
-		activeFirstLanguage,
 		activeGender,
 		dialectCompetenceValue,
 		standardCompetenceValue,
@@ -189,8 +178,6 @@ watch(
 				settings: activeSetting.value ? [activeSetting.value] : undefined,
 
 				locations: activeLocation.value ? [activeLocation.value] : undefined,
-
-				first_languages: activeFirstLanguage.value ? [activeFirstLanguage.value] : undefined,
 
 				gender: activeGender.value || undefined,
 
@@ -328,20 +315,6 @@ watch(
 							/></Button>
 						</div>
 					</div>
-					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="first-languaage">Erstprache</Label>
-						<div class="flex gap-2">
-							<BaseSelect
-								id="first-languaage"
-								v-model="activeFirstLanguage"
-								:options="languageOptions"
-								placeholder="Erstprache wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeFirstLanguage = null"
-								><Undo2 class="size-4"
-							/></Button>
-						</div>
-					</div>
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
 							<span class="flex-row flex gap-1">
@@ -366,7 +339,7 @@ watch(
 								<CollapsibleContent
 									class="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:mt-3"
 								>
-									<div class="flex flex-row gap-4">
+									<div class="flex flex-row my-2.5 mx-1.5">
 										<Slider v-model="standardCompetenceValue" :max="7" :min="1" :step="1" />
 									</div>
 								</CollapsibleContent>
@@ -397,7 +370,7 @@ watch(
 								<CollapsibleContent
 									class="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:mt-3"
 								>
-									<div class="flex flex-row gap-4">
+									<div class="flex flex-row my-2.5 mx-1.5">
 										<Slider v-model="dialectCompetenceValue" :max="7" :min="1" :step="1" />
 									</div>
 								</CollapsibleContent>

@@ -61,8 +61,8 @@ const ageGroupOptions = ref<Array<{ label: string; value: string }>>([
 ]);
 
 const genderOptions = ref<Array<{ label: string; value: string }>>([
-	{ label: "Männlich", value: "male" },
-	{ label: "Weiblich", value: "female" },
+	{ label: "Männlich", value: "männlich" },
+	{ label: "Weiblich", value: "weiblich" },
 ]);
 
 const languageOptions = ref<Array<{ label: string; value: string }>>([
@@ -278,6 +278,7 @@ watch(
 								v-model="activeContext"
 								:options="projectOptions"
 								placeholder="Projektkontext wählen..."
+								:multiple="true"
 							></BaseSelect>
 							<Button size="icon" variant="outline" @click="activeContext = null"
 								><Undo2 class="size-4"

@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 
-import type { APITranscriptsWithBookmark, APITranscripts } from "@/types/api";
+import type { APITranscriptsWithBookmark, APITranscripts, TranscriptFilters } from "@/types/api";
 
 export function useTranscripts(projectId: number) {
 	const env = useRuntimeConfig();
@@ -8,14 +8,14 @@ export function useTranscripts(projectId: number) {
 	const response = ref<APITranscriptsWithBookmark | null>(null);
 	const status = ref<"pending" | "success" | "error">("pending");
 
-	const load = async () => {
+	const load = async (filters?: TranscriptFilters) => {
 		status.value = "pending";
 		try {
-			console.log("API BASE URL:", env.public.apiBaseUrl);
 			const { data, error } = await useFetch<APITranscripts>(`/corpus/corpus/${projectId}`, {
 				baseURL: env.public.apiBaseUrl,
 				method: "GET",
 				credentials: "include",
+				query: filters,
 			});
 
 			if (error.value) {
@@ -25,7 +25,7 @@ export function useTranscripts(projectId: number) {
 			}
 
 			// oxlint-disable-next-line eslint/no-console -- Useful development output
-			console.log("endpoint, corpus: ", data.value);
+			console.log("endpoint, corpus: ", data.value, "with filters: ", filters);
 
 			response.value = (data.value ?? []).map((item) => ({
 				...item,

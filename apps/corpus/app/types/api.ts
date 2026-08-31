@@ -49,3 +49,16 @@ export interface EventToken {
 	text: string | null;
 	hasTags: boolean;
 }
+
+export interface TranscriptFilters {
+	age_lower?: number;
+	age_upper?: number;
+	loc_name?: string;
+	dialect_competence?: number;
+	standard_competence?: number;
+	gender?: string;
+	comment_search?: string;
+	comment_search_mode?: "simple" | "regex";
+	transcript_name?: string;
+	instance_id?: number;
+}

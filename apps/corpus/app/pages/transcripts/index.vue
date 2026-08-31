@@ -1,10 +1,17 @@
 <script lang="ts" setup>
+import type { StringifyOptions } from "node:querystring";
+
 import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 import { useSearchKwic } from "#imports";
 import initialData from "@/assets/data/transcripts-demo.json";
-import type { APITranscript, APITranscriptsWithBookmark, KwicLine } from "@/types/api";
+import type {
+	APITranscript,
+	APITranscriptsWithBookmark,
+	KwicLine,
+	TranscriptFilters,
+} from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
@@ -20,6 +27,8 @@ const bookmarkedIds = ref<Array<string>>([]);
 
 const { response, isPending, refreshTranscripts } = useTranscripts(2);
 const { response: kwicResponse, search, status } = useSearchKwic();
+
+const transcriptName = "";
 
 const transcripts = computed(() => {
 	return response.value;
@@ -86,6 +95,18 @@ const currentSelectionArray = computed(() => {
 			: [];
 });
 
+const handleSearch = (category: "instance_id" | "transcript_name", value: string) => {
+	if (!value.trim()) {
+		refreshTranscripts();
+		return;
+	}
+	if (category === "transcript_name") {
+		refreshTranscripts({ transcript_name: value.trim() });
+	}
+	if (category === "instance_id") {
+		refreshTranscripts({ instance_id: Number(value.trim()) });
+	}
+};
 function handleSelection(id: string) {
 	const current = currentSelectionArray.value;
 	if (current.includes(id)) return;
@@ -134,6 +155,35 @@ watch(
 watch(
 	() => route.query,
 	async (q) => {
+		const category = q.category as string;
+
+		const filters: TranscriptFilters = {
+			loc_name: asArray(q.locations),
+			first_languages: asArray(q.first_languages),
+			gender: q.gender ? asArray(q.gender) : undefined,
+			dialect_competence: q.dialect_competence ? [Number(q.dialect_competence)] : undefined,
+			standard_competence: q.standard_competence ? [Number(q.standard_competence)] : undefined,
+			age_lower: q.age_lower ? [Number(q.age_lower)] : undefined,
+			age_upper: q.age_upper ? [Number(q.age_upper)] : undefined,
+			transcript_name: category != null && category === "transcript_name" ? q.search : undefined,
+			instance_id: category != null && category === "instance_id" ? Number(q.search) : undefined,
+		};
+		const hasSearchFilters = Object.values(filters).some((value) => {
+			if (value === undefined || value === null) {
+				return false;
+			}
+			if (Array.isArray(value)) {
+				return value.length > 0;
+			}
+			return true;
+		});
+
+		if (hasSearchFilters) {
+			await refreshTranscripts(filters);
+		}
+
+		if (q.word == null || q.lemma == null || q.pos == null || q.feats == null) return;
+
 		const hasFilters =
 			q.word ||
 			q.query ||
@@ -151,8 +201,6 @@ watch(
 			q.age_upper;
 
 		if (!hasFilters) return;
-
-		activeTab.value = "kwic";
 
 		await search({
 			word: q.word as string,
@@ -194,7 +242,6 @@ watch(
 
 function asArray(v: unknown): string[] | undefined {
 	if (v == null) return undefined;
-	console.log(v);
 	return Array.isArray(v) ? v.map(String) : [String(v)];
 }
 
@@ -309,7 +356,7 @@ function copyKwicLine(line: KwicLine) {
 										@click="handleSelection(String(result.instance_id))"
 									>
 										<span class="sr-only"> Open Sidebar Demo </span>
-										Transcript {{ result.instance_id }}
+										Transcript {{ result.transcript_name }}
 									</Button>
 									<div class="w-full flex justify-end">
 										<Button
@@ -435,7 +482,7 @@ function copyKwicLine(line: KwicLine) {
 				class="transition p-4 border border-foreground/20 rounded-b-lg rounded-tr-lg flex flex-col overflow-hidden"
 				:class="{ 'opacity-0 pointer-events-none transition-all': !showThirdColumn }"
 			>
-				<TranscriptDemoSidebar :transcripts="transcripts ?? []" />
+				<TranscriptDemoSidebar :transcripts="transcripts ?? []" :transcript-name="transcriptName" />
 			</div>
 		</div>
 	</main>

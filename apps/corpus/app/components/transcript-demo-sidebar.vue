@@ -6,6 +6,10 @@ const router = useRouter();
 
 const currentId = ref<number | null>(null);
 
+const props = defineProps<{
+	transcriptName: string;
+}>();
+
 const { response, isPending, refreshTranscripts } = useTranscriptPreview(currentId);
 
 const transcriptMetadata = computed(() => {

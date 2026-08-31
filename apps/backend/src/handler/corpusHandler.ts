@@ -16,7 +16,12 @@ import {
 } from "valibot";
 
 import { DATA_DIR } from "@/config/config.ts";
-import { getAllTranscripts, transcriptDetailView } from "@/db/corpusRepository.ts";
+import {
+	getAllLocationsByProject,
+	getAllTranscripts,
+	getFilterInformation,
+	transcriptDetailView,
+} from "@/db/corpusRepository.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
@@ -231,7 +236,7 @@ const corpus = new Hono<AppEnv>()
 		const filters: {
 			age_lower?: number;
 			age_upper?: number;
-			loc_name?: string;
+			locations?: string;
 			dialect_competence?: number;
 			standard_competence?: number;
 			gender?: string;
@@ -257,8 +262,8 @@ const corpus = new Hono<AppEnv>()
 			filters.age_upper = ageUpper;
 		}
 
-		if (rawQuery.loc_name) {
-			filters.loc_name = rawQuery.loc_name;
+		if (rawQuery.locations) {
+			filters.locations = rawQuery.locations;
 		}
 
 		if (rawQuery.dialect_competence) {
@@ -370,7 +375,27 @@ const corpus = new Hono<AppEnv>()
 				200,
 			);
 		},
-	);
+	)
+	.get("/place/:id", async (c) => {
+		const id = c.req.param("id");
+
+		// Default to project ID 2 if no ID is provided
+		const parsedId = id ? Number(id) : 2;
+
+		const fetchedLocations = await getAllLocationsByProject(parsedId);
+
+		return c.json(fetchedLocations, 200);
+	})
+	.get("/filters", async (c) => {
+		const information = await getFilterInformation();
+		const settings = information.filter((el) => el.category === "setting");
+		const projects = information.filter((el) => el.category === "project");
+		const informationList = {
+			settings: settings,
+			projects: projects,
+		};
+		return c.json(informationList, 200);
+	});
 
 corpus.use("*", restrictedRoute);
 

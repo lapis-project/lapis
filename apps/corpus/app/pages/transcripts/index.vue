@@ -28,7 +28,7 @@ const bookmarkedIds = ref<Array<string>>([]);
 const { response, isPending, refreshTranscripts } = useTranscripts(2);
 const { response: kwicResponse, search, status } = useSearchKwic();
 
-const transcriptName = "";
+const transcriptName = ref("");
 
 const transcripts = computed(() => {
 	return response.value;
@@ -107,10 +107,11 @@ const handleSearch = (category: "instance_id" | "transcript_name", value: string
 		refreshTranscripts({ instance_id: Number(value.trim()) });
 	}
 };
-function handleSelection(id: string) {
+function handleSelection(id: string, currentName: string) {
 	const current = currentSelectionArray.value;
 	if (current.includes(id)) return;
 
+	transcriptName.value = currentName;
 	router.push({ query: { ...route.query, selection: [...current, id] } });
 }
 
@@ -182,25 +183,17 @@ watch(
 			await refreshTranscripts(filters);
 		}
 
-		if (q.word == null || q.lemma == null || q.pos == null || q.feats == null) return;
+		const word = q.word ? String(q.word).trim() : "";
+		const lemma = q.lemma ? String(q.lemma).trim() : "";
+		const feats = q.feats ? String(q.feats).trim() : "";
+		const cql = q.query ? String(q.query).trim() : "";
 
-		const hasFilters =
-			q.word ||
-			q.query ||
-			q.lemma ||
-			q.pos ||
-			q.feats ||
-			q.projects ||
-			q.settings ||
-			q.locations ||
-			q.first_languages ||
-			q.gender ||
-			q.dialect_competence ||
-			q.standard_competence ||
-			q.age_lower ||
-			q.age_upper;
+		// Backend requires an actual search term
+		const canSearchKwic = word.length > 0 || lemma.length > 0 || feats.length > 0 || cql.length > 0;
 
-		if (!hasFilters) return;
+		if (!canSearchKwic) {
+			return;
+		}
 
 		await search({
 			word: q.word as string,
@@ -353,7 +346,7 @@ function copyKwicLine(line: KwicLine) {
 										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
 										hover:no-underline
 										variant="transparent"
-										@click="handleSelection(String(result.instance_id))"
+										@click="handleSelection(String(result.instance_id), result.transcript_name)"
 									>
 										<span class="sr-only"> Open Sidebar Demo </span>
 										Transcript {{ result.transcript_name }}

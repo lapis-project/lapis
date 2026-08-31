@@ -21,7 +21,7 @@ const {
 } = useTranscriptPreview(currentId);
 
 const speakerIds = computed(() => {
-	return transcriptFileData.value?.map((sp) => sp.informant) ?? [];
+	return previewResponse.value?.unique_informant_ids.map((sp) => sp) ?? [];
 });
 
 const transcriptMetadata = computed(() => {
@@ -29,9 +29,7 @@ const transcriptMetadata = computed(() => {
 });
 
 const transcriptFileData = computed(() => {
-	// oxlint-disable-next-line eslint/no-console -- Useful development output
-	console.log(previewResponse.value?.fileData.data);
-	return previewResponse.value?.fileData.data;
+	return previewResponse.value?.transcript_data;
 });
 
 const env = useRuntimeConfig();

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "@lucide/vue";
 import { toast } from "vue-sonner";
-import initialData from "@/assets/data/transcripts-demo.json";
 
-import type { APITranscriptsWithBookmark, KwicLine } from "@/types/api";
+import { useSearchKwic } from "#imports";
+import initialData from "@/assets/data/transcripts-demo.json";
+import type { APITranscript, APITranscriptsWithBookmark, KwicLine } from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
@@ -49,7 +50,7 @@ const currentPage = computed({
 	},
 });
 
-const searchResults = ref<Array<Transcript>>(initialData.transcripts);
+const searchResults = ref<Array<APITranscript>>(initialData.transcripts);
 const showFirstColumn = ref(true);
 const showThirdColumn = ref(true);
 
@@ -93,7 +94,7 @@ function handleSelection(id: string) {
 }
 
 function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
-	const id = transcript.transcript_id;
+	const id = transcript.instance_id;
 	if (!id) return;
 
 	if (transcript.bookmarked) {
@@ -145,6 +146,7 @@ watch(
 			q.first_languages ||
 			q.gender ||
 			q.dialect_competence ||
+			q.standard_competence ||
 			q.age_lower ||
 			q.age_upper;
 
@@ -176,6 +178,8 @@ watch(
 			gender: q.gender as string,
 
 			dialect_competence: q.dialect_competence ? Number(q.dialect_competence) : undefined,
+
+			standard_competence: q.standard_competence ? Number(q.standard_competence) : undefined,
 
 			age_lower: q.age_lower ? Number(q.age_lower) : undefined,
 
@@ -294,7 +298,7 @@ function copyKwicLine(line: KwicLine) {
 								Ergebnisse
 								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
 							</p>
-							<div v-for="result in transcripts" :key="result.transcript_id">
+							<div v-for="result in transcripts" :key="result.instance_id">
 								<div
 									class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
 								>
@@ -302,10 +306,10 @@ function copyKwicLine(line: KwicLine) {
 										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
 										hover:no-underline
 										variant="transparent"
-										@click="handleSelection(String(result.transcript_id))"
+										@click="handleSelection(String(result.instance_id))"
 									>
 										<span class="sr-only"> Open Sidebar Demo </span>
-										Transcript {{ result.transcript_id }}
+										Transcript {{ result.instance_id }}
 									</Button>
 									<div class="w-full flex justify-end">
 										<Button

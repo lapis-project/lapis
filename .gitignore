@@ -8,3 +8,8 @@ node_modules
 backup-data
 
 .DS_Store
+
+# Transcript files
+/apps/backend/files/json/
+/apps/backend/files/xml/
+/apps/backend/private_data

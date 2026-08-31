@@ -53,5 +53,6 @@ allowBuilds:
   lefthook: true
   "maplibre-gl": true
   "sharp": true
+  simple-git-hooks: set this to true or false
   "unrs-resolver": true
   "vue-demi": true

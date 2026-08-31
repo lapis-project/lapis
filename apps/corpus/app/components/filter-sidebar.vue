@@ -177,7 +177,7 @@ watch(
 		activeFirstLanguage,
 		activeGender,
 		dialectCompetenceValue,
-		standardCompetenceValue
+		standardCompetenceValue,
 	],
 	() => {
 		router.replace({
@@ -195,10 +195,14 @@ watch(
 				gender: activeGender.value || undefined,
 
 				dialect_competence:
-					dialectCompetenceValue.value?.[0] != null ? String(dialectCompetenceValue.value[0]) : undefined,
-				
-				standard_competence: 
-					standardCompetenceValue.value?.[0] != null ? String(standardCompetenceValue.value[0]) : undefined,
+					dialectCompetenceValue.value?.[0] != null
+						? String(dialectCompetenceValue.value[0])
+						: undefined,
+
+				standard_competence:
+					standardCompetenceValue.value?.[0] != null
+						? String(standardCompetenceValue.value[0])
+						: undefined,
 
 				age_lower: ageRange.value?.lower,
 				age_upper: ageRange.value?.upper,
@@ -340,7 +344,11 @@ watch(
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
 							<span class="flex-row flex gap-1">
-								<Checkbox type="checkbox" id="competence-enabled" v-model="standardCompetenceEnabled" />
+								<Checkbox
+									type="checkbox"
+									id="competence-enabled"
+									v-model="standardCompetenceEnabled"
+								/>
 								<Label class="tracking-wide pl-1" for="nos">Standardkompetenz</Label>
 							</span>
 							<span
@@ -359,20 +367,6 @@ watch(
 								>
 									<div class="flex flex-row gap-4">
 										<Slider v-model="standardCompetenceValue" :max="7" :min="1" :step="1" />
-
-										<div class="flex items-center space-x-2">
-											<Checkbox id="na" />
-
-											<TooltipProvider>
-												<Tooltip>
-													<TooltipTrigger>
-														<label class="text-sm" for="na">NA</label>
-													</TooltipTrigger>
-
-													<TooltipContent> „Nicht angegeben“ berücksichtigen </TooltipContent>
-												</Tooltip>
-											</TooltipProvider>
-										</div>
 									</div>
 								</CollapsibleContent>
 							</Collapsible>
@@ -381,7 +375,11 @@ watch(
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
 							<span class="flex-row flex gap-1">
-								<Checkbox type="checkbox" id="competence-enabled" v-model="dialectCompetenceEnabled" />
+								<Checkbox
+									type="checkbox"
+									id="competence-enabled"
+									v-model="dialectCompetenceEnabled"
+								/>
 								<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz</Label>
 							</span>
 							<span
@@ -400,20 +398,6 @@ watch(
 								>
 									<div class="flex flex-row gap-4">
 										<Slider v-model="dialectCompetenceValue" :max="7" :min="1" :step="1" />
-
-										<div class="flex items-center space-x-2">
-											<Checkbox id="na" />
-
-											<TooltipProvider>
-												<Tooltip>
-													<TooltipTrigger>
-														<label class="text-sm" for="na">NA</label>
-													</TooltipTrigger>
-
-													<TooltipContent> „Nicht angegeben“ berücksichtigen </TooltipContent>
-												</Tooltip>
-											</TooltipProvider>
-										</div>
 									</div>
 								</CollapsibleContent>
 							</Collapsible>

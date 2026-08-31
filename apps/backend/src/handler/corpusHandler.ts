@@ -137,19 +137,13 @@ function parseIdArray(values: Array<string> | undefined): Array<number> | null {
 
 const corpus = new Hono<AppEnv>()
 	.get("/search/kwic", async (c) => {
-		const url = new URL(c.req.url)
-		const searchParams = url.searchParams
-
-		console.log("searchParams settings: ", searchParams.getAll("settings"));
-
 		const rawQuery = c.req.query();
 		const result = safeParse(SearchQuerySchema, {
 			...rawQuery,
-			transcripts: searchParams.getAll("transcripts"),
-			projects: searchParams.getAll("projects"),
-			locations: searchParams.getAll("locations"),
-			first_languages: searchParams.getAll("first_languages"),
-			settings: searchParams.getAll("settings"),
+			transcripts: c.req.queries("transcripts"),
+			projects: c.req.queries("projects"),
+			locations: c.req.queries("locations"),
+			first_languages: c.req.queries("first_languages"),
 			// Default mode to simple if missing
 			mode: rawQuery.mode ?? "simple",
 		});

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useVirtualizer } from "@tanstack/vue-virtual";
 
-import type { APITranscriptFileData, Event, TimestampEvent } from "@/types/api";
+import type { APITranscriptData, Event, TimestampEvent } from "@/types/api";
 
 const props = defineProps<{
-	fileData: Array<APITranscriptFileData> | undefined;
+	fileData: APITranscriptData;
 	speakerIds: Array<number>;
 	hiddenSpeakers: Set<number>;
 	showLu: boolean;
@@ -36,43 +36,50 @@ const chunkedSpeakerEvents = computed(() => {
 	const perRow = maxEventsPerRow.value || EVENTS_PER_CHUNK;
 
 	const timestampSet = new Set<string>();
-	props.fileData.forEach((informant) => {
-		informant.events.forEach((ev) => {
-			timestampSet.add(ev.start_time + "–" + ev.end_time);
+	for (const infId in props.fileData.events) {
+		props.fileData.events[infId]?.map((ev) => {
+			return timestampSet.add(ev.start_time + "-" + ev.end_time);
 		});
-	});
+	}
+
 	const timestamps = Array.from(timestampSet).toSorted();
 
-	const speakerMap: Record<number, Event[]> = {};
+	const speakerMap: Record<string, Event[]> = {};
 
-	props.speakerIds.forEach((spId) => {
-		const informant = props.fileData!.find((f) => f.informant === spId);
+	props.speakerIds.forEach((speaker) => {
+		speakerMap[speaker] = timestamps.map(() => ({
+			start: "",
+			end: "",
+			ortho: [],
+			lu: [],
+			phon: [],
+		}));
 
-		if (!informant) {
-			speakerMap[spId] = timestamps.map(() => ({
-				start: "",
-				end: "",
-				ortho: [],
-				lu: [],
-				phon: [],
-			}));
-			return;
+		const tokens = props.fileData.events[speaker] ?? [];
+		const eventsByTimestamp = new Map<string, Event>();
+
+		for (const token of tokens) {
+			const key = `${token.start_time}-${token.end_time}`;
+			const hasTags = (token.tags?.length ?? 0) > 0;
+
+			const existing = eventsByTimestamp.get(key);
+
+			if (existing) {
+				existing.ortho.push({ text: token.ortho, hasTags });
+				existing.lu.push({ text: token.text_in_ortho, hasTags });
+				existing.phon.push({ text: token.phon, hasTags });
+			} else {
+				eventsByTimestamp.set(key, {
+					start: token.start_time,
+					end: token.end_time,
+					ortho: [{ text: token.ortho, hasTags }],
+					lu: [{ text: token.text_in_ortho, hasTags }],
+					phon: [{ text: token.phon, hasTags }],
+				});
+			}
 		}
 
-		const eventsByTimestamp = new Map(
-			informant.events.map((ev) => [
-				ev.start_time + "–" + ev.end_time,
-				{
-					start: ev.start_time,
-					end: ev.end_time,
-					ortho: ev.tokens.map((t) => ({ text: t.ortho, hasTags: false })),
-					lu: ev.tokens.map((t) => ({ text: t.text_in_ortho, hasTags: false })),
-					phon: ev.tokens.map((t) => ({ text: t.phon, hasTags: false })),
-				} as Event,
-			]),
-		);
-
-		speakerMap[spId] = timestamps.map(
+		speakerMap[speaker] = timestamps.map(
 			(ts) =>
 				eventsByTimestamp.get(ts) || {
 					start: "",

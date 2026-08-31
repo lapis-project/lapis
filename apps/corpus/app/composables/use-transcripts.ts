@@ -11,6 +11,7 @@ export function useTranscripts(projectId: number) {
 	const load = async () => {
 		status.value = "pending";
 		try {
+			console.log("API BASE URL:", env.public.apiBaseUrl);
 			const { data, error } = await useFetch<APITranscripts>(`/corpus/corpus/${projectId}`, {
 				baseURL: env.public.apiBaseUrl,
 				method: "GET",

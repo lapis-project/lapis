@@ -23,28 +23,27 @@ watch(
 </script>
 
 <template>
-	<Dialog :open="props.open" @update:open="emit('download', false)">
-		<DialogContent>
-			<DialogHeader>
-				<DialogTitle>{{ t("Disclaimer.download.title") }}</DialogTitle>
-				<DialogDescription>
-					{{ t("Disclaimer.download.text") }}
-				</DialogDescription>
-				<div class="flex w-fit gap-2 items-center rounded border p-2">
-					<Checkbox id="disclaimer-consent" v-model="hasAgreed" />
-					<label
-						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						for="disclaimer-consent"
-					>
-						{{ t("Disclaimer.download.checkbox") }}
-					</label>
-				</div>
-			</DialogHeader>
-			<DialogFooter>
-				<Button :disabled="!hasAgreed" @click="emit('download', hasAgreed)">
-					{{ t("Disclaimer.download.action") }}
-				</Button>
-			</DialogFooter>
-		</DialogContent>
-	</Dialog>
+	<UModal
+		:open="open"
+		@update:open="emit('download', false)"
+		:title="t('Disclaimer.download.title')"
+	>
+		<template #body>
+			<p class="mb-3">{{ t("Disclaimer.download.text") }}</p>
+			<div class="flex w-fit gap-2 items-center rounded border p-2">
+				<UCheckbox id="disclaimer-consent" v-model="hasAgreed" />
+				<label
+					class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+					for="disclaimer-consent"
+				>
+					{{ t("Disclaimer.download.checkbox") }}
+				</label>
+			</div>
+		</template>
+		<template #footer>
+			<UButton :disabled="!hasAgreed" @click="emit('download', hasAgreed)">
+				{{ t("Disclaimer.download.action") }}
+			</UButton>
+		</template>
+	</UModal>
 </template>

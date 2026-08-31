@@ -1,3 +1,4 @@
+import { promises as fs } from "node:fs";
 import { join } from "node:path";
 
 import { vValidator } from "@hono/valibot-validator";
@@ -22,6 +23,7 @@ import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
 import { streamFile, validateTranscriptId } from "@/lib/fileStreamHelper.ts";
 import { searchRequest } from "@/search/index.ts";
+import { resolveAudioFileForInstanceId } from "@/service/audioService.ts";
 import type { TranscriptToken } from "@/types/apiTypes.ts";
 import type { paths } from "@/types/noske.d.ts";
 
@@ -317,7 +319,6 @@ const corpus = new Hono<AppEnv>()
 			const filePath = join(DATA_DIR, "json", `${String(parsedId)}.json`);
 
 			// Read file to transform the data structure
-			const fs = await import("node:fs/promises");
 			const fileContent = await fs.readFile(filePath, "utf-8");
 			const transcriptJson = JSON.parse(fileContent);
 
@@ -340,11 +341,25 @@ const corpus = new Hono<AppEnv>()
 				unique_informant_ids.push(infId);
 			}
 
-			// 5. Return transformed response
+			// 5. Check if audio file exists and build audio URL
+			let audio_url: string | null = null;
+			let waveform_url: string | null = null;
+			let has_audio = false;
+
+			if (await resolveAudioFileForInstanceId(parsedId)) {
+				audio_url = `/audio/stream/${String(parsedId)}`;
+				waveform_url = `/audio/waveform/${String(parsedId)}`;
+				has_audio = true;
+			}
+
+			// 6. Return transformed response
 			return c.json(
 				{
 					metadata: transcriptData,
 					unique_informant_ids,
+					audio_url,
+					waveform_url,
+					has_audio,
 					transcript_data: {
 						events,
 						tokenset_definitions: transcriptJson.tokenset_definitions as Record<

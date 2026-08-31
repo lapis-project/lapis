@@ -1,105 +1,24 @@
-@import "tailwindcss" source("../../../../shadcn/app/assets/css");
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
 
-/* https://github.com/nuxt/nuxt/issues/32575 */
-
-@theme {
-	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-}
-
-@theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-destructive: var(--destructive);
-	--color-destructive-foreground: var(--destructive-foreground);
-	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-	--animate-accordion-down: accordion-down 0.2s ease-out;
-	--animate-accordion-up: accordion-up 0.2s ease-out;
-	--animate-collapsible-down: collapsible-down 0.2s ease-out;
-	--animate-collapsible-up: collapsible-up 0.2s ease-out;
-}
-
+/* You can't use primary: 'black' in your app.config because black doesn't have multiple shades.
+To use solid black or white as your primary color, set it directly in your main.css file: */
 :root {
-	--background: oklch(100% 0 0deg);
-	--foreground: oklch(14.5% 0 0deg);
-	--muted: oklch(97% 0 0deg);
-	--muted-foreground: oklch(55.6% 0 0deg);
-	--popover: oklch(100% 0 0deg);
-	--popover-foreground: oklch(14.5% 0 0deg);
-	--card: oklch(100% 0 0deg);
-	--card-foreground: oklch(14.5% 0 0deg);
-	--border: oklch(92.2% 0 0deg);
-	--input: oklch(92.2% 0 0deg);
-	--primary: oklch(20.5% 0 0deg);
-	--primary-foreground: oklch(98.5% 0 0deg);
-	--secondary: oklch(97% 0 0deg);
-	--secondary-foreground: oklch(20.5% 0 0deg);
-	--accent: oklch(96.35% 0.011 257.6deg); /* From hsl(210 40% 96.1%) */
-	--accent-foreground: oklch(52.14% 0.168 358.8deg); /* From hsl(332, 54%, 43%) */
-	--destructive: oklch(57.7% 0.245 27.325deg);
-	--destructive-foreground: oklch(57.7% 0.245 27.325deg);
-	--ring: oklch(70.8% 0 0deg);
-	--radius: 0.5rem;
+	--ui-primary: oklch(0% 0 0deg);
 }
 
 .dark {
-	--background: oklch(14% 0.036 258.53deg);
-	--foreground: oklch(98.5% 0 0deg);
-	--muted: oklch(26.9% 0 0deg);
-	--muted-foreground: oklch(70.8% 0 0deg);
-	--popover: oklch(14.5% 0 0deg);
-	--popover-foreground: oklch(98.5% 0 0deg);
-	--card: oklch(14.5% 0 0deg);
-	--card-foreground: oklch(98.5% 0 0deg);
-	--border: oklch(28% 0.0369 259.97deg);
-	--input: oklch(26.9% 0 0deg);
-	--primary: oklch(98.5% 0 0deg);
-	--primary-foreground: oklch(20.5% 0 0deg);
-	--secondary: oklch(26.9% 0 0deg);
-	--secondary-foreground: oklch(98.5% 0 0deg);
-	--accent: oklch(31.07% 0.03 258.4deg); /* From hsl(217.2 32.6% 17.5%) */
-	--accent-foreground: oklch(65.14% 0.168 358.8deg); /* From hsl(210 40% 98%) */
-	--destructive: oklch(39.6% 0.141 25.723deg);
-	--destructive-foreground: oklch(63.7% 0.237 25.331deg);
-	--ring: oklch(43.9% 0 0deg);
+	--ui-primary: oklch(100% 0.0001 271.152deg);
+}
+
+@theme {
+	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+	--ui-header-height: 63px;
 }
 
 @layer base {
 	html {
 		scrollbar-gutter: stable;
-	}
-
-	* {
-		@apply border-border outline-ring/50;
-	}
-
-	body {
-		@apply bg-background text-foreground text-lg sm:text-base;
-
-		/* TODO: Investigate why reka-ui adds padding when SelectContent is visible */
-		padding-right: 0 !important;
 	}
 
 	:root {
@@ -118,28 +37,29 @@
 	#text-editor .toolbar > button {
 		@apply flex justify-center items-center text-xl  size-8 border-none my-2 mx-1 rounded-md cursor-pointer appearance-none;
 
-		background: var(--background);
-		color: var(--foreground);
+		/* background: var(--background);
+		color: var(--foreground); */
 	}
 
 	#text-editor .toolbar > button.active {
-		background: var(--foreground);
-		color: var(--background);
+		/* background: var(--foreground);
+		color: var(--background); */
 	}
 
 	#text-editor .align-dropdown > button {
 		@apply h-8 border-none cursor-pointer rounded-md appearance-none;
 
-		background: var(--background);
-		color: var(--foreground);
+		/* background: var(--background);
+		color: var(--foreground); */
 	}
 
 	#text-editor .align-dropdown > .dropdown-content {
 		@apply absolute right-0 left-0 z-10 rounded-md;
 
+		/*
 		border: 1px solid var(--foreground);
 		background-color: var(--background);
-		outline: 1px solid var(--background);
+		outline: 1px solid var(--background); */
 	}
 
 	#text-editor .align-dropdown > .dropdown-content a {
@@ -148,8 +68,8 @@
 
 	#text-editor .align-dropdown > .dropdown-content a:hover,
 	#text-editor .align-dropdown > .dropdown-content a.active {
-		background: var(--foreground);
-		color: var(--background);
+		/* background: var(--foreground);
+		color: var(--background); */
 	}
 
 	/* stylelint-disable-next-line selector-class-pattern */
@@ -219,7 +139,7 @@
 	} */
 
 	.article-content a {
-		@apply text-accent-foreground underline cursor-pointer;
+		/* @apply text-accent-foreground underline cursor-pointer; */
 	}
 
 	.article-content > p {
@@ -244,7 +164,7 @@
 	}
 
 	.article-content blockquote {
-		@apply italic text-muted-foreground border-l-4 border-accent-foreground pl-4 my-6;
+		/* @apply italic text-muted-foreground border-l-4 border-accent-foreground pl-4 my-6; */
 	}
 
 	.article-content img {
@@ -265,7 +185,7 @@
 
 	/* ─── table styling ─────────────────────────── */
 	.article-content table {
-		@apply w-full table-fixed border-collapse text-sm my-6 border border-foreground/30 rounded-md;
+		/* @apply w-full table-fixed border-collapse text-sm my-6 border border-foreground/30 rounded-md; */
 	}
 
 	.article-content th {
@@ -275,7 +195,7 @@
 	/* cells – add vertical and horizontal borders */
 	.article-content th,
 	.article-content td {
-		@apply py-2 px-3 border-b border-l border-foreground/30 break-words;
+		/* @apply py-2 px-3 border-b border-l border-foreground/30 break-words; */
 	}
 
 	/* remove the extra left border on the first column */
@@ -289,6 +209,6 @@
 	} */
 
 	.article-content caption {
-		@apply text-muted-foreground text-sm mt-2;
+		/* @apply text-muted-foreground text-sm mt-2; */
 	}
 }

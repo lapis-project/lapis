@@ -21,7 +21,12 @@ export default defineNuxtConfig({
 		dataValue: "ui-color-scheme",
 	},
 
-	components: [{ path: "@/components", extensions: [".vue"], pathPrefix: false }],
+	components: [
+		{
+			path: "~/components",
+			global: true,
+		},
+	],
 
 	css: [
 		"@fontsource-variable/inter/standard.css",
@@ -79,6 +84,7 @@ export default defineNuxtConfig({
 		"@vueuse/nuxt",
 		"shadcn-nuxt",
 		"@nuxtjs/sitemap",
+		"@nuxt/ui",
 	],
 
 	nitro: {

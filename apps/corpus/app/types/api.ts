@@ -67,8 +67,8 @@ export interface TranscriptFilters {
 	gender?: string;
 	comment_search?: string;
 	comment_search_mode?: "simple" | "regex";
-	projects: Array<string>;
-	settings: Array<string>;
+	projects?: Array<string>;
+	settings?: Array<string>;
 	transcript_name?: string;
 	instance_id?: number;
 }

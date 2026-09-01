@@ -3,11 +3,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
 import { Deck } from "@deck.gl/core";
-import {
-	FillStyleExtension,
-	type FillStyleExtensionProps,
-	MaskExtension,
-} from "@deck.gl/extensions";
+import { MaskExtension } from "@deck.gl/extensions";
 import {
 	GeoJsonLayer,
 	type GeoJsonLayerProps,
@@ -21,12 +17,6 @@ import { Map } from "maplibre-gl";
 import bundeslaenderJson from "@/assets/data/bundeslaender.json";
 import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import MapTooltip from "@/components/map-tooltip.vue";
-import { regionPatterns } from "@/stores/use-color-store";
-import {
-	createRegionPatternAtlas,
-	PATTERN_RESOLUTION,
-	type RegionPatternAtlas,
-} from "@/utils/region-pattern-atlas";
 
 const regions = regionsJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
 const bundeslaender = bundeslaenderJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
@@ -76,10 +66,7 @@ const tooltip = ref<TooltipState | null>(null);
 let map: Map | null = null;
 let deck: Deck | null = null;
 
-const { getRegionPattern } = useColorStore();
-
-/** Built on mount — rasterising the patterns needs a canvas. */
-let patternAtlas: RegionPatternAtlas | null = null;
+const { getRegionColor, DEFAULT_REGION_COLOR } = useColorStore();
 
 function createScatterplotLayer(minimal = false) {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
@@ -156,48 +143,33 @@ function createHexagonLayer() {
 	});
 }
 
-const PATTERN_TILE_METERS = 10000;
-
 type RegionProperties = (typeof regions)["features"][0]["properties"];
 export type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
 export type BundeslandFeature = (typeof bundeslaender)["features"][0];
 const activeLayer = ref<MapLayer>("none");
 
-function createPatternLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
+function createRegionLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
 	id: string,
 	data: GeoJSON.FeatureCollection<GeoJSON.Polygon>,
 	getName: (feature: F) => string,
 ) {
-	const atlas = patternAtlas;
-	const patternFor = (d: F) => getRegionPattern(getName(d));
+	const colorFor = (d: F) => getRegionColor(getName(d));
 
-	const patternProps: Partial<FillStyleExtensionProps<F>> = atlas
-		? {
-				fillPatternAtlas: atlas.url,
-				fillPatternMapping: atlas.mapping,
-				fillPatternMask: true,
-				getFillPattern: (d) => patternFor(d).id,
-				getFillPatternScale: (d) => PATTERN_TILE_METERS / (patternFor(d).w * PATTERN_RESOLUTION),
-			}
-		: {};
-
-	const layerProps: GeoJsonLayerProps & Partial<FillStyleExtensionProps<F>> = {
+	const layerProps: GeoJsonLayerProps = {
 		id,
 		data,
-		filled: atlas !== null,
+		filled: true,
 		stroked: true,
 		lineWidthMinPixels: 1,
-		getFillColor: (d) => hexToRgb(patternFor(d as F).color, 100),
-		getLineColor: (d) => hexToRgb(patternFor(d as F).color, 220),
-		extensions: atlas ? [new FillStyleExtension({ pattern: true })] : [],
-		...patternProps,
+		getFillColor: (d) => hexToRgb(colorFor(d as F), 100),
+		getLineColor: () => hexToRgb(DEFAULT_REGION_COLOR, 0),
 	};
 
 	return new GeoJsonLayer(layerProps);
 }
 
 function createRegionsLayer() {
-	return createPatternLayer<RegionFeature>(
+	return createRegionLayer<RegionFeature>(
 		"regionLayer",
 		regions,
 		(d) => d.properties?.Dialektregion_Name ?? "",
@@ -205,7 +177,7 @@ function createRegionsLayer() {
 }
 
 function createBundeslaenderLayer() {
-	return createPatternLayer<BundeslandFeature>(
+	return createRegionLayer<BundeslandFeature>(
 		"bundeslaenderLayer",
 		bundeslaender,
 		(d) => d.properties?.name ?? "",
@@ -273,8 +245,6 @@ function _joinEntries(entries: Array<GeoJSON.Feature>) {
 }
 
 onMounted(() => {
-	patternAtlas = createRegionPatternAtlas(regionPatterns);
-
 	map = new Map({
 		container: mapContainer.value!,
 		style,

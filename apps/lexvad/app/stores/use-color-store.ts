@@ -3,74 +3,27 @@ import { defineStore } from "pinia";
 import type { VariantGroup } from "@/composables/use-variant-groups";
 import { datasetScopedKey } from "@/utils/dataset";
 
-export interface RegionPattern {
-	id: string;
-	/** Tile width and height in user space units. */
-	w: number;
-	h: number;
-	/** Either a stroked path or a dot grid, never both. */
-	path?: string;
-	circle?: boolean;
-	color: string;
-}
+const DEFAULT_REGION_COLOR = "#adb5bd";
 
-/** Shared by the SVG `<pattern>` defs and the deck.gl sprite atlas, so both render alike. */
-export const PATTERN_BACKGROUND_OPACITY = 0.15;
-export const PATTERN_STROKE_WIDTH = 1.2;
-
-export const regionPatterns: Array<RegionPattern> = [
-	{
-		id: "diag-1",
-		w: 4,
-		h: 4,
-		path: "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2",
-		color: "#bababa",
-	},
-	{
-		id: "diag-2",
-		w: 6,
-		h: 6,
-		path: "M5,-1 l-6,6 M2,6 l6,-6 M-2,2 l4,-4",
-		color: "#bababa",
-	},
-	{ id: "crosshatch", w: 8, h: 8, path: "M0,0 l8,8 M8,0 l-8,8", color: "#aaaaaa" },
-	{ id: "vert", w: 4, h: 4, path: "M2,0 l0,4", color: "#9b9b9b" },
-	{ id: "horiz", w: 4, h: 4, path: "M0,2 l4,0", color: "#666666" },
-	{ id: "grid", w: 8, h: 8, path: "M3,0 l0,6 M0,3 l6,0", color: "#565656" },
-	{ id: "zig", w: 6, h: 6, path: "M0,3 l3,-3 l3,3", color: "#9b9b9b" },
-	{ id: "wave", w: 8, h: 4, path: "M0,2 q2,-2 4,0 t4,0", color: "#bababa" },
-	{ id: "dots", w: 8, h: 8, circle: true, color: "#474747" },
-];
-
-const patternsById = new Map(regionPatterns.map((p) => [p.id, p]));
-
-const patternIdByRegion: Record<string, string> = {
+const colorByRegion: Record<string, string> = {
 	// Dialektregionen
-	Alemannisch: "diag-1",
-	"Bairisch-Alemannisch": "dots",
-	Westmittelbairisch: "crosshatch",
-	Ostmittelbairisch: "vert",
-	Südmittelbairisch: "horiz",
-	Südbairisch: "grid",
+	Alemannisch: "#070808",
+	"Bairisch-Alemannisch": "#495057",
+	Westmittelbairisch: "#ced4da",
+	Ostmittelbairisch: "#dee2e6",
+	Südmittelbairisch: "#adb5bd",
+	Südbairisch: "#6c757d",
 	// Bundesländer
-	Wien: "dots",
-	Vorarlberg: "zig",
-	Burgenland: "diag-1",
-	Salzburg: "wave",
-	Steiermark: "horiz",
-	Kärnten: "grid",
-	Tirol: "crosshatch",
-	Oberösterreich: "diag-2",
-	Niederösterreich: "vert",
+	Vorarlberg: "#070808",
+	Tirol: "#495057",
+	Salzburg: "#adb5bd",
+	Kärnten: "#6c757d",
+	Oberösterreich: "#dee2e6",
+	Steiermark: "#ced4da",
+	Niederösterreich: "#E9ECEF",
+	Burgenland: "#F8F9FA",
+	Wien: "#212529",
 };
-
-function hash(value: string) {
-	let h = 0;
-	for (let i = 0; i < value.length; i++) {
-		h = (h * 31 + value.charCodeAt(i)) | 0;
-	}
-	return Math.abs(h);
-}
 
 export const useColorStore = defineStore("colors", () => {
 	const palette = [
@@ -124,17 +77,8 @@ export const useColorStore = defineStore("colors", () => {
 		return colors.value[datasetScopedKey(datasetId, question)] !== undefined;
 	}
 
-	function getRegionPattern(region: string) {
-		const assigned = patternsById.get(patternIdByRegion[region] ?? "");
-		return assigned ?? regionPatterns[hash(region) % regionPatterns.length]!;
-	}
-
-	function getRegionPatternId(id: string) {
-		return `svgPattern-${id}`;
-	}
-
-	function getRegionPatternFill(region: string) {
-		return `url(#${getRegionPatternId(getRegionPattern(region).id)})`;
+	function getRegionColor(region: string) {
+		return colorByRegion[region] ?? DEFAULT_REGION_COLOR;
 	}
 
 	return {
@@ -143,9 +87,7 @@ export const useColorStore = defineStore("colors", () => {
 		getColorForGroup,
 		getColorsForQuestion,
 		setDefaultColorsForQuestion,
-		regionPatterns,
-		getRegionPattern,
-		getRegionPatternId,
-		getRegionPatternFill,
+		getRegionColor,
+		DEFAULT_REGION_COLOR,
 	};
 });

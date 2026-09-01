@@ -13,3 +13,5 @@ export const availableLangConst = ["de", "en"];
 export const userRolesConst = ["admin", "editor", "superadmin"];
 
 export const DATA_DIR = process.env.TRANSCRIPT_DIR ?? "/app/data/transcripts";
+
+export const AUDIO_DIR = process.env.AUDIO_DIR ?? "./persistent";

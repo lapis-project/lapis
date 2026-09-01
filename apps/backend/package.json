@@ -14,7 +14,7 @@
 		"dev": "tsx watch --env-file .env.local src/index.ts",
 		"dev-test": "tsx watch src/index.ts",
 		"generate-types-kysely": "kysely-codegen --default-schema=lapis_dev --include-pattern='lapis_dev.*' --env-file .env.local --dialect postgres --out-file src/types/db.d.ts",
-		"generate:audio-waveforms": "tsx --env-file .env src/scripts/generateAudioWaveforms.ts",
+		"generate:audio-waveforms": "tsx --env-file .env.local src/scripts/generateAudioWaveforms.ts",
 		"generate:noske": "openapi-typescript ./specs/openapi.yaml -o ./src/types/noske.d.ts",
 		"migrate:latest": "NODE_OPTIONS='--import tsx' kysely migrate:latest -e local",
 		"start": "node --env-file .env.local ./dist/index.js",

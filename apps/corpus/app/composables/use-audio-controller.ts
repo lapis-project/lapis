@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 
 import { useRoute, useRouter, useRuntimeConfig } from "#imports";
+import type { WaveformData } from "@/types/api";
 
 const parseTime = (raw?: string | number | null): number | null => {
 	if (raw == null) return null;
@@ -33,7 +34,7 @@ const formatClock = (sec: number) => {
 	return [hh, mm, ss].map((n) => String(n).padStart(2, "0")).join(":");
 };
 
-export function useAudioController() {
+export function useAudioStream() {
 	const env = useRuntimeConfig();
 	const route = useRoute();
 	const router = useRouter();
@@ -98,6 +99,91 @@ export function useAudioController() {
 		// We don't call el.src = … here to keep it declarative in the component.
 	}
 
-	console.log("audioRef: ", audioEl, src);
 	return { audioRef: audioEl, src, bind, play, pause, seekTo, loadTrack, parseTime };
+}
+
+export function useAudioWaveform(instanceId: number, abortController: AbortController) {
+	const env = useRuntimeConfig();
+
+	const response = ref<WaveformData | null>(null);
+	const status = ref<"idle" | "pending" | "success" | "error">("idle");
+	const error = ref<string | null>(null);
+
+	const waveformUrl = new URL(
+		"/audio/waveform/" + String(instanceId),
+		env.public.apiBaseUrl,
+	).toString();
+
+	const getWaveform = async () => {
+		status.value = "pending";
+
+		try {
+			const { data, error: fetchError } = await useFetch(waveformUrl, {
+				baseURL: env.public.apiBaseUrl,
+				method: "GET",
+				credentials: "include",
+				signal: abortController.signal,
+			});
+
+			if (fetchError.value) {
+				throw fetchError.value;
+			}
+
+			if (abortController.signal.aborted) return null;
+
+			status.value = "success";
+			return (response.value = parseWaveform(data.value));
+		} catch (err) {
+			if (err instanceof DOMException && err.name === "AbortError") {
+				error.value = "Abort error";
+				return null;
+			}
+			status.value = "error";
+			return null;
+		}
+	};
+
+	const isPending = computed(() => status.value === "pending");
+	const hasError = computed(() => status.value === "error");
+
+	return {
+		response,
+		status,
+		error,
+		isPending,
+		hasError,
+		getWaveform,
+	};
+}
+
+function parseWaveform(value: unknown): WaveformData {
+	if (typeof value !== "object" || value == null) throw new Error("Invalid waveform response.");
+
+	const candidate = value as Record<string, unknown>;
+	if (
+		candidate.version !== 1 ||
+		typeof candidate.duration !== "number" ||
+		!Number.isFinite(candidate.duration) ||
+		candidate.duration <= 0 ||
+		!Array.isArray(candidate.channels)
+	) {
+		throw new Error("Invalid waveform response.");
+	}
+
+	const channels = candidate.channels.slice(0, 2);
+	if (
+		channels.length === 0 ||
+		channels.some(
+			(channel) =>
+				!Array.isArray(channel) ||
+				channel.length === 0 ||
+				channel.some((peak) => typeof peak !== "number" || !Number.isFinite(peak)),
+		)
+	) {
+		throw new Error("Invalid waveform channels.");
+	}
+
+	const left = channels[0] as Array<number>;
+	const right = (channels[1] ?? [...left]) as Array<number>;
+	return { version: 1, duration: candidate.duration, channels: [left, right] };
 }

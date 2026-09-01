@@ -61,14 +61,20 @@ export interface EventToken {
 export interface TranscriptFilters {
 	age_lower?: number;
 	age_upper?: number;
-	loc_name?: string;
+	locations?: Array<number>;
 	dialect_competence?: number;
 	standard_competence?: number;
 	gender?: string;
 	comment_search?: string;
 	comment_search_mode?: "simple" | "regex";
-	projects?: Array<string>;
-	settings?: Array<string>;
+	projects?: Array<number>;
+	settings?: Array<number>;
 	transcript_name?: string;
 	instance_id?: number;
+}
+
+export interface WaveformData {
+	version: 1;
+	duration: number;
+	channels: [Array<number>, Array<number>];
 }

@@ -34,14 +34,11 @@ export async function getAllTranscripts(
 		.innerJoin("informant", "informant.id", "informant_survey_conducted.informant_id")
 		.innerJoin("age_group", "age_group.id", "informant.age_group_id")
 		.innerJoin("informant_lives_in_place", "informant_lives_in_place.informant_id", "informant.id")
-<<<<<<< HEAD
 		.innerJoin("place", "place.id", "informant_lives_in_place.place_id")
+		.distinctOn("survey_conducted.instance_id")
 		.where((eb) =>
 			eb.or([eb("project.id", "=", project_id), eb("project.main_project_id", "=", project_id)]),
 		);
-=======
-		.innerJoin("place", "place.id", "informant_lives_in_place.place_id");
->>>>>>> ed7ad1d (feat: extended filters for corpus)
 
 	// Apply optional filters
 	if (filters?.age_lower !== undefined) {
@@ -80,19 +77,10 @@ export async function getAllTranscripts(
 		query = query.where("survey_conducted.instance_id", "=", filters.instance_id);
 	}
 	if (filters?.settings?.length) {
-<<<<<<< HEAD
 		query = query.where("survey_type.id", "in", filters.settings);
 	}
 	if (filters?.projects?.length) {
 		query = query.where("project.id", "in", filters.projects);
-=======
-		query = query.where("survey_type.survey_type_name", "in", filters.settings);
-	}
-	if (filters?.projects?.length) {
-		query = query.where("project.project_name", "in", filters.projects);
-	} else {
-		query = query.where("project.id", "=", project_id);
->>>>>>> ed7ad1d (feat: extended filters for corpus)
 	}
 
 	return await query

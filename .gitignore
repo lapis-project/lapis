@@ -13,3 +13,6 @@ backup-data
 /apps/backend/files/json/
 /apps/backend/files/xml/
 /apps/backend/private_data
+
+# Audio files
+/apps/backend/persistent

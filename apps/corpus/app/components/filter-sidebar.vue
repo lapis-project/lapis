@@ -25,6 +25,18 @@ const activeGender = ref<string | null>(null);
 const activeSetting = ref<string | null>(null);
 const activeLocation = ref<string | null>(null);
 
+const activeFilterCount = computed(() => {
+	return [
+		activeContext.value,
+		activeSetting.value,
+		activeAgeGroup.value,
+		activeLocation.value,
+		activeGender.value,
+		standardCompetenceEnabled.value,
+		dialectCompetenceEnabled.value,
+	].filter(Boolean).length;
+});
+
 const ageRange = computed(() => {
 	if (!activeAgeGroup.value) return null;
 
@@ -59,23 +71,23 @@ const ageRange = computed(() => {
 // 	{ label: "Experimente (SPT und andere)", value: "Experimente (SPT und andere)" },
 // ]);
 
-const projectOptions = computed<Array<{ label: string; value: string }>>(() => {
+const projectOptions = computed<Array<{ label: string; value: number }>>(() => {
 	return (filter.value?.projects ?? [])
 		.filter((project) => project.name != null)
 		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
 		.map((project) => ({
 			label: project.name!,
-			value: project.name!,
+			value: project.id,
 		}));
 });
 
-const settingOptions = computed<Array<{ label: string; value: string }>>(() => {
+const settingOptions = computed<Array<{ label: string; value: number }>>(() => {
 	return (filter.value?.settings ?? [])
 		.filter((setting) => setting.name != null)
 		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
 		.map((setting) => ({
 			label: setting.name!,
-			value: setting.name!,
+			value: setting.id,
 		}));
 });
 
@@ -89,13 +101,13 @@ const genderOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Weiblich", value: "weiblich" },
 ]);
 
-const locationOptions = computed<Array<{ label: string; value: string }>>(() => {
+const locationOptions = computed<Array<{ label: string; value: number }>>(() => {
 	return (places.value ?? [])
 		.filter((place) => place.place_name != null)
 		.toSorted((a, b) => a.place_name!.localeCompare(b.place_name!, "de"))
 		.map((place) => ({
 			label: place.place_name!,
-			value: place.place_name!,
+			value: place.id,
 		}));
 });
 
@@ -231,7 +243,15 @@ watch(
 		<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="filter">
 			<TabsList class="w-full flex-shrink-0">
 				<TabsTrigger value="tree"> Tree </TabsTrigger>
-				<TabsTrigger value="filter"> Filter </TabsTrigger>
+				<TabsTrigger class="inline-flex items-center gap-2" value="filter">
+					<span>Filter</span>
+					<span
+						v-if="activeFilterCount > 0"
+						class="flex size-5 items-center justify-center rounded-full bg-black text-xs font-medium text-white"
+					>
+						<span class="mr-0.5">{{ activeFilterCount }}</span>
+					</span>
+				</TabsTrigger>
 				<TabsTrigger value="bookmark">
 					Bibliothek
 					<span

@@ -156,7 +156,7 @@ watch(
 		const category = q.category as string;
 
 		const filters: TranscriptFilters = {
-			loc_name: asArray(q.locations),
+			locations: asArray(q.locations),
 			gender: q.gender ? asArray(q.gender) : undefined,
 			dialect_competence: q.dialect_competence ? [Number(q.dialect_competence)] : undefined,
 			standard_competence: q.standard_competence ? [Number(q.standard_competence)] : undefined,
@@ -342,7 +342,7 @@ function copyKwicLine(line: KwicLine) {
 										@click="handleSelection(String(result.instance_id), result.transcript_name)"
 									>
 										<span class="sr-only"> Open Sidebar Demo </span>
-										Transcript {{ result.transcript_name }}
+										{{ result.transcript_name }}
 									</Button>
 									<div class="w-full flex justify-end">
 										<Button

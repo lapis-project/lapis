@@ -53,7 +53,7 @@ watch(
 					"
 				>
 					<Button class="h-full m-0 size-fit cursor-pointer" size="icon" variant="transparent">
-						Transcript {{ item.transcript_name }}
+						{{ item.transcript_name }}
 					</Button>
 					<Button
 						class="h-full m-0 size-fit cursor-pointer"
@@ -91,7 +91,7 @@ watch(
 				<div v-if="transcriptMetadata != null">
 					<div class="space-y-2" v-for="item in transcriptMetadata" :key="item.instance_id">
 						<h2 class="text-lg font-semibold text-foreground">
-							Transcript {{ item.transcript_name }}
+							{{ item.transcript_name }}
 						</h2>
 						<ul class="space-y-3">
 							<li>

@@ -2,6 +2,7 @@
 import WaveSurfer from "wavesurfer.js";
 
 const props = defineProps<{
+	id: number;
 	audio: HTMLAudioElement | null;
 	scrub: number;
 	isScrubbing: boolean;
@@ -12,10 +13,16 @@ const props = defineProps<{
 const emit = defineEmits<{
 	(e: "commit-scrub" | "ready"): void;
 	(e: "update:scrub", value: number): void;
+	(e: "time-change", value: number): void;
 }>();
 
 const container = ref<HTMLElement | string>("");
 const wavesurfer = ref<WaveSurfer | null>(null);
+const status = ref<"loading" | "ready" | "error">("loading");
+
+const abortController = new AbortController();
+
+const { response: waveform, isPending, hasError } = useAudioWaveform(props.id, abortController);
 
 function PlaySurfer() {
 	if (wavesurfer.value == null) return;
@@ -65,20 +72,41 @@ watch(
 
 onMounted(async () => {
 	await nextTick();
-	if (props.audio && container.value) {
+	if (props.audio && container.value && waveform.value != null) {
 		wavesurfer.value = WaveSurfer.create({
 			container: container.value,
-			waveColor: "grey",
-			progressColor: "white",
-			height: 100,
-			barWidth: 2,
-			barGap: 0,
-			barHeight: 1,
-			backend: "MediaElement",
 			media: props.audio,
-			interact: true,
+			peaks: waveform.value.channels,
+			duration: waveform.value.duration,
+			height: 120,
+			minPxPerSec: Math.max(4, (waveform.value.channels[0].length * 4) / waveform.value.duration),
+			splitChannels: [
+				{
+					overlay: true,
+					height: 120,
+					waveColor: "rgb(181 71 47 / 38%)",
+					progressColor: "#b5472f",
+				},
+				{
+					overlay: true,
+					height: 120,
+					waveColor: "rgb(40 120 165 / 38%)",
+					progressColor: "#2878a5",
+				},
+			],
+			hideScrollbar: false,
+			autoScroll: true,
+			autoCenter: true,
+			dragToSeek: true,
 		});
 
+		wavesurfer.value.on("timeupdate", (currentTime) => emit("time-change", currentTime));
+		wavesurfer.value.once("ready", () => {
+			if (waveform.value === wavesurfer.value) status.value = "ready";
+		});
+		wavesurfer.value.once("error", () => {
+			if (waveform.value === wavesurfer.value) status.value = "error";
+		});
 		PauseSurfer();
 
 		// Wait for WaveSurfer to be ready

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ChevronRight, DownloadIcon, FileText, PauseIcon, PlayIcon, SquareIcon } from "@lucide/vue";
 
-import { useAudioController } from "@/composables/use-audio-controller";
+import { useAudioStream } from "@/composables/use-audio-controller";
 
 definePageMeta({
 	layout: "tool",
@@ -39,7 +39,7 @@ const hiddenSpeakers = ref<Set<number>>(new Set());
 const showLu = ref(false);
 const showPhon = ref(false);
 
-const { audioRef, bind } = useAudioController();
+const { audioRef, bind } = useAudioStream();
 
 const showFirstColumn = ref(true);
 
@@ -133,8 +133,7 @@ function resetAudio() {
 
 const audioSrc = computed(() => {
 	const base = env.public.apiBaseUrl;
-	const name = "returnofsherlockholmes";
-	return new URL(`/audio/stream/${name}`, base).toString();
+	return new URL(`/audio/stream/${currentId.value}`, base).toString();
 });
 
 onMounted(() => {
@@ -332,6 +331,7 @@ watch(
 						</ClientOnly>
 						<div class="relative p-4 w-full rounded overflow-hidden">
 							<AudioWaveform
+								:id="currentId"
 								:audio="audioRef"
 								class="absolute inset-0 w-full h-full z-0 bg-black"
 								:class="{ 'opacity-0 transition-opacity': !audioIsPlaying || !waveformReady }"

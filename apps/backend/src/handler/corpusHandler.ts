@@ -16,7 +16,12 @@ import {
 } from "valibot";
 
 import { DATA_DIR } from "@/config/config.ts";
-import { getAllTranscripts, transcriptDetailView } from "@/db/corpusRepository.ts";
+import {
+	getAllLocationsByProject,
+	getAllTranscripts,
+	getFilterInformation,
+	transcriptDetailView,
+} from "@/db/corpusRepository.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
@@ -193,8 +198,8 @@ const corpus = new Hono<AppEnv>()
 			return c.json({ error: "Internal Server Error" }, 500);
 		}
 	})
-	.get("/transcript/:id/:format", (c) => {
-		const id = c.req.param("id");
+	.get("/transcript/:transcript_id/:format", (c) => {
+		const id = c.req.param("transcript_id");
 		const format = c.req.param("format"); // 'xml' or 'json'
 
 		// 1. Validate transcript ID (Security Critical)
@@ -231,7 +236,7 @@ const corpus = new Hono<AppEnv>()
 		const filters: {
 			age_lower?: number;
 			age_upper?: number;
-			loc_name?: string;
+			locations?: string;
 			dialect_competence?: number;
 			standard_competence?: number;
 			gender?: string;
@@ -239,6 +244,8 @@ const corpus = new Hono<AppEnv>()
 			comment_search_mode?: "simple" | "regex";
 			transcript_name?: string;
 			instance_id?: number;
+			settings?: Array<string>;
+			projects?: Array<string>;
 		} = {};
 
 		if (rawQuery.age_lower) {
@@ -257,8 +264,8 @@ const corpus = new Hono<AppEnv>()
 			filters.age_upper = ageUpper;
 		}
 
-		if (rawQuery.loc_name) {
-			filters.loc_name = rawQuery.loc_name;
+		if (rawQuery.locations) {
+			filters.locations = rawQuery.locations;
 		}
 
 		if (rawQuery.dialect_competence) {
@@ -292,7 +299,7 @@ const corpus = new Hono<AppEnv>()
 		if (rawQuery.instance_id) {
 			const instance_id = Number(rawQuery.instance_id);
 			if (Number.isNaN(instance_id)) {
-				return c.json("Invalid standard_competence parameter", 400);
+				return c.json("Invalid instance_id parameter", 400);
 			}
 			filters.instance_id = instance_id;
 		}
@@ -301,20 +308,30 @@ const corpus = new Hono<AppEnv>()
 			filters.transcript_name = rawQuery.transcript_name;
 		}
 
+		const settings = c.req.queries("settings");
+		if (settings?.length) {
+			filters.settings = settings;
+		}
+
+		const projects = c.req.queries("projects");
+		if (projects?.length) {
+			filters.projects = projects;
+		}
+
 		const response = await getAllTranscripts(parsedId, filters);
 
 		return c.json(response, 200);
 	})
 	.get(
-		"/preview/:id",
+		"/preview/:transcript_id",
 		vValidator(
 			"param",
 			object({
-				id: string(),
+				transcript_id: string(),
 			}),
 		),
 		async (c) => {
-			const id = c.req.param("id");
+			const id = c.req.param("transcript_id");
 
 			// 1. Validate transcript ID
 			const safeId = validateTranscriptId(id);
@@ -370,7 +387,27 @@ const corpus = new Hono<AppEnv>()
 				200,
 			);
 		},
-	);
+	)
+	.get("/place/:id", async (c) => {
+		const id = c.req.param("id");
+
+		// Default to project ID 2 if no ID is provided
+		const parsedId = id ? Number(id) : 2;
+
+		const fetchedLocations = await getAllLocationsByProject(parsedId);
+
+		return c.json(fetchedLocations, 200);
+	})
+	.get("/filters", async (c) => {
+		const information = await getFilterInformation();
+		const settings = information.filter((el) => el.category === "setting");
+		const projects = information.filter((el) => el.category === "project");
+		const informationList = {
+			settings: settings,
+			projects: projects,
+		};
+		return c.json(informationList, 200);
+	});
 
 corpus.use("*", restrictedRoute);
 

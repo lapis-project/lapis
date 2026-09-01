@@ -20,6 +20,7 @@
 		"test:article-handler": "vitest articleHandler",
 		"test:bib-handler": "vitest bibHandler",
 		"test:cms-handler": "vitest cmsHandler",
+		"test:corpus-handler": "vitest corpusHandler",
 		"test:question-handler": "vitest questionHandler",
 		"test:user-handler": "vitest userHandler"
 	},

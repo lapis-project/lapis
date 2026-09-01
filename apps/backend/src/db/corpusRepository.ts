@@ -8,7 +8,7 @@ export async function getAllTranscripts(
 	filters?: {
 		age_lower?: number;
 		age_upper?: number;
-		loc_name?: string;
+		locations?: string;
 		dialect_competence?: number;
 		standard_competence?: number;
 		gender?: string;
@@ -16,6 +16,8 @@ export async function getAllTranscripts(
 		comment_search_mode?: "simple" | "regex";
 		transcript_name?: string;
 		instance_id?: number;
+		settings?: Array<string>;
+		projects?: Array<string>;
 	},
 ) {
 	let query = db
@@ -32,8 +34,7 @@ export async function getAllTranscripts(
 		.innerJoin("informant", "informant.id", "informant_survey_conducted.informant_id")
 		.innerJoin("age_group", "age_group.id", "informant.age_group_id")
 		.innerJoin("informant_lives_in_place", "informant_lives_in_place.informant_id", "informant.id")
-		.innerJoin("place", "place.id", "informant_lives_in_place.place_id")
-		.where("project.id", "=", project_id);
+		.innerJoin("place", "place.id", "informant_lives_in_place.place_id");
 
 	// Apply optional filters
 	if (filters?.age_lower !== undefined) {
@@ -42,8 +43,8 @@ export async function getAllTranscripts(
 	if (filters?.age_upper !== undefined) {
 		query = query.where("age_group.upper_limit", "<=", filters.age_upper);
 	}
-	if (filters?.loc_name) {
-		query = query.where("place.place_name", "ilike", `%${filters.loc_name}%`);
+	if (filters?.locations) {
+		query = query.where("place.place_name", "ilike", `%${filters.locations}%`);
 	}
 	if (filters?.dialect_competence !== undefined) {
 		query = query.where("informant.dialect_competence", "=", filters.dialect_competence);
@@ -71,10 +72,19 @@ export async function getAllTranscripts(
 	if (filters?.instance_id) {
 		query = query.where("survey_conducted.instance_id", "=", filters.instance_id);
 	}
+	if (filters?.settings?.length) {
+		query = query.where("survey_type.survey_type_name", "in", filters.settings);
+	}
+	if (filters?.projects?.length) {
+		query = query.where("project.project_name", "in", filters.projects);
+	} else {
+		query = query.where("project.id", "=", project_id);
+	}
 
 	return await query
 		.select(({ eb, fn }) => [
 			eb.ref("survey_conducted.comment").as("transcript_name"),
+			eb.ref("project.project_name").as("project_name"),
 			eb.ref("survey_conducted.conducted_on").as("conducted_on"),
 			eb.ref("survey_conducted.instance_id").as("instance_id"),
 			eb.ref("survey.id").as("survey_id"),
@@ -116,6 +126,7 @@ export async function getAllTranscripts(
 			"place.lat",
 			"place.lon",
 			"place.plz",
+			"project.project_name",
 		])
 		.execute();
 }
@@ -141,6 +152,7 @@ export async function transcriptDetailView(transcript_id: number) {
 		.where("survey_conducted.instance_id", "=", transcript_id)
 		.select(({ eb, fn }) => [
 			"survey_conducted.conducted_on",
+			eb.ref("survey_conducted.comment").as("transcript_name"),
 			eb.ref("survey_conducted.instance_id").as("transcript_id"),
 			"place.place_name",
 			"place.plz",
@@ -160,6 +172,7 @@ export async function transcriptDetailView(transcript_id: number) {
 		])
 		.groupBy([
 			"survey_conducted.instance_id",
+			"survey_conducted.comment",
 			"survey_conducted.conducted_on",
 			"place.place_name",
 			"place.lat",
@@ -169,4 +182,47 @@ export async function transcriptDetailView(transcript_id: number) {
 			"survey_type.survey_type_name",
 		])
 		.execute();
+}
+
+export async function getAllLocationsByProject(project_id: number) {
+	return db
+		.selectFrom("place")
+		.innerJoin("place_survey_conducted", "place_survey_conducted.place_id", "place.id")
+		.innerJoin(
+			"survey_conducted",
+			"survey_conducted.id",
+			"place_survey_conducted.survey_conducted_id",
+		)
+		.innerJoin("survey", "survey.id", "survey_conducted.survey_id")
+		.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
+		.innerJoin("project", "project.id", "project_survey.project_id")
+		.select(["place.id", "place.lat", "place.lon", "place.place_name", "place.plz"])
+		.where("project.id", "=", project_id)
+		.distinct()
+		.execute();
+}
+
+export async function getFilterInformation() {
+	const selectAllSettings = db
+		.selectFrom("survey_type")
+		.innerJoin("survey", "survey.survey_type_id", "survey_type.id")
+		.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
+		.innerJoin("project", "project.id", "project_survey.project_id")
+		.distinct()
+		.select(({ eb }) => [
+			eb.ref("survey_type.id").as("id"),
+			eb.ref("survey_type_name").as("name"),
+			eb.val("setting").as("category"),
+		])
+		.where((eb) => eb.or([eb("project.id", "=", 2), eb("project.main_project_id", "=", 2)]));
+	const selectAllProjects = db
+		.selectFrom("project")
+		.select(({ eb }) => [
+			eb.ref("project.id").as("id"),
+			eb.ref("project.project_name").as("name"),
+			eb.val("project").as("category"),
+		])
+		.where((eb) => eb.or([eb("project.id", "=", 2), eb("project.main_project_id", "=", 2)]));
+
+	return await selectAllSettings.unionAll(selectAllProjects).execute();
 }

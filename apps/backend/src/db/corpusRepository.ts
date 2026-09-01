@@ -8,7 +8,7 @@ export async function getAllTranscripts(
 	filters?: {
 		age_lower?: number;
 		age_upper?: number;
-		locations?: string;
+		locations?: Array<number>;
 		dialect_competence?: number;
 		standard_competence?: number;
 		gender?: string;
@@ -16,8 +16,8 @@ export async function getAllTranscripts(
 		comment_search_mode?: "simple" | "regex";
 		transcript_name?: string;
 		instance_id?: number;
-		settings?: Array<string>;
-		projects?: Array<string>;
+		settings?: Array<number>;
+		projects?: Array<number>;
 	},
 ) {
 	let query = db
@@ -34,7 +34,10 @@ export async function getAllTranscripts(
 		.innerJoin("informant", "informant.id", "informant_survey_conducted.informant_id")
 		.innerJoin("age_group", "age_group.id", "informant.age_group_id")
 		.innerJoin("informant_lives_in_place", "informant_lives_in_place.informant_id", "informant.id")
-		.innerJoin("place", "place.id", "informant_lives_in_place.place_id");
+		.innerJoin("place", "place.id", "informant_lives_in_place.place_id")
+		.where((eb) =>
+			eb.or([eb("project.id", "=", project_id), eb("project.main_project_id", "=", project_id)]),
+		);
 
 	// Apply optional filters
 	if (filters?.age_lower !== undefined) {
@@ -43,8 +46,8 @@ export async function getAllTranscripts(
 	if (filters?.age_upper !== undefined) {
 		query = query.where("age_group.upper_limit", "<=", filters.age_upper);
 	}
-	if (filters?.locations) {
-		query = query.where("place.place_name", "ilike", `%${filters.locations}%`);
+	if (filters?.locations?.length) {
+		query = query.where("place.id", "in", filters.locations);
 	}
 	if (filters?.dialect_competence !== undefined) {
 		query = query.where("informant.dialect_competence", "=", filters.dialect_competence);
@@ -73,12 +76,10 @@ export async function getAllTranscripts(
 		query = query.where("survey_conducted.instance_id", "=", filters.instance_id);
 	}
 	if (filters?.settings?.length) {
-		query = query.where("survey_type.survey_type_name", "in", filters.settings);
+		query = query.where("survey_type.id", "in", filters.settings);
 	}
 	if (filters?.projects?.length) {
-		query = query.where("project.project_name", "in", filters.projects);
-	} else {
-		query = query.where("project.id", "=", project_id);
+		query = query.where("project.id", "in", filters.projects);
 	}
 
 	return await query

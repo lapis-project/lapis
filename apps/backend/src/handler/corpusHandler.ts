@@ -110,6 +110,27 @@ const SearchQuerySchema = object({
 type RunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
 
+function parseIdArray(values: Array<string> | undefined): Array<number> | null {
+	if (!values?.length) {
+		return [];
+	}
+
+	const ids: Array<number> = [];
+	for (const value of values) {
+		if (!/^\d+$/.test(value)) {
+			return null;
+		}
+
+		const id = Number(value);
+		if (!Number.isSafeInteger(id)) {
+			return null;
+		}
+		ids.push(id);
+	}
+
+	return ids;
+}
+
 const corpus = new Hono<AppEnv>()
 	.get("/search/kwic", async (c) => {
 		const rawQuery = c.req.query();
@@ -238,7 +259,7 @@ const corpus = new Hono<AppEnv>()
 		const filters: {
 			age_lower?: number;
 			age_upper?: number;
-			locations?: string;
+			locations?: Array<number>;
 			dialect_competence?: number;
 			standard_competence?: number;
 			gender?: string;
@@ -246,8 +267,8 @@ const corpus = new Hono<AppEnv>()
 			comment_search_mode?: "simple" | "regex";
 			transcript_name?: string;
 			instance_id?: number;
-			settings?: Array<string>;
-			projects?: Array<string>;
+			settings?: Array<number>;
+			projects?: Array<number>;
 		} = {};
 
 		if (rawQuery.age_lower) {
@@ -266,8 +287,12 @@ const corpus = new Hono<AppEnv>()
 			filters.age_upper = ageUpper;
 		}
 
-		if (rawQuery.locations) {
-			filters.locations = rawQuery.locations;
+		const locations = parseIdArray(c.req.queries("locations"));
+		if (locations === null) {
+			return c.json("Invalid locations parameter", 400);
+		}
+		if (locations.length) {
+			filters.locations = locations;
 		}
 
 		if (rawQuery.dialect_competence) {
@@ -310,13 +335,19 @@ const corpus = new Hono<AppEnv>()
 			filters.transcript_name = rawQuery.transcript_name;
 		}
 
-		const settings = c.req.queries("settings");
-		if (settings?.length) {
+		const settings = parseIdArray(c.req.queries("settings"));
+		if (settings === null) {
+			return c.json("Invalid settings parameter", 400);
+		}
+		if (settings.length) {
 			filters.settings = settings;
 		}
 
-		const projects = c.req.queries("projects");
-		if (projects?.length) {
+		const projects = parseIdArray(c.req.queries("projects"));
+		if (projects === null) {
+			return c.json("Invalid projects parameter", 400);
+		}
+		if (projects.length) {
 			filters.projects = projects;
 		}
 

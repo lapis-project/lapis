@@ -16,19 +16,30 @@ describe("Corpus Handler", () => {
 		getAllTranscripts.mockClear();
 	});
 
-	it("passes repeated settings and projects query parameters to the repository", async () => {
+	it("passes repeated location, setting, and project IDs to the repository", async () => {
 		const response = await corpus.request(
-			"/corpus/2?settings=Interview&settings=Questionnaire&projects=Project%20A&projects=Project%20B",
+			"/corpus/2?locations=10&locations=11&settings=20&settings=21&projects=2&projects=3",
 		);
 
 		expect(response.status).toBe(200);
 		expect(getAllTranscripts).toHaveBeenCalledWith(2, {
-			settings: ["Interview", "Questionnaire"],
-			projects: ["Project A", "Project B"],
+			locations: [10, 11],
+			settings: [20, 21],
+			projects: [2, 3],
 		});
 	});
 
-	it("omits settings and projects filters when they are not provided", async () => {
+	it.each(["locations", "settings", "projects"])(
+		"rejects an invalid %s id without querying the repository",
+		async (parameter) => {
+			const response = await corpus.request(`/corpus/2?${parameter}=1&${parameter}=invalid`);
+
+			expect(response.status).toBe(400);
+			expect(getAllTranscripts).not.toHaveBeenCalled();
+		},
+	);
+
+	it("omits location, setting, and project filters when they are not provided", async () => {
 		const response = await corpus.request("/corpus/2");
 
 		expect(response.status).toBe(200);

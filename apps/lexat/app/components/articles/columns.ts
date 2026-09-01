@@ -1,10 +1,10 @@
-import type { ColumnDef } from "@tanstack/vue-table";
+import type { TableColumn } from "@nuxt/ui";
 import { h } from "vue";
 
 import type { ArticleListEntry } from "@/components/articles/articles";
 import ItemActions from "@/components/articles/item-actions.vue";
 
-export const columns: Array<ColumnDef<ArticleListEntry>> = [
+export const columns: Array<TableColumn<ArticleListEntry>> = [
 	{
 		accessorKey: "title",
 		header: () => h("div", { class: "text-left" }, "Title"),

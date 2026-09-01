@@ -239,8 +239,8 @@ onBeforeUnmount(() => {
 		</div>
 		<div class="mt-3 justify-end flex gap-3">
 			<slot name="left"></slot>
-			<Button id="download" @click="handleDownload"
-				><Download class="mr-2 size-4" />{{ t("DataTable.download") }}</Button
+			<UButton id="download" @click="handleDownload" size="lg"
+				><UIcon name="i-lucide-download" class="size-5" />{{ t("DataTable.download") }}</UButton
 			>
 			<slot name="right"></slot>
 		</div>

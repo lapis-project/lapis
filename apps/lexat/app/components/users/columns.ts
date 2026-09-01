@@ -1,11 +1,11 @@
-import type { ColumnDef } from "@tanstack/vue-table";
+import type { TableColumn } from "@nuxt/ui";
 import { h } from "vue";
 
 import type { AdminUser } from "@/pages/admin/user-management.vue";
 
 import UserItemActions from "../../components/users/user-item-actions.vue";
 
-export const columns: Array<ColumnDef<AdminUser>> = [
+export const columns: Array<TableColumn<AdminUser>> = [
 	// {
 	// 	accessorKey: "id",
 	// 	header: () => h("div", { class: "text-left" }, "ID"),
@@ -41,7 +41,7 @@ export const columns: Array<ColumnDef<AdminUser>> = [
 		enableHiding: false,
 		cell: ({ row, table }) => {
 			const user = row.original;
-			const fn = table.options.meta?.refresh as () => Promise<void>;
+			const fn = (table.options.meta as { refresh: () => Promise<void> }).refresh;
 			return h(
 				"div",
 				{ class: "relative" },

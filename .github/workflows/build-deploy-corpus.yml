@@ -16,7 +16,7 @@ jobs:
       default_port: "3000"
       fetch-depth: 10
       submodules: "true"
-      APP_NAME: corpus
+      APP_NAME: livi
       APP_ROOT: /
       PUBLIC_URL: "${{ vars.PUBLIC_URL_FRONTEND }}"
     steps:

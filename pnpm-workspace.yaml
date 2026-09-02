@@ -8,7 +8,7 @@ catalog:
   nuxt: ^4.5.1
   oxfmt: ^0.59.0
   oxlint: ^1.74.0
-  vue: ^3.5.38
+  vue: ^3.5.42
   tailwindcss: ^4.3.1
   typescript: ^6.0.2
   vite: ^7.3.5
@@ -53,6 +53,5 @@ allowBuilds:
   lefthook: true
   "maplibre-gl": true
   "sharp": true
-  simple-git-hooks: set this to true or false
   "unrs-resolver": true
   "vue-demi": true

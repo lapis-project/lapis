@@ -10,7 +10,11 @@ definePageMeta({
 
 const route = useRoute();
 
-const currentId = ref<number | null>(null);
+const currentId = computed<number | null>(() => {
+	const value = route.params.id;
+	const selection = Array.isArray(value) ? Number(value[0]) : Number(value);
+	return Number.isNaN(selection) ? null : selection;
+});
 
 // const { response, isPending, refreshTranscripts } = useTranscript(currentId, "json");
 
@@ -61,6 +65,7 @@ const currentTime = ref(0);
 const duration = ref(0);
 
 const waveformReady = ref(false);
+const waveformFailed = ref(false);
 
 const searchInput = ref("");
 
@@ -90,14 +95,15 @@ function updateScrub(newTime: number) {
 }
 
 function updateProgress() {
-	if (isScrubbing.value) return;
-	currentTime.value = scrub.value;
+	if (isScrubbing.value || !audioRef.value) return;
+	currentTime.value = audioRef.value.currentTime;
+	scrub.value = currentTime.value;
 }
 
 function togglePlayback() {
 	if (!audioRef.value) return;
 
-	if (!waveformReady.value) {
+	if (!waveformReady.value && !waveformFailed.value) {
 		// oxlint-disable-next-line eslint/no-console -- Useful development output
 		console.log("loading...");
 		isLoading.value = true;
@@ -112,6 +118,22 @@ function togglePlayback() {
 		audioRef.value.pause();
 		audioIsPlaying.value = false;
 	}
+}
+
+function handleWaveformReady() {
+	const shouldStartPlayback = isLoading.value;
+	waveformReady.value = true;
+	waveformFailed.value = false;
+	isLoading.value = false;
+	if (shouldStartPlayback) togglePlayback();
+}
+
+function handleWaveformError() {
+	const shouldStartPlayback = isLoading.value;
+	waveformReady.value = false;
+	waveformFailed.value = true;
+	isLoading.value = false;
+	if (shouldStartPlayback) togglePlayback();
 }
 
 function stopPlayback() {
@@ -132,14 +154,9 @@ function resetAudio() {
 }
 
 const audioSrc = computed(() => {
+	if (currentId.value == null) return undefined;
 	const base = env.public.apiBaseUrl;
 	return new URL(`/audio/stream/${currentId.value}`, base).toString();
-});
-
-onMounted(() => {
-	const val = route.params.id;
-	const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
-	currentId.value = isNaN(selection) ? null : selection;
 });
 
 onUnmounted(() => {
@@ -154,13 +171,14 @@ onScopeDispose(() => {
 	}
 });
 
-watch(
-	() => route.params.id,
-	(val) => {
-		const selection = Array.isArray(val) ? Number(val[0]) : Number(val);
-		currentId.value = isNaN(selection) ? null : selection;
-	},
-);
+watch(currentId, () => {
+	waveformReady.value = false;
+	waveformFailed.value = false;
+	isLoading.value = false;
+	audioIsPlaying.value = false;
+	currentTime.value = 0;
+	scrub.value = 0;
+});
 </script>
 
 <template>
@@ -331,26 +349,25 @@ watch(
 						</ClientOnly>
 						<div class="relative p-4 w-full rounded overflow-hidden">
 							<AudioWaveform
+								v-if="currentId != null"
+								:key="currentId"
 								:id="currentId"
 								:audio="audioRef"
-								class="absolute inset-0 w-full h-full z-0 bg-black"
-								:class="{ 'opacity-0 transition-opacity': !audioIsPlaying || !waveformReady }"
+								class="absolute inset-0 w-full h-full z-0 bg-black transition-opacity"
+								:class="{ 'opacity-0': !waveformReady }"
 								:is-playing="audioIsPlaying"
 								:is-scrubbing="isScrubbing"
 								:is-stopped="audioIsStopped"
 								:scrub="scrub"
 								@commit-scrub="commitScrub"
-								@ready="
-									waveformReady = true;
-									isLoading = false;
-									togglePlayback();
-								"
+								@error="handleWaveformError"
+								@ready="handleWaveformReady"
+								@time-change="updateScrub"
 								@update:scrub="updateScrub"
 							/>
 
 							<div
-								class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-none transition-all"
-								:class="{ 'bg-white/80 hover:bg-white': audioIsPlaying }"
+								class="relative z-10 rounded p-2 h-full m-auto w-fit flex justify-center items-center gap-4 bg-white/80 text-black transition-all hover:bg-white"
 							>
 								<Button variant="ghost" @click="togglePlayback">
 									<PlayIcon v-if="!audioIsPlaying && !isLoading" :size="16" />
@@ -370,7 +387,7 @@ watch(
 								>
 									<SquareIcon :size="16" />
 								</Button>
-								<span :class="audioIsPlaying ? `text-black/50` : `text-foreground/20`">|</span>
+								<span class="text-black/50">|</span>
 								<Button variant="ghost">
 									<DownloadIcon :size="16" />
 								</Button>

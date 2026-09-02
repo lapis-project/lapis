@@ -1,5 +1,6 @@
 // composables/use-audio-controller.ts
-import { computed, ref } from "vue";
+import { $fetch } from "ofetch";
+import { computed, onScopeDispose, ref, watch } from "vue";
 
 import { useRoute, useRouter, useRuntimeConfig } from "#imports";
 import type { WaveformData } from "@/types/api";
@@ -102,46 +103,65 @@ export function useAudioStream() {
 	return { audioRef: audioEl, src, bind, play, pause, seekTo, loadTrack, parseTime };
 }
 
-export function useAudioWaveform(instanceId: number, abortController: AbortController) {
+export function useAudioWaveform(instanceId: () => number | null) {
 	const env = useRuntimeConfig();
 
 	const response = ref<WaveformData | null>(null);
 	const status = ref<"idle" | "pending" | "success" | "error">("idle");
 	const error = ref<string | null>(null);
-
-	const waveformUrl = new URL(
-		"/audio/waveform/" + String(instanceId),
-		env.public.apiBaseUrl,
-	).toString();
+	let abortController: AbortController | null = null;
+	let requestSequence = 0;
 
 	const getWaveform = async () => {
+		const id = instanceId();
+		const sequence = ++requestSequence;
+		abortController?.abort();
+		abortController = null;
+		response.value = null;
+		error.value = null;
+
+		if (id == null) {
+			status.value = "idle";
+			return null;
+		}
+
+		const controller = new AbortController();
+		abortController = controller;
 		status.value = "pending";
 
 		try {
-			const { data, error: fetchError } = await useFetch(waveformUrl, {
-				baseURL: env.public.apiBaseUrl,
+			const waveformUrl = new URL(
+				"/audio/waveform/" + String(id),
+				env.public.apiBaseUrl,
+			).toString();
+			const data = await $fetch<unknown>(waveformUrl, {
 				method: "GET",
 				credentials: "include",
-				signal: abortController.signal,
+				signal: controller.signal,
 			});
 
-			if (fetchError.value) {
-				throw fetchError.value;
-			}
+			if (controller.signal.aborted || sequence !== requestSequence) return null;
 
-			if (abortController.signal.aborted) return null;
-
+			response.value = parseWaveform(data);
 			status.value = "success";
-			return (response.value = parseWaveform(data.value));
+			return response.value;
 		} catch (err) {
-			if (err instanceof DOMException && err.name === "AbortError") {
-				error.value = "Abort error";
-				return null;
-			}
+			if (controller.signal.aborted || sequence !== requestSequence) return null;
+
+			response.value = null;
+			error.value = err instanceof Error ? err.message : "Could not load waveform.";
 			status.value = "error";
 			return null;
 		}
 	};
+
+	watch(instanceId, () => void getWaveform(), { immediate: true });
+
+	onScopeDispose(() => {
+		requestSequence += 1;
+		abortController?.abort();
+		abortController = null;
+	});
 
 	const isPending = computed(() => status.value === "pending");
 	const hasError = computed(() => status.value === "error");

@@ -12,52 +12,56 @@ const props = defineProps<{
 
 const emit = defineEmits<{
 	(e: "commit-scrub" | "ready"): void;
+	(e: "error", message: string): void;
 	(e: "update:scrub", value: number): void;
 	(e: "time-change", value: number): void;
 }>();
 
-const container = ref<HTMLElement | string>("");
-const wavesurfer = ref<WaveSurfer | null>(null);
+const WAVEFORM_HEIGHT = 120;
+
+const container = ref<HTMLElement | null>(null);
+const wavesurfer = shallowRef<WaveSurfer | null>(null);
 const status = ref<"loading" | "ready" | "error">("loading");
 
-const abortController = new AbortController();
+const {
+	response: waveform,
+	status: waveformRequestStatus,
+	error: waveformRequestError,
+} = useAudioWaveform(() => props.id);
 
-const { response: waveform, isPending, hasError } = useAudioWaveform(props.id, abortController);
-
-function PlaySurfer() {
-	if (wavesurfer.value == null) return;
-	wavesurfer.value.play();
+function destroyWaveSurfer(instance = wavesurfer.value) {
+	if (!instance) return;
+	instance.destroy();
+	if (wavesurfer.value === instance) wavesurfer.value = null;
 }
 
-function PauseSurfer() {
-	if (wavesurfer.value == null) return;
-	wavesurfer.value.pause();
+function playSurfer() {
+	void wavesurfer.value?.play().catch(() => {});
 }
 
-function ResetPlayer() {
-	if (wavesurfer.value == null) return;
-	wavesurfer.value.stop();
+function pauseSurfer() {
+	wavesurfer.value?.pause();
+}
+
+function resetPlayer() {
+	wavesurfer.value?.stop();
 }
 
 watch(
-	() => {
-		return props.isPlaying;
-	},
-	() => {
-		if (props.isPlaying) {
-			PlaySurfer();
-		} else PauseSurfer();
+	() => props.isPlaying,
+	(isPlaying) => {
+		if (isPlaying) {
+			playSurfer();
+		} else {
+			pauseSurfer();
+		}
 	},
 );
 
 watch(
-	() => {
-		return props.isStopped;
-	},
-	() => {
-		if (props.isStopped) {
-			ResetPlayer();
-		}
+	() => props.isStopped,
+	(isStopped) => {
+		if (isStopped) resetPlayer();
 	},
 );
 
@@ -70,69 +74,88 @@ watch(
 	},
 );
 
-onMounted(async () => {
-	await nextTick();
-	if (props.audio && container.value && waveform.value != null) {
-		wavesurfer.value = WaveSurfer.create({
-			container: container.value,
-			media: props.audio,
-			peaks: waveform.value.channels,
-			duration: waveform.value.duration,
-			height: 120,
-			minPxPerSec: Math.max(4, (waveform.value.channels[0].length * 4) / waveform.value.duration),
-			splitChannels: [
-				{
-					overlay: true,
-					height: 120,
-					waveColor: "rgb(181 71 47 / 38%)",
-					progressColor: "#b5472f",
-				},
-				{
-					overlay: true,
-					height: 120,
-					waveColor: "rgb(40 120 165 / 38%)",
-					progressColor: "#2878a5",
-				},
-			],
-			hideScrollbar: false,
-			autoScroll: true,
-			autoCenter: true,
-			dragToSeek: true,
-		});
+watch(
+	waveformRequestStatus,
+	(requestStatus) => {
+		if (requestStatus !== "error") return;
+		status.value = "error";
+		emit("error", waveformRequestError.value ?? "Could not load waveform.");
+	},
+	{ immediate: true },
+);
 
-		wavesurfer.value.on("timeupdate", (currentTime) => emit("time-change", currentTime));
-		wavesurfer.value.once("ready", () => {
-			if (waveform.value === wavesurfer.value) status.value = "ready";
-		});
-		wavesurfer.value.once("error", () => {
-			if (waveform.value === wavesurfer.value) status.value = "error";
-		});
-		PauseSurfer();
+watch(
+	[() => props.audio, container, waveform, waveformRequestStatus],
+	([media, target, data, requestStatus], _previous, onCleanup) => {
+		destroyWaveSurfer();
+		status.value = requestStatus === "error" ? "error" : "loading";
 
-		// Wait for WaveSurfer to be ready
-		wavesurfer.value.on("ready", () => {
+		if (!media || !target || !data || requestStatus !== "success") return;
+
+		let instance: WaveSurfer;
+		try {
+			instance = WaveSurfer.create({
+				container: target,
+				media,
+				peaks: data.channels,
+				duration: data.duration,
+				height: WAVEFORM_HEIGHT,
+				minPxPerSec: Math.max(4, (data.channels[0].length * 4) / data.duration),
+				splitChannels: [
+					{
+						overlay: true,
+						height: WAVEFORM_HEIGHT,
+						waveColor: "rgb(181 71 47 / 38%)",
+						progressColor: "#b5472f",
+					},
+					{
+						overlay: true,
+						height: WAVEFORM_HEIGHT,
+						waveColor: "rgb(40 120 165 / 38%)",
+						progressColor: "#2878a5",
+					},
+				],
+				hideScrollbar: false,
+				autoScroll: true,
+				autoCenter: true,
+				dragToSeek: true,
+				autoplay: false,
+			});
+		} catch (error) {
+			status.value = "error";
+			emit("error", error instanceof Error ? error.message : "Could not render waveform.");
+			return;
+		}
+
+		wavesurfer.value = instance;
+		onCleanup(() => destroyWaveSurfer(instance));
+
+		instance.on("timeupdate", (currentTime) => {
+			if (wavesurfer.value === instance) emit("time-change", currentTime);
+		});
+		instance.once("ready", () => {
+			if (wavesurfer.value !== instance) return;
+			status.value = "ready";
 			emit("ready");
-
-			PlaySurfer();
+			if (props.isPlaying) playSurfer();
 		});
-
-		wavesurfer.value.on("seeking", (ratio: number) => {
-			const time = ratio * wavesurfer.value!.getDuration();
-
-			emit("update:scrub", time);
+		instance.once("error", (error) => {
+			if (wavesurfer.value !== instance) return;
+			status.value = "error";
+			emit("error", error instanceof Error ? error.message : "Could not render waveform.");
+		});
+		instance.on("seeking", (currentTime) => {
+			if (wavesurfer.value !== instance) return;
+			emit("update:scrub", currentTime);
 			emit("commit-scrub");
 		});
-	}
-});
+	},
+	{ immediate: true, flush: "post" },
+);
 
-onUnmounted(() => {
-	if (wavesurfer.value != null) {
-		wavesurfer.value.destroy();
-		wavesurfer.value = null;
-	}
-});
+onUnmounted(destroyWaveSurfer);
 </script>
 
 <template>
-	<div ref="container" class="absolute z-0" />
+	<div ref="container" class="absolute z-0" :data-status="status" />
 </template>

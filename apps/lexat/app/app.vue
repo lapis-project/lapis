@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import "vue-sonner/style.css"; // https://github.com/unovue/shadcn-vue/issues/1258#issuecomment-2901073646
-
 import { createUrl } from "@acdh-oeaw/lib";
+import * as locales from "@nuxt/ui/locale";
 import type { WebSite, WithContext } from "schema-dts";
 
 const env = useRuntimeConfig();
-
-const locale = useLocale();
 const t = useTranslations();
+const { locale } = useI18n();
 
 const i18nHead = useLocaleHead();
 
@@ -68,12 +66,11 @@ useHead({
 </script>
 
 <template>
-	<NuxtRouteAnnouncer />
-	<NuxtLayout>
-		<NuxtPage />
-		<NuxtLoadingIndicator />
-		<Teleport to="body">
-			<Toaster class="pointer-events-auto" />
-		</Teleport>
-	</NuxtLayout>
+	<UApp :locale="locales[locale]">
+		<NuxtRouteAnnouncer />
+		<NuxtLayout>
+			<NuxtPage />
+			<NuxtLoadingIndicator />
+		</NuxtLayout>
+	</UApp>
 </template>

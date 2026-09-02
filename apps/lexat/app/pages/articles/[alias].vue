@@ -239,17 +239,13 @@ const formattedTitle = computed(
 						<hr class="my-2" />
 						<p class="mb-5">{{ t("ArticleDetailPage.interlinking.text") }}</p>
 						<div class="flex flex-col items-center gap-3">
-							<Button variant="outline" @click="goToMapsPage"
-								><MapPin class="mr-2 size-4" />{{
-									t("ArticleDetailPage.interlinking.go-to-map")
-								}}</Button
-							>
+							<UButton icon="i-lucide-map-pin" variant="outline" size="lg" @click="goToMapsPage">{{
+								t("ArticleDetailPage.interlinking.go-to-map")
+							}}</UButton>
 							{{ t("ArticleDetailPage.interlinking.or") }}
-							<Button variant="outline" @click="goToDbPage"
-								><Database class="mr-2 size-4" />{{
-									t("ArticleDetailPage.interlinking.go-to-db")
-								}}</Button
-							>
+							<UButton variant="outline" icon="i-lucide-database" size="lg" @click="goToDbPage">{{
+								t("ArticleDetailPage.interlinking.go-to-db")
+							}}</UButton>
 						</div>
 					</template>
 				</section>

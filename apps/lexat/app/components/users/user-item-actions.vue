@@ -2,7 +2,6 @@
 import { CircleChevronUp, KeyRound } from "@lucide/vue";
 import { toTypedSchema } from "@vee-validate/zod";
 import type { InferResponseType } from "hono/client";
-import { toast } from "vue-sonner";
 import * as z from "zod";
 
 import type { AdminUser, UserRole } from "@/pages/admin/user-management.vue";
@@ -10,6 +9,7 @@ import type { AdminUser, UserRole } from "@/pages/admin/user-management.vue";
 const env = useRuntimeConfig();
 const { apiClient } = useApiClient();
 const t = useTranslations();
+const toast = useToast();
 
 const isPasswordDialogOpen = ref(false);
 const isUserRoleDialogOpen = ref(false);
@@ -53,11 +53,11 @@ const onSubmitNewPassword = async (body) => {
 		});
 		if (response.length) {
 			isPasswordDialogOpen.value = false;
-			toast.success("New password successfully set.");
+			toast.add({ title: "New password successfully set.", color: "success" });
 		}
 	} catch (error) {
 		console.error(error);
-		toast.error("Could not set new password.");
+		toast.add({ title: "Could not set new password.", color: "error" });
 	}
 };
 
@@ -75,12 +75,12 @@ const onSubmitNewUserRole = async (body) => {
 		});
 		if (response) {
 			isUserRoleDialogOpen.value = false;
-			toast.success("New user role successfully set.");
+			toast.add({ title: "New user role successfully set.", color: "success" });
 			await props.refresh();
 		}
 	} catch (error) {
 		console.error(error);
-		toast.error("Could not set new user role.");
+		toast.add({ title: "Could not set new user role.", color: "error" });
 	}
 };
 

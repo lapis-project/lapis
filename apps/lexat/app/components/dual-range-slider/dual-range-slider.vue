@@ -16,7 +16,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const { labelPosition, value } = toRefs(props);
-const sliderRef = ref(null);
 const initialValue = computed(() => {
 	return Array.isArray(props.value) ? props.value : [props.min, props.max];
 });
@@ -28,7 +27,6 @@ const emitValueChange = (newValue: Array<number> | undefined) => {
 
 <template>
 	<SliderRoot
-		ref="sliderRef"
 		class="relative flex w-full touch-none select-none items-center"
 		:max="props.max"
 		:min="props.min"

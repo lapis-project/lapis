@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from "@nuxt/ui";
 import type { InferResponseType } from "hono/client";
-import { toast } from "vue-sonner";
 import * as z from "zod";
 
 import type { UserRole } from "@/pages/admin/user-management.vue";
@@ -12,6 +11,7 @@ type APICreateUser = InferResponseType<typeof _createUser, 200>;
 
 const env = useRuntimeConfig();
 const t = useTranslations();
+const toast = useToast();
 
 const props = defineProps<{
 	userRoles: Array<UserRole>;
@@ -23,8 +23,6 @@ const emit = defineEmits<{
 
 const signUpSchema = z.object({
 	email: z
-		.string()
-		.trim()
 		.email(t("Auth.email_invalid"))
 		.regex(/@(oeaw\.ac\.at|univie\.ac\.at)$/i, t("Auth.email_domain_invalid")),
 	password: z.string().min(8, t("Auth.password_min_length")),
@@ -64,11 +62,11 @@ const onSubmit = async (event: FormSubmitEvent<SignUpSchema>) => {
 
 		if (response.user) {
 			emit("new-user-created");
-			toast.success(t("Auth.user_creation_succeeded"));
+			toast.add({ title: t("Auth.user_creation_succeeded"), color: "success" });
 		}
 	} catch (error) {
 		console.error(error);
-		toast.error(t("Auth.user_creation_failed"));
+		toast.add({ title: t("Auth.user_creation_failed"), color: "error" });
 	}
 };
 </script>

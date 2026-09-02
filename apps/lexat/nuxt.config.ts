@@ -38,7 +38,7 @@ export default defineNuxtConfig({
 		enabled: process.env.NODE_ENV === "development",
 	},
 
-	extends: ["../shadcn"],
+	extends: ["../ui"],
 
 	experimental: {
 		defaults: {
@@ -82,7 +82,6 @@ export default defineNuxtConfig({
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
-		"shadcn-nuxt",
 		"@nuxtjs/sitemap",
 		"@nuxt/ui",
 	],

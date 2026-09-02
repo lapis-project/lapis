@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { AlertCircle } from "@lucide/vue";
-
 const t = useTranslations();
 </script>
 
 <template>
-	<Alert class="mb-5 max-w-md grid sm:hidden">
-		<AlertCircle class="h-4 w-4" />
-		<AlertTitle>{{ t("MobileAlert.title") }}</AlertTitle>
-		<AlertDescription> {{ t("MobileAlert.text") }} </AlertDescription>
-	</Alert>
+	<UAlert
+		color="neutral"
+		:title="t('MobileAlert.title')"
+		:description="t('MobileAlert.text')"
+		icon="i-lucide-alert-circle"
+		class="max-w-sm sm:hidden"
+	/>
 </template>

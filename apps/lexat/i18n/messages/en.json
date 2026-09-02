@@ -67,7 +67,8 @@
 			"delete_dialog": {
 				"title": "Delete Image",
 				"description": "Are you sure you want to delete the image assigned to",
-				"warning": "? This action cannot be undone."
+				"warning": "? This action cannot be undone.",
+				"confirm": "Delete image"
 			}
 		},
 		"articles": {
@@ -94,7 +95,9 @@
 			"bibliography": {
 				"label": "Bibliography",
 				"edit": "Bearbeiten",
-				"placeholder": "entry"
+				"placeholder": "Search and add a bibliography entry...",
+				"selected": "{count} selected",
+				"remove": "Remove {title} from the bibliography"
 			},
 			"category": {
 				"label": "Category",
@@ -560,7 +563,11 @@
 	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
-		"empty": "No results found"
+		"empty": "No results found",
+		"order_hint": "This order is used when generating the citation.",
+		"move_up": "Move {item} up",
+		"move_down": "Move {item} down",
+		"remove": "Remove {item}"
 	},
 	"TextEditor": {
 		"image": {

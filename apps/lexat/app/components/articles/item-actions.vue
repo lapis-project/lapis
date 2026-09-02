@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Edit, Trash } from "@lucide/vue";
-import { toast } from "vue-sonner";
 
 const t = useTranslations();
+const toast = useToast();
 
 const props = defineProps<{
 	item: {
@@ -18,9 +18,9 @@ const editItem = async () => {
 const deleteItem = async () => {
 	try {
 		await props.onDelete(props.item.post_id);
-		toast.success(t("AdminPage.articles.deletion_succeeded"));
+		toast.add({ title: t("AdminPage.articles.deletion_succeeded"), color: "success" });
 	} catch {
-		toast.error(t("AdminPage.articles.deletion_failed"));
+		toast.add({ title: t("AdminPage.articles.deletion_failed"), color: "error" });
 	}
 };
 </script>

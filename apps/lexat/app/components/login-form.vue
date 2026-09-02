@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { toTypedSchema } from "@vee-validate/zod";
+import type { FormSubmitEvent } from "@nuxt/ui";
 import type { InferResponseType } from "hono/client";
-import { useForm } from "vee-validate";
-import { toast } from "vue-sonner";
 import * as z from "zod";
+
+const toast = useToast();
 
 const localePath = useLocalePath();
 
@@ -20,25 +20,28 @@ const { apiClient } = useApiClient();
 const _doLogin = apiClient.auth.login.$post;
 type APILogin = InferResponseType<typeof _doLogin, 200>;
 
-const signInSchema = toTypedSchema(
-	z.object({
-		email: z.string({ required_error: "Please specify an e-mail address" }),
-		password: z.string({ required_error: "Please specify a password" }),
-	}),
-);
-
-const { handleSubmit } = useForm({
-	validationSchema: signInSchema,
+const signInSchema = z.object({
+	email: z
+		.email("Please specify an e-mail address")
+		.regex(/@(oeaw\.ac\.at|univie\.ac\.at)$/i, t("Auth.email_domain_invalid")),
+	password: z.string("Password is required"),
 });
 
-const onSubmit = handleSubmit(async (formValues) => {
+type SignInSchema = z.output<typeof signInSchema>;
+
+const state = reactive<Partial<SignInSchema>>({
+	email: undefined,
+	password: undefined,
+});
+
+async function onSubmit(event: FormSubmitEvent<SignInSchema>) {
 	try {
 		const apiUrl = "/auth/login";
 
 		const response = await $fetch<APILogin>(apiUrl, {
 			baseURL: env.public.apiBaseUrl,
 			method: "POST",
-			body: { ...formValues },
+			body: { ...state },
 			credentials: "include",
 		});
 		const redirectPath = route.query.redirect;
@@ -48,48 +51,21 @@ const onSubmit = handleSubmit(async (formValues) => {
 		}
 	} catch (error) {
 		console.error(error);
-		toast.error(t("Auth.login_failed"));
+		toast.add({ title: t("Auth.login_failed"), color: "error" });
 	}
-});
+}
 </script>
 
 <template>
-	<form class="w-2/3 space-y-6" @submit="onSubmit">
-		<FormField v-slot="{ componentField }" name="email">
-			<FormItem>
-				<FormLabel>{{ t("Auth.email") }}</FormLabel>
-				<FormControl>
-					<Label class="sr-only" for="email">{{ t("Auth.email") }}</Label>
-					<Input
-						id="email"
-						autocomplete="username"
-						:placeholder="t('Auth.email')"
-						required
-						type="email"
-						v-bind="componentField"
-					/>
-				</FormControl>
-				<FormMessage />
-			</FormItem>
-		</FormField>
+	<UForm :schema="signInSchema" :state="state" class="space-y-4" @submit="onSubmit">
+		<UFormField label="Email" name="email">
+			<UInput v-model="state.email" />
+		</UFormField>
 
-		<FormField v-slot="{ componentField }" name="password">
-			<FormItem>
-				<FormLabel>{{ t("Auth.password") }}</FormLabel>
-				<FormControl>
-					<Label class="sr-only" for="password">{{ t("Auth.password") }}</Label>
-					<Input
-						id="password"
-						autocomplete="current-password"
-						:placeholder="t('Auth.password')"
-						type="password"
-						v-bind="componentField"
-					/>
-				</FormControl>
-				<FormMessage />
-			</FormItem>
-		</FormField>
+		<UFormField label="Password" name="password">
+			<UInput v-model="state.password" type="password" />
+		</UFormField>
 
-		<Button type="submit"> {{ t("Auth.login") }} </Button>
-	</form>
+		<UButton type="submit"> Submit </UButton>
+	</UForm>
 </template>

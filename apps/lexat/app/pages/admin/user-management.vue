@@ -58,7 +58,7 @@ const onNewUserCreated = async () => {
 		<div class="flex items-center justify-between">
 			<PageTitle>{{ t("UserManagement.title") }}</PageTitle>
 			<UModal v-model:open="isDialogOpen" :title="t('UserManagement.create-new-user')">
-				<UButton icon="i-lucide-plus">
+				<UButton icon="i-lucide-plus" size="lg">
 					{{ t("UserManagement.create-new-user") }}
 				</UButton>
 

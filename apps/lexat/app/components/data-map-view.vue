@@ -3,7 +3,6 @@ import "v-onboarding/dist/style.css";
 
 import { keyByToMap } from "@acdh-oeaw/lib";
 import {
-	ChevronDownIcon,
 	CircleHelp,
 	Database,
 	FileText,
@@ -12,7 +11,6 @@ import {
 	MapPinIcon,
 	Maximize2Icon,
 	Minimize2Icon,
-	RotateCcwIcon,
 	UserIcon,
 } from "@lucide/vue";
 import { refDebounced } from "@vueuse/core";
@@ -49,7 +47,6 @@ import {
 
 import type { ComboboxOption } from "../../shadcn/components/base-combobox.vue";
 import CopyToClipboard from "./copy-to-clipboard.vue";
-import MultiSelect from "./multi-select.vue";
 
 const colorMode = useColorMode();
 const t = useTranslations();
@@ -74,7 +71,7 @@ const mappedQuestions = computed(() => {
 		questions.value?.map((q) => ({
 			id: q.id,
 			value: q.id.toString(),
-			label: q.phenomenon_name,
+			label: q.phenomenon_name ?? "n/A",
 		})) ?? null
 	);
 });
@@ -85,7 +82,7 @@ const activeSurveyRounds = ref<Array<string>>(["1", "2"]);
 const changedColors = ref<Record<string, string>>({});
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
-const activeQuestion = ref<string | null>(null);
+const activeQuestion = ref<{ id: number; value: string; label: string } | undefined>(undefined);
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>(["all"]);
 const mapExpanded = ref<boolean>(false);
@@ -94,12 +91,12 @@ const showRegionNames = ref<boolean>(false);
 const showRegions = ref<boolean>(true);
 const showStateCapitals = ref<boolean>(true);
 const showUrbanLocations = ref<boolean>(true);
-const showAdvancedFilters = ref<boolean>(false);
+const open = ref(false);
 const showVariantPercentages = ref<boolean>(true);
 const highlightedRegion = ref<string>("");
 
 const activeQuestionId = computed(() => {
-	return activeQuestion.value ? parseInt(activeQuestion.value) : null;
+	return activeQuestion.value?.id || undefined;
 	// return mappedQuestions.value?.find((q) => q.value === activeQuestion.value)?.id;
 });
 
@@ -304,14 +301,12 @@ const uniqueVariants = computed(() => {
 	return getSortedVariants(countedUniqueVariants);
 });
 
-const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
+const uniqueVariantsOptions = computed<Array<{ label: string; value: string }>>(() => {
 	const variantOptions = uniqueVariants.value
-		.map((variant) => ({
-			label: variant.anno,
-			value: variant.anno,
-			level: 1,
-			group: variant.anno.toLocaleLowerCase(),
-		}))
+		?.flatMap((variant) => {
+			const name = variant.annotation_name;
+			return name ? [{ label: name, value: name }] : [];
+		})
 		.toSorted((a, b) => {
 			// extract priority values from the specialOrder object or default to 0
 			const priorityA = specialOrder[a.label] ?? 0;
@@ -323,11 +318,25 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 	variantOptions.unshift({
 		label: t("MapsPage.selection.register.show-all") || "Alle anzeigen",
 		value: "all",
-		level: 0,
-		group: "all",
 	});
 	return variantOptions;
 });
+
+const updateActiveVariants = (selection: Array<string>) => {
+	const wasAllSelected = activeVariants.value.includes("all");
+	const isAllSelected = selection.includes("all");
+
+	if (isAllSelected && !wasAllSelected) {
+		// Selecting "all" replaces any individual variants.
+		activeVariants.value = ["all"];
+	} else if (isAllSelected) {
+		// Selecting an individual variant while "all" is active makes it the new selection.
+		activeVariants.value = selection.filter((variant) => variant !== "all");
+	} else {
+		// An empty selection has the same filter semantics as "all", so keep the state explicit.
+		activeVariants.value = selection.length > 0 ? selection : ["all"];
+	}
+};
 
 function onLayerClick(features: Array<MapGeoJSONFeature & Pick<GeoJsonFeature, "properties">>) {
 	const entitiesMap = new Map<number, SurveyResponse>();
@@ -578,7 +587,7 @@ const getQueryArray = (
 };
 
 const updateUrlParams = async () => {
-	const queryObject: Record<string, string | Array<string>> = {};
+	const queryObject: LocationQueryRaw = {};
 	Object.entries(route.query).forEach(([key, value]) => {
 		if (!["a", "q", "r", "v", "c", "sv", "sr"].includes(key)) {
 			queryObject[key] = value;
@@ -591,7 +600,7 @@ const updateUrlParams = async () => {
 		queryObject.a = activeAgeGroup.value.toString();
 	}
 	if (activeQuestion.value) {
-		queryObject.q = activeQuestion.value;
+		queryObject.q = activeQuestion.value.value;
 	}
 	if (activeRegisters.value.length > 0) {
 		queryObject.r = activeRegisters.value;
@@ -628,6 +637,12 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	await updateUrlParams();
 };
 
+const fallbackQuestion = {
+	id: 11,
+	value: "11",
+	label: "AUGENLID",
+};
+
 const initializeFromUrl = () => {
 	// flag to track if we generated local state
 	let requiresUrlUpdate = false;
@@ -639,14 +654,15 @@ const initializeFromUrl = () => {
 
 	const questionParam = route.query.q;
 	if (typeof questionParam === "string" && questionParam !== "") {
-		activeQuestion.value = questionParam;
+		activeQuestion.value =
+			mappedQuestions.value?.find((m) => m.value === questionParam) ?? fallbackQuestion;
 	} else if (mappedQuestions.value && mappedQuestions.value.length > 0) {
 		// Pick a random question if none is specified in the URL
 		const randomIndex = Math.floor(Math.random() * mappedQuestions.value.length);
-		const randomQuestion = mappedQuestions.value[randomIndex];
+		const randomQuestion = mappedQuestions.value.find((m) => m.id === randomIndex);
 
 		if (randomQuestion) {
-			activeQuestion.value = randomQuestion.value;
+			activeQuestion.value = randomQuestion;
 			requiresUrlUpdate = true; // flag that we need to sync this new random state to the URL
 		}
 	}
@@ -867,34 +883,44 @@ watch(activeVariants, updateUrlParams, {
 
 <template>
 	<div class="relative flex flex-col gap-5">
-		<Collapsible id="welcome" v-model:open="showAdvancedFilters">
+		<div id="welcome">
 			<div class="flex gap-2">
 				<div class="grow rounded-lg border p-5">
 					<div class="grid grid-cols-4 gap-5">
 						<div id="phenomenon">
 							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.variable.title") }}
-								<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
-									<InfoIcon class="size-4"></InfoIcon>
-								</InfoTooltip>
+								<UTooltip
+									:content="{ side: 'top' }"
+									:delay-duration="0"
+									:text="t('MapsPage.selection.variable.tooltip')"
+								>
+									<UIcon name="i-lucide-info" class="size-4" />
+								</UTooltip>
 							</div>
-							<ComboboxBase
+							<USelectMenu
 								v-if="mappedQuestions?.length"
 								v-model="activeQuestion"
 								data-testid="questions"
-								has-search
-								:options="mappedQuestions"
+								:items="mappedQuestions"
+								size="lg"
 								:placeholder="t('MapsPage.selection.variable.placeholder')"
+								class="w-64"
 							/>
 						</div>
 						<div id="register">
 							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.register.title") }}
-								<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
-									<InfoIcon class="size-4"></InfoIcon>
-								</InfoTooltip>
+								<UTooltip
+									:content="{ side: 'top' }"
+									:delay-duration="0"
+									arrow
+									:text="t('MapsPage.selection.register.tooltip')"
+								>
+									<UIcon name="i-lucide-info" class="size-4" />
+								</UTooltip>
 							</div>
-							<MultiSelect
+							<RegisterSelect
 								v-model="activeRegisters"
 								data-testid="registers"
 								:options="registerOptions"
@@ -904,16 +930,24 @@ watch(activeVariants, updateUrlParams, {
 						<div id="variant">
 							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.variants.title") }}
-								<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
-									<InfoIcon class="size-4"></InfoIcon>
-								</InfoTooltip>
+								<UTooltip
+									:content="{ side: 'top' }"
+									:delay-duration="0"
+									arrow
+									:text="t('MapsPage.selection.variants.tooltip')"
+								>
+									<UIcon name="i-lucide-info" class="size-4" />
+								</UTooltip>
 							</div>
-							<MultiSelect
-								v-model="activeVariants"
+							<USelect
 								data-testid="variants"
-								:options="uniqueVariantsOptions"
+								:model-value="activeVariants"
+								multiple
+								size="lg"
+								:items="uniqueVariantsOptions"
 								:placeholder="t('MapsPage.selection.variants.placeholder')"
-								single-level
+								class="w-62"
+								@update:model-value="updateActiveVariants"
 							/>
 						</div>
 						<div id="age-group">
@@ -933,142 +967,146 @@ watch(activeVariants, updateUrlParams, {
 							</div>
 						</div>
 					</div>
-					<CollapsibleContent>
-						<hr class="mt-5" />
-						<div class="mt-4 grid grid-cols-4 gap-5">
-							<div>
-								<div class="mb-1 ml-1 text-sm font-semibold">
-									{{ t("MapsPage.selection.basemap.title") }}
-								</div>
-								<BaseSelect
-									v-model="activeBasemap"
-									:options="basemapOptions"
-									:placeholder="t('MapsPage.selection.basemap.placeholder')"
-								/>
-								<div class="mt-2 mb-1 ml-1 text-sm font-semibold">
-									{{ t("MapsPage.selection.survey.title") }}
-								</div>
-								<BaseSelect
-									v-model="activeSurveyRounds"
-									data-testid="survey"
-									multiple
-									:options="surveyRoundOptions"
-									size="large"
-								/>
-							</div>
-							<div class="">
-								<div class="mb-1 ml-1 text-sm font-semibold">
-									{{ t("MapsPage.selection.display-options") }}
-								</div>
-								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showData" v-model="simplifiedView" />
-									<label
-										class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-										for="showData"
-									>
-										{{ t("MapsPage.selection.simplified-view.label") }}
-										<InfoTooltip :content="t('MapsPage.selection.simplified-view.tooltip')">
-											<InfoIcon class="size-4"></InfoIcon>
-										</InfoTooltip>
-									</label>
-								</div>
-								<!-- <div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showRegionNames" v-model="showRegionNames" />
-									<label
-										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-										for="showRegionNames"
-									>
-										{{ t("MapsPage.selection.show-region-names") }}
-									</label>
-								</div> -->
-								<div class="flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showRegions" v-model="showRegions" />
-									<label
-										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-										for="showRegions"
-									>
-										{{ t("MapsPage.selection.show-regions") }}
-									</label>
-								</div>
-							</div>
-							<div class="">
-								<div class="mb-1 ml-1 text-sm font-semibold">
-									{{ t("MapsPage.selection.filter-locations") }}
-								</div>
-								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showStateCapitals" v-model="showStateCapitals" />
-									<label
-										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-										for="showStateCapitals"
-									>
-										{{ t("MapsPage.selection.show-state-capitals") }}
-									</label>
-								</div>
-								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showUrbanLocations" v-model="showUrbanLocations" />
-									<label
-										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-										for="showUrbanLocations"
-									>
-										{{ t("MapsPage.selection.show-urban-locations") }}
-									</label>
-								</div>
-								<LocationSearch
-									v-if="filteredPoints?.length"
-									v-model="activeLocations"
-									:options="activeLocationOptions"
-									:placeholder="t('MapsPage.selection.locations')"
-								/>
-							</div>
-							<div
-								v-if="mappedColors && Object.values(mappedColors).length"
-								class="col-span-1 text-sm font-semibold"
-							>
-								<div class="mb-1 ml-1 text-sm font-semibold">
-									{{ t("MapsPage.selection.legend") }}
-								</div>
-
-								<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
-									<Checkbox id="showVariantPercentages" v-model="showVariantPercentages" />
-									<label
-										class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-										for="showVariantPercentages"
-									>
-										{{ t("MapsPage.selection.show-variant-percentages") }}
-									</label>
-								</div>
-								<div class="flex flex-wrap gap-2">
-									<ColorPicker
-										v-for="(color, index) in Object.values(mappedColors)"
-										:key="index"
-										:model-value="Object.values(mappedColors)[index]"
-										@update:model-value="handleColorUpdate(index, $event)"
+					<UCollapsible v-model:open="open">
+						<template #content>
+							<hr class="mt-5" />
+							<div class="mt-4 grid grid-cols-4 gap-5">
+								<div>
+									<div class="mb-1 ml-1 text-sm font-semibold">
+										{{ t("MapsPage.selection.basemap.title") }}
+									</div>
+									<USelect
+										v-model="activeBasemap"
+										:items="basemapOptions"
+										:placeholder="t('MapsPage.selection.basemap.placeholder')"
+										size="lg"
+										class="w-64"
+									/>
+									<div class="mt-2 mb-1 ml-1 text-sm font-semibold">
+										{{ t("MapsPage.selection.survey.title") }}
+									</div>
+									<BaseSelect
+										v-model="activeSurveyRounds"
+										data-testid="survey"
+										multiple
+										:options="surveyRoundOptions"
+										size="large"
 									/>
 								</div>
+								<div class="">
+									<div class="mb-1 ml-1 text-sm font-semibold">
+										{{ t("MapsPage.selection.display-options") }}
+									</div>
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+										<UCheckbox id="showData" v-model="simplifiedView" />
+										<label
+											class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+											for="showData"
+										>
+											{{ t("MapsPage.selection.simplified-view.label") }}
+											<InfoTooltip :content="t('MapsPage.selection.simplified-view.tooltip')">
+												<InfoIcon class="size-4"></InfoIcon>
+											</InfoTooltip>
+										</label>
+									</div>
+									<div class="flex w-64 space-x-2 self-center rounded border p-2">
+										<UCheckbox id="showRegions" v-model="showRegions" />
+										<label
+											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+											for="showRegions"
+										>
+											{{ t("MapsPage.selection.show-regions") }}
+										</label>
+									</div>
+								</div>
+								<div class="">
+									<div class="mb-1 ml-1 text-sm font-semibold">
+										{{ t("MapsPage.selection.filter-locations") }}
+									</div>
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+										<UCheckbox id="showStateCapitals" v-model="showStateCapitals" />
+										<label
+											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+											for="showStateCapitals"
+										>
+											{{ t("MapsPage.selection.show-state-capitals") }}
+										</label>
+									</div>
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+										<UCheckbox id="showUrbanLocations" v-model="showUrbanLocations" />
+										<label
+											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+											for="showUrbanLocations"
+										>
+											{{ t("MapsPage.selection.show-urban-locations") }}
+										</label>
+									</div>
+									<LocationSearch
+										v-if="filteredPoints?.length"
+										v-model="activeLocations"
+										:options="activeLocationOptions"
+										:placeholder="t('MapsPage.selection.locations')"
+									/>
+								</div>
+								<div
+									v-if="mappedColors && Object.values(mappedColors).length"
+									class="col-span-1 text-sm font-semibold"
+								>
+									<div class="mb-1 ml-1 text-sm font-semibold">
+										{{ t("MapsPage.selection.legend") }}
+									</div>
+
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+										<UCheckbox id="showVariantPercentages" v-model="showVariantPercentages" />
+										<label
+											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+											for="showVariantPercentages"
+										>
+											{{ t("MapsPage.selection.show-variant-percentages") }}
+										</label>
+									</div>
+									<div class="flex flex-wrap gap-2">
+										<ColorPicker
+											v-for="(color, index) in Object.values(mappedColors)"
+											:key="index"
+											:model-value="Object.values(mappedColors)[index]"
+											@update:model-value="handleColorUpdate(index, $event)"
+										/>
+									</div>
+								</div>
 							</div>
-						</div>
-					</CollapsibleContent>
+						</template>
+					</UCollapsible>
 				</div>
-				<div class="flex flex-col gap-2">
-					<Button
+				<div class="grid content-start gap-2">
+					<UButton
 						id="reset"
 						data-testid="reset"
-						size="icon"
+						size="lg"
+						color="neutral"
 						variant="outline"
+						icon="i-lucide-rotate-ccw"
 						@click="resetSelection()"
-						><RotateCcwIcon class="size-4"
-					/></Button>
-					<ClientOnly>
-						<CollapsibleTrigger as-child
-							><Button id="advanced" size="icon" variant="outline"
-								><ChevronDownIcon
-									class="size-4"
-									:class="{ 'rotate-180': showAdvancedFilters }" /></Button
-						></CollapsibleTrigger>
-					</ClientOnly>
+					/>
+					<UButton
+						id="advanced"
+						aria-label="Toggle advanced filters"
+						:aria-expanded="open"
+						size="lg"
+						color="neutral"
+						variant="outline"
+						square
+						@click="open = !open"
+					>
+						<UIcon
+							name="i-lucide-chevron-down"
+							class="size-5 transition-transform"
+							:class="{ 'rotate-180': open }"
+						/>
+					</UButton>
 				</div>
 			</div>
-		</Collapsible>
+		</div>
 		<VisualisationContainer
 			v-slot="{ height, width }"
 			class="border"
@@ -1149,24 +1187,25 @@ watch(activeVariants, updateUrlParams, {
 				</div>
 			</div>
 			<div id="expand" class="absolute right-2 top-2 z-10">
-				<Button
+				<UButton
 					aria-label="Fullscreen"
-					size="icon"
+					size="xl"
 					variant="outline"
+					color="neutral"
+					:icon="!mapExpanded ? 'i-lucide-fullscreen' : 'i-lucide-minimize-2'"
 					@click="mapExpanded = !mapExpanded"
-					><component :is="mapExpanded ? Minimize2Icon : Maximize2Icon" class="size-4"
-				/></Button>
+				/>
 			</div>
 			<div v-if="stimulusDialogRef?.hasImage" class="absolute top-14 right-2 z-10">
-				<Button
-					size="icon"
+				<UButton
+					size="lg"
 					:title="t('MapsPage.show-stimulus')"
 					variant="outline"
 					@click="handleShowImage"
 				>
-					<Image class="size-5" />
+					<UIcon name="i-lucide-image" class="size-5" />
 					<span class="sr-only">Show Phenomenon Image</span>
-				</Button>
+				</UButton>
 			</div>
 			<div
 				v-if="filteredPoints?.length && numberOfInformants"
@@ -1178,11 +1217,11 @@ watch(activeVariants, updateUrlParams, {
 					class="rounded-md border border-input bg-background p-3 text-sm text-foreground shadow-md"
 				>
 					<div class="mb-1 flex items-center gap-1" data-testid="datapoints">
-						<MapPinIcon class="size-4" /> {{ t("MapsPage.map.datapoints") }}:
+						<UIcon name="i-lucide-map-pin" class="size-4" /> {{ t("MapsPage.map.datapoints") }}:
 						{{ filteredPoints.length }}
 					</div>
 					<div class="flex items-center gap-1" data-testid="informants">
-						<UserIcon class="size-4" />{{ t("MapsPage.map.informants") }}:
+						<UIcon name="i-lucide-user" class="size-4" />{{ t("MapsPage.map.informants") }}:
 						{{ numberOfInformants }}
 					</div>
 				</div>
@@ -1290,5 +1329,5 @@ watch(activeVariants, updateUrlParams, {
 		>
 		</OnboardingWrapper>
 	</div>
-	<StimulusDialog ref="stimulusDialogRef" :phenomenon-id="activeQuestionId" />
+	<!-- <StimulusDialog ref="stimulusDialogRef" :phenomenon-id="activeQuestionId" /> -->
 </template>

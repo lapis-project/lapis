@@ -19,11 +19,11 @@ const { response: places, isPending, hasError } = usePlaces(2);
 
 const emit = defineEmits(["closeFilterSidebar", "handleBookmark", "handleSelection"]);
 
-const activeContext = ref<string | null>(null);
+const activeContext = ref<number | null>(null);
 const activeAgeGroup = ref<string | null>(null);
 const activeGender = ref<string | null>(null);
-const activeSetting = ref<string | null>(null);
-const activeLocation = ref<string | null>(null);
+const activeSetting = ref<number | null>(null);
+const activeLocation = ref<number | null>(null);
 
 const activeFilterCount = computed(() => {
 	return [
@@ -47,29 +47,6 @@ const ageRange = computed(() => {
 		upper,
 	};
 });
-
-// const projectOptions = ref<Array<{ label: string; value: string }>>([
-// 	{ label: "PP01", value: "PP01" },
-// 	{ label: "PP02", value: "PP02" },
-// 	{ label: "PP03", value: "PP03" },
-// 	{ label: "PP04", value: "PP04" },
-// 	{ label: "PP05", value: "PP05" },
-// 	{ label: "PP06", value: "PP06" },
-// 	{ label: "PP08", value: "PP08" },
-// 	{ label: "PP10", value: "PP10" },
-// 	{ label: "PP11", value: "PP11" },
-// ]);
-
-// const settingOptions = ref<Array<{ label: string; value: string }>>([
-// 	{ label: "Interview", value: "Interview" },
-// 	{ label: "Gespräch ohne Explorator/in", value: "Gespräch ohne Explorator/in" },
-// 	{ label: "Übersetzungen", value: "Übersetzungen" },
-// 	{ label: "Vorlesen", value: "Vorlesen" },
-// 	{ label: "Papier-Fragebogen", value: "Papier-Fragebogen" },
-// 	{ label: "Online-Fragebogen", value: "Online-Fragebogen" },
-// 	{ label: "Fragebuch", value: "Fragebuch" },
-// 	{ label: "Experimente (SPT und andere)", value: "Experimente (SPT und andere)" },
-// ]);
 
 const projectOptions = computed<Array<{ label: string; value: number }>>(() => {
 	return (filter.value?.projects ?? [])
@@ -116,6 +93,45 @@ const dialectCompetenceValue = ref<number[] | null>(null);
 
 const standardCompetenceEnabled = ref(false);
 const standardCompetenceValue = ref<number[] | null>(null);
+
+onMounted(async () => {
+	const query = route.query;
+	const locationQuery = route.query.locations;
+	const settingQuery = route.query.settings;
+	const projectQuery = route.query.projects;
+
+	if (projectQuery) {
+		activeContext.value = Number(Array.isArray(projectQuery) ? projectQuery[0] : projectQuery);
+	}
+
+	if (settingQuery) {
+		activeSetting.value = Number(Array.isArray(settingQuery) ? settingQuery[0] : settingQuery);
+	}
+
+	if (locationQuery) {
+		activeLocation.value = Number(Array.isArray(locationQuery) ? locationQuery[0] : locationQuery);
+	}
+
+	activeGender.value = query.gender
+		? String(Array.isArray(query.gender) ? query.gender[0] : query.gender)
+		: null;
+
+	if (query.age_lower || query.age_upper) {
+		activeAgeGroup.value = `${query.age_lower ?? 18}-${query.age_upper ?? 999}`;
+	}
+
+	if (query.standard_competence) {
+		standardCompetenceEnabled.value = true;
+		await nextTick();
+		standardCompetenceValue.value = [Number(query.standard_competence)];
+	}
+
+	if (query.dialect_competence) {
+		dialectCompetenceEnabled.value = true;
+		await nextTick();
+		dialectCompetenceValue.value = [Number(query.dialect_competence)];
+	}
+});
 
 watch(
 	() => {

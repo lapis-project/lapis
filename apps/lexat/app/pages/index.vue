@@ -23,7 +23,7 @@ usePageMetadata({
 
 <template>
 	<MainContent class="container py-16">
-		<section class="mb-16 pb-16 border-b">
+		<section class="mb-16 pb-16 border-b border-muted">
 			<div class="article-content mx-auto max-w-4xl">
 				<h1 class="text-left font-semibold mb-6 sm:mb-10 text-3xl">
 					{{ t("HomePage.introduction.title") }}
@@ -105,12 +105,12 @@ usePageMetadata({
 			</div>
 		</section>
 
-		<section class="mb-16 flex flex-col items-center pb-12 border-b">
+		<section class="mb-16 flex flex-col items-center pb-12 border-b border-muted">
 			<h2 class="text-3xl font-semibold mb-12">{{ t("HomePage.charts.title") }}</h2>
 			<StatsSection data-testid="stats-count" />
 		</section>
 
-		<section class="mb-16 pb-16 border-b">
+		<section class="mb-16 pb-16 border-b border-muted">
 			<div class="article-content mx-auto max-w-4xl">
 				<h2 class="text-3xl font-semibold">{{ t("HomePage.team.title") }}</h2>
 				<h3>{{ t("HomePage.team.head") }}</h3>
@@ -168,7 +168,7 @@ usePageMetadata({
 			</div>
 		</div> -->
 
-		<!-- <section class="article-content flex flex-col mb-16 border-b pb-16">
+		<!-- <section class="article-content flex flex-col mb-16 border-b border-muted pb-16">
 			<p class="max-w-2xl mx-auto text-center">
 				<template v-if="currentLocale === 'de'">
 					Interesse geweckt? Dann werde Teil des Forschungsprojekts und nimm an der aktuellen

@@ -37,7 +37,7 @@ test.describe("DB page functionality", () => {
 
 		// change the register
 		await page.getByTestId("registers").click();
-		await page.getByRole("option", { name: /Ihr Hochdeutsch/ }).click();
+		await page.getByRole("treeitem", { name: /Ihr Hochdeutsch/ }).click();
 
 		await expect(page).toHaveURL((url) => {
 			const p = new URL(url).searchParams;
@@ -90,6 +90,21 @@ test.describe("DB page functionality", () => {
 
 		const results = page.locator("main").getByText(/^\d+\s+Ergebnisse$/);
 		await expect(results).toHaveText(/5800\s+Ergebnisse/);
+	});
+
+	test("register groups select their children and collapse to show all", async ({ page }) => {
+		const registers = page.getByTestId("registers");
+		await registers.click();
+
+		await page.getByRole("treeitem", { name: "Standardsprachliche Register" }).click();
+		await expect(page).toHaveURL((url) => {
+			return url.searchParams.getAll("r").join(",") === "1,4,5,6";
+		});
+		await expect(registers).toContainText("Standardsprachliche Register");
+
+		await page.getByRole("treeitem", { name: "Standardfernere Register" }).click();
+		await expect(page).toHaveURL((url) => url.searchParams.get("r") === "all");
+		await expect(registers).toContainText("Alle anzeigen");
 	});
 
 	test("rows per page", async ({ page }) => {

@@ -1,7 +1,5 @@
 import { fileURLToPath } from "node:url";
 
-import tailwindcss from "@tailwindcss/vite";
-
 import { defaultLocale, files } from "./app/config/i18n.config";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
@@ -16,40 +14,22 @@ export default defineNuxtConfig({
 		pageTransition: false,
 	},
 
-	colorMode: {
-		classSuffix: "",
-		dataValue: "ui-color-scheme",
-	},
+	compatibilityDate: "2026-02-11",
 
-	components: [{ path: "@/components", extensions: [".vue"], pathPrefix: false }],
-
-	css: [
-		"@fontsource-variable/inter/standard.css",
-		"@fontsource-variable/inter/standard-italic.css",
-		"@/assets/css/lexat.css",
+	components: [
+		{
+			path: "~/components",
+			global: true,
+		},
 	],
+
+	css: ["@/assets/css/lexat.css"],
 
 	devtools: {
 		enabled: process.env.NODE_ENV === "development",
 	},
 
-	extends: ["../shadcn"],
-
-	experimental: {
-		defaults: {
-			useAsyncData: {
-				deep: false,
-			},
-			useFetch: {
-				timeout: 250,
-			},
-		},
-	},
-
-	features: {
-		/** @see https://github.com/nuxt/nuxt/issues/21821 */
-		inlineStyles: false,
-	},
+	extends: ["../ui"],
 
 	i18n: {
 		baseUrl,
@@ -77,8 +57,8 @@ export default defineNuxtConfig({
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
 		"@vueuse/nuxt",
-		"shadcn-nuxt",
 		"@nuxtjs/sitemap",
+		"@nuxt/ui",
 	],
 
 	nitro: {
@@ -126,10 +106,4 @@ export default defineNuxtConfig({
 			},
 		},
 	},
-
-	vite: {
-		plugins: [tailwindcss()],
-	},
-
-	compatibilityDate: "2026-02-11",
 });

@@ -67,7 +67,8 @@
 			"delete_dialog": {
 				"title": "Bild Löschen",
 				"description": "Bist du dir sicher, das Bild zugewiesen für",
-				"warning": "zu löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+				"warning": "zu löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+				"confirm": "Bild löschen"
 			}
 		},
 		"articles": {
@@ -94,7 +95,9 @@
 			"bibliography": {
 				"label": "Bibliographie",
 				"edit": "Bearbeiten",
-				"placeholder": "Eintrag"
+				"placeholder": "Literatureintrag suchen und hinzufügen...",
+				"selected": "{count} ausgewählt",
+				"remove": "{title} aus der Bibliographie entfernen"
 			},
 			"category": {
 				"label": "Kategorie",
@@ -166,7 +169,7 @@
 			"articles": "Kartenkommentare",
 			"db": "Belegdatenbank",
 			"home": "Startseite",
-			"research": "Kartierung"
+			"maps": "Kartierung"
 		},
 		"navigation-main": "Hauptnavigation"
 	},
@@ -561,7 +564,11 @@
 	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
-		"empty": "Keine Ergebnisse gefunden"
+		"empty": "Keine Ergebnisse gefunden",
+		"order_hint": "Die Reihenfolge wird für den Zitiervorschlag verwendet.",
+		"move_up": "{item} nach oben verschieben",
+		"move_down": "{item} nach unten verschieben",
+		"remove": "{item} entfernen"
 	},
 	"TextEditor": {
 		"image": {
@@ -580,7 +587,20 @@
 	"UserManagement": {
 		"role": "Rolle",
 		"create-new-user": "Benutzer erstellen",
-		"title": "Benutzerverwaltung"
+		"title": "Benutzerverwaltung",
+		"actions": {
+			"set-password": "Passwort ändern",
+			"password-title": "Neues Passwort für {username} festlegen",
+			"password-description": "Lege ein neues Passwort für dieses Benutzerkonto fest.",
+			"password-warning": "Bitte notiere dir das neue Passwort. Es kann nach der Änderung nicht mehr abgerufen werden.",
+			"password-updated": "Das neue Passwort wurde gespeichert.",
+			"password-update-failed": "Das neue Passwort konnte nicht gespeichert werden.",
+			"set-role": "Benutzerrolle ändern",
+			"role-title": "Benutzerrolle für {username} ändern",
+			"role-updated": "Die Benutzerrolle wurde gespeichert.",
+			"role-update-failed": "Die Benutzerrolle konnte nicht gespeichert werden.",
+			"save": "Speichern"
+		}
 	},
 	"UserPanel": {
 		"admin": "Admin",

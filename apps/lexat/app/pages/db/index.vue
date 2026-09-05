@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { CircleHelp, Image, InfoIcon, MapPin, Quote, RotateCcw } from "@lucide/vue";
 import type { InferResponseType } from "hono/client";
 import type {
 	LocationQueryRaw,
@@ -10,7 +9,6 @@ import type {
 import { getRegisterOptions, specialOrder } from "@/assets/data/static-filter-data";
 import type { SortOder, TableColumn } from "@/components/data-table.vue";
 import type StimulusDialog from "@/components/stimulus-dialog.vue";
-import type { DropdownOption } from "@/types/dropdown-option";
 
 const t = useTranslations();
 const router = useRouter();
@@ -71,14 +69,20 @@ const activeVariantsQuery = computed(() => {
 // 	);
 // });
 
+const initialQuestion = {
+	id: 11,
+	value: "11",
+	label: "AUGENLID",
+};
+
 const activeAgeGroup = ref([0, 100]);
-const activeQuestion = ref<string>("11");
+const activeQuestion = ref(initialQuestion);
 const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>(["all"]);
 // const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250); // using debounce prevents useFetch's native req cancelling
-const activeQuestionId = computed(() => parseInt(activeQuestion.value));
+const activeQuestionId = computed(() => activeQuestion.value.id);
 const activeSortLabel = ref<string | null>(null);
 const activeSortDirection = ref<SortOder | null>(null);
 
@@ -87,7 +91,7 @@ const currentPage = ref(1);
 const onboardingWrapper = ref<{ startOnboarding: () => void } | null>(null);
 
 if (typeof route.query.q === "string") {
-	activeQuestion.value = route.query.q;
+	activeQuestion.value = mappedQuestions.value.find((q) => q.value === route.query.q);
 }
 
 const _getAnnotations = apiClient.questions.annotation[":project"].$get;
@@ -108,15 +112,13 @@ function handleShowImage() {
 	stimulusDialogRef.value?.openDialog();
 }
 
-const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
+const uniqueVariantsOptions = computed<Array<{ label: string; value: string }>>(() => {
 	const variantOptions =
 		annotations.value
-			?.map((variant) => ({
-				label: variant.annotation_name,
-				value: variant.annotation_name,
-				level: 1,
-				group: variant.annotation_name?.toLocaleLowerCase(),
-			}))
+			?.flatMap((variant) => {
+				const name = variant.annotation_name;
+				return name ? [{ label: name, value: name }] : [];
+			})
 			.toSorted((a, b) => {
 				// extract priority values from the specialOrder object or default to 0
 				const priorityA =
@@ -135,18 +137,27 @@ const uniqueVariantsOptions = computed((): Array<DropdownOption> => {
 	variantOptions.unshift({
 		label: t("MapsPage.selection.register.show-all") || "Alle anzeigen",
 		value: "all",
-		level: 0,
-		group: "all",
 	});
 	return variantOptions;
 });
 
-const pageSizeOptions = [
-	{ value: "100", label: "100" },
-	{ value: "250", label: "250" },
-	{ value: "500", label: "500" },
-	{ value: "1000", label: "1000" },
-];
+const updateActiveVariants = (selection: Array<string>) => {
+	const wasAllSelected = activeVariants.value.includes("all");
+	const isAllSelected = selection.includes("all");
+
+	if (isAllSelected && !wasAllSelected) {
+		// Selecting "all" replaces any individual variants.
+		activeVariants.value = ["all"];
+	} else if (isAllSelected) {
+		// Selecting an individual variant while "all" is active makes it the new selection.
+		activeVariants.value = selection.filter((variant) => variant !== "all");
+	} else {
+		// An empty selection has the same filter semantics as "all", so keep the state explicit.
+		activeVariants.value = selection.length > 0 ? selection : ["all"];
+	}
+};
+
+const pageSizeOptions = ref(["100", "250", "500", "1000"]);
 
 const lowerAge = computed(() => {
 	return activeAgeGroup.value[0];
@@ -203,9 +214,7 @@ const tableData = computed(() => {
 });
 
 const totalPages = computed(() => {
-	return tableDataRaw.value?.totalResults
-		? Math.ceil(tableDataRaw.value.totalResults / activePageSizeQuery.value)
-		: 0;
+	return tableDataRaw.value?.totalResults ?? 0;
 });
 
 const setCurrentPage = (newValue: number) => {
@@ -228,7 +237,7 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 		activeAgeGroup.value = [0, 100];
 	}
 	if (!omit?.includes("question")) {
-		activeQuestion.value = "11";
+		activeQuestion.value = initialQuestion;
 	}
 	if (!omit?.includes("register")) {
 		activeRegisters.value = ["all"];
@@ -250,7 +259,7 @@ const updateUrlParams = async () => {
 		queryObject.a = activeAgeGroup.value.toString();
 	}
 	if (activeQuestion.value) {
-		queryObject.q = activeQuestion.value;
+		queryObject.q = activeQuestion.value.value;
 	}
 	if (activeRegisters.value.length > 0) {
 		queryObject.r = activeRegisters.value;
@@ -455,34 +464,44 @@ await refresh(); // manually refetch using updated state
 
 <template>
 	<MainContent class="container grid content-start py-8 overflow-x-scroll sm:overflow-x-auto">
-		<MobileAlert />
+		<MobileAlert class="mb-5" />
 		<section id="welcome" class="flex gap-2">
-			<div class="grow rounded-lg border p-5 mb-4">
+			<div class="grow rounded-lg p-5 mb-4 border border-muted">
 				<div class="grid grid-cols-4 gap-5">
 					<div id="phenomenon" class="col-span-1">
-						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold items-center">
 							{{ t("MapsPage.selection.variable.title") }}
-							<InfoTooltip :content="t('MapsPage.selection.variable.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon>
-							</InfoTooltip>
+							<UTooltip
+								:content="{ side: 'top' }"
+								:delay-duration="0"
+								:text="t('MapsPage.selection.variable.tooltip')"
+							>
+								<UIcon name="i-lucide-info" class="size-4" />
+							</UTooltip>
 						</div>
-						<ComboboxBase
+						<USelectMenu
 							v-model="activeQuestion"
 							data-testid="questions"
-							has-search
-							:options="mappedQuestions"
+							:items="mappedQuestions"
 							:placeholder="t('MapsPage.selection.variable.placeholder')"
+							size="lg"
+							class="w-64"
 						/>
 					</div>
 					<div id="advanced" class="col-span-3 grid grid-cols-3 gap-5">
 						<div>
-							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold items-center">
 								{{ t("MapsPage.selection.register.title") }}
-								<InfoTooltip :content="t('MapsPage.selection.register.tooltip')">
-									<InfoIcon class="size-4"></InfoIcon>
-								</InfoTooltip>
+								<UTooltip
+									:content="{ side: 'top' }"
+									:delay-duration="0"
+									arrow
+									:text="t('MapsPage.selection.register.tooltip')"
+								>
+									<UIcon name="i-lucide-info" class="size-4" />
+								</UTooltip>
 							</div>
-							<MultiSelect
+							<RegisterSelect
 								v-model="activeRegisters"
 								data-testid="registers"
 								:options="registerOptions"
@@ -490,28 +509,35 @@ await refresh(); // manually refetch using updated state
 							/>
 						</div>
 						<div>
-							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold items-center">
 								{{ t("MapsPage.selection.variants.title") }}
-								<InfoTooltip :content="t('MapsPage.selection.variants.tooltip')">
-									<InfoIcon class="size-4"></InfoIcon>
-								</InfoTooltip>
+								<UTooltip
+									:content="{ side: 'top' }"
+									:delay-duration="0"
+									arrow
+									:text="t('MapsPage.selection.variants.tooltip')"
+								>
+									<UIcon name="i-lucide-info" class="size-4" />
+								</UTooltip>
 							</div>
-							<MultiSelect
-								v-model="activeVariants"
+							<USelect
 								data-testid="variants"
-								:options="uniqueVariantsOptions"
+								:model-value="activeVariants"
+								multiple
+								size="lg"
+								:items="uniqueVariantsOptions"
 								:placeholder="t('MapsPage.selection.variants.placeholder')"
-								single-level
+								class="w-62"
+								@update:model-value="updateActiveVariants"
 							/>
 						</div>
 						<div>
-							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.age.title") }}
 							</div>
 							<div class="max-w-64 pl-1">
 								<DualRangeSlider
 									accessibility-label="Age Group"
-									:label="(value: string) => value"
 									:max="100"
 									:min="0"
 									:step="5"
@@ -524,14 +550,15 @@ await refresh(); // manually refetch using updated state
 				</div>
 			</div>
 			<div class="flex flex-col gap-2">
-				<Button
+				<UButton
 					id="reset"
 					data-testid="reset"
-					size="icon"
+					size="lg"
+					color="neutral"
 					variant="outline"
+					icon="i-lucide-rotate-ccw"
 					@click="resetSelection()"
-					><RotateCcw class="size-4"
-				/></Button>
+				/>
 			</div>
 		</section>
 
@@ -540,13 +567,16 @@ await refresh(); // manually refetch using updated state
 				{{ tableDataRaw?.totalResults ?? 0 }} {{ t("DbPage.table.results") }}
 			</div>
 			<div class="flex items-center gap-2">
-				<Label for="rows-per-page">{{ t("DbPage.table.items-per-page") }}:</Label>
-				<BaseSelect
+				<label class="text-sm font-medium text-default" for="rows-per-page">
+					{{ t("DbPage.table.items-per-page") }}:
+				</label>
+				<USelect
 					id="rows-per-page"
 					v-model="activePageSize"
 					data-testid="rows-per-page"
-					:options="pageSizeOptions"
-					size="small"
+					:items="pageSizeOptions"
+					size="lg"
+					class="w-32"
 				/>
 			</div>
 		</section>
@@ -563,42 +593,59 @@ await refresh(); // manually refetch using updated state
 		>
 			<template #left>
 				<div class="mr-auto flex items-center gap-3">
-					<Popover>
-						<PopoverTrigger as-child>
-							<Button id="citation" variant="outline"
-								><Quote class="mr-2 size-4" />{{ t("DbPage.citation") }}</Button
-							></PopoverTrigger
-						>
-						<PopoverContent class="w-lg" side="right">
-							<p class="italic mb-4 border p-5 rounded-sm">{{ citation }}</p>
-							<CopyToClipboard :text="citation" />
-						</PopoverContent>
-					</Popover>
-					<Button id="resetOnboarding" variant="outline" @click="resetOnboarding">
-						<CircleHelp class="mr-2 size-5" /> {{ t("DbPage.help") }}</Button
+					<UPopover
+						:content="{
+							align: 'center',
+							side: 'right',
+							sideOffset: 8,
+						}"
 					>
-					<Button
+						<UButton id="citation" variant="outline" color="neutral" size="lg"
+							><UIcon name="i-lucide-quote" class="size-4" />{{ t("DbPage.citation") }}</UButton
+						>
+						<template #content>
+							<div class="p-5 max-w-lg">
+								<p class="italic mb-4">{{ citation }}</p>
+								<CopyToClipboard :text="citation" />
+							</div>
+						</template>
+					</UPopover>
+					<UButton
+						id="resetOnboarding"
+						variant="outline"
+						color="neutral"
+						size="lg"
+						@click="resetOnboarding"
+					>
+						<UIcon name="i-lucide-circle-question-mark" class="size-5" />
+						{{ t("DbPage.help") }}</UButton
+					>
+					<UButton
 						v-if="stimulusDialogRef?.hasImage"
 						id="showStimulus"
 						variant="outline"
+						color="neutral"
+						size="lg"
 						@click="handleShowImage"
 					>
-						<Image class="mr-2 size-5" /> {{ t("DbPage.image") }}</Button
+						<UIcon name="i-lucide-image" class="size-5" /> {{ t("DbPage.image") }}</UButton
 					>
 				</div>
 			</template>
 			<template #right>
-				<Button @click="goToMapsPage"
-					><MapPin class="mr-2 size-4" />{{ t("DbPage.go-to-maps") }}</Button
+				<UButton @click="goToMapsPage" size="lg"
+					><UIcon name="i-lucide-map-pin" class="size-5" />{{ t("DbPage.go-to-maps") }}</UButton
 				>
 			</template>
 		</DataTable>
-		<PagePagination
-			:current-page="currentPage"
+		<UPagination
 			:items-per-page="activePageSizeQuery"
-			:total-pages="totalPages"
+			:page="currentPage"
+			show-edges
+			:total="totalPages"
+			class="mx-auto"
 			@update:page="setCurrentPage"
-		></PagePagination>
+		/>
 		<OnboardingWrapper
 			ref="onboardingWrapper"
 			:steps="steps"

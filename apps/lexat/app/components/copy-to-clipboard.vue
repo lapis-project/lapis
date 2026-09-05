@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { CheckIcon, ClipboardIcon } from "@lucide/vue";
 import { useClipboard } from "@vueuse/core";
-import { toast } from "vue-sonner";
 
 const props = defineProps<{
 	text: string;
 }>();
 
+const toast = useToast();
 const t = useTranslations();
 
 const { copy, copied, isSupported } = useClipboard({ source: props.text });
@@ -14,7 +13,7 @@ const { copy, copied, isSupported } = useClipboard({ source: props.text });
 const copyToClipboard = async (text: string) => {
 	try {
 		await copy(text);
-		toast(t("Clipboard.copy-success"));
+		toast.add({ title: t("Clipboard.copy-success") });
 	} catch (e) {
 		console.error(e, t("Clipboard.copy-fail"));
 	}
@@ -23,10 +22,15 @@ const copyToClipboard = async (text: string) => {
 
 <template>
 	<ClientOnly>
-		<Button v-if="isSupported" variant="outline" @click="copyToClipboard(props.text)">
-			<component :is="copied ? CheckIcon : ClipboardIcon" class="mr-2 size-4" />
+		<UButton
+			v-if="isSupported"
+			variant="outline"
+			size="lg"
+			:icon="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+			@click="copyToClipboard(props.text)"
+		>
 			<span v-if="!copied">{{ t("Clipboard.copy") }}</span>
 			<span v-else>{{ t("Clipboard.copied") }}</span>
-		</Button>
+		</UButton>
 	</ClientOnly>
 </template>

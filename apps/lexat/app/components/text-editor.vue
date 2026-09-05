@@ -28,12 +28,12 @@ import StarterKit from "@tiptap/starter-kit";
 import { Editor, EditorContent } from "@tiptap/vue-3";
 import type { InferResponseType } from "hono/client";
 import { computed, onBeforeUnmount, ref, watch } from "vue";
-import { toast } from "vue-sonner";
 
 import { Figure } from "./figure.ts";
 
 const env = useRuntimeConfig();
 const { apiClient } = useApiClient();
+const toast = useToast();
 
 const _uploadMedia = apiClient.media.upload.$post;
 type APIMediaUploadResponse = InferResponseType<typeof _uploadMedia, 200>;
@@ -227,7 +227,7 @@ const insertImage = (url: string) => {
 
 const handleImageUpload = async () => {
 	if (!selectedImage.value) {
-		toast.error("No image selected");
+		toast.add({ title: "No image selected", color: "error" });
 		return;
 	}
 
@@ -250,7 +250,7 @@ const handleImageUpload = async () => {
 		if (env.NODE_ENV !== "production") {
 			console.error(e);
 		}
-		toast.error("Could not upload image");
+		toast.add({ title: "Could not upload image", color: "error" });
 	}
 };
 
@@ -355,102 +355,85 @@ const handleFileChange = (event: Event) => {
 			<span class="words-count"> {{ wordsCount }} words </span>
 		</div>
 
-		<Dialog :open="isLinkDialogOpen" @update:open="(newVal) => (isLinkDialogOpen = newVal)">
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Add Link</DialogTitle>
-				</DialogHeader>
+		<UModal
+			:open="isLinkDialogOpen"
+			@update:open="(newVal) => (isLinkDialogOpen = newVal)"
+			title="Add Link"
+		>
+			<template #body>
 				<div class="grid grid-cols-4 items-center gap-4 py-4">
-					<Label class="text-right" for="url"> URL </Label>
-					<Input id="url" v-model="urlInput" class="col-span-3" />
+					<label class="text-right" for="url"> URL </label>
+					<UInput id="url" v-model="urlInput" class="col-span-3" size="lg" />
 				</div>
+			</template>
+			<template #footer>
+				<Button :disabled="!urlInput" @click="setLink">Insert</Button>
+			</template>
+		</UModal>
 
-				<DialogFooter>
-					<Button :disabled="!urlInput" @click="setLink">Insert</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
-
-		<Dialog :open="isImageDialogOpen" @update:open="(newVal) => (isImageDialogOpen = newVal)">
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Add Image</DialogTitle>
-				</DialogHeader>
-				<div class="grid w-full max-w-sm items-center gap-1.5">
-					<Label for="image">Image</Label>
-					<Input
+		<UModal
+			:open="isImageDialogOpen"
+			@update:open="(newVal) => (isImageDialogOpen = newVal)"
+			title="Add Image"
+		>
+			<template #body>
+				<div class="grid w-full max-w-sm items-center gap-1.5 mb-2">
+					<label for="image">Image</label>
+					<UInput
 						id="image"
 						accept="image/jpeg, image/png, image/svg+xml"
 						type="file"
+						size="lg"
 						@change="handleFileChange"
 					/>
 				</div>
-				<div class="grid w-full max-w-sm items-center gap-1.5">
-					<Label for="alt-text">Alt text</Label>
-					<Input
+				<div class="grid w-full max-w-sm items-center gap-1.5 mb-2">
+					<label for="alt-text">Alt text</label>
+					<UInput
 						id="alt-text"
 						v-model="imageAltText"
 						class="col-span-3"
+						size="lg"
 						placeholder="Beschreibung des Bildinhalts"
 					/>
 				</div>
 				<div class="grid w-full max-w-sm items-center gap-1.5">
-					<Label for="annotation">Annotation</Label>
-					<Input
+					<label for="annotation">Annotation</label>
+					<UInput
 						id="annotation"
 						v-model="imageAnnotation"
 						class="col-span-3"
+						size="lg"
 						placeholder="Annotation unterhalb des Bildes"
 					/>
 				</div>
-				<!-- <div class="grid w-full max-w-sm items-center gap-1.5">
-					<Label for="annotation">Link zur Kartierung</Label>
-					<Input id="annotation" v-model="imageMapLink" class="col-span-3" />
-				</div> -->
+			</template>
 
-				<DialogFooter>
-					<Button @click="handleImageUpload"> Insert </Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+			<template #footer>
+				<Button @click="handleImageUpload"> Insert </Button>
+			</template>
+		</UModal>
 
-		<Dialog :open="isTableDialogOpen" @update:open="(newVal) => (isTableDialogOpen = newVal)">
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>Add Table</DialogTitle>
-				</DialogHeader>
-				<div class="flex gap-4">
-					<NumberField id="tableRows" v-model="tableRows" :min="1">
-						<Label for="tableRows">Rows</Label>
-						<NumberFieldContent>
-							<NumberFieldDecrement />
-							<NumberFieldInput />
-							<NumberFieldIncrement />
-						</NumberFieldContent>
-					</NumberField>
-					<NumberField id="tableColums" v-model="tableColumns" :min="1">
-						<Label for="tableColums">Columns</Label>
-						<NumberFieldContent>
-							<NumberFieldDecrement />
-							<NumberFieldInput />
-							<NumberFieldIncrement />
-						</NumberFieldContent>
-					</NumberField>
+		<UModal
+			:open="isTableDialogOpen"
+			@update:open="(newVal) => (isTableDialogOpen = newVal)"
+			title="Add Table"
+		>
+			<template #body>
+				<div class="flex flex-col gap-4">
+					<UFormField label="Rows" help="Specify number of table rows">
+						<UInputNumber id="tableRows" v-model="tableRows" :min="1" :max="10" />
+					</UFormField>
+					<UFormField label="Columns" help="Specify number of table columns">
+						<UInputNumber id="tableColums" v-model="tableColumns" :min="1" :max="10" />
+					</UFormField>
+					<UCheckbox id="tableHeader" v-model="addTableHeader" label="Add Header" size="lg" />
 				</div>
-				<div class="flex gap-2 rounded border px-3 py-2 items-center">
-					<Checkbox id="tableHeader" v-model="addTableHeader" />
-					<label
-						class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-						for="tableHeader"
-					>
-						Add Header
-					</label>
-				</div>
-				<DialogFooter>
-					<Button @click="handleTableInsert"> Insert </Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+			</template>
+			<template #footer>
+				<UButton @click="handleTableInsert"> Insert </UButton>
+			</template>
+		</UModal>
 	</div>
 </template>
 

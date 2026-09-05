@@ -1,7 +1,6 @@
 import { StorageSerializers } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
 
-import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
 
 export function useCitationGenerator() {
@@ -51,16 +50,8 @@ export function useCitationGenerator() {
 		}
 	};
 
-	const bibliographyOptions: ComputedRef<Array<DropdownOption>> = computed(() => {
-		return bibliographyItems.value.map((i) => ({
-			value: i.key,
-			label: `${truncateString(i.title, 60)} (${i.date})`,
-		}));
-	});
-
 	return {
 		bibliographyItems,
-		bibliographyOptions,
 		fetchBibliographyItems,
 	};
 }

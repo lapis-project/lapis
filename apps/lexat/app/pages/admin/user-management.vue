@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import { Plus } from "@lucide/vue";
 import type { InferResponseType } from "hono/client";
+
+import CreateUserForm from "@/components/create-user-form.vue";
+import UserTable from "@/components/users/user-table.vue";
 
 import { columns } from "../../components/users/columns";
 
@@ -38,42 +40,39 @@ const users = computed(() => {
 });
 
 const userRoles = computed(() => {
-	return data.value?.userRoles;
+	return data.value?.userRoles ?? [];
 });
 
-const onNewUserCreated = () => {
-	refresh();
+const closeCreateUserDialog = () => {
 	isDialogOpen.value = false;
+};
+
+const onNewUserCreated = async () => {
+	await refresh();
+	closeCreateUserDialog();
 };
 </script>
 
 <template>
-	<main class="w-full grid gap-8" :tabindex="-1">
-		<div class="flex justify-between">
+	<main class="w-full grid content-start gap-8" :tabindex="-1">
+		<div class="flex items-center justify-between">
 			<PageTitle>{{ t("UserManagement.title") }}</PageTitle>
-			<Dialog :open="isDialogOpen" @update:open="(newVal) => (isDialogOpen = newVal)">
-				<DialogTrigger as-child>
-					<Button><Plus class="mr-2 size-4" />{{ t("UserManagement.create-new-user") }}</Button>
-				</DialogTrigger>
-				<DialogContent class="p-8">
-					<CreateUserForm :user-roles="userRoles" @new-user-created="onNewUserCreated"
-						><DialogClose as-child>
-							<Button type="button" variant="secondary">
-								{{ t("General.cancel") }}
-							</Button>
-						</DialogClose></CreateUserForm
-					>
-				</DialogContent>
-			</Dialog>
+			<UModal v-model:open="isDialogOpen" :title="t('UserManagement.create-new-user')">
+				<UButton icon="i-lucide-plus" size="lg">
+					{{ t("UserManagement.create-new-user") }}
+				</UButton>
+
+				<template #body>
+					<CreateUserForm
+						:user-roles="userRoles"
+						@cancel="closeCreateUserDialog"
+						@new-user-created="onNewUserCreated"
+					/>
+				</template>
+			</UModal>
 		</div>
 		<section>
-			<UserTable
-				v-if="users?.length"
-				:columns="columns"
-				:data="users"
-				:refresh="refresh"
-				:user-roles="userRoles"
-			/>
+			<UserTable v-if="users?.length" :columns="columns" :data="users" :refresh="refresh" />
 		</section>
 	</main>
 </template>

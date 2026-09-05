@@ -51,14 +51,20 @@ watch(
 </script>
 
 <template>
-	<Dialog :open="stimulusImageModal" @update:open="stimulusImageModal = $event">
-		<DialogContent class="sm:max-w-[700px] max-h-[85vh] flex flex-col">
-			<img
-				v-if="stimulusImageUrl"
-				:alt="stimulusImageAlt"
-				class="max-w-full max-h-[55vh] h-auto w-auto object-contain"
-				:src="stimulusImageUrl"
-			/>
-		</DialogContent>
-	</Dialog>
+	<UModal
+		v-model:open="stimulusImageModal"
+		:title="stimulusImageAlt"
+		:ui="{ content: 'sm:max-w-3xl' }"
+	>
+		<template #body>
+			<div class="flex max-h-[75vh] items-center justify-center">
+				<img
+					v-if="stimulusImageUrl"
+					:alt="stimulusImageAlt"
+					class="max-h-[65vh] max-w-full object-contain"
+					:src="stimulusImageUrl"
+				/>
+			</div>
+		</template>
+	</UModal>
 </template>

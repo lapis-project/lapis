@@ -32,7 +32,7 @@ const collections = [
 </script>
 
 <template>
-	<aside class="rounded border p-5">
+	<aside class="rounded border border-muted p-5">
 		<div class="flex items-center justify-between text-sm">
 			<h2 class="uppercase text-muted-foreground">
 				{{ t("AdminPage.navigation.collections") }}
@@ -45,7 +45,7 @@ const collections = [
 			<li v-for="collection in collections" :key="collection.alias">
 				<NuxtLinkLocale
 					v-if="collection.disabled === false"
-					exact-active-class="text-accent-foreground"
+					exact-active-class="text-secondary"
 					:to="`/admin/${collection.alias}`"
 				>
 					{{ collection.label }}

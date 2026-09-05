@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-import { Plus } from "@lucide/vue";
-import { toast } from "vue-sonner";
-
+import ArticleTable from "@/components/articles/article-table.vue";
 import type { ArticleListEntry } from "@/components/articles/articles";
 import { columns } from "@/components/articles/columns";
 
 const env = useRuntimeConfig();
-const { articles, currentPage, deleteArticle, setCurrentPage, totalPages, totalResults } =
-	useAdminArticles();
+const { articles, currentPage, deleteArticle, setCurrentPage, totalResults } = useAdminArticles();
 const { statusOptions } = useArticleStatus();
 
 const localePath = useLocalePath();
@@ -18,8 +15,9 @@ definePageMeta({
 });
 
 const t = useTranslations();
+const toast = useToast();
 
-const tableData = computed<Array<ArticleListEntry> | []>(() => {
+const tableData = computed<Array<ArticleListEntry>>(() => {
 	return (
 		articles.value.map((article) => ({
 			post_id: article.post_id,
@@ -42,7 +40,7 @@ const createNewArticle = async () => {
 		await navigateTo(localePath(`/admin/articles/${result.articleId.id}`));
 	} catch (error) {
 		console.error(error);
-		toast.error("Could not create new article");
+		toast.add({ title: "Could not create new article", color: "error" });
 	}
 };
 
@@ -52,27 +50,28 @@ usePageMetadata({
 </script>
 
 <template>
-	<main class="w-full grid gap-8" :tabindex="-1">
-		<div class="flex justify-between">
+	<main class="w-full grid content-start gap-8" :tabindex="-1">
+		<div class="flex items-center justify-between">
 			<PageTitle>{{ totalResults }} {{ t("AdminPage.articles.title") }}</PageTitle>
-			<Button @click="createNewArticle"
-				><Plus class="mr-2 size-4" />{{ t("AdminPage.articles.new") }}</Button
-			>
+			<UButton icon="i-lucide-plus" @click="createNewArticle">{{
+				t("AdminPage.articles.new")
+			}}</UButton>
 		</div>
 
 		<ArticleTable
 			id="main-content"
-			class="mb-5"
 			:columns="columns"
 			:data="tableData"
 			:delete-article="deleteArticle"
 			:tabindex="-1"
 		></ArticleTable>
-		<PagePagination
-			:current-page="currentPage"
+		<UPagination
 			:items-per-page="20"
-			:total-pages="totalPages"
+			:page="currentPage"
+			show-edges
+			:total="totalResults"
+			class="mx-auto"
 			@update:page="setCurrentPage"
-		></PagePagination>
+		/>
 	</main>
 </template>

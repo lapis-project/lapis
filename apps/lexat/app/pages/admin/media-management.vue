@@ -3,7 +3,6 @@ import { CheckCircle2, CloudUpload, FileImage, Trash2, X } from "@lucide/vue";
 import { useDropZone, useFileDialog } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
 import { computed, ref } from "vue";
-import { toast } from "vue-sonner";
 
 definePageMeta({
 	layout: "cms",
@@ -12,6 +11,7 @@ definePageMeta({
 
 const { apiClient } = useApiClient();
 const t = useTranslations();
+const toast = useToast();
 
 type UploadStatus = "pending" | "success" | "error";
 
@@ -61,7 +61,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const addFiles = (files: Array<File>) => {
 	files.forEach((file) => {
 		if (file.size > MAX_FILE_SIZE) {
-			toast.error(`"${file.name}" is too large. Maximum size is 5MB.`);
+			toast.add({ title: `"${file.name}" is too large. Maximum size is 5MB.`, color: "error" });
 			return;
 		}
 
@@ -131,26 +131,36 @@ const processAssets = async () => {
 					? error.statusCode
 					: undefined;
 
-			toast.error(
-				statusCode === 413
-					? `Failed to upload ${asset.file.name}: the server rejected the file as too large.`
-					: `Failed to upload ${asset.file.name}`,
-			);
+			toast.add({
+				title:
+					statusCode === 413
+						? `Failed to upload ${asset.file.name}: the server rejected the file as too large.`
+						: `Failed to upload ${asset.file.name}`,
+				color: "error",
+			});
 		}
 	}
 
 	isProcessing.value = false;
 
 	if (successCount > 0) {
-		toast.success(`${successCount} images successfully uploaded`);
+		toast.add({ title: `${successCount} images successfully uploaded`, color: "success" });
 		await refreshPhenomena();
 	}
 };
 
-// --- Delete Logic (Updated for Dialog) ---
+// --- Delete Logic ---
 const isDeleteDialogOpen = ref(false);
 const isDeleting = ref(false);
 const itemToDelete = ref<{ id: number; name: string } | null>(null);
+const deleteDialogOpen = computed({
+	get: () => isDeleteDialogOpen.value,
+	set: (open: boolean) => {
+		if (!isDeleting.value) {
+			isDeleteDialogOpen.value = open;
+		}
+	},
+});
 
 const openDeleteDialog = (phen: APIPhenomenonWithStimulus) => {
 	itemToDelete.value = { id: phen.id, name: phen.phenomenon_name ?? "" };
@@ -169,12 +179,12 @@ const confirmDelete = async () => {
 			method: "DELETE",
 		});
 
-		toast.success("Image deleted successfully");
+		toast.add({ title: "Image deleted successfully", color: "success" });
 		await refreshPhenomena();
 		isDeleteDialogOpen.value = false;
 	} catch (error) {
 		console.error("Error deleting image:", error);
-		toast.error("Failed to delete the image");
+		toast.add({ title: "Failed to delete the image", color: "error" });
 	} finally {
 		isDeleting.value = false;
 		// We intentionally don't clear itemToDelete immediately so the dialog
@@ -336,13 +346,15 @@ const canProcess = computed(
 						</div>
 
 						<div class="col-span-5">
-							<ComboboxBase
+							<USelectMenu
 								v-model="asset.category"
+								class="w-full"
 								data-testid="questions"
 								:disabled="asset.status === 'success'"
-								has-search
-								:options="mappedQuestions"
+								:items="mappedQuestions"
 								placeholder="Phänomen"
+								size="lg"
+								value-key="value"
 							/>
 						</div>
 
@@ -478,26 +490,40 @@ const canProcess = computed(
 			</div>
 		</div>
 
-		<Dialog :open="isDeleteDialogOpen" @update:open="(newVal) => (isDeleteDialogOpen = newVal)">
-			<DialogContent class="sm:max-w-[425px]">
-				<DialogHeader>
-					<DialogTitle>{{ t("AdminPage.media.delete_dialog.title") }}</DialogTitle>
-					<DialogDescription class="mt-2">
-						{{ t("AdminPage.media.delete_dialog.description") }}
-						<strong class="text-gray-800 dark:text-gray-200">{{ itemToDelete?.name }}</strong>
-						{{ t("AdminPage.media.delete_dialog.warning") }}
-					</DialogDescription>
-				</DialogHeader>
+		<UModal
+			v-model:open="deleteDialogOpen"
+			:close="{ disabled: isDeleting }"
+			:dismissible="!isDeleting"
+			:title="t('AdminPage.media.delete_dialog.title')"
+		>
+			<template #body>
+				<p class="text-sm text-muted">
+					{{ t("AdminPage.media.delete_dialog.description") }}
+					<strong class="font-semibold text-highlighted">{{ itemToDelete?.name }}</strong>
+					{{ t("AdminPage.media.delete_dialog.warning") }}
+				</p>
+			</template>
 
-				<DialogFooter class="mt-6 flex items-center gap-2">
-					<DialogClose as-child>
-						<Button :disabled="isDeleting" type="button" variant="secondary"> Cancel </Button>
-					</DialogClose>
-					<Button :disabled="isDeleting" type="button" @click="confirmDelete">
-						{{ isDeleting ? "Deleting..." : "Delete Image" }}
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+			<template #footer>
+				<UButton
+					color="neutral"
+					:disabled="isDeleting"
+					type="button"
+					variant="outline"
+					@click="deleteDialogOpen = false"
+				>
+					{{ t("General.cancel") }}
+				</UButton>
+				<UButton
+					color="error"
+					:disabled="isDeleting"
+					:loading="isDeleting"
+					type="button"
+					@click="confirmDelete"
+				>
+					{{ t("AdminPage.media.delete_dialog.confirm") }}
+				</UButton>
+			</template>
+		</UModal>
 	</main>
 </template>

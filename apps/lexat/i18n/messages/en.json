@@ -67,7 +67,8 @@
 			"delete_dialog": {
 				"title": "Delete Image",
 				"description": "Are you sure you want to delete the image assigned to",
-				"warning": "? This action cannot be undone."
+				"warning": "? This action cannot be undone.",
+				"confirm": "Delete image"
 			}
 		},
 		"articles": {
@@ -94,7 +95,9 @@
 			"bibliography": {
 				"label": "Bibliography",
 				"edit": "Bearbeiten",
-				"placeholder": "entry"
+				"placeholder": "Search and add a bibliography entry...",
+				"selected": "{count} selected",
+				"remove": "Remove {title} from the bibliography"
 			},
 			"category": {
 				"label": "Category",
@@ -166,7 +169,7 @@
 			"articles": "Map commentary",
 			"db": "Browse data",
 			"home": "Home",
-			"research": "Mapping"
+			"maps": "Mapping"
 		},
 		"navigation-main": "Main"
 	},
@@ -560,7 +563,11 @@
 	},
 	"TagsCombobox": {
 		"button": "{placeholder}...",
-		"empty": "No results found"
+		"empty": "No results found",
+		"order_hint": "This order is used when generating the citation.",
+		"move_up": "Move {item} up",
+		"move_down": "Move {item} down",
+		"remove": "Remove {item}"
 	},
 	"TextEditor": {
 		"image": {
@@ -579,7 +586,20 @@
 	"UserManagement": {
 		"role": "Role",
 		"create-new-user": "Create User",
-		"title": "User Management"
+		"title": "User Management",
+		"actions": {
+			"set-password": "Change password",
+			"password-title": "Set a new password for {username}",
+			"password-description": "Set a new password for this user account.",
+			"password-warning": "Make a note of the new password. It cannot be retrieved after it has been changed.",
+			"password-updated": "The new password was saved.",
+			"password-update-failed": "The new password could not be saved.",
+			"set-role": "Change user role",
+			"role-title": "Change the user role for {username}",
+			"role-updated": "The user role was saved.",
+			"role-update-failed": "The user role could not be saved.",
+			"save": "Save"
+		}
 	},
 	"UserPanel": {
 		"admin": "Admin",

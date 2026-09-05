@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import { RotateCcwIcon, SearchIcon, SlidersHorizontalIcon } from "@lucide/vue";
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core";
+import { breakpointsTailwind, useBreakpoints, useMounted } from "@vueuse/core";
 import type { LocationQueryRaw } from "vue-router";
 
 import { formatAuthors } from "#imports";
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isDesktop = breakpoints.greaterOrEqual("sm");
+const isMounted = useMounted();
 
 const isOpen = ref(false);
 
 const effectiveOpen = computed({
-	get: () => isDesktop.value || isOpen.value,
+	get: () => !isMounted.value || isDesktop.value || isOpen.value,
 	set: (val) => {
 		isOpen.value = val;
 	},
@@ -103,6 +103,14 @@ const applySearchParams = () => {
 	updateUrlParams();
 };
 
+const updateSelectedCategory = (value: string | undefined) => {
+	selectedCategory.value = value ?? null;
+};
+
+const updateSelectedLanguage = (value: string | undefined) => {
+	selectedLanguage.value = value === "de" || value === "en" ? value : null;
+};
+
 const segmentTitle = (title: string) => {
 	// Matches a slash with any amount of whitespace (including none) around it
 	// and replaces it with exactly " / "
@@ -130,77 +138,86 @@ usePageMetadata({
 <template>
 	<MainContent class="container grid sm:grid-cols-[auto_minmax(0,1fr)] gap-8 py-8">
 		<PageTitle class="sr-only">{{ t("ArticlesPage.title") }}</PageTitle>
-		<aside class="block sm:rounded sm:border sm:p-5">
+		<aside class="block sm:rounded sm:border border-muted sm:p-5">
 			<div class="mb-6 uppercase max-sm:hidden">
 				{{ t("ArticlesPage.filters.label") }}
 			</div>
-			<Collapsible v-model:open="effectiveOpen" class="flex flex-col gap-2">
-				<div class="mb-5 grid items-center gap-1.5">
-					<Label for="search">{{ t("ArticlesPage.filters.search.label") }}</Label>
-					<div class="flex gap-3 items-center justify-between">
-						<div class="relative w-full sm:w-64">
-							<Input
-								id="search"
-								v-model="searchInput"
-								class="pr-10"
-								:placeholder="t('ArticlesPage.filters.search.placeholder')"
-								type="text"
-								@keyup.enter="applySearchParams"
-							/>
-							<span class="absolute inset-y-0 end-0 flex items-center justify-center px-2">
-								<Button
-									:aria-label="t('ArticlesPage.filters.search.label')"
-									class="size-7"
-									size="icon"
-									variant="ghost"
-									@click="applySearchParams"
-								>
-									<SearchIcon aria-hidden="true" class="size-4" />
-								</Button>
-							</span>
-						</div>
-						<CollapsibleTrigger as-child class="sm:hidden">
-							<Button
+			<div class="flex flex-col gap-2">
+				<div
+					class="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5 sm:block"
+				>
+					<label class="col-span-2 sm:mb-1.5 sm:block" for="search">{{
+						t("ArticlesPage.filters.search.label")
+					}}</label>
+					<div class="relative w-full sm:w-64">
+						<UInput
+							id="search"
+							v-model="searchInput"
+							size="xl"
+							class="w-full"
+							:placeholder="t('ArticlesPage.filters.search.placeholder')"
+							@keyup.enter="applySearchParams"
+						/>
+						<span class="absolute inset-y-0 end-0 flex items-center justify-center px-2">
+							<UButton
 								:aria-label="t('ArticlesPage.filters.search.label')"
-								class="size-7"
-								size="icon"
+								size="lg"
 								variant="ghost"
-							>
-								<SlidersHorizontalIcon aria-hidden="true" class="size-6" />
-							</Button>
-						</CollapsibleTrigger>
+								icon="i-lucide-search"
+								@click="applySearchParams"
+							/>
+						</span>
 					</div>
+					<UCollapsible
+						v-model:open="effectiveOpen"
+						class="contents"
+						:ui="{ content: 'col-span-2' }"
+					>
+						<UButton
+							class="sm:hidden"
+							:aria-label="t('ArticlesPage.filters.label')"
+							size="lg"
+							variant="outline"
+							icon="i-lucide-sliders-horizontal"
+						/>
+						<template #content>
+							<div v-if="categoryOptions" class="mt-5 mb-5 grid items-center gap-1.5">
+								<label for="category">{{ t("ArticlesPage.filters.category") }}</label>
+								<USelect
+									id="category"
+									:model-value="selectedCategory ?? undefined"
+									size="xl"
+									data-testid="category"
+									:items="categoryOptions"
+									:placeholder="t('AdminPage.editor.category.placeholder')"
+									@update:model-value="updateSelectedCategory"
+								/>
+							</div>
+							<div v-if="languageOptions" class="mb-6 grid items-center gap-1.5">
+								<label for="language">{{ t("AdminPage.editor.language.label") }}</label>
+								<USelect
+									id="language"
+									:model-value="selectedLanguage ?? undefined"
+									size="xl"
+									data-testid="language"
+									:items="languageOptions"
+									:placeholder="t('AdminPage.editor.language.placeholder')"
+									@update:model-value="updateSelectedLanguage"
+								/>
+							</div>
+						</template>
+					</UCollapsible>
 				</div>
-				<CollapsibleContent class="flex flex-col gap-2">
-					<div v-if="categoryOptions" class="mb-5 grid items-center gap-1.5">
-						<Label for="category">{{ t("ArticlesPage.filters.category") }}</Label>
-						<BaseSelect
-							id="category"
-							v-model="selectedCategory"
-							data-testid="category"
-							:options="categoryOptions"
-							:placeholder="t('AdminPage.editor.category.placeholder')"
-						/>
-					</div>
-					<div v-if="languageOptions" class="mb-6 grid items-center gap-1.5">
-						<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-						<BaseSelect
-							id="language"
-							v-model="selectedLanguage"
-							data-testid="language"
-							:options="languageOptions"
-							:placeholder="t('AdminPage.editor.language.placeholder')"
-						/>
-					</div>
-				</CollapsibleContent>
-				<Button
+				<UButton
 					v-show="isFilterSelected"
 					class="sm:w-64 w-full gap-2"
 					variant="outline"
+					icon="i-lucide-rotate-ccw"
+					size="lg"
 					@click="resetSelection"
-					>{{ t("ArticlesPage.filters.reset") }}<RotateCcwIcon aria-hidden="true" class="size-4"
-				/></Button>
-			</Collapsible>
+					>{{ t("ArticlesPage.filters.reset") }}
+				</UButton>
+			</div>
 		</aside>
 		<div>
 			<section class="flex sm:items-center sm:justify-between max-sm:flex-col gap-2 sm:gap-0 mb-8">
@@ -215,14 +232,16 @@ usePageMetadata({
 					{{ totalResults === 1 ? t("ArticlesPage.result") : t("ArticlesPage.results") }}
 				</div>
 				<div class="flex items-center gap-2 justify-between">
-					<Label class="sm:text-base text-sm shrink-0" for="rows-per-page"
-						>{{ t("ArticlesPage.sort.sort_by") }}:</Label
+					<label class="sm:text-base text-sm shrink-0" for="article-sorting"
+						>{{ t("ArticlesPage.sort.sort_by") }}:</label
 					>
-					<BaseSelect
+					<USelect
+						id="article-sorting"
 						v-model="selectedSortingOption"
-						:options="sortingOptions"
-						size="small"
-					></BaseSelect>
+						:items="sortingOptions"
+						size="lg"
+						class="w-32"
+					></USelect>
 				</div>
 			</section>
 			<ul class="flex flex-col gap-8" data-testid="articles">
@@ -258,12 +277,16 @@ usePageMetadata({
 					</div>
 				</li>
 			</ul>
-			<PagePagination
-				:current-page="currentPage"
-				:items-per-page="20"
-				:total-pages="totalPages"
-				@update:page="setCurrentPage"
-			></PagePagination>
+			<div class="flex justify-center">
+				<UPagination
+					:items-per-page="20"
+					:page="currentPage"
+					:total="totalPages"
+					class="mt-10"
+					size="lg"
+					@update:page="setCurrentPage"
+				/>
+			</div>
 		</div>
 	</MainContent>
 </template>

@@ -170,10 +170,8 @@ onBeforeUnmount(() => {
 			ref="dbTable"
 			class="relative max-h-[500px] overflow-x-auto overflow-y-scroll shadow-md sm:rounded-lg"
 		>
-			<table
-				class="min-w-full table-fixed text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right"
-			>
-				<thead class="sticky top-0 bg-gray-50 text-xs uppercase text-foreground dark:bg-gray-700">
+			<table class="min-w-full table-fixed text-left text-sm rtl:text-right">
+				<thead class="sticky top-0 bg-gray-100 text-xs uppercase text-foreground dark:bg-gray-700">
 					<tr>
 						<th
 							v-for="column in columns"
@@ -207,7 +205,7 @@ onBeforeUnmount(() => {
 					<tr
 						v-for="row in sortedData"
 						:key="JSON.stringify(row)"
-						class="border-b bg-white dark:border-gray-700 dark:bg-gray-800 text-foreground/80"
+						class="border-b border-muted bg-white dark:border-gray-700 dark:bg-gray-800 text-foreground/80"
 					>
 						<td
 							v-for="(value, i) in Object.values(row)"
@@ -239,8 +237,8 @@ onBeforeUnmount(() => {
 		</div>
 		<div class="mt-3 justify-end flex gap-3">
 			<slot name="left"></slot>
-			<Button id="download" @click="handleDownload"
-				><Download class="mr-2 size-4" />{{ t("DataTable.download") }}</Button
+			<UButton id="download" @click="handleDownload" size="lg"
+				><UIcon name="i-lucide-download" class="size-5" />{{ t("DataTable.download") }}</UButton
 			>
 			<slot name="right"></slot>
 		</div>

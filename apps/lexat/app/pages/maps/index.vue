@@ -10,7 +10,7 @@ usePageMetadata({
 	<MainContent
 		class="container grid grid-rows-[auto_1fr] content-start py-8 overflow-x-scroll sm:overflow-x-auto"
 	>
-		<MobileAlert />
+		<MobileAlert class="mb-5" />
 		<div>
 			<PageTitle class="sr-only">{{ t("MapsPage.title") }}</PageTitle>
 		</div>

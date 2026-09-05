@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { ArrowLeft, InfoIcon, Trash, UploadIcon, WandSparkles } from "@lucide/vue";
+import { UploadIcon } from "@lucide/vue";
 import type { InferResponseType } from "hono/client";
-import { toast } from "vue-sonner";
 
 import type { DropdownOption } from "@/types/dropdown-option";
 import type { BibliographyItem } from "@/types/zotero";
@@ -14,6 +13,7 @@ const headers = useRequestHeaders(["cookie"]);
 const env = useRuntimeConfig();
 const route = useRoute();
 const { apiClient } = useApiClient();
+const toast = useToast();
 
 const _getInformationList = apiClient.cms.articles.create.info.$get;
 type APIInformationList = InferResponseType<typeof _getInformationList, 200>;
@@ -22,7 +22,7 @@ type APIAdminArticle = InferResponseType<typeof _getAdminArticle, 200>;
 const _uploadMedia = apiClient.media.upload.$post;
 type APIMediaUploadResponse = InferResponseType<typeof _uploadMedia, 200>;
 
-const { bibliographyItems, bibliographyOptions, fetchBibliographyItems } = useCitationGenerator();
+const { bibliographyItems, fetchBibliographyItems } = useCitationGenerator();
 const { statusOptions } = useArticleStatus();
 
 if (!bibliographyItems.value.length) {
@@ -49,10 +49,11 @@ const languageOptions = [
 	{ value: "de", label: t("LocaleSwitcher.german") },
 ];
 const selectedAuthors = ref<Array<string>>([]);
-const selectedCategory = ref<string | null>(null);
+const selectedCategory = ref<string | undefined>(undefined);
 const selectedLanguage = ref<"de" | "en">(currentLocale.value);
-const selectedQuestion = ref<string | null>(null);
+const selectedQuestion = ref<{ id: number; value: string; label: string } | undefined>(undefined);
 const selectedBibliographyItems = ref<Array<BibliographyItem>>([]);
+const selectedBibliographyKey = ref<string>();
 const title = ref<string>("");
 
 const { data: informationList } = await useFetch<APIInformationList>("/cms/articles/create/info", {
@@ -108,7 +109,12 @@ if (routeId && routeId !== "new") {
 		selectedBibliographyItems.value = bibliographyItems.value.filter((b) =>
 			articleBibliography.includes(b.key),
 		);
-		selectedQuestion.value = article.phenomenon?.[0]?.name ?? null;
+		selectedQuestion.value =
+			article.phenomenon?.map((p) => ({
+				id: p.phenomenon_id,
+				value: p.name,
+				label: p.name,
+			}))?.[0] ?? undefined;
 		postId.value = article.post_id;
 		activeStatus.value = article.post_status ?? "Draft";
 	} else {
@@ -140,6 +146,18 @@ const authorsOptions = computed(
 		);
 	},
 );
+
+const availableBibliographyOptions = computed(() => {
+	const selectedKeys = new Set(selectedBibliographyItems.value.map((item) => item.key));
+
+	return bibliographyItems.value
+		.filter((item) => !selectedKeys.has(item.key))
+		.map((item) => ({
+			label: item.title,
+			value: item.key,
+			description: item.date || undefined,
+		}));
+});
 
 const saveArticle = async () => {
 	const authors = selectedAuthors.value.map(
@@ -177,7 +195,7 @@ const saveArticle = async () => {
 
 	if (selectedQuestion.value) {
 		article["phenomenonId"] = Number(
-			mappedQuestions.value?.find((q) => q.value === selectedQuestion.value)?.id,
+			mappedQuestions.value?.find((q) => q.value === selectedQuestion.value?.value)?.id,
 		);
 	}
 
@@ -191,12 +209,12 @@ const saveArticle = async () => {
 			headers: headers,
 		});
 		if (response) {
-			toast.success(t("AdminPage.editor.saving_succeeded.title"));
+			toast.add({ title: t("AdminPage.editor.saving_succeeded.title"), color: "success" });
 			await navigateTo(localePath("/admin/articles"));
 		}
 	} catch (error) {
 		console.error(error);
-		toast.error(t("AdminPage.editor.saving_failed.title"));
+		toast.add({ title: t("AdminPage.editor.saving_failed.title"), color: "error" });
 	}
 };
 
@@ -236,6 +254,16 @@ const addBibliographyItem = (value: string) => {
 	}
 };
 
+const selectBibliographyItem = (value: string | undefined) => {
+	if (value) {
+		addBibliographyItem(value);
+	}
+
+	nextTick(() => {
+		selectedBibliographyKey.value = undefined;
+	});
+};
+
 const removeBibliographyItem = (key: string) => {
 	selectedBibliographyItems.value = selectedBibliographyItems.value.filter((i) => i.key !== key);
 };
@@ -258,10 +286,10 @@ const handleFileChange = async (event: Event) => {
 			// 	url: "https://images.pexels.com/photos/934055/pexels-photo-934055.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
 			// };
 			cover.value = result.imageUrl;
-			toast.success(t("AdminPage.editor.cover.upload_succeeded"));
+			toast.add({ title: t("AdminPage.editor.cover.upload_succeeded"), color: "success" });
 		} catch (error) {
 			console.error(error);
-			toast.error(t("AdminPage.editor.cover.upload_failed"));
+			toast.add({ title: t("AdminPage.editor.cover.upload_failed"), color: "error" });
 		}
 	}
 };
@@ -272,7 +300,7 @@ watch(title, (newValue) => {
 
 watch(selectedCategory, (newValue) => {
 	if (newValue !== "commentary") {
-		selectedQuestion.value = null;
+		selectedQuestion.value = undefined;
 	}
 });
 
@@ -286,7 +314,7 @@ usePageMetadata({
 		<PageTitle class="sr-only">{{ t("AdminPage.title") }}</PageTitle>
 		<div class="col-span-4 rounded border p-8">
 			<NuxtLinkLocale class="mb-4 inline-flex items-center gap-1" to="/admin/articles"
-				><ArrowLeft class="size-4" />Back</NuxtLinkLocale
+				><UIcon name="i-lucide-arrow-left" class="size-4" />Back</NuxtLinkLocale
 			>
 			<div class="mb-8 flex justify-between border-b pb-8">
 				<div>
@@ -294,52 +322,69 @@ usePageMetadata({
 					<p v-if="postId" class="text-foreground/70">ID: {{ postId }}</p>
 				</div>
 				<div class="flex items-center gap-3">
-					<Label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</Label>
-					<BaseSelect id="status" v-model="activeStatus" :options="statusOptions" size="medium" />
-					<Button @click="saveArticle">Save</Button>
+					<label class="sr-only" for="status">{{ t("AdminPage.editor.status.status") }}</label>
+					<USelect
+						id="status"
+						v-model="activeStatus"
+						:items="statusOptions"
+						size="lg"
+						class="w-48"
+					/>
+					<UButton size="lg" @click="saveArticle">Save</UButton>
 				</div>
 			</div>
 			<div class="bg-background">
 				<div class="mb-6 flex flex-col gap-5 md:flex-row">
 					<div class="w-full max-w-xl space-y-5 md:w-1/2">
 						<div class="grid w-full items-center gap-1.5">
-							<Label for="title">{{ t("AdminPage.editor.title") }}</Label>
-							<Input
+							<label for="title">{{ t("AdminPage.editor.title") }}</label>
+							<UInput
 								id="title"
 								v-model="title"
+								class="w-full"
 								:placeholder="t('AdminPage.editor.title')"
 								type="text"
+								size="lg"
 							/>
 						</div>
 						<div class="grid w-full items-center gap-1.5">
-							<Label class="flex items-center gap-1" for="alias"
+							<label class="flex items-center gap-1" for="alias"
 								>{{ t("AdminPage.editor.alias.label") }}
-								<InfoTooltip :content="t('AdminPage.editor.alias.tooltip')">
-									<InfoIcon class="size-4"></InfoIcon> </InfoTooltip
-							></Label>
-							<Input
+								<UTooltip
+									:content="{ side: 'top' }"
+									:delay-duration="0"
+									:text="t('AdminPage.editor.alias.tooltip')"
+								>
+									<UIcon name="i-lucide-info" class="size-4" />
+								</UTooltip>
+							</label>
+							<UInput
 								id="alias"
 								v-model="alias"
 								:placeholder="t('AdminPage.editor.alias.placeholder')"
 								type="text"
+								size="lg"
 							/>
 						</div>
 						<div class="grid w-full gap-1.5">
-							<Label for="abstract">{{ t("AdminPage.editor.abstract") }}</Label>
-							<Textarea
+							<label for="abstract">{{ t("AdminPage.editor.abstract") }}</label>
+							<UTextarea
 								id="abstract"
 								v-model="abstract"
+								:rows="8"
 								:placeholder="t('AdminPage.editor.abstract')"
 								type="text"
 							/>
 						</div>
 						<div v-if="languageOptions" class="grid items-center gap-1.5">
-							<Label for="language">{{ t("AdminPage.editor.language.label") }}</Label>
-							<BaseSelect
+							<label for="language">{{ t("AdminPage.editor.language.label") }}</label>
+							<USelect
 								id="language"
 								v-model="selectedLanguage"
-								:options="languageOptions"
+								:items="languageOptions"
 								:placeholder="t('AdminPage.editor.language.placeholder')"
+								size="lg"
+								class="w-64"
 							/>
 						</div>
 					</div>
@@ -376,8 +421,8 @@ usePageMetadata({
 							</label>
 						</div>
 						<div class="grid w-full items-center gap-1.5">
-							<Label for="coverAlt">{{ t("AdminPage.editor.cover_alt.label") }}</Label>
-							<Input
+							<label for="coverAlt">{{ t("AdminPage.editor.cover_alt.label") }}</label>
+							<UInput
 								id="coverAlt"
 								v-model="coverAlt"
 								:placeholder="t('AdminPage.editor.cover_alt.placeholder')"
@@ -388,7 +433,7 @@ usePageMetadata({
 				</div>
 
 				<div class="mb-6 grid w-full items-center gap-1.5">
-					<Label for="content">{{ t("AdminPage.editor.content") }}</Label>
+					<label for="content">{{ t("AdminPage.editor.content") }}</label>
 					<ClientOnly>
 						<TextEditor v-model="content" class="w-full" />
 					</ClientOnly>
@@ -396,12 +441,14 @@ usePageMetadata({
 				</div>
 				<div class="mb-6 flex items-baseline gap-8">
 					<div v-if="categoryOptions" class="grid max-w-sm items-center gap-1.5">
-						<Label for="category">{{ t("AdminPage.editor.category.label") }}</Label>
-						<BaseSelect
+						<label for="category">{{ t("AdminPage.editor.category.label") }}</label>
+						<USelect
 							id="category"
 							v-model="selectedCategory"
-							:options="categoryOptions"
+							:items="categoryOptions"
 							:placeholder="t('AdminPage.editor.category.placeholder')"
+							size="lg"
+							class="w-64"
 						/>
 					</div>
 
@@ -412,18 +459,19 @@ usePageMetadata({
 						"
 						class="grid max-w-sm items-center gap-1.5"
 					>
-						<Label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</Label>
-						<ComboboxBase
+						<label for="phenomenon">{{ t("AdminPage.editor.question.label") }}</label>
+						<USelectMenu
 							id="phenomenon"
 							v-model="selectedQuestion"
-							has-search
-							:options="mappedQuestions"
+							:items="mappedQuestions"
 							:placeholder="t('AdminPage.editor.question.placeholder')"
+							size="lg"
+							class="w-64"
 						/>
 					</div>
 				</div>
 				<div v-if="authorsOptions" class="mb-6 grid w-full max-w-xl items-center gap-1.5">
-					<Label for="authors">{{ t("AdminPage.editor.authors.label") }}</Label>
+					<label for="authors">{{ t("AdminPage.editor.authors.label") }}</label>
 					<TagsCombobox
 						id="authors"
 						v-model="selectedAuthors"
@@ -434,59 +482,79 @@ usePageMetadata({
 				</div>
 				<div class="mb-6 flex w-full items-start gap-4">
 					<div class="grid w-1/2 gap-1.5">
-						<Label for="citation">{{ t("AdminPage.editor.citation.label") }}</Label>
-						<Textarea
+						<label for="citation">{{ t("AdminPage.editor.citation.label") }}</label>
+						<UTextarea
 							id="citation"
 							v-model="citation"
 							:placeholder="t('AdminPage.editor.citation.placeholder')"
 							type="text"
+							:rows="4"
 						/>
 						<div class="flex w-full justify-end gap-1.5">
-							<Button variant="outline" @click="generateCitation"
-								><WandSparkles class="mr-2 size-4" />{{
-									t("AdminPage.editor.citation.generate")
-								}}</Button
+							<UButton
+								variant="outline"
+								icon="i-lucide-wand-sparkles"
+								size="lg"
+								@click="generateCitation"
+								>{{ t("AdminPage.editor.citation.generate") }}</UButton
 							>
 							<CopyToClipboard :text="citation" />
 						</div>
 					</div>
 				</div>
-				<div class="grid grid-cols-2 gap-5">
-					<div class="mb-6 grid gap-4">
-						<Label for="bibliography"
-							>{{ t("AdminPage.editor.bibliography.label")
-							}}<template v-if="selectedBibliographyItems.length">
-								({{ selectedBibliographyItems.length }})</template
-							></Label
-						>
-						<ComboboxBase
-							has-search
-							:options="bibliographyOptions"
+				<div class="mb-6 max-w-3xl space-y-3">
+					<UFormField
+						:label="t('AdminPage.editor.bibliography.label')"
+						:hint="
+							selectedBibliographyItems.length
+								? t('AdminPage.editor.bibliography.selected', {
+										count: selectedBibliographyItems.length,
+									})
+								: undefined
+						"
+					>
+						<UInputMenu
+							id="bibliography"
+							v-model="selectedBibliographyKey"
+							class="w-full"
+							:filter-fields="['label', 'description']"
+							icon="i-lucide-search"
+							:items="availableBibliographyOptions"
 							:placeholder="t('AdminPage.editor.bibliography.placeholder')"
-							select-only
-							width="w-80"
-							@selected="addBibliographyItem"
-						/>
-						<ul v-if="selectedBibliographyItems.length" class="space-y-2">
-							<li
-								v-for="item in selectedBibliographyItems"
-								:key="item.key"
-								class="flex items-center gap-2"
-							>
-								<span class="grow overflow-hidden rounded-lg border px-2 py-0.5"
-									>{{ truncateString(item.title, 60) }} ({{ item.date }})</span
-								>
+							size="lg"
+							value-key="value"
+							virtualize
+							@update:model-value="selectBibliographyItem"
+						>
+							<template #empty>
+								{{ t("TagsCombobox.empty") }}
+							</template>
+						</UInputMenu>
+					</UFormField>
 
-								<div>
-									<Trash
-										class="size-5 cursor-pointer hover:text-accent-foreground"
-										@click="removeBibliographyItem(item.key)"
-									></Trash>
-								</div>
-							</li>
-						</ul>
-					</div>
-					<div class="mb-6 grid gap-4"></div>
+					<ul
+						v-if="selectedBibliographyItems.length"
+						class="divide-y divide-default overflow-hidden rounded-lg border border-default"
+					>
+						<li
+							v-for="item in selectedBibliographyItems"
+							:key="item.key"
+							class="flex items-center gap-3 p-3"
+						>
+							<div class="min-w-0 grow">
+								<p class="text-sm font-medium text-highlighted">{{ item.title }}</p>
+								<p v-if="item.date" class="mt-0.5 text-xs text-muted">{{ item.date }}</p>
+							</div>
+							<UButton
+								:aria-label="t('AdminPage.editor.bibliography.remove', { title: item.title })"
+								color="error"
+								icon="i-lucide-trash-2"
+								size="sm"
+								variant="ghost"
+								@click="removeBibliographyItem(item.key)"
+							/>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</div>

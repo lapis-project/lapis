@@ -169,7 +169,7 @@
 			"articles": "Kartenkommentare",
 			"db": "Belegdatenbank",
 			"home": "Startseite",
-			"research": "Kartierung"
+			"maps": "Kartierung"
 		},
 		"navigation-main": "Hauptnavigation"
 	},
@@ -587,7 +587,20 @@
 	"UserManagement": {
 		"role": "Rolle",
 		"create-new-user": "Benutzer erstellen",
-		"title": "Benutzerverwaltung"
+		"title": "Benutzerverwaltung",
+		"actions": {
+			"set-password": "Passwort ändern",
+			"password-title": "Neues Passwort für {username} festlegen",
+			"password-description": "Lege ein neues Passwort für dieses Benutzerkonto fest.",
+			"password-warning": "Bitte notiere dir das neue Passwort. Es kann nach der Änderung nicht mehr abgerufen werden.",
+			"password-updated": "Das neue Passwort wurde gespeichert.",
+			"password-update-failed": "Das neue Passwort konnte nicht gespeichert werden.",
+			"set-role": "Benutzerrolle ändern",
+			"role-title": "Benutzerrolle für {username} ändern",
+			"role-updated": "Die Benutzerrolle wurde gespeichert.",
+			"role-update-failed": "Die Benutzerrolle konnte nicht gespeichert werden.",
+			"save": "Speichern"
+		}
 	},
 	"UserPanel": {
 		"admin": "Admin",

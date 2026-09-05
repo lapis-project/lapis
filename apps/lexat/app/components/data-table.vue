@@ -170,10 +170,8 @@ onBeforeUnmount(() => {
 			ref="dbTable"
 			class="relative max-h-[500px] overflow-x-auto overflow-y-scroll shadow-md sm:rounded-lg"
 		>
-			<table
-				class="min-w-full table-fixed text-left text-sm text-gray-500 dark:text-gray-400 rtl:text-right"
-			>
-				<thead class="sticky top-0 bg-gray-50 text-xs uppercase text-foreground dark:bg-gray-700">
+			<table class="min-w-full table-fixed text-left text-sm rtl:text-right">
+				<thead class="sticky top-0 bg-gray-100 text-xs uppercase text-foreground dark:bg-gray-700">
 					<tr>
 						<th
 							v-for="column in columns"
@@ -207,7 +205,7 @@ onBeforeUnmount(() => {
 					<tr
 						v-for="row in sortedData"
 						:key="JSON.stringify(row)"
-						class="border-b bg-white dark:border-gray-700 dark:bg-gray-800 text-foreground/80"
+						class="border-b border-muted bg-white dark:border-gray-700 dark:bg-gray-800 text-foreground/80"
 					>
 						<td
 							v-for="(value, i) in Object.values(row)"

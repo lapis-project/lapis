@@ -532,13 +532,12 @@ await refresh(); // manually refetch using updated state
 							/>
 						</div>
 						<div>
-							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.age.title") }}
 							</div>
 							<div class="max-w-64 pl-1">
 								<DualRangeSlider
 									accessibility-label="Age Group"
-									:label="(value: string) => value"
 									:max="100"
 									:min="0"
 									:step="5"

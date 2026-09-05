@@ -138,7 +138,7 @@ usePageMetadata({
 <template>
 	<MainContent class="container grid sm:grid-cols-[auto_minmax(0,1fr)] gap-8 py-8">
 		<PageTitle class="sr-only">{{ t("ArticlesPage.title") }}</PageTitle>
-		<aside class="block sm:rounded sm:border sm:p-5">
+		<aside class="block sm:rounded sm:border border-muted sm:p-5">
 			<div class="mb-6 uppercase max-sm:hidden">
 				{{ t("ArticlesPage.filters.label") }}
 			</div>

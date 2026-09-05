@@ -6,10 +6,14 @@ export default defineNuxtConfig({
 		pageTransition: false,
 	},
 
-	site: {
-		url: baseUrl,
-		name: "WBÖ",
-	},
+	compatibilityDate: "2026-03-03",
+
+	components: [
+		{
+			path: "~/components",
+			global: true,
+		},
+	],
 
 	content: {
 		experimental: { sqliteConnector: "native" },
@@ -58,38 +62,6 @@ export default defineNuxtConfig({
 		"@nuxt/ui",
 	],
 
-	runtimeConfig: {
-		NODE_ENV: process.env.NODE_ENV,
-		public: {
-			appBaseUrl: process.env.NUXT_PUBLIC_APP_BASE_URL,
-			bots: process.env.NUXT_PUBLIC_BOTS,
-			matomoBaseUrl: process.env.NUXT_PUBLIC_MATOMO_BASE_URL,
-			matomoId: process.env.NUXT_PUBLIC_MATOMO_ID,
-			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,
-		},
-	},
-
-	svgo: {
-		defaultImport: "component",
-	},
-
-	vite: {
-		server: {
-			watch: {
-				usePolling: true,
-			},
-		},
-	},
-
-	compatibilityDate: "2026-03-03",
-
-	components: [
-		{
-			path: "~/components",
-			global: true,
-		},
-	],
-
 	robots: {
 		groups: [
 			// the following applies to all standard bots that respect emerging AI standards.
@@ -129,5 +101,33 @@ export default defineNuxtConfig({
 				disallow: ["/"],
 			},
 		],
+	},
+
+	runtimeConfig: {
+		NODE_ENV: process.env.NODE_ENV,
+		public: {
+			appBaseUrl: process.env.NUXT_PUBLIC_APP_BASE_URL,
+			bots: process.env.NUXT_PUBLIC_BOTS,
+			matomoBaseUrl: process.env.NUXT_PUBLIC_MATOMO_BASE_URL,
+			matomoId: process.env.NUXT_PUBLIC_MATOMO_ID,
+			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,
+		},
+	},
+
+	site: {
+		url: baseUrl,
+		name: "WBÖ",
+	},
+
+	svgo: {
+		defaultImport: "component",
+	},
+
+	vite: {
+		server: {
+			watch: {
+				usePolling: true,
+			},
+		},
 	},
 });

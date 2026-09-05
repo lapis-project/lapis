@@ -38,6 +38,7 @@ import type {
 	SurveyResponse,
 	SurveyResponseProperty,
 } from "@/types/feature-collection";
+import type { LocationOption } from "@/types/location-option";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
 import {
 	countUniqueVariants,
@@ -45,7 +46,6 @@ import {
 	processUniqueVariants,
 } from "@/utils/variant-helper";
 
-import type { ComboboxOption } from "../../shadcn/components/base-combobox.vue";
 import CopyToClipboard from "./copy-to-clipboard.vue";
 
 const colorMode = useColorMode();
@@ -77,7 +77,7 @@ const mappedQuestions = computed(() => {
 });
 
 const activeAgeGroup = ref([0, 100]);
-const activeLocations = ref<Array<ComboboxOption>>([]);
+const activeLocations = ref<Array<LocationOption>>([]);
 const activeSurveyRounds = ref<Array<string>>(["1", "2"]);
 const changedColors = ref<Record<string, string>>({});
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
@@ -106,10 +106,28 @@ function handleShowImage() {
 	stimulusDialogRef.value?.openDialog();
 }
 
-const surveyRoundOptions = [
-	{ value: "1", label: t("MapsPage.selection.survey.options.one") },
-	{ value: "2", label: t("MapsPage.selection.survey.options.two") },
-];
+const surveyRoundOptions = computed(() => {
+	const hasSingleSelection = activeSurveyRounds.value.length === 1;
+
+	return [
+		{
+			value: "1",
+			label: t("MapsPage.selection.survey.options.one"),
+			disabled: hasSingleSelection && activeSurveyRounds.value.includes("1"),
+		},
+		{
+			value: "2",
+			label: t("MapsPage.selection.survey.options.two"),
+			disabled: hasSingleSelection && activeSurveyRounds.value.includes("2"),
+		},
+	];
+});
+
+const updateActiveSurveyRounds = (selection: Array<string>) => {
+	if (selection.length > 0) {
+		activeSurveyRounds.value = selection;
+	}
+};
 
 const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
 	query: { phenomenonId: activeQuestionId, projectId: "1", surveyIds: activeSurveyRounds },
@@ -303,22 +321,22 @@ const uniqueVariants = computed(() => {
 
 const uniqueVariantsOptions = computed<Array<{ label: string; value: string }>>(() => {
 	const variantOptions = uniqueVariants.value
-		?.flatMap((variant) => {
-			const name = variant.annotation_name;
-			return name ? [{ label: name, value: name }] : [];
-		})
+		.map((variant) => ({
+			label: variant.anno,
+			value: variant.anno,
+		}))
 		.toSorted((a, b) => {
-			// extract priority values from the specialOrder object or default to 0
-			const priorityA = specialOrder[a.label] ?? 0;
-			const priorityB = specialOrder[b.label] ?? 0;
+			const priorityA = specialOrder[a.value] ?? 0;
+			const priorityB = specialOrder[b.value] ?? 0;
 
-			// sort by priority, with lower values appearing later
 			return priorityB - priorityA;
 		});
+
 	variantOptions.unshift({
 		label: t("MapsPage.selection.register.show-all") || "Alle anzeigen",
 		value: "all",
 	});
+
 	return variantOptions;
 });
 
@@ -807,7 +825,9 @@ const steps = [
 ];
 
 const activeLocationOptions = computed(() => {
-	return points.value.map((p) => ({ value: p.place_name, label: p.place_name }));
+	return Array.from(new Set(points.value.map((point) => point.place_name)))
+		.toSorted((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+		.map((location) => ({ value: location, label: location }));
 });
 
 const onOnboardingFinished = () => {
@@ -885,7 +905,7 @@ watch(activeVariants, updateUrlParams, {
 	<div class="relative flex flex-col gap-5">
 		<div id="welcome">
 			<div class="flex gap-2">
-				<div class="grow rounded-lg border p-5">
+				<div class="grow rounded-lg border border-muted p-5">
 					<div class="grid grid-cols-4 gap-5">
 						<div id="phenomenon">
 							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
@@ -951,13 +971,12 @@ watch(activeVariants, updateUrlParams, {
 							/>
 						</div>
 						<div id="age-group">
-							<div class="mb-7 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="ml-1 flex gap-1 text-sm font-semibold">
 								{{ t("MapsPage.selection.age.title") }}
 							</div>
 							<div class="max-w-64 pl-1">
 								<DualRangeSlider
 									accessibility-label="Age Group"
-									:label="(value: string) => value"
 									:max="100"
 									:min="0"
 									:step="5"
@@ -969,7 +988,7 @@ watch(activeVariants, updateUrlParams, {
 					</div>
 					<UCollapsible v-model:open="open">
 						<template #content>
-							<hr class="mt-5" />
+							<hr class="mt-5 border-muted" />
 							<div class="mt-4 grid grid-cols-4 gap-5">
 								<div>
 									<div class="mb-1 ml-1 text-sm font-semibold">
@@ -985,31 +1004,38 @@ watch(activeVariants, updateUrlParams, {
 									<div class="mt-2 mb-1 ml-1 text-sm font-semibold">
 										{{ t("MapsPage.selection.survey.title") }}
 									</div>
-									<BaseSelect
-										v-model="activeSurveyRounds"
+									<USelect
 										data-testid="survey"
+										:items="surveyRoundOptions"
+										:model-value="activeSurveyRounds"
 										multiple
-										:options="surveyRoundOptions"
-										size="large"
+										size="lg"
+										class="w-64"
+										@update:model-value="updateActiveSurveyRounds"
 									/>
 								</div>
 								<div class="">
 									<div class="mb-1 ml-1 text-sm font-semibold">
 										{{ t("MapsPage.selection.display-options") }}
 									</div>
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
 										<UCheckbox id="showData" v-model="simplifiedView" />
 										<label
 											class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 											for="showData"
 										>
 											{{ t("MapsPage.selection.simplified-view.label") }}
-											<InfoTooltip :content="t('MapsPage.selection.simplified-view.tooltip')">
-												<InfoIcon class="size-4"></InfoIcon>
-											</InfoTooltip>
+											<UTooltip
+												:content="{ side: 'top' }"
+												:delay-duration="0"
+												arrow
+												:text="t('MapsPage.selection.simplified-view.tooltip')"
+											>
+												<UIcon name="i-lucide-info" class="size-4" />
+											</UTooltip>
 										</label>
 									</div>
-									<div class="flex w-64 space-x-2 self-center rounded border p-2">
+									<div class="flex w-64 space-x-2 self-center rounded border border-muted p-2">
 										<UCheckbox id="showRegions" v-model="showRegions" />
 										<label
 											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1020,10 +1046,10 @@ watch(activeVariants, updateUrlParams, {
 									</div>
 								</div>
 								<div class="">
-									<div class="mb-1 ml-1 text-sm font-semibold">
+									<label class="mb-1 ml-1 block text-sm font-semibold" for="location-filter">
 										{{ t("MapsPage.selection.filter-locations") }}
-									</div>
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									</label>
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
 										<UCheckbox id="showStateCapitals" v-model="showStateCapitals" />
 										<label
 											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1032,7 +1058,7 @@ watch(activeVariants, updateUrlParams, {
 											{{ t("MapsPage.selection.show-state-capitals") }}
 										</label>
 									</div>
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
 										<UCheckbox id="showUrbanLocations" v-model="showUrbanLocations" />
 										<label
 											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1043,6 +1069,7 @@ watch(activeVariants, updateUrlParams, {
 									</div>
 									<LocationSearch
 										v-if="filteredPoints?.length"
+										id="location-filter"
 										v-model="activeLocations"
 										:options="activeLocationOptions"
 										:placeholder="t('MapsPage.selection.locations')"
@@ -1056,7 +1083,7 @@ watch(activeVariants, updateUrlParams, {
 										{{ t("MapsPage.selection.legend") }}
 									</div>
 
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border p-2">
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
 										<UCheckbox id="showVariantPercentages" v-model="showVariantPercentages" />
 										<label
 											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1109,7 +1136,7 @@ watch(activeVariants, updateUrlParams, {
 		</div>
 		<VisualisationContainer
 			v-slot="{ height, width }"
-			class="border"
+			class="border border-muted"
 			:class="{ 'h-[600px]': !mapExpanded }"
 			:fullscreen="mapExpanded"
 		>
@@ -1119,9 +1146,7 @@ watch(activeVariants, updateUrlParams, {
 				class="absolute bottom-12 right-0 z-10 mr-2"
 				data-testid="variantLegend"
 			>
-				<div
-					class="rounded-md border border-input bg-background p-3 text-sm text-foreground shadow-md"
-				>
+				<UCard variant="outline" class="text-sm shadow-md" :ui="{ body: 'p-3 sm:p-3' }">
 					<ul class="space-y-0.5">
 						<li
 							v-for="variant in filteredUniqueVariants"
@@ -1147,7 +1172,7 @@ watch(activeVariants, updateUrlParams, {
 							>({{ showVariantPercentages ? `${variant.percentage}%` : variant.count }})
 						</li>
 					</ul>
-				</div>
+				</UCard>
 			</div>
 			<div
 				v-if="features.length"
@@ -1155,8 +1180,10 @@ watch(activeVariants, updateUrlParams, {
 				class="absolute bottom-2 left-28 z-10 mr-2"
 				data-testid="regionLegend"
 			>
-				<div
-					class="rounded-md border border-input bg-background px-2 py-0.5 text-sm text-foreground shadow-md"
+				<UCard
+					variant="outline"
+					class="text-sm shadow-md"
+					:ui="{ body: 'px-2 py-0.5 sm:px-2 sm:py-0.5' }"
 				>
 					<ul class="gap-3 flex">
 						<li
@@ -1184,7 +1211,7 @@ watch(activeVariants, updateUrlParams, {
 							<span class="italic">{{ region.name }}</span>
 						</li>
 					</ul>
-				</div>
+				</UCard>
 			</div>
 			<div id="expand" class="absolute right-2 top-2 z-10">
 				<UButton
@@ -1213,9 +1240,7 @@ watch(activeVariants, updateUrlParams, {
 				class="absolute bottom-12 left-0 z-10 ml-2"
 				data-testid="dataLegend"
 			>
-				<div
-					class="rounded-md border border-input bg-background p-3 text-sm text-foreground shadow-md"
-				>
+				<UCard variant="outline" class="text-sm shadow-md" :ui="{ body: 'p-3 sm:p-3' }">
 					<div class="mb-1 flex items-center gap-1" data-testid="datapoints">
 						<UIcon name="i-lucide-map-pin" class="size-4" /> {{ t("MapsPage.map.datapoints") }}:
 						{{ filteredPoints.length }}
@@ -1224,7 +1249,7 @@ watch(activeVariants, updateUrlParams, {
 						<UIcon name="i-lucide-user" class="size-4" />{{ t("MapsPage.map.informants") }}:
 						{{ numberOfInformants }}
 					</div>
-				</div>
+				</UCard>
 			</div>
 			<GeoMap
 				v-if="height && width"
@@ -1286,10 +1311,10 @@ watch(activeVariants, updateUrlParams, {
 				</GeoMapPopup>
 			</GeoMap>
 		</VisualisationContainer>
-		<div class="flex w-full gap-8 justify-between">
-			<div class="flex flex-1 min-w-0 gap-3">
+		<div class="flex w-full items-start justify-between gap-8">
+			<div class="flex min-w-0 flex-1 items-start gap-3">
 				<p
-					class="min-w-0 flex-1 break-all rounded-md border p-2 text-sm text-foreground/70"
+					class="min-w-0 flex-1 break-all rounded-md border border-muted p-2 text-sm text-foreground/70"
 					data-testid="clipboard-url"
 				>
 					{{ fullRoute }}
@@ -1299,14 +1324,31 @@ watch(activeVariants, updateUrlParams, {
 				</div>
 			</div>
 			<div class="flex shrink-0 gap-3">
-				<Button v-if="postAlias" data-testid="goToArticlePage" @click="goToArticlePage"
-					><FileText class="mr-2 size-4" />{{ t("MapsPage.go-to-article") }}</Button
+				<UButton
+					v-if="postAlias"
+					data-testid="goToArticlePage"
+					icon="i-lucide-file-text"
+					size="lg"
+					@click="goToArticlePage"
+					>{{ t("MapsPage.go-to-article") }}</UButton
 				>
-				<Button v-if="activeQuestionId" data-testid="goToDbPage" @click="goToDbPage"
-					><Database class="mr-2 size-4" />{{ t("MapsPage.go-to-db") }}</Button
+				<UButton
+					v-if="activeQuestionId"
+					data-testid="goToDbPage"
+					icon="i-lucide-database"
+					size="lg"
+					@click="goToDbPage"
+					>{{ t("MapsPage.go-to-db") }}</UButton
 				>
-				<Button v-else data-testid="resetOnboarding" variant="outline" @click="resetOnboarding">
-					<CircleHelp class="mr-2 size-5" /> {{ t("MapsPage.help") }}</Button
+				<UButton
+					v-else
+					data-testid="resetOnboarding"
+					variant="outline"
+					icon="i-lucide-circle-help"
+					size="lg"
+					@click="resetOnboarding"
+				>
+					{{ t("MapsPage.help") }}</UButton
 				>
 			</div>
 		</div>

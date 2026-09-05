@@ -27,7 +27,7 @@ const deleteItem = async () => {
 
 <template>
 	<div class="flex items-center gap-3">
-		<Edit class="size-5 cursor-pointer hover:text-accent-foreground" @click="editItem"></Edit>
-		<Trash class="size-5 cursor-pointer hover:text-accent-foreground" @click="deleteItem"></Trash>
+		<Edit class="size-5 cursor-pointer hover:text-secondary" @click="editItem"></Edit>
+		<Trash class="size-5 cursor-pointer hover:text-secondary" @click="deleteItem"></Trash>
 	</div>
 </template>

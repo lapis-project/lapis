@@ -15,7 +15,7 @@ const links = computed(() => {
 </script>
 
 <template>
-	<footer class="border-t">
+	<footer class="border-t border-muted">
 		<div
 			class="container flex items-center justify-between gap-8 mdgap-4 py-6 flex-col md:flex-row"
 		>

@@ -1,68 +1,43 @@
 <script lang="ts" setup>
-import { Menu, XIcon } from "@lucide/vue";
-
-import type { NuxtLinkProps } from "#app";
+import type { NavigationMenuItem } from "@nuxt/ui";
 
 const t = useTranslations();
 
-const drawerOpen = ref<boolean>(false);
+const route = useRoute();
 
-const links = computed(() => {
-	return {
-		about: { to: { path: "/articles/lexat21-einfuehrung" }, label: t("AppHeader.links.about") },
-		research: { to: { path: "/maps" }, label: t("AppHeader.links.research") },
-		db: { to: { path: "/db" }, label: t("AppHeader.links.db") },
-		articles: { to: { path: "/articles" }, label: t("AppHeader.links.articles") },
-	} satisfies Record<string, { to: NuxtLinkProps["href"]; label: string }>;
-});
-
-const mobileLinks = computed(() => {
-	return {
-		home: { to: { path: "/" }, label: t("AppHeader.links.home") },
-		...links.value,
-	};
-});
+const items = computed<Array<NavigationMenuItem>>(() => [
+	{
+		label: $t("AppHeader.links.home"),
+		to: "/",
+		active: route.path.startsWith("/"),
+		class: "lg:hidden",
+	},
+	{
+		label: $t("AppHeader.links.about"),
+		to: "/articles/lexat21-einfuehrung",
+		active: route.path.includes("/articles/lexat21-einfuehrung"),
+	},
+	{
+		label: $t("AppHeader.links.maps"),
+		to: "/maps",
+		active: route.path.includes("/maps"),
+	},
+	{
+		label: $t("AppHeader.links.db"),
+		to: "/db",
+		active: route.path.includes("/db"),
+	},
+	{
+		label: $t("AppHeader.links.articles"),
+		to: "/articles",
+		active: route.path.includes("/articles"),
+	},
+]);
 </script>
 
 <template>
-	<header class="border-b bg-background z-40">
-		<div class="container flex h-14 sm:h-16 items-center justify-between gap-4 py-4">
-			<Drawer v-model:open="drawerOpen">
-				<DrawerTrigger class="lg:hidden">
-					<ClientOnly>
-						<Button id="mobile-menu" class="lg:hidden" size="icon" variant="outline"
-							><component :is="drawerOpen ? XIcon : Menu" class="size-4"
-						/></Button>
-					</ClientOnly>
-				</DrawerTrigger>
-				<DrawerContent>
-					<DrawerHeader>
-						<DrawerTitle>Navigation</DrawerTitle>
-					</DrawerHeader>
-					<DrawerFooter>
-						<DrawerClose>
-							<nav :aria-label="t('AppHeader.navigation-main')" class="pb-12">
-								<ul class="flex flex-col" role="list">
-									<li
-										v-for="(link, key) of mobileLinks"
-										:key="key"
-										class="border-b p-3 last:border-none"
-									>
-										<NuxtLinkLocale
-											class="uppercase"
-											exact-active-class="underline underline-offset-2"
-											:to="link.to"
-										>
-											{{ link.label }}
-										</NuxtLinkLocale>
-									</li>
-								</ul>
-							</nav>
-						</DrawerClose>
-					</DrawerFooter>
-				</DrawerContent>
-			</Drawer>
-
+	<UHeader toggle-side="left">
+		<template #left>
 			<LapisBrandWrapper class="hidden lg:block">
 				<NuxtLinkLocale to="/">
 					<svg class="h-8" fill="none" viewBox="0 0 253 46" xmlns="http://www.w3.org/2000/svg">
@@ -97,26 +72,20 @@ const mobileLinks = computed(() => {
 					</svg>
 				</NuxtLinkLocale>
 			</LapisBrandWrapper>
-			<!-- <img src="@/assets/lexat.svg" alt="LexAT Logo" class="w-32" /> -->
-			<nav :aria-label="t('AppHeader.navigation-main')" class="hidden lg:block">
-				<ul class="flex items-center gap-4" role="list">
-					<li v-for="(link, key) of links" :id="key" :key="key">
-						<NuxtLinkLocale
-							class="uppercase"
-							exact-active-class="underline underline-offset-2"
-							:to="link.to"
-						>
-							{{ link.label }}
-						</NuxtLinkLocale>
-					</li>
-				</ul>
-			</nav>
+		</template>
 
-			<div class="relative flex items-center gap-4">
+		<UNavigationMenu :items="items" />
+
+		<template #right>
+			<ClientOnly>
 				<ColorSchemeSwitcher />
-				<LocaleSwitcher />
-				<UserPanel />
-			</div>
-		</div>
-	</header>
+			</ClientOnly>
+			<LocaleSwitcher />
+			<UserPanel class="ml-2" />
+		</template>
+
+		<template #body>
+			<UNavigationMenu class="-mx-2.5" :items="items" orientation="vertical" />
+		</template>
+	</UHeader>
 </template>

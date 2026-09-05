@@ -1,6 +1,9 @@
 <script setup lang="ts" generic="TData extends TableData">
 import type { TableColumn, TableData } from "@nuxt/ui";
-import type { TableMeta } from "@tanstack/vue-table";
+
+type UserTableMeta = {
+	refresh: () => Promise<void>;
+};
 
 const props = defineProps<{
 	columns: Array<TableColumn<TData>>;
@@ -8,14 +11,14 @@ const props = defineProps<{
 	refresh: () => Promise<void>;
 }>();
 
-const meta = computed<TableMeta<TData> & { refresh: () => Promise<void> }>(() => ({
+const meta = computed<UserTableMeta>(() => ({
 	refresh: props.refresh,
 }));
 </script>
 
 <template>
 	<UTable
-		class="rounded-md border"
+		class="rounded-md border border-muted"
 		:columns="columns"
 		:data="data"
 		empty="No results."

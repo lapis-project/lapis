@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from "reka-ui";
-
 export interface Props {
 	accessibilityLabel: string;
-	labelPosition?: string;
+	labelPosition?: "top" | "bottom";
 	min?: number;
 	max?: number;
+	step?: number;
 	value?: Array<number>;
 }
 
@@ -13,45 +12,53 @@ const props = withDefaults(defineProps<Props>(), {
 	labelPosition: "top",
 	min: 10,
 	max: 100,
+	step: 1,
 });
 
-const { labelPosition, value } = toRefs(props);
-const initialValue = computed(() => {
-	return Array.isArray(props.value) ? props.value : [props.min, props.max];
+const emit = defineEmits<{
+	"update:value": [value: Array<number>];
+}>();
+
+const sliderValue = computed<Array<number>>({
+	get() {
+		return Array.isArray(props.value) ? props.value : [props.min, props.max];
+	},
+	set(value) {
+		emit("update:value", value);
+	},
 });
-const emit = defineEmits(["update:value", "toggle"]);
-const emitValueChange = (newValue: Array<number> | undefined) => {
-	emit("update:value", newValue);
-};
+
+const thumbLabels = computed(() => {
+	const range = props.max - props.min;
+
+	return sliderValue.value.map((value, index) => ({
+		value,
+		label: `${index === 1 ? "<" : ""}${value}`,
+		position: range > 0 ? ((value - props.min) / range) * 100 : 0,
+	}));
+});
 </script>
 
 <template>
-	<SliderRoot
-		class="relative flex w-full touch-none select-none items-center"
-		:max="props.max"
-		:min="props.min"
-		:model-value="value"
-		@update:model-value="emitValueChange"
-	>
-		<SliderTrack class="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
-			<SliderRange class="absolute h-full bg-primary" />
-		</SliderTrack>
-
-		<SliderThumb
-			v-for="(initial, index) in initialValue"
-			:key="index"
-			:aria-label="accessibilityLabel"
-			class="relative block size-4 cursor-pointer rounded-full border-2 border-primary bg-background ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+	<div class="relative w-full" :class="props.labelPosition === 'top' ? 'pt-6' : 'pb-6'">
+		<span
+			v-for="thumb in thumbLabels"
+			:key="thumb.label"
+			class="pointer-events-none absolute z-10 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-toned"
+			:class="props.labelPosition === 'top' ? 'top-0' : 'bottom-0'"
+			:style="{ left: `${thumb.position}%` }"
 		>
-			<span
-				:class="[
-					'absolute flex w-full justify-center text-sm',
-					labelPosition === 'top' ? '-top-6' : '',
-					labelPosition === 'bottom' ? 'top-4' : '',
-				]"
-			>
-				{{ index === 1 ? "<" : "" }}{{ initial }}
-			</span>
-		</SliderThumb>
-	</SliderRoot>
+			{{ thumb.label }}
+		</span>
+
+		<USlider
+			v-model="sliderValue"
+			:aria-label="props.accessibilityLabel"
+			color="primary"
+			:max="props.max"
+			:min="props.min"
+			size="md"
+			:step="props.step"
+		/>
+	</div>
 </template>

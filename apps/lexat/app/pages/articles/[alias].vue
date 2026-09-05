@@ -190,7 +190,7 @@ const formattedTitle = computed(
 					:src="article.cover"
 				/>
 				<div v-if="article?.post_type_name !== 'short_description'" class="block sm:hidden">
-					<hr class="my-8" />
+					<hr class="my-8 border-muted" />
 					<div class="font-bold block sm:hidden text-2xl mb-5">
 						{{ t("ArticleDetailPage.toc") }}
 					</div>
@@ -205,13 +205,13 @@ const formattedTitle = computed(
 						</li>
 					</ul>
 				</div>
-				<hr class="mt-5" />
+				<hr class="mt-5 border-muted" />
 				<div class="article-content" v-html="article.content"></div>
 				<div v-if="bibliography?.length" class="article-content">
 					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>
 					<p v-for="item in bibliography" :key="item" v-html="item"></p>
 				</div>
-				<hr class="mt-5" />
+				<hr class="mt-5 border-muted" />
 				<div v-if="article.citation">
 					<h2 class="mb-4 mt-8 text-xl font-bold">{{ t("ArticleDetailPage.citation") }}</h2>
 					<blockquote class="max-w-2xl italic break-all sm:break-keep">
@@ -220,10 +220,10 @@ const formattedTitle = computed(
 				</div>
 			</article>
 			<aside class="hidden sm:block w-1/4">
-				<section class="sticky top-20 border p-5">
+				<section class="sticky top-20 border border-muted p-5">
 					<template v-if="article?.post_type_name !== 'short_description'">
 						<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>
-						<hr class="my-2" />
+						<hr class="my-2 border-muted" />
 						<ul class="-ml-4 list-inside list-disc">
 							<li
 								v-for="item in tableOfContents"
@@ -236,7 +236,7 @@ const formattedTitle = computed(
 					</template>
 					<template v-else-if="phenomenonId">
 						<div class="font-bold">{{ t("ArticleDetailPage.interlinking.title") }}</div>
-						<hr class="my-2" />
+						<hr class="my-2 border-muted" />
 						<p class="mb-5">{{ t("ArticleDetailPage.interlinking.text") }}</p>
 						<div class="flex flex-col items-center gap-3">
 							<UButton icon="i-lucide-map-pin" variant="outline" size="lg" @click="goToMapsPage">{{

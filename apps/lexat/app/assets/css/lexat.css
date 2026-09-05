@@ -5,15 +5,19 @@
 To use solid black or white as your primary color, set it directly in your main.css file: */
 :root {
 	--ui-primary: oklch(0% 0 0deg);
+	--ui-secondary: oklch(52.14% 0.168 358.8deg);
+	--ui-container: 1536px;
 }
 
 .dark {
 	--ui-primary: oklch(100% 0.0001 271.152deg);
+	--ui-secondary: oklch(65.14% 0.168 358.8deg);
 }
 
 @theme {
 	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 	--ui-header-height: 63px;
+	--container-8xl: 90rem;
 }
 
 @layer base {
@@ -30,36 +34,32 @@ To use solid black or white as your primary color, set it directly in your main.
 	img {
 		@apply inline-block;
 	}
+
+	.container {
+		width: 100%;
+		margin-right: auto;
+		margin-left: auto;
+		padding-right: 1.25rem;
+		padding-left: 1.25rem;
+	}
 }
 
 /* TIPTAP CMS SPECIFIC */
 @layer base {
 	#text-editor .toolbar > button {
-		@apply flex justify-center items-center text-xl  size-8 border-none my-2 mx-1 rounded-md cursor-pointer appearance-none;
-
-		/* background: var(--background);
-		color: var(--foreground); */
+		@apply flex justify-center items-center text-xl size-8 border-none my-2 mx-1 rounded-md cursor-pointer appearance-none bg-default text-default;
 	}
 
 	#text-editor .toolbar > button.active {
-		/* background: var(--foreground);
-		color: var(--background); */
+		@apply bg-inverted text-inverted;
 	}
 
 	#text-editor .align-dropdown > button {
-		@apply h-8 border-none cursor-pointer rounded-md appearance-none;
-
-		/* background: var(--background);
-		color: var(--foreground); */
+		@apply h-8 border-none cursor-pointer rounded-md appearance-none bg-default text-default;
 	}
 
 	#text-editor .align-dropdown > .dropdown-content {
-		@apply absolute right-0 left-0 z-10 rounded-md;
-
-		/*
-		border: 1px solid var(--foreground);
-		background-color: var(--background);
-		outline: 1px solid var(--background); */
+		@apply absolute right-0 left-0 z-10 rounded-md bg-default ring ring-default shadow-lg;
 	}
 
 	#text-editor .align-dropdown > .dropdown-content a {
@@ -68,18 +68,13 @@ To use solid black or white as your primary color, set it directly in your main.
 
 	#text-editor .align-dropdown > .dropdown-content a:hover,
 	#text-editor .align-dropdown > .dropdown-content a.active {
-		/* background: var(--foreground);
-		color: var(--background); */
+		@apply bg-inverted text-inverted;
 	}
 
 	/* stylelint-disable-next-line selector-class-pattern */
 	#text-editor .ProseMirror {
 		@apply px-2 outline-hidden;
 	}
-
-	/* #text-editor .align-dropdown:hover .dropdown-content {
-		display: block;
-	} */
 }
 
 /* ARTICLE CONTENT STYLING */
@@ -129,17 +124,8 @@ To use solid black or white as your primary color, set it directly in your main.
 		font-size: 0.75em;
 	}
 
-	/* .article-content .ProseMirror > h1:first-child,
-	.article-content .ProseMirror > h2:first-child,
-	.article-content .ProseMirror > h3:first-child,
-	.article-content .ProseMirror > h4:first-child,
-	.article-content .ProseMirror > h5:first-child,
-	.article-content .ProseMirror > h6:first-child {
-		@apply mt-2;
-	} */
-
 	.article-content a {
-		/* @apply text-accent-foreground underline cursor-pointer; */
+		@apply text-secondary underline cursor-pointer;
 	}
 
 	.article-content > p {
@@ -164,7 +150,7 @@ To use solid black or white as your primary color, set it directly in your main.
 	}
 
 	.article-content blockquote {
-		/* @apply italic text-muted-foreground border-l-4 border-accent-foreground pl-4 my-6; */
+		@apply italic text-muted border-l-4 border-secondary pl-4 my-6;
 	}
 
 	.article-content img {
@@ -185,7 +171,7 @@ To use solid black or white as your primary color, set it directly in your main.
 
 	/* ─── table styling ─────────────────────────── */
 	.article-content table {
-		/* @apply w-full table-fixed border-collapse text-sm my-6 border border-foreground/30 rounded-md; */
+		@apply w-full table-fixed border-collapse text-sm my-6 border border-default rounded-md;
 	}
 
 	.article-content th {
@@ -195,7 +181,7 @@ To use solid black or white as your primary color, set it directly in your main.
 	/* cells – add vertical and horizontal borders */
 	.article-content th,
 	.article-content td {
-		/* @apply py-2 px-3 border-b border-l border-foreground/30 break-words; */
+		@apply py-2 px-3 border-b border-l border-default break-words;
 	}
 
 	/* remove the extra left border on the first column */
@@ -204,11 +190,7 @@ To use solid black or white as your primary color, set it directly in your main.
 		@apply border-l-0;
 	}
 
-	/* .article-content tbody tr:hover {
-		@apply bg-gray-100;
-	} */
-
 	.article-content caption {
-		/* @apply text-muted-foreground text-sm mt-2; */
+		@apply text-muted text-sm mt-2;
 	}
 }

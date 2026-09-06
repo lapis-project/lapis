@@ -1,36 +1,45 @@
 <script lang="ts" setup>
 import type { NavigationMenuItem } from "@nuxt/ui";
 
-const t = useTranslations();
-
 const route = useRoute();
+const localePath = useLocalePath();
+
+const projectDescriptionPath = "/articles/lexat21-einfuehrung";
+
+function isActive(path: string, exact = false) {
+	const localizedPath = localePath(path);
+
+	return exact
+		? route.path === localizedPath
+		: route.path === localizedPath || route.path.startsWith(`${localizedPath}/`);
+}
 
 const items = computed<Array<NavigationMenuItem>>(() => [
 	{
 		label: $t("AppHeader.links.home"),
 		to: "/",
-		active: route.path.startsWith("/"),
+		active: isActive("/", true),
 		class: "lg:hidden",
 	},
 	{
 		label: $t("AppHeader.links.about"),
-		to: "/articles/lexat21-einfuehrung",
-		active: route.path.includes("/articles/lexat21-einfuehrung"),
+		to: projectDescriptionPath,
+		active: isActive(projectDescriptionPath),
 	},
 	{
 		label: $t("AppHeader.links.maps"),
 		to: "/maps",
-		active: route.path.includes("/maps"),
+		active: isActive("/maps"),
 	},
 	{
 		label: $t("AppHeader.links.db"),
 		to: "/db",
-		active: route.path.includes("/db"),
+		active: isActive("/db"),
 	},
 	{
 		label: $t("AppHeader.links.articles"),
 		to: "/articles",
-		active: route.path.includes("/articles"),
+		active: isActive("/articles") && !isActive(projectDescriptionPath),
 	},
 ]);
 </script>

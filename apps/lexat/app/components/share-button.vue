@@ -38,8 +38,8 @@ const copyToClipboard = async () => {
 </script>
 
 <template>
-	<div class="flex flex-row items-center gap-2">
-		<UButton variant="ghost" square>
+	<div class="share-buttons flex flex-row items-center gap-2">
+		<UButton color="neutral" class="text-default" variant="ghost" square>
 			<a
 				:aria-label="t('ArticleDetailPage.share_buttons.share_facebook')"
 				:href="shareLinks.facebook"
@@ -54,7 +54,7 @@ const copyToClipboard = async () => {
 			</a>
 		</UButton>
 
-		<UButton variant="ghost" square>
+		<UButton color="neutral" class="text-default" variant="ghost" square>
 			<a
 				:aria-label="t('ArticleDetailPage.share_buttons.share_bluesky')"
 				:href="shareLinks.bluesky"
@@ -69,7 +69,7 @@ const copyToClipboard = async () => {
 			</a>
 		</UButton>
 
-		<UButton class="sm:hidden" variant="ghost" square>
+		<UButton color="neutral" class="sm:hidden text-default" variant="ghost" square>
 			<a
 				:aria-label="t('ArticleDetailPage.share_buttons.share_whatsapp')"
 				:href="shareLinks.whatsapp"
@@ -84,7 +84,7 @@ const copyToClipboard = async () => {
 			</a>
 		</UButton>
 
-		<UButton variant="ghost" square>
+		<UButton color="neutral" class="text-default" variant="ghost" square>
 			<a
 				:aria-label="t('ArticleDetailPage.share_buttons.share_email')"
 				:href="shareLinks.mail"
@@ -96,6 +96,8 @@ const copyToClipboard = async () => {
 
 		<UButton
 			:aria-label="t('ArticleDetailPage.share_buttons.share_link')"
+			color="neutral"
+			class="text-default"
 			variant="ghost"
 			square
 			size="xl"
@@ -105,3 +107,9 @@ const copyToClipboard = async () => {
 		</UButton>
 	</div>
 </template>
+
+<style scoped>
+.share-buttons a {
+	color: var(--ui-text);
+}
+</style>

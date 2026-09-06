@@ -23,8 +23,22 @@ const items = computed<Array<NavigationMenuItem>>(() => [
 	},
 	{
 		label: $t("AppHeader.links.about"),
-		to: projectDescriptionPath,
-		active: isActive(projectDescriptionPath),
+		ui: { childList: "grid-cols-1", childLink: "flex-row items-center gap-3" },
+		active: isActive(projectDescriptionPath) || isActive("/publications"),
+		children: [
+			{
+				label: $t("AppHeader.links.background"),
+				icon: "i-lucide-file-text",
+				to: localePath(projectDescriptionPath),
+				active: isActive(projectDescriptionPath),
+			},
+			{
+				label: $t("AppHeader.links.publications"),
+				icon: "i-lucide-library-big",
+				to: localePath("/publications"),
+				active: isActive("/publications"),
+			},
+		],
 	},
 	{
 		label: $t("AppHeader.links.maps"),

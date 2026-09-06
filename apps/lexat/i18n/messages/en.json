@@ -166,12 +166,24 @@
 	"AppHeader": {
 		"links": {
 			"about": "About",
+			"background": "Background",
+			"publications": "Publications",
 			"articles": "Map commentary",
 			"db": "Browse data",
 			"home": "Home",
 			"maps": "Mapping"
 		},
 		"navigation-main": "Main"
+	},
+	"PublicationsPage": {
+		"navigator": "Explore publications",
+		"overview": "12 publications from the project and its pilot phase",
+		"main-section": "LexAT21",
+		"pilot-section": "Pilot phase",
+		"title": "Publications",
+		"introduction": "In addition to regularly published {articles} on LexAT21 phenomena, the following scholarly publications have been produced as part of LexAT21:",
+		"articles": "map commentaries",
+		"pilot-title": "Publications from the pilot phase"
 	},
 	"ArticlesPage": {
 		"meta": {

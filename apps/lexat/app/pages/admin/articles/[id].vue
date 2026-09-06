@@ -312,11 +312,11 @@ usePageMetadata({
 <template>
 	<MainContent class="container w-full content-start py-8">
 		<PageTitle class="sr-only">{{ t("AdminPage.title") }}</PageTitle>
-		<div class="col-span-4 rounded border p-8">
+		<div class="col-span-4 rounded border border-muted p-8">
 			<NuxtLinkLocale class="mb-4 inline-flex items-center gap-1" to="/admin/articles"
 				><UIcon name="i-lucide-arrow-left" class="size-4" />Back</NuxtLinkLocale
 			>
-			<div class="mb-8 flex justify-between border-b pb-8">
+			<div class="mb-8 flex justify-between border-b border-muted pb-8">
 				<div>
 					<h3 class="text-3xl font-semibold">{{ title || "Untitled" }}</h3>
 					<p v-if="postId" class="text-foreground/70">ID: {{ postId }}</p>

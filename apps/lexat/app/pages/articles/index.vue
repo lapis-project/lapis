@@ -240,7 +240,7 @@ usePageMetadata({
 						v-model="selectedSortingOption"
 						:items="sortingOptions"
 						size="lg"
-						class="w-32"
+						class="w-40"
 					></USelect>
 				</div>
 			</section>

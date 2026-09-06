@@ -8,6 +8,7 @@ interface RegisterTreeItem {
 }
 
 const model = defineModel<Array<string>>({ required: true });
+const open = defineModel<boolean>("open", { default: false });
 
 const props = defineProps<{
 	options: Array<DropdownOption>;
@@ -123,7 +124,7 @@ function selectAll() {
 </script>
 
 <template>
-	<UPopover :content="{ align: 'start', sideOffset: 4 }">
+	<UPopover v-model:open="open" :content="{ align: 'start', sideOffset: 4 }">
 		<UButton
 			color="neutral"
 			variant="outline"

@@ -81,6 +81,8 @@ const activePageSizeQuery = ref<number>(100);
 const activePageSize = ref<string>("100");
 const activeRegisters = ref<Array<string>>(["all"]);
 const activeVariants = ref<Array<string>>(["all"]);
+const registerSelectOpen = ref(false);
+const variantSelectOpen = ref(false);
 // const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250); // using debounce prevents useFetch's native req cancelling
 const activeQuestionId = computed(() => activeQuestion.value.id);
 const activeSortLabel = ref<string | null>(null);
@@ -373,6 +375,18 @@ watch([activeRegisters, activeAgeGroup, activeVariants], async () => {
 	await updateUrlParams();
 });
 
+watch(registerSelectOpen, (open) => {
+	if (open) {
+		variantSelectOpen.value = false;
+	}
+});
+
+watch(variantSelectOpen, (open) => {
+	if (open) {
+		registerSelectOpen.value = false;
+	}
+});
+
 watch(
 	activePageSize,
 	(newVal, oldVal) => {
@@ -503,6 +517,7 @@ await refresh(); // manually refetch using updated state
 							</div>
 							<RegisterSelect
 								v-model="activeRegisters"
+								v-model:open="registerSelectOpen"
 								data-testid="registers"
 								:options="registerOptions"
 								:placeholder="t('MapsPage.selection.register.placeholder')"
@@ -521,6 +536,7 @@ await refresh(); // manually refetch using updated state
 								</UTooltip>
 							</div>
 							<USelect
+								v-model:open="variantSelectOpen"
 								data-testid="variants"
 								:model-value="activeVariants"
 								multiple

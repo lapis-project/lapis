@@ -107,6 +107,18 @@ test.describe("DB page functionality", () => {
 		await expect(registers).toContainText("Alle anzeigen");
 	});
 
+	test("opening variants closes the register menu", async ({ page }) => {
+		await page.getByTestId("registers").click();
+		await expect(
+			page.getByRole("treeitem", { name: "Standardsprachliche Register" }),
+		).toBeVisible();
+
+		await page.getByTestId("variants").click();
+
+		await expect(page.getByRole("option").first()).toBeVisible();
+		await expect(page.getByRole("treeitem", { name: "Standardsprachliche Register" })).toBeHidden();
+	});
+
 	test("rows per page", async ({ page }) => {
 		const rowsSelect = page.getByTestId("rows-per-page");
 		await expect(rowsSelect).toHaveText(/100/);

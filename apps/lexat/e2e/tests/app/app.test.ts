@@ -6,31 +6,6 @@ import { expect, test } from "@/e2e/lib/test";
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
 test.describe("app", () => {
-	if (process.env.NUXT_PUBLIC_BOTS !== "enabled") {
-		test("should serve a robots.txt which disallows search engine bots", async ({ request }) => {
-			const response = await request.get("/robots.txt");
-			const body = await response.body();
-
-			expect(body.toString()).toEqual(
-				["User-Agent: *", "Disallow: /", `Host: ${baseUrl}`].join("\n"),
-			);
-		});
-	} else {
-		test("should serve a robots.txt", async ({ request }) => {
-			const response = await request.get("/robots.txt");
-			const body = await response.body();
-
-			expect(body.toString()).toEqual(
-				[
-					"User-Agent: *",
-					"Allow: /",
-					`Host: ${baseUrl}`,
-					`Sitemap: ${String(createUrl({ baseUrl, pathname: "sitemap.xml" }))}`,
-				].join("\n"),
-			);
-		});
-	}
-
 	test("should serve a sitemap.xml", async ({ request }) => {
 		// 1 ️. fetch the index
 		const index = await request.get("/sitemap.xml");

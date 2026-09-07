@@ -166,12 +166,24 @@
 	"AppHeader": {
 		"links": {
 			"about": "Über das Projekt",
+			"background": "Rahmentext",
+			"publications": "Publikationen",
 			"articles": "Kartenkommentare",
 			"db": "Belegdatenbank",
 			"home": "Startseite",
 			"maps": "Kartierung"
 		},
 		"navigation-main": "Hauptnavigation"
+	},
+	"PublicationsPage": {
+		"navigator": "Publikationen entdecken",
+		"overview": "12 Beiträge aus dem Projekt und seiner Pilotphase",
+		"main-section": "LexAT21",
+		"pilot-section": "Pilotphase",
+		"title": "Publikationen",
+		"introduction": "Neben regelmäßig erscheinenden {articles} zu LexAT21-Phänomenen sind im Rahmen von LexAT21 folgende wissenschaftliche Publikationen entstanden:",
+		"articles": "Kartenkommentaren",
+		"pilot-title": "Publikationen aus der Pilotphase"
 	},
 	"ArticlesPage": {
 		"meta": {

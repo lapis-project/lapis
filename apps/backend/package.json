@@ -36,6 +36,8 @@
 		"@imgproxy/imgproxy-node": "^1.1.0",
 		"@node-rs/argon2": "^2.0.2",
 		"dotenv": "^17.4.1",
+		"fast-xml-parser": "^5.7.3",
+		"fast-xml-validator": "^1.4.2",
 		"hono": "^4.12.26",
 		"kysely": "^0.28.14",
 		"node-cron": "^4.4.1",

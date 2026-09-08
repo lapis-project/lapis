@@ -21,6 +21,10 @@ export async function getAllTranscripts(
 		transcripts?: Array<number>;
 	},
 ) {
+	if (filters?.transcripts?.length === 0) {
+		return [];
+	}
+
 	let query = db
 		.selectFrom("project")
 		.innerJoin("project_survey", "project_survey.project_id", "project.id")

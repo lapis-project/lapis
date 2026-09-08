@@ -70,9 +70,8 @@ export default defineNuxtConfig({
 				allow: "/",
 				// IETF: https://ietf-wg-aipref.github.io/drafts/draft-ietf-aipref-vocab.html
 				contentUsage: {
-					bots: "y",
 					"train-ai": "n",
-					"ai-output": "y", // allows real-time AI generation (RAG) using your site
+					search: "y",
 				},
 				// https://contentsignals.org/
 				contentSignal: {
@@ -81,13 +80,11 @@ export default defineNuxtConfig({
 					"ai-input": "yes", // allows real-time AI generation (RAG) using your site
 				},
 			},
-			// explicitly block other major AI foundation models and datasets
+			// explicitly block training crawlers and dataset scrapers
 			{
 				userAgent: [
-					"Google-Extended", // Google's AI Scraper (This stops Gemini/Vertex AI training but keeps Google Search fully intact)
 					"Applebot-Extended", // Apple's AI Scraper (This stops Apple Intelligence training but keeps Apple Search/Siri intact)
-					"GPTBot", // OpenAI / ChatGPT
-					"ChatGPT-User", // OpenAI Plugins
+					"GPTBot", // OpenAI model training
 					"ClaudeBot", // Anthropic
 					"Anthropic-ai", // Anthropic
 					"CCBot", // Common Crawl (Dataset used to train almost all LLMs)
@@ -99,6 +96,15 @@ export default defineNuxtConfig({
 					"Omgili", // AI Web Scraper
 				],
 				disallow: ["/"],
+				contentUsage: {
+					"train-ai": "n",
+					search: "y",
+				},
+				contentSignal: {
+					"ai-train": "no",
+					search: "yes",
+					"ai-input": "yes",
+				},
 			},
 		],
 	},

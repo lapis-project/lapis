@@ -48,7 +48,7 @@ usePageMetadata({
 								De Gruyter.
 								<a href="https://doi.org/10.1515/9783112240151-018"
 									>https://doi.org/10.1515/9783112240151-018</a
-								>
+								>.
 							</li>
 							<li>
 								Lenz, Alexandra N., Theresa Ziegler, Jan Höll, Markus Kunzmann &amp; Amelie Dorn.

@@ -18,6 +18,7 @@ export async function getAllTranscripts(
 		instance_id?: number;
 		settings?: Array<number>;
 		projects?: Array<number>;
+		transcripts?: Array<number>;
 	},
 ) {
 	let query = db
@@ -73,7 +74,7 @@ export async function getAllTranscripts(
 		query = query.where("survey_conducted.comment", "ilike", `%${filters?.transcript_name}%`);
 	}
 
-	if (filters?.instance_id) {
+	if (filters?.instance_id !== undefined) {
 		query = query.where("survey_conducted.instance_id", "=", filters.instance_id);
 	}
 	if (filters?.settings?.length) {
@@ -81,6 +82,9 @@ export async function getAllTranscripts(
 	}
 	if (filters?.projects?.length) {
 		query = query.where("project.id", "in", filters.projects);
+	}
+	if (filters?.transcripts?.length) {
+		query = query.where("survey_conducted.instance_id", "in", filters.transcripts);
 	}
 
 	return await query
@@ -131,6 +135,37 @@ export async function getAllTranscripts(
 			"project.project_name",
 		])
 		.execute();
+}
+
+export async function getCorpusSearchMetadata(
+	projectIds: Array<number>,
+	settingIds: Array<number>,
+	locationIds: Array<number>,
+) {
+	const projectsQuery = db
+		.selectFrom("project")
+		.select(["id", "project_name", "main_project_id"])
+		.where("id", "in", projectIds);
+
+	const settingsQuery = settingIds.length
+		? db
+				.selectFrom("survey_type")
+				.select(["id", "survey_type_name"])
+				.where("id", "in", settingIds)
+				.execute()
+		: Promise.resolve([]);
+
+	const locationsQuery = locationIds.length
+		? db.selectFrom("place").select(["id", "place_name"]).where("id", "in", locationIds).execute()
+		: Promise.resolve([]);
+
+	const [projects, settings, locations] = await Promise.all([
+		projectsQuery.execute(),
+		settingsQuery,
+		locationsQuery,
+	]);
+
+	return { projects, settings, locations };
 }
 
 export async function transcriptDetailView(transcript_id: number) {

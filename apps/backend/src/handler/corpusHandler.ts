@@ -31,6 +31,7 @@ import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
 import { streamFile, validateTranscriptId } from "@/lib/fileStreamHelper.ts";
 import { searchRequest } from "@/search/index.ts";
+import { type NoSketchError, requestTranscriptMatches } from "@/search/transcriptMatches.ts";
 import { resolveAudioFileForInstanceId } from "@/service/audioService.ts";
 import type { TranscriptToken } from "@/types/apiTypes.ts";
 import type { paths } from "@/types/noske.d.ts";
@@ -116,8 +117,6 @@ type KwicLine = NonNullable<RunCgiResponse["Lines"]>[number];
 type Transcript = Awaited<ReturnType<typeof getAllTranscripts>>[number];
 type XmlHit = { refs: string; content: string };
 
-type NoSketchError = { status: number | null; message: string };
-
 const DIOE_PROJECT_ID = 2;
 
 function parseIdArray(values: Array<string> | undefined): Array<number> | null {
@@ -200,9 +199,12 @@ function getTranscriptId(line: KwicLine): number | null {
 }
 
 function parseXmlHits(content: string): Array<XmlHit> {
-	const validationResult = SyntaxValidator.validate(content);
-	if (validationResult !== true) {
-		throw new Error(`Invalid NoSketch XML`);
+	try {
+		if (SyntaxValidator.validate(content) !== true) {
+			throw new Error("Invalid NoSketch XML");
+		}
+	} catch {
+		throw new Error("Invalid NoSketch XML");
 	}
 
 	const parser = new XMLParser({
@@ -257,27 +259,43 @@ function groupMatchesByTranscript(
 	transcripts: Array<Transcript>,
 	kwic: RunCgiResponse | null,
 	xmlHits: Array<XmlHit>,
+	frequencies: Map<number, number> | null,
 ): Record<
 	string,
-	{ transcript: Transcript | null; lines: Array<KwicLine>; xmlHits: Array<XmlHit> }
+	{
+		transcript: Transcript | null;
+		hitCount: number | null;
+		lines: Array<KwicLine>;
+		xmlHits: Array<XmlHit>;
+	}
 > {
 	const transcriptById = new Map(
 		transcripts.map((transcript) => [transcript.instance_id, transcript]),
 	);
 	const matches: Record<
 		string,
-		{ transcript: Transcript | null; lines: Array<KwicLine>; xmlHits: Array<XmlHit> }
+		{
+			transcript: Transcript | null;
+			hitCount: number | null;
+			lines: Array<KwicLine>;
+			xmlHits: Array<XmlHit>;
+		}
 	> = {};
 	const getOrCreateMatch = (transcriptId: number) => {
 		const key = String(transcriptId);
 		const match = matches[key] ?? {
 			transcript: transcriptById.get(transcriptId) ?? null,
+			hitCount: frequencies?.get(transcriptId) ?? null,
 			lines: [],
 			xmlHits: [],
 		};
 		matches[key] = match;
 		return match;
 	};
+
+	for (const id of frequencies?.keys() ?? []) {
+		getOrCreateMatch(id);
+	}
 
 	for (const line of kwic?.Lines ?? []) {
 		const transcriptId = getTranscriptId(line);
@@ -307,7 +325,7 @@ async function requestKwic(
 	pagesize: string,
 ): Promise<{ data: RunCgiResponse | null; error: NoSketchError | null }> {
 	try {
-		const response = await searchRequest(cql, fromp, "concordance", refs, pagesize, "json");
+		const response = await searchRequest(cql, fromp, "concordance", refs, pagesize, "json", "POST");
 		if (!response.ok) {
 			return {
 				data: null,
@@ -319,7 +337,28 @@ async function requestKwic(
 		}
 
 		try {
-			return { data: (await response.json()) as RunCgiResponse, error: null };
+			const data = (await response.json()) as RunCgiResponse & { error?: string };
+			if (
+				!data ||
+				typeof data !== "object" ||
+				Array.isArray(data) ||
+				data.error ||
+				(data.Lines !== undefined &&
+					(!Array.isArray(data.Lines) ||
+						data.Lines.some(
+							(line) =>
+								!line ||
+								typeof line !== "object" ||
+								[line.Refs, line.Tbl_refs].some(
+									(refs) =>
+										refs !== undefined &&
+										(!Array.isArray(refs) || refs.some((ref) => typeof ref !== "string")),
+								),
+						)))
+			) {
+				throw new Error(data?.error || "Invalid NoSketch JSON response");
+			}
+			return { data, error: null };
 		} catch (error) {
 			return {
 				data: null,
@@ -351,7 +390,7 @@ async function requestXml(
 	hits: Array<XmlHit>;
 }> {
 	try {
-		const response = await searchRequest(cql, fromp, "concordance", refs, pagesize, "xml");
+		const response = await searchRequest(cql, fromp, "concordance", refs, pagesize, "xml", "POST");
 		if (!response.ok) {
 			return {
 				data: null,
@@ -514,10 +553,11 @@ const corpus = new Hono<AppEnv>()
 			);
 		}
 
-		const projects = parseIdArray(c.req.queries("projects")) ?? [];
-		const settings = parseIdArray(c.req.queries("settings")) ?? [];
-		const locations = parseIdArray(c.req.queries("locations")) ?? [];
-		if (projects === null || settings === null || locations === null) {
+		const projects = parseIdArray(c.req.queries("projects"));
+		const settings = parseIdArray(c.req.queries("settings"));
+		const locations = parseIdArray(c.req.queries("locations"));
+		const transcriptIds = parseIdArray(c.req.queries("transcripts"));
+		if (projects === null || settings === null || locations === null || transcriptIds === null) {
 			return c.json({ error: "Invalid numeric filter id" }, 400);
 		}
 
@@ -634,7 +674,8 @@ const corpus = new Hono<AppEnv>()
 						kwic: null,
 						matchesByTranscript: {},
 						xml: null,
-						errors: { kwic: null, xml: null },
+						transcriptMatchesComplete: true,
+						errors: { kwic: null, xml: null, transcriptMatches: null },
 					},
 					200,
 				);
@@ -656,51 +697,88 @@ const corpus = new Hono<AppEnv>()
 				return c.json({ error: "Selected project has no valid project name" }, 400);
 			}
 		}
-
-		const cql = buildCql(
-			{
-				word: wordInput,
-				lemma: result.output.lemma,
-				pos: result.output.pos,
-				feats: result.output.feats,
-				transcripts: result.output.transcripts,
-				projects: projectNames,
-				settings: settings.map((settingId) => settingById.get(settingId)!.survey_type_name!),
-				age_lower: result.output.age_lower,
-				age_upper: result.output.age_upper,
-				locations: locations.map((locationId) => locationById.get(locationId)!.place_name!),
-				first_languages: result.output.first_languages,
-				dialect_competence: result.output.dialect_competence,
-				standard_competence: result.output.standard_competence,
-				gender:
-					rawQuery.gender === "männlich"
-						? "male"
-						: rawQuery.gender === "weiblich"
-							? "female"
-							: undefined,
-			},
-			result.output.mode,
-		);
-
-		const refs = ensureTranscriptReference(result.output.refs);
 		try {
-			const [transcripts, kwicResult, xmlResult] = await Promise.all([
-				getAllTranscripts(projectId, databaseFilters),
+			const databaseFirst = Object.keys(databaseFilters).length > 0 || projects.length > 0;
+			const candidates = databaseFirst ? await getAllTranscripts(projectId, databaseFilters) : null;
+			const candidateIds = candidates
+				?.map((transcript) => transcript.instance_id)
+				.filter(
+					(id): id is number =>
+						id !== null && (!transcriptIds.length || transcriptIds.includes(id)),
+				);
+			if (candidateIds?.length === 0) {
+				return c.json({
+					transcripts: [],
+					kwic: null,
+					xml: null,
+					matchesByTranscript: {},
+					transcriptMatchesComplete: true,
+					errors: { kwic: null, xml: null, transcriptMatches: null },
+				});
+			}
+			const cql = buildCql(
+				{
+					word: wordInput,
+					lemma: result.output.lemma,
+					pos: result.output.pos,
+					feats: result.output.feats,
+					transcripts: candidateIds,
+					projects: projectNames,
+					settings: settings.map((settingId) => settingById.get(settingId)!.survey_type_name!),
+					age_lower: result.output.age_lower,
+					age_upper: result.output.age_upper,
+					locations: locations.map((locationId) => locationById.get(locationId)!.place_name!),
+					first_languages: result.output.first_languages,
+					dialect_competence: result.output.dialect_competence,
+					standard_competence: result.output.standard_competence,
+					gender:
+						rawQuery.gender === "männlich"
+							? "male"
+							: rawQuery.gender === "weiblich"
+								? "female"
+								: undefined,
+				},
+				result.output.mode,
+			);
+			const refs = ensureTranscriptReference(result.output.refs);
+			const [frequencyResult, kwicResult, xmlResult] = await Promise.all([
+				requestTranscriptMatches(cql),
 				requestKwic(cql, result.output.fromp, refs, result.output.pagesize),
 				requestXml(cql, result.output.fromp, refs, result.output.pagesize),
 			]);
+			// Failed frequency lookups resolve only IDs from the successful current-page sources.
+			const matchedIds = frequencyResult.data
+				? [...frequencyResult.data.keys()]
+				: Object.keys(groupMatchesByTranscript([], kwicResult.data, xmlResult.hits, null)).map(
+						Number,
+					);
+			const matchingIds = new Set(matchedIds);
+			const transcripts = candidates
+				? candidates.filter(
+						(transcript) =>
+							transcript.instance_id !== null &&
+							matchingIds.has(transcript.instance_id) &&
+							candidateIds!.includes(transcript.instance_id),
+					)
+				: await getAllTranscripts(projectId, { ...databaseFilters, transcripts: matchedIds });
 
 			return c.json(
 				{
 					transcripts,
-					kwic: kwicResult.data as RunCgiResponse,
+					kwic: kwicResult.data,
 					matchesByTranscript: groupMatchesByTranscript(
 						transcripts,
 						kwicResult.data,
 						xmlResult.hits,
+						frequencyResult.data,
 					),
 					xml: xmlResult.data,
-					errors: { kwic: kwicResult.error, xml: xmlResult.error },
+					transcriptMatchesComplete: frequencyResult.error === null,
+					errors: {
+						kwic: kwicResult.error,
+						xml: xmlResult.error,
+						transcriptMatches: frequencyResult.error,
+					},
 				},
 				200,
 			);

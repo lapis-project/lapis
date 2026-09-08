@@ -38,6 +38,7 @@ interface CqlCriteria {
 	dialect_competence?: number;
 	standard_competence?: number;
 	gender?: string;
+	transcript_name?: string;
 }
 /*
  * When using the <doc> and <u> for the filters the within parameter needs to be chained in the following way
@@ -161,6 +162,11 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 			criteria.gender = "female";
 		}
 		addCondition(parts_utterance, "sex", escapeCqlString(criteria.gender));
+	}
+
+	if (criteria.transcript_name) {
+		const t = escapeCqlString(criteria.transcript_name);
+		addCondition(parts_document, "name", `.*${t}.*`);
 	}
 
 	if (parts_query.length === 0) {

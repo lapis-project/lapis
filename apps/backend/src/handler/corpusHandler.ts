@@ -514,9 +514,9 @@ const corpus = new Hono<AppEnv>()
 			);
 		}
 
-		const projects = parseIdArray(c.req.queries("projects"));
-		const settings = parseIdArray(c.req.queries("settings"));
-		const locations = parseIdArray(c.req.queries("locations"));
+		const projects = parseIdArray(c.req.queries("projects")) ?? [];
+		const settings = parseIdArray(c.req.queries("settings")) ?? [];
+		const locations = parseIdArray(c.req.queries("locations")) ?? [];
 		if (projects === null || settings === null || locations === null) {
 			return c.json({ error: "Invalid numeric filter id" }, 400);
 		}
@@ -693,7 +693,7 @@ const corpus = new Hono<AppEnv>()
 			return c.json(
 				{
 					transcripts,
-					kwic: kwicResult.data,
+					kwic: kwicResult.data as RunCgiResponse,
 					matchesByTranscript: groupMatchesByTranscript(
 						transcripts,
 						kwicResult.data,

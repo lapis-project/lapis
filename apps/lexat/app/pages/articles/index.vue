@@ -28,7 +28,6 @@ const {
 	setCurrentPage,
 	setSearchParams,
 	selectedSortingOption,
-	totalPages,
 	totalResults,
 	selectedCategory,
 	selectedLanguage,
@@ -81,6 +80,10 @@ const updateUrlParams = async () => {
 
 	if (selectedLanguage.value) {
 		queryObject.l = selectedLanguage.value;
+	}
+
+	if (currentPage.value > 1) {
+		queryObject.p = currentPage.value;
 	}
 	await router.replace({ query: queryObject });
 };
@@ -262,7 +265,7 @@ usePageMetadata({
 							</NuxtLinkLocale>
 							<p class="mb-1 tracking-wide">{{ formatAuthors(article.authors) }}</p>
 							<div
-								class="mb-2 inline-block rounded-full bg-slate-200 px-2 py-0.5 text-xs font-light tracking-wider dark:text-primary-foreground"
+								class="mb-2 inline-block rounded-full bg-slate-200 px-2 py-0.5 text-xs font-light tracking-wider dark:text-inverted"
 							>
 								{{ t(`AdminPage.editor.category.${article.post_type}`) }}
 							</div>
@@ -281,7 +284,7 @@ usePageMetadata({
 				<UPagination
 					:items-per-page="20"
 					:page="currentPage"
-					:total="totalPages"
+					:total="totalResults"
 					class="mt-10"
 					size="lg"
 					@update:page="setCurrentPage"

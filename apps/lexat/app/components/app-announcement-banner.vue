@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ChevronRight, X } from "@lucide/vue";
+import { X } from "@lucide/vue";
 
 const currentQuestionnaireRound = 3;
 
@@ -25,7 +25,7 @@ const locale = useLocale();
 	<Transition name="slide-fade-top">
 		<div
 			v-if="showBanner && locale === 'de'"
-			class="sticky top-0 left-0 right-0 z-10 flex items-center justify-center h-12 gap-6 bg-primary text-primary-foreground border-b border-border/10"
+			class="sticky top-0 left-0 right-0 z-10 flex h-12 items-center justify-center gap-6 border-b border-inverted/10 bg-primary text-inverted"
 		>
 			<div class="flex items-center gap-2 text-sm">
 				<span>🥳</span>
@@ -37,22 +37,23 @@ const locale = useLocale();
 			</div>
 
 			<a
-				class="inline-flex items-center justify-center gap-1.5 h-7 px-3 py-1 text-xs font-medium rounded-full bg-primary-foreground text-primary hover:bg-muted-foreground/10 transition-colors"
+				class="inline-flex h-7 items-center justify-center gap-1.5 rounded-full bg-default px-3 py-1 text-xs font-medium text-default transition-colors hover:bg-elevated"
 				href="https://ofb.dioe.at/index.php/59431?lang=de"
 				target="_blank"
 				@click="dismissBanner"
 			>
 				Jetzt mitmachen
-				<ChevronRight class="size-3.5" />
+				<UIcon name="i-lucide-chevron-right" class="size-3.5" />
 			</a>
 
-			<button
+			<UButton
+				icon="i-lucide-x"
 				aria-label="Dismiss announcement"
-				class="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted-foreground/10 transition-colors"
+				class="absolute top-1/2 right-4 -translate-y-1/2 text-inverted"
 				@click="dismissBanner"
+				variant="ghost"
 			>
-				<X class="size-4" />
-			</button>
+			</UButton>
 		</div>
 	</Transition>
 </template>

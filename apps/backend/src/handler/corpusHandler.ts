@@ -553,10 +553,10 @@ const corpus = new Hono<AppEnv>()
 			);
 		}
 
-		const projects = parseIdArray(c.req.queries("projects"));
-		const settings = parseIdArray(c.req.queries("settings"));
-		const locations = parseIdArray(c.req.queries("locations"));
-		const transcriptIds = parseIdArray(c.req.queries("transcripts"));
+		const projects = parseIdArray(c.req.queries("projects")) ?? [];
+		const settings = parseIdArray(c.req.queries("settings")) ?? [];
+		const locations = parseIdArray(c.req.queries("locations")) ?? [];
+		const transcriptIds = parseIdArray(c.req.queries("transcripts")) ?? [];
 		if (projects === null || settings === null || locations === null || transcriptIds === null) {
 			return c.json({ error: "Invalid numeric filter id" }, 400);
 		}

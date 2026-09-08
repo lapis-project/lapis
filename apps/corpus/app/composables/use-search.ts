@@ -1,31 +1,21 @@
 import { ref, computed } from "vue";
-import type { APIKwicResponse } from "@/types/api";
 
-type KwicParams = {
-	word?: string;
-	query?: string;
-	lemma?: string;
-	pos?: string;
-	feats?: string;
-	mode?: "simple" | "regex";
-	fromp?: string;
-	pagesize?: string;
-};
+import type { APISearchResponse, SearchParams } from "@/types/api";
 
-export function useSearchKwic() {
+export function useSearch(projectId: number) {
 	const env = useRuntimeConfig();
 
-	const response = ref<APIKwicResponse | null>(null);
+	const response = ref<APISearchResponse | null>(null);
 	const status = ref<"idle" | "pending" | "success" | "error">("idle");
 	const error = ref<string | null>(null);
 
-	const search = async (params: KwicParams) => {
+	const search = async (params: SearchParams) => {
 		status.value = "pending";
 		error.value = null;
 
-		console.log(params);
+		console.log("search params: ", params);
 		try {
-			const { data, error } = await useFetch("/corpus/search/kwic", {
+			const { data, error } = await useFetch(`/corpus/search/${projectId}`, {
 				baseURL: env.public.apiBaseUrl,
 				method: "GET",
 				query: {
@@ -41,7 +31,7 @@ export function useSearchKwic() {
 			}
 
 			console.log(data.value);
-			response.value = data.value as APIKwicResponse;
+			response.value = data.value as APISearchResponse;
 
 			status.value = "success";
 		} catch (err) {

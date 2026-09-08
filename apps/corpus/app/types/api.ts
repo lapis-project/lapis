@@ -1,4 +1,4 @@
-import type { InferResponseType } from "hono/client";
+import type { InferRequestType, InferResponseType } from "hono/client";
 
 import type { ApiClient } from "@/composables/use-api-client";
 
@@ -34,6 +34,14 @@ export type APIKwicResponse = ExcludeStrings<
 type KwicLines = NonNullable<APIKwicResponse>["Lines"];
 export type KwicLine = NonNullable<KwicLines>[number];
 
+export type APISearchResponse = ExcludeStrings<
+	InferResponseType<ApiClient["corpus"]["search"][":id"]["$get"], 200>
+>;
+
+export type APISearchParams = ExcludeStrings<
+	InferRequestType<ApiClient["corpus"]["search"][":id"]["$get"]>["param"]
+>;
+
 export type Speaker = {
 	gender: string | null;
 	sigle: string | null;
@@ -58,7 +66,16 @@ export interface EventToken {
 	hasTags: boolean;
 }
 
-export interface TranscriptFilters {
+export type SearchParams = {
+	word?: string;
+	query?: string;
+	lemma?: string;
+	pos?: string;
+	feats?: string;
+	mode?: "simple" | "regex";
+	fromp?: string;
+	pagesize?: string;
+	transcripts_ids?: Array<number>;
 	age_lower?: number;
 	age_upper?: number;
 	locations?: Array<number>;
@@ -70,8 +87,7 @@ export interface TranscriptFilters {
 	projects?: Array<number>;
 	settings?: Array<number>;
 	transcript_name?: string;
-	instance_id?: number;
-}
+};
 
 export interface WaveformData {
 	version: 1;

@@ -384,7 +384,7 @@ watch(
 									id="competence-enabled"
 									v-model="standardCompetenceEnabled"
 								/>
-								<Label class="tracking-wide pl-1" for="nos">Standardkompetenz</Label>
+								<Label class="tracking-wide pl-1" for="nos">Standardsprachkompetenz</Label>
 							</span>
 							<span
 								v-if="standardCompetenceEnabled && standardCompetenceValue"

@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { TranscriptMatchesResult } from "@/search/transcriptMatches.ts";
+
 interface SearchMetadata {
 	projects: Array<{ id: number; project_name: string | null; main_project_id: number | null }>;
 	settings: Array<{ id: number; survey_type_name: string | null }>;
@@ -25,6 +27,8 @@ const getCorpusSearchMetadata = vi.fn<
 		locations: [],
 	}),
 );
+const requestTranscriptMatches = vi.fn<(_cql: string) => Promise<TranscriptMatchesResult>>();
+
 const searchRequest = vi.fn<
 	(
 		_cql: string,
@@ -33,6 +37,7 @@ const searchRequest = vi.fn<
 		_refs: string,
 		_pagesize: string,
 		_format?: "json" | "xml",
+		_method?: "GET" | "POST",
 	) => Promise<Response>
 >(() => Promise.resolve(new Response(JSON.stringify({ Lines: [] }))));
 
@@ -45,6 +50,7 @@ vi.mock("@/db/corpusRepository.ts", () => ({
 }));
 
 vi.mock("@/search/index.ts", () => ({ searchRequest }));
+vi.mock("@/search/transcriptMatches.ts", () => ({ requestTranscriptMatches }));
 
 const { default: corpus } = await import("@/handler/corpusHandler.ts");
 
@@ -58,6 +64,8 @@ describe("Corpus Handler", () => {
 			settings: [],
 			locations: [],
 		});
+		requestTranscriptMatches.mockReset();
+		requestTranscriptMatches.mockResolvedValue({ data: new Map([[7, 5]]), error: null });
 		searchRequest.mockReset();
 		searchRequest.mockResolvedValue(new Response(JSON.stringify({ Lines: [] })));
 	});
@@ -103,7 +111,8 @@ describe("Corpus Handler", () => {
 			kwic: null,
 			matchesByTranscript: {},
 			xml: null,
-			errors: { kwic: null, xml: null },
+			transcriptMatchesComplete: true,
+			errors: { kwic: null, xml: null, transcriptMatches: null },
 		});
 		expect(searchRequest).not.toHaveBeenCalled();
 		expect(getAllTranscripts).toHaveBeenCalledWith(
@@ -113,6 +122,7 @@ describe("Corpus Handler", () => {
 	});
 
 	it("keeps database-only filters out of CQL", async () => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 17 }]);
 		const response = await corpus.request(
 			"/search/2?word=Haus&transcript_name=private-name&comment_search=private-comment" +
 				"&comment_search_mode=regex&instance_id=17",
@@ -167,6 +177,7 @@ describe("Corpus Handler", () => {
 			matchesByTranscript: {
 				"7": {
 					transcript: { instance_id: 7 },
+					hitCount: 5,
 					lines: [{ Refs: ["transcript_7"], Left: [], Kwic: [], Right: [] }],
 					xmlHits: [],
 				},
@@ -176,16 +187,24 @@ describe("Corpus Handler", () => {
 				contentType: "application/xml",
 				filename: "hits.xml",
 			},
-			errors: { kwic: null, xml: null },
+			transcriptMatchesComplete: true,
+			errors: { kwic: null, xml: null, transcriptMatches: null },
 		});
 		expect(searchRequest).toHaveBeenCalledTimes(2);
 		const [jsonCall, xmlCall] = searchRequest.mock.calls;
 		expect(jsonCall?.slice(0, 5)).toEqual(xmlCall?.slice(0, 5));
-		expect(jsonCall?.slice(1)).toEqual(["3", "concordance", "doc.id,u.who", "25", "json"]);
+		expect(jsonCall?.slice(1)).toEqual(["3", "concordance", "doc.id,u.who", "25", "json", "POST"]);
 		expect(xmlCall?.[5]).toBe("xml");
 	});
 
 	it("groups current-page KWIC and XML hits and retains missing database metadata", async () => {
+		requestTranscriptMatches.mockResolvedValue({
+			data: new Map([
+				[7, 5],
+				[8, 2],
+			]),
+			error: null,
+		});
 		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
 		const firstXmlHit =
 			'<line refs="doc.id=transcript_7,u.who=spk_1" num="0"><kwic>Haus</kwic></line>';
@@ -216,6 +235,7 @@ describe("Corpus Handler", () => {
 		expect(body.matchesByTranscript).toEqual({
 			"7": {
 				transcript: { instance_id: 7 },
+				hitCount: 5,
 				lines: [
 					{ toknum: 1, Refs: ["transcript_7"] },
 					{ toknum: 2, Tbl_refs: ['<a href="#transcript_7">hit</a>'] },
@@ -229,6 +249,7 @@ describe("Corpus Handler", () => {
 			},
 			"8": {
 				transcript: null,
+				hitCount: 2,
 				lines: [{ toknum: 3, Refs: ["transcript_8"] }],
 				xmlHits: [
 					{
@@ -246,6 +267,7 @@ describe("Corpus Handler", () => {
 			"doc.id,u.who",
 			"50",
 			"json",
+			"POST",
 		);
 		expect(searchRequest).toHaveBeenNthCalledWith(
 			2,
@@ -255,10 +277,12 @@ describe("Corpus Handler", () => {
 			"doc.id,u.who",
 			"50",
 			"xml",
+			"POST",
 		);
 	});
 
 	it("maps numeric metadata and demographic filters into CQL", async () => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
 		getCorpusSearchMetadata.mockResolvedValue({
 			projects: [
 				{ id: 2, project_name: "DiÖ", main_project_id: null },
@@ -286,6 +310,7 @@ describe("Corpus Handler", () => {
 	});
 
 	it("scopes a child route to its PP project while root project 2 stays unscoped", async () => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
 		getCorpusSearchMetadata.mockResolvedValueOnce({
 			projects: [{ id: 3, project_name: "PP01", main_project_id: 2 }],
 			settings: [],
@@ -458,12 +483,35 @@ describe("Corpus Handler", () => {
 		expect(response.status).toBe(200);
 		expect(body.kwic).toEqual({ Lines: [] });
 		expect(body.xml).toBeNull();
-		expect(body.matchesByTranscript).toEqual({});
+		expect(body.matchesByTranscript["7"].hitCount).toBe(5);
 		expect(body.errors.xml.status).toBeNull();
 		expect(body.errors.xml.message).toContain("Invalid NoSketch XML");
 	});
 
-	it("initiates both NoSketch requests before the database query completes", async () => {
+	it("starts all NoSketch requests before fetching lexical-only transcripts", async () => {
+		let resolveMatches!: (value: TranscriptMatchesResult) => void;
+		requestTranscriptMatches.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					resolveMatches = resolve;
+				}),
+		);
+		const responsePromise = corpus.request("/search/2?word=Haus");
+		await vi.waitFor(() => expect(searchRequest).toHaveBeenCalledTimes(2));
+		expect(requestTranscriptMatches).toHaveBeenCalledTimes(1);
+		expect(getAllTranscripts).not.toHaveBeenCalled();
+		resolveMatches({
+			data: new Map([
+				[7, 5],
+				[8, 2],
+			]),
+			error: null,
+		});
+		expect((await responsePromise).status).toBe(200);
+		expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [7, 8] });
+	});
+
+	it("waits for database candidates and intersects their IDs with the transcript selection", async () => {
 		let resolveTranscripts!: (value: Array<{ instance_id: number }>) => void;
 		getAllTranscripts.mockImplementationOnce(
 			() =>
@@ -471,13 +519,118 @@ describe("Corpus Handler", () => {
 					resolveTranscripts = resolve;
 				}),
 		);
-
-		const responsePromise = corpus.request("/search/2?word=Haus");
-		await vi.waitFor(() => expect(searchRequest).toHaveBeenCalledTimes(2));
-		resolveTranscripts([]);
-
-		expect((await responsePromise).status).toBe(200);
+		const responsePromise = corpus.request(
+			"/search/2?word=Haus&transcript_name=test&transcripts=7&transcripts=9",
+		);
+		await vi.waitFor(() => expect(getAllTranscripts).toHaveBeenCalledTimes(1));
+		expect(searchRequest).not.toHaveBeenCalled();
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
+		resolveTranscripts([{ instance_id: 7 }, { instance_id: 8 }, { instance_id: 9 }]);
+		const response = await responsePromise;
+		expect(response.status).toBe(200);
+		expect((await response.json()).transcripts).toEqual([{ instance_id: 7 }]);
+		const cql = requestTranscriptMatches.mock.calls[0]?.[0];
+		expect(cql).toContain('id="transcript_7|transcript_9"');
+		for (const call of searchRequest.mock.calls) expect(call[0]).toBe(cql);
+		expect(getAllTranscripts).toHaveBeenCalledTimes(1);
 	});
+
+	it.each(["1", "2", "999"])(
+		"returns the full transcript set on concordance page %s",
+		async (page) => {
+			getAllTranscripts.mockResolvedValue([{ instance_id: 7 }, { instance_id: 8 }]);
+			requestTranscriptMatches.mockResolvedValue({
+				data: new Map([
+					[7, 16],
+					[8, 3],
+					[9, 1],
+				]),
+				error: null,
+			});
+			searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+				Promise.resolve(
+					new Response(
+						format === "xml" ? "<export><concordance /></export>" : JSON.stringify({ Lines: [] }),
+					),
+				),
+			);
+			const response = await corpus.request(`/search/2?word=Haus&fromp=${page}&pagesize=1`);
+			const body = await response.json();
+			expect(body.transcripts).toEqual([{ instance_id: 7 }, { instance_id: 8 }]);
+			expect(body.matchesByTranscript).toEqual({
+				"7": { transcript: { instance_id: 7 }, hitCount: 16, lines: [], xmlHits: [] },
+				"8": { transcript: { instance_id: 8 }, hitCount: 3, lines: [], xmlHits: [] },
+				"9": { transcript: null, hitCount: 1, lines: [], xmlHits: [] },
+			});
+			expect(body.transcriptMatchesComplete).toBe(true);
+			expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [7, 8, 9] });
+		},
+	);
+
+	it("skips every NoSketch request when the database has no candidates", async () => {
+		const response = await corpus.request("/search/2?word=Haus&instance_id=17");
+		expect(await response.json()).toEqual({
+			transcripts: [],
+			kwic: null,
+			xml: null,
+			matchesByTranscript: {},
+			transcriptMatchesComplete: true,
+			errors: { kwic: null, xml: null, transcriptMatches: null },
+		});
+		expect(searchRequest).not.toHaveBeenCalled();
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
+	});
+
+	it("uses an empty database restriction for zero lexical matches", async () => {
+		requestTranscriptMatches.mockResolvedValue({ data: new Map(), error: null });
+		const response = await corpus.request("/search/2?word=missing");
+		const body = await response.json();
+		expect(body.transcripts).toEqual([]);
+		expect(body.matchesByTranscript).toEqual({});
+		expect(body.transcriptMatchesComplete).toBe(true);
+		expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [] });
+	});
+
+	it.each(["", "&transcript_name=test"])(
+		"falls back to both page sources on frequency failure (%s)",
+		async (filters) => {
+			const error = { status: 503, message: "Frequency unavailable" };
+			requestTranscriptMatches.mockResolvedValue({ data: null, error });
+			getAllTranscripts.mockResolvedValue([{ instance_id: 7 }, { instance_id: 8 }]);
+			searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+				Promise.resolve(
+					new Response(
+						format === "xml"
+							? '<export><concordance><line refs="transcript_8"><kwic>Haus</kwic></line></concordance></export>'
+							: JSON.stringify({ Lines: [{ Refs: ["transcript_7"] }] }),
+					),
+				),
+			);
+			const response = await corpus.request(`/search/2?word=Haus${filters}`);
+			const body = await response.json();
+			expect(response.status).toBe(200);
+			expect(body.transcriptMatchesComplete).toBe(false);
+			expect(body.errors).toEqual({ kwic: null, xml: null, transcriptMatches: error });
+			expect(body.transcripts).toEqual([{ instance_id: 7 }, { instance_id: 8 }]);
+			expect(body.matchesByTranscript["7"].hitCount).toBeNull();
+			expect(body.matchesByTranscript["8"].hitCount).toBeNull();
+			if (!filters) expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [7, 8] });
+		},
+	);
+
+	it.each(["projects", "settings", "locations", "transcripts"])(
+		"rejects invalid numeric %s filters before metadata lookup",
+		async (parameter) => {
+			for (const value of ["invalid", "-1", "1.5", "9007199254740992"]) {
+				const response = await corpus.request(`/search/2?word=Haus&${parameter}=${value}`);
+				expect(response.status).toBe(400);
+			}
+			expect(getCorpusSearchMetadata).not.toHaveBeenCalled();
+			expect(getAllTranscripts).not.toHaveBeenCalled();
+			expect(requestTranscriptMatches).not.toHaveBeenCalled();
+			expect(searchRequest).not.toHaveBeenCalled();
+		},
+	);
 
 	it("keeps database failures as whole-request failures", async () => {
 		getAllTranscripts.mockRejectedValueOnce(new Error("database down"));

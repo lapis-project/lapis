@@ -3,7 +3,7 @@
 @import "maplibre-gl/dist/maplibre-gl.css";
 
 @theme {
-	--font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {

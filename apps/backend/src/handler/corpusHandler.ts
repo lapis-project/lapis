@@ -535,7 +535,7 @@ const corpus = new Hono<AppEnv>()
 		const rawQuery = c.req.query();
 		const result = safeParse(SearchQuerySchema, {
 			...rawQuery,
-			transcripts: c.req.queries("transcripts"),
+			transcripts: c.req.queries("transcript_ids"),
 			projects: undefined,
 			settings: undefined,
 			locations: undefined,
@@ -556,7 +556,7 @@ const corpus = new Hono<AppEnv>()
 		const projects = parseIdArray(c.req.queries("projects")) ?? [];
 		const settings = parseIdArray(c.req.queries("settings")) ?? [];
 		const locations = parseIdArray(c.req.queries("locations")) ?? [];
-		const transcriptIds = parseIdArray(c.req.queries("transcripts")) ?? [];
+		const transcriptIds = parseIdArray(c.req.queries("transcript_ids")) ?? [];
 		if (projects === null || settings === null || locations === null || transcriptIds === null) {
 			return c.json({ error: "Invalid numeric filter id" }, 400);
 		}

@@ -52,7 +52,7 @@
 		"dotenv-expand": "^12.0.3",
 		"npm-run-all2": "catalog:",
 		"schema-dts": "^2.0.0",
-		"stylelint": "^17.13.0",
+		"stylelint": "^17.15.0",
 		"typescript": "catalog:",
 		"vue-tsc": "^3.3.5"
 	},

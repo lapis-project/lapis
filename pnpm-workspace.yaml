@@ -3,11 +3,11 @@ packages:
 
 catalog:
   "@lucide/vue": ^1.21.0
-  lefthook: ^2.1.10
+  lefthook: ^2.1.12
   "npm-run-all2": ^9.0.2
   nuxt: ^4.5.1
-  oxfmt: ^0.59.0
-  oxlint: ^1.74.0
+  oxfmt: ^0.67.0
+  oxlint: ^1.82.0
   vue: ^3.5.42
   tailwindcss: ^4.3.1
   typescript: ^6.0.2

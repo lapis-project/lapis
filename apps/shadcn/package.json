@@ -39,7 +39,7 @@
 		"@acdh-oeaw/tsconfig": "^1.5.1",
 		"@types/node": "^25.9.4",
 		"npm-run-all2": "catalog:",
-		"stylelint": "^17.13.0",
+		"stylelint": "^17.15.0",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:",

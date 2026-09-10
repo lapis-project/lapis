@@ -33,7 +33,6 @@ interface MapDataType {
 interface MapProps {
 	data: Array<MapDataType>;
 	colors: Record<string, string>;
-	mode: "point" | "area";
 }
 
 const props = defineProps<MapProps>();
@@ -50,7 +49,7 @@ const INITIAL_VIEW_STATE = {
 
 const points = computed(() => props.data.map((entry) => point(entry.coordinates, entry)));
 
-const areaMapMode = ref("hexagon");
+const mapMode = ref("point");
 const mapContainer = ref<HTMLDivElement | null>(null);
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
 
@@ -207,10 +206,9 @@ function createMaskLayer() {
 
 function createLayers() {
 	const overlayLayers = createOverlayLayers();
-	if (props.mode === "point") {
-		return [...overlayLayers, createScatterplotLayer()];
-	}
-	switch (areaMapMode.value) {
+	switch (mapMode.value) {
+		case "point":
+			return [...overlayLayers, createScatterplotLayer()];
 		case "hexagon":
 			return [createMaskLayer(), ...overlayLayers, createHexagonLayer()];
 		case "voronoi":
@@ -292,7 +290,7 @@ onMounted(() => {
 });
 
 watch(
-	() => [props.data, props.mode, radius.value, activeLayer.value, areaMapMode.value],
+	() => [props.data, radius.value, activeLayer.value, mapMode.value],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},
@@ -310,6 +308,7 @@ onBeforeUnmount(() => {
 const t = useTranslations();
 
 const areaMapModeItems = [
+	{ label: t("MapsPage.controls.point-map"), value: "point", icon: "i-lucide-map-pin" },
 	{ label: t("MapsPage.controls.voronoi"), value: "voronoi", icon: "i-gis-polygon-o" },
 	{ label: t("MapsPage.controls.hexagon"), value: "hexagon", icon: "i-lucide-hexagon" },
 ];
@@ -336,11 +335,10 @@ const layerItems = computed(() =>
 <template>
 	<div class="relative size-full">
 		<div
-			v-if="mode === 'area'"
 			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg"
 		>
 			<UTabs
-				v-model="areaMapMode"
+				v-model="mapMode"
 				class="w-fit"
 				color="neutral"
 				:content="false"
@@ -354,7 +352,7 @@ const layerItems = computed(() =>
 				variant="pill"
 			>
 			</UTabs>
-			<template v-if="areaMapMode === 'hexagon'">
+			<template v-if="mapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
 				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
 				<USlider

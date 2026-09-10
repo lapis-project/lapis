@@ -61,6 +61,14 @@ export const useColorStore = defineStore("colors", () => {
 		);
 	}
 
+	function setColorForVariant(datasetId: string, question: string, variant: string, color: string) {
+		if (!colors.value[datasetScopedKey(datasetId, question)])
+			colors.value[datasetScopedKey(datasetId, question)] = {
+				[variant]: color,
+			};
+		else colors.value[datasetScopedKey(datasetId, question)]![variant] = color;
+	}
+
 	function getColorForVariant(datasetId: string, question: string, variant: string) {
 		return colors.value[datasetScopedKey(datasetId, question)]?.[variant];
 	}
@@ -87,6 +95,7 @@ export const useColorStore = defineStore("colors", () => {
 		getColorForGroup,
 		getColorsForQuestion,
 		setDefaultColorsForQuestion,
+		setColorForVariant,
 		getRegionColor,
 		DEFAULT_REGION_COLOR,
 	};

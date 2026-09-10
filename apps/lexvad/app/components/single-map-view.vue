@@ -1,11 +1,5 @@
 <script lang="ts" setup>
-import {
-	InfoIcon,
-	LayersIcon,
-	MapPinIcon,
-	RotateCcwIcon,
-	SquareSplitHorizontalIcon,
-} from "@lucide/vue";
+import { InfoIcon, RotateCcwIcon, SettingsIcon, SquareSplitHorizontalIcon } from "@lucide/vue";
 
 import { useMapDataset } from "@/stores/use-dataset-store";
 
@@ -67,13 +61,16 @@ function resetSelection() {
 	activeVariants.value = [];
 }
 
+function resetColors() {
+	setDefaultColorsForQuestion(
+		datasetId.value,
+		activeQuestion.value,
+		uniqueVariants.value.map((v) => v.label),
+	);
+}
+
 function ensureColors() {
-	if (activeQuestion.value && !hasQuestion(datasetId.value, activeQuestion.value))
-		setDefaultColorsForQuestion(
-			datasetId.value,
-			activeQuestion.value,
-			uniqueVariants.value.map((v) => v.label),
-		);
+	if (activeQuestion.value && !hasQuestion(datasetId.value, activeQuestion.value)) resetColors();
 }
 
 onMounted(ensureColors);
@@ -83,16 +80,7 @@ watch([activeQuestion, datasetId], () => {
 	activeVariants.value = [];
 });
 
-const mapMode = ref<"point" | "area">("point");
-
-const mapModeIcons: Record<string, typeof MapPinIcon> = {
-	point: MapPinIcon,
-	area: LayersIcon,
-};
-const mapModeItems = computed(() => [
-	{ label: t("MapsPage.controls.point-map"), value: "point" },
-	{ label: t("MapsPage.controls.area-map"), value: "area" },
-]);
+const settingsOpen = ref(false);
 
 const data = computed(() => {
 	const variantsInUse = activeVariants.value.length
@@ -110,122 +98,108 @@ const data = computed(() => {
 
 <template>
 	<div class="relative flex flex-col gap-5">
-		<div class="flex gap-2">
-			<div class="grow min-w-0 rounded-lg border p-5 max-w-full">
-				<DatasetSwitcher
-					v-if="datasetStore.hasCustomDatasets"
-					class="pb-5 mb-5 border-b border-muted"
-					:map-id="mapId"
-				></DatasetSwitcher>
-				<div class="flex gap-5 pb-5 border-b border-muted max-w-full flex-wrap">
-					<div id="phenomenon" class="w-full flex-1">
-						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold text-muted-foreground">
-							{{ t("MapsPage.selection.variable.title") }}
-							<UTooltip :content="{ side: 'top' }" :text="t('MapsPage.selection.variable.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon>
-							</UTooltip>
-						</div>
-						<ComboboxBase
-							v-if="mappedQuestions?.length"
-							v-model="activeQuestion"
-							data-testid="questions"
-							has-search
-							:options="mappedQuestions"
-							:placeholder="t('MapsPage.selection.variable.placeholder')"
-							width="w-full"
-						/>
+		<div class="min-w-0 rounded-lg border p-5">
+			<DatasetSwitcher
+				v-if="datasetStore.hasCustomDatasets"
+				class="mb-5 border-b border-muted pb-5"
+				:map-id="mapId"
+			></DatasetSwitcher>
+			<div class="flex max-w-full flex-wrap items-end gap-5">
+				<div id="phenomenon" class="min-w-48 flex-1">
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold text-muted-foreground">
+						{{ t("MapsPage.selection.variable.title") }}
+						<UTooltip :content="{ side: 'top' }" :text="t('MapsPage.selection.variable.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</UTooltip>
 					</div>
-					<div id="variant" class="w-full flex-1">
-						<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold text-muted-foreground">
-							{{ t("MapsPage.selection.variants.title") }}
-							<UTooltip :content="{ side: 'top' }" :text="t('MapsPage.selection.variants.tooltip')">
-								<InfoIcon class="size-4"></InfoIcon>
-							</UTooltip>
-						</div>
-						<MultiSelect
-							v-model="activeVariants"
-							data-testid="variants"
-							:options="uniqueVariants"
-							:placeholder="t('MapsPage.selection.variants.placeholder')"
-							single-level
-							width="w-full"
-						/>
-					</div>
-					<template v-if="!splitMode">
-						<div class="divide-muted border-l my-1" role="separator"></div>
-						<div class="gap-2 flex ml-auto self-end">
-							<UButton class="gap-2" variant="outline" @click="emit('toggle-compare-mode')">
-								<SquareSplitHorizontalIcon class="size-4"></SquareSplitHorizontalIcon>
-								<span>{{ t("MapsPage.controls.compare") }}</span>
-							</UButton>
-							<UButton
-								class="p-2 gap-2"
-								variant="outline"
-								@click="emit('toggle-sidebar', activeQuestion, activeVariants[0])"
-							>
-								<InfoIcon class="size-4"></InfoIcon>
-								<span>{{ t("MapsPage.controls.open-sidebar") }}</span>
-							</UButton>
-							<UButton
-								id="reset"
-								class="aspect-square"
-								data-testid="reset"
-								variant="outline"
-								@click="resetSelection()"
-							>
-								<RotateCcwIcon class="size-4" />
-							</UButton>
-						</div>
-					</template>
+					<ComboboxBase
+						v-if="mappedQuestions?.length"
+						v-model="activeQuestion"
+						data-testid="questions"
+						has-search
+						:options="mappedQuestions"
+						:placeholder="t('MapsPage.selection.variable.placeholder')"
+						width="w-full"
+					/>
 				</div>
-				<div class="mt-5 flex flex-wrap items-center gap-2 justify-between">
-					<div class="flex flex-wrap gap-2 items-center">
-						<span class="uppercase text-muted font-semibold text-xs">Kartentyp</span>
-						<UTabs
-							v-model="mapMode"
-							class="w-fit"
-							color="neutral"
-							:content="false"
-							:items="mapModeItems"
-							:ui="{
-								list: 'bg-card rounded-lg p-1',
-								indicator: 'bg-background',
-								trigger:
-									'px-4 py-2 whitespace-nowrap data-[state=inactive]:text-muted-foreground data-[state=active]:text-primary',
-							}"
-							variant="pill"
-						>
-							<template #leading="{ item }">
-								<component
-									:is="mapModeIcons[item.value as keyof typeof mapModeIcons]"
-									class="size-4"
-								/>
-							</template>
-						</UTabs>
+				<div id="variant" class="min-w-48 flex-1">
+					<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold text-muted-foreground">
+						{{ t("MapsPage.selection.variants.title") }}
+						<UTooltip :content="{ side: 'top' }" :text="t('MapsPage.selection.variants.tooltip')">
+							<InfoIcon class="size-4"></InfoIcon>
+						</UTooltip>
 					</div>
-					<template v-if="splitMode">
-						<div class="gap-2 flex ml-auto self-center">
-							<UButton
-								class="p-2 gap-2"
-								variant="outline"
-								@click="emit('toggle-sidebar', activeQuestion, activeVariants[0])"
-							>
-								<InfoIcon class="size-4"></InfoIcon>
-								<span>{{ t("MapsPage.controls.open-sidebar") }}</span>
-							</UButton>
-							<UButton
-								id="reset"
-								class="aspect-square"
-								data-testid="reset"
-								variant="outline"
-								@click="resetSelection()"
-							>
-								<RotateCcwIcon class="size-4" />
-							</UButton>
-						</div>
-					</template>
+					<MultiSelect
+						v-model="activeVariants"
+						data-testid="variants"
+						:options="uniqueVariants"
+						:placeholder="t('MapsPage.selection.variants.placeholder')"
+						single-level
+						width="w-full"
+					/>
+				</div>
+				<div
+					v-if="!splitMode"
+					class="my-1 hidden self-stretch border-l border-muted md:block"
+					role="separator"
+				></div>
+				<div class="flex gap-2" :class="splitMode ? 'w-full justify-end' : 'ml-auto'">
+					<UButton
+						v-if="!splitMode"
+						class="hidden gap-2 md:inline-flex"
+						variant="outline"
+						@click="emit('toggle-compare-mode')"
+					>
+						<SquareSplitHorizontalIcon class="size-4"></SquareSplitHorizontalIcon>
+						<span>{{ t("MapsPage.controls.compare") }}</span>
+					</UButton>
+					<UButton
+						class="gap-2 p-2"
+						variant="outline"
+						@click="emit('toggle-sidebar', activeQuestion, activeVariants[0])"
+					>
+						<InfoIcon class="size-4"></InfoIcon>
+						<span>{{ t("MapsPage.controls.open-sidebar") }}</span>
+					</UButton>
+					<UTooltip :content="{ side: 'top' }" :text="t('MapsPage.controls.reset')">
+						<UButton
+							id="reset"
+							class="aspect-square"
+							data-testid="reset"
+							variant="outline"
+							@click="resetSelection()"
+						>
+							<RotateCcwIcon class="size-4" />
+							<span class="sr-only">{{ t("MapsPage.controls.reset") }}</span>
+						</UButton>
+					</UTooltip>
+					<UTooltip :content="{ side: 'top' }" :text="t('MapsPage.controls.settings')">
+						<UButton
+							:aria-expanded="settingsOpen"
+							class="aspect-square"
+							data-testid="settings"
+							:variant="settingsOpen ? 'soft' : 'outline'"
+							@click="settingsOpen = !settingsOpen"
+						>
+							<SettingsIcon class="size-4" />
+							<span class="sr-only">{{ t("MapsPage.controls.settings") }}</span>
+						</UButton>
+					</UTooltip>
 				</div>
 			</div>
+			<USeparator v-if="settingsOpen" class="mt-6" />
+			<UCollapsible v-model:open="settingsOpen">
+				<template #content>
+					<MapSettings
+						:active-variants="activeVariants"
+						class="mt-5"
+						:dataset-id="datasetId"
+						:groups="variantGroups"
+						:question="activeQuestion"
+						@reset-colors="resetColors()"
+					/>
+				</template>
+			</UCollapsible>
 		</div>
 		<VisualisationContainer v-slot="{ height, width }" class="border h-[600px]" :fullscreen="false">
 			<MapLegend
@@ -238,7 +212,7 @@ const data = computed(() => {
 				:question="activeQuestion"
 			/>
 			<div v-if="height && width" class="w-full h-full">
-				<GeoMap :colors="variantColors" :data="data" :mode="mapMode"> </GeoMap>
+				<GeoMap :colors="variantColors" :data="data"> </GeoMap>
 			</div>
 		</VisualisationContainer>
 	</div>

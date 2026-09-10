@@ -146,7 +146,7 @@
 			}
 		},
 		"controls": {
-			"point-map": "Punktkarte",
+			"point-map": "Punkt",
 			"area-map": "Flächenkarte",
 			"voronoi": "Voronoi",
 			"hexagon": "Hexagon",
@@ -157,7 +157,16 @@
 			},
 			"compare": "Vergleichen",
 			"open-sidebar": "Dateneinblicke",
-			"close-split-view": "Geteilte Ansicht schließen"
+			"close-split-view": "Geteilte Ansicht schließen",
+			"reset": "Auswahl zurücksetzen",
+			"settings": "Karteneinstellungen"
+		},
+		"settings": {
+			"colors": {
+				"title": "Farben",
+				"reset": "Farben zurücksetzen",
+				"choose": "Farbe für {label} wählen"
+			}
 		},
 		"legend": {
 			"title": "Legende"

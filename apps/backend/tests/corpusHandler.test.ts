@@ -520,7 +520,7 @@ describe("Corpus Handler", () => {
 				}),
 		);
 		const responsePromise = corpus.request(
-			"/search/2?word=Haus&transcript_name=test&transcripts=7&transcripts=9",
+			"/search/2?word=Haus&transcript_name=test&transcript_ids=7&transcript_ids=9",
 		);
 		await vi.waitFor(() => expect(getAllTranscripts).toHaveBeenCalledTimes(1));
 		expect(searchRequest).not.toHaveBeenCalled();
@@ -618,7 +618,7 @@ describe("Corpus Handler", () => {
 		},
 	);
 
-	it.each(["projects", "settings", "locations", "transcripts"])(
+	it.each(["projects", "settings", "locations", "transcript_ids"])(
 		"rejects invalid numeric %s filters before metadata lookup",
 		async (parameter) => {
 			for (const value of ["invalid", "-1", "1.5", "9007199254740992"]) {
@@ -631,6 +631,16 @@ describe("Corpus Handler", () => {
 			expect(searchRequest).not.toHaveBeenCalled();
 		},
 	);
+
+	it("treats null numeric filters as unset", async () => {
+		const response = await corpus.request(
+			"/search/2?projects=null&settings=null&locations=null&transcript_ids=null",
+		);
+
+		expect(response.status).toBe(200);
+		expect(getCorpusSearchMetadata).toHaveBeenCalledWith([2], [], []);
+		expect(getAllTranscripts).toHaveBeenCalledWith(2, {});
+	});
 
 	it("keeps database failures as whole-request failures", async () => {
 		getAllTranscripts.mockRejectedValueOnce(new Error("database down"));

@@ -119,6 +119,10 @@ type XmlHit = { refs: string; content: string };
 
 const DIOE_PROJECT_ID = 2;
 
+function omitNullQueryValues(values: Array<string> | undefined): Array<string> | undefined {
+	return values?.filter((value) => value !== "null");
+}
+
 function parseIdArray(values: Array<string> | undefined): Array<number> | null {
 	if (!values?.length) {
 		return [];
@@ -533,9 +537,13 @@ const corpus = new Hono<AppEnv>()
 		}
 		const projectId = Number(id);
 		const rawQuery = c.req.query();
+		const projectValues = omitNullQueryValues(c.req.queries("projects"));
+		const settingValues = omitNullQueryValues(c.req.queries("settings"));
+		const locationValues = omitNullQueryValues(c.req.queries("locations"));
+		const transcriptIdValues = omitNullQueryValues(c.req.queries("transcript_ids"));
 		const result = safeParse(SearchQuerySchema, {
 			...rawQuery,
-			transcripts: c.req.queries("transcript_ids"),
+			transcripts: transcriptIdValues,
 			projects: undefined,
 			settings: undefined,
 			locations: undefined,
@@ -553,10 +561,10 @@ const corpus = new Hono<AppEnv>()
 			);
 		}
 
-		const projects = parseIdArray(c.req.queries("projects")) ?? [];
-		const settings = parseIdArray(c.req.queries("settings")) ?? [];
-		const locations = parseIdArray(c.req.queries("locations")) ?? [];
-		const transcriptIds = parseIdArray(c.req.queries("transcript_ids")) ?? [];
+		const projects = parseIdArray(projectValues);
+		const settings = parseIdArray(settingValues);
+		const locations = parseIdArray(locationValues);
+		const transcriptIds = parseIdArray(transcriptIdValues);
 		if (projects === null || settings === null || locations === null || transcriptIds === null) {
 			return c.json({ error: "Invalid numeric filter id" }, 400);
 		}

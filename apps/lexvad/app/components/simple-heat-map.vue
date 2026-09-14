@@ -18,7 +18,7 @@ const props = defineProps<{
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
 let deck: Deck | null = null;
 
-function createPatternLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
+function createRegionLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
 	id: string,
 	data: GeoJSON.FeatureCollection<GeoJSON.Polygon>,
 	getName: (feature: F) => string,
@@ -40,7 +40,7 @@ function createPatternLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
 }
 
 function createRegionsLayer() {
-	return createPatternLayer<RegionFeature>(
+	return createRegionLayer<RegionFeature>(
 		"regionLayer",
 		regions,
 		(d) => d.properties?.Dialektregion_Name ?? "",
@@ -48,7 +48,7 @@ function createRegionsLayer() {
 }
 
 function createBundeslaenderLayer() {
-	return createPatternLayer<BundeslandFeature>(
+	return createRegionLayer<BundeslandFeature>(
 		"bundeslaenderLayer",
 		bundeslaender,
 		(d) => d.properties?.name ?? "",

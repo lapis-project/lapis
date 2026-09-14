@@ -3,11 +3,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
 import { Deck } from "@deck.gl/core";
-import {
-	FillStyleExtension,
-	type FillStyleExtensionProps,
-	MaskExtension,
-} from "@deck.gl/extensions";
+import { MaskExtension } from "@deck.gl/extensions";
 import {
 	GeoJsonLayer,
 	type GeoJsonLayerProps,
@@ -21,12 +17,6 @@ import { Map } from "maplibre-gl";
 import bundeslaenderJson from "@/assets/data/bundeslaender.json";
 import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import MapTooltip from "@/components/map-tooltip.vue";
-import { regionPatterns } from "@/stores/use-color-store";
-import {
-	createRegionPatternAtlas,
-	PATTERN_RESOLUTION,
-	type RegionPatternAtlas,
-} from "@/utils/region-pattern-atlas";
 
 const regions = regionsJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
 const bundeslaender = bundeslaenderJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
@@ -43,7 +33,6 @@ interface MapDataType {
 interface MapProps {
 	data: Array<MapDataType>;
 	colors: Record<string, string>;
-	mode: "point" | "area";
 }
 
 const props = defineProps<MapProps>();
@@ -60,7 +49,7 @@ const INITIAL_VIEW_STATE = {
 
 const points = computed(() => props.data.map((entry) => point(entry.coordinates, entry)));
 
-const areaMapMode = ref("hexagon");
+const mapMode = ref("point");
 const mapContainer = ref<HTMLDivElement | null>(null);
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
 
@@ -76,10 +65,7 @@ const tooltip = ref<TooltipState | null>(null);
 let map: Map | null = null;
 let deck: Deck | null = null;
 
-const { getRegionPattern } = useColorStore();
-
-/** Built on mount — rasterising the patterns needs a canvas. */
-let patternAtlas: RegionPatternAtlas | null = null;
+const { getRegionColor, DEFAULT_REGION_COLOR } = useColorStore();
 
 function createScatterplotLayer(minimal = false) {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
@@ -156,48 +142,33 @@ function createHexagonLayer() {
 	});
 }
 
-const PATTERN_TILE_METERS = 10000;
-
 type RegionProperties = (typeof regions)["features"][0]["properties"];
 export type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
 export type BundeslandFeature = (typeof bundeslaender)["features"][0];
 const activeLayer = ref<MapLayer>("none");
 
-function createPatternLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
+function createRegionLayer<F extends GeoJSON.Feature<GeoJSON.Polygon>>(
 	id: string,
 	data: GeoJSON.FeatureCollection<GeoJSON.Polygon>,
 	getName: (feature: F) => string,
 ) {
-	const atlas = patternAtlas;
-	const patternFor = (d: F) => getRegionPattern(getName(d));
+	const colorFor = (d: F) => getRegionColor(getName(d));
 
-	const patternProps: Partial<FillStyleExtensionProps<F>> = atlas
-		? {
-				fillPatternAtlas: atlas.url,
-				fillPatternMapping: atlas.mapping,
-				fillPatternMask: true,
-				getFillPattern: (d) => patternFor(d).id,
-				getFillPatternScale: (d) => PATTERN_TILE_METERS / (patternFor(d).w * PATTERN_RESOLUTION),
-			}
-		: {};
-
-	const layerProps: GeoJsonLayerProps & Partial<FillStyleExtensionProps<F>> = {
+	const layerProps: GeoJsonLayerProps = {
 		id,
 		data,
-		filled: atlas !== null,
+		filled: true,
 		stroked: true,
 		lineWidthMinPixels: 1,
-		getFillColor: (d) => hexToRgb(patternFor(d as F).color, 100),
-		getLineColor: (d) => hexToRgb(patternFor(d as F).color, 220),
-		extensions: atlas ? [new FillStyleExtension({ pattern: true })] : [],
-		...patternProps,
+		getFillColor: (d) => hexToRgb(colorFor(d as F), 100),
+		getLineColor: () => hexToRgb(DEFAULT_REGION_COLOR, 0),
 	};
 
 	return new GeoJsonLayer(layerProps);
 }
 
 function createRegionsLayer() {
-	return createPatternLayer<RegionFeature>(
+	return createRegionLayer<RegionFeature>(
 		"regionLayer",
 		regions,
 		(d) => d.properties?.Dialektregion_Name ?? "",
@@ -205,7 +176,7 @@ function createRegionsLayer() {
 }
 
 function createBundeslaenderLayer() {
-	return createPatternLayer<BundeslandFeature>(
+	return createRegionLayer<BundeslandFeature>(
 		"bundeslaenderLayer",
 		bundeslaender,
 		(d) => d.properties?.name ?? "",
@@ -235,10 +206,9 @@ function createMaskLayer() {
 
 function createLayers() {
 	const overlayLayers = createOverlayLayers();
-	if (props.mode === "point") {
-		return [...overlayLayers, createScatterplotLayer()];
-	}
-	switch (areaMapMode.value) {
+	switch (mapMode.value) {
+		case "point":
+			return [...overlayLayers, createScatterplotLayer()];
 		case "hexagon":
 			return [createMaskLayer(), ...overlayLayers, createHexagonLayer()];
 		case "voronoi":
@@ -273,8 +243,6 @@ function _joinEntries(entries: Array<GeoJSON.Feature>) {
 }
 
 onMounted(() => {
-	patternAtlas = createRegionPatternAtlas(regionPatterns);
-
 	map = new Map({
 		container: mapContainer.value!,
 		style,
@@ -322,7 +290,7 @@ onMounted(() => {
 });
 
 watch(
-	() => [props.data, props.mode, radius.value, activeLayer.value, areaMapMode.value],
+	() => [props.data, radius.value, activeLayer.value, mapMode.value],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},
@@ -340,6 +308,7 @@ onBeforeUnmount(() => {
 const t = useTranslations();
 
 const areaMapModeItems = [
+	{ label: t("MapsPage.controls.point-map"), value: "point", icon: "i-lucide-map-pin" },
 	{ label: t("MapsPage.controls.voronoi"), value: "voronoi", icon: "i-gis-polygon-o" },
 	{ label: t("MapsPage.controls.hexagon"), value: "hexagon", icon: "i-lucide-hexagon" },
 ];
@@ -366,11 +335,10 @@ const layerItems = computed(() =>
 <template>
 	<div class="relative size-full">
 		<div
-			v-if="mode === 'area'"
 			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg"
 		>
 			<UTabs
-				v-model="areaMapMode"
+				v-model="mapMode"
 				class="w-fit"
 				color="neutral"
 				:content="false"
@@ -384,7 +352,7 @@ const layerItems = computed(() =>
 				variant="pill"
 			>
 			</UTabs>
-			<template v-if="areaMapMode === 'hexagon'">
+			<template v-if="mapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
 				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
 				<USlider

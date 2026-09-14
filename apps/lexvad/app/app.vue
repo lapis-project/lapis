@@ -7,7 +7,6 @@ const { locale } = useI18n();
 <template>
 	<NuxtRouteAnnouncer />
 	<UApp :locale="locales[locale]">
-		<Patterndefs></Patterndefs>
 		<NuxtLayout>
 			<SkipLink target-id="main-content">{{ $t("DefaultLayout.skip-to-main-content") }}</SkipLink>
 			<NuxtLoadingIndicator />

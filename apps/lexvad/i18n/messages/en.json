@@ -146,7 +146,7 @@
 			}
 		},
 		"controls": {
-			"point-map": "Point map",
+			"point-map": "Point",
 			"area-map": "Area map",
 			"voronoi": "Voronoi",
 			"hexagon": "Hexagon",
@@ -157,7 +157,18 @@
 			},
 			"compare": "Compare",
 			"open-sidebar": "Data insights",
-			"close-split-view": "Close split view"
+			"close-split-view": "Close split view",
+			"reset": "Reset selection",
+			"settings": "Map settings"
+		},
+		"settings": {
+			"colors": {
+				"title": "Colours",
+				"palette": "Colour palette",
+				"count": "{n} colour | {n} colours",
+				"reset": "Reset colours",
+				"choose": "Choose colour for {label}"
+			}
 		},
 		"legend": {
 			"title": "Legend"

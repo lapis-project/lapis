@@ -14,7 +14,7 @@ const modeItems = computed(() => [
 	{ label: t("VariantDistributionCard.state"), value: "bundesland" },
 ]);
 
-const { getRegionPattern, getRegionPatternFill, getColorForVariant } = useColorStore();
+const { getRegionColor, getColorForVariant } = useColorStore();
 
 const data = computed(() =>
 	Object.entries(getRegionsForVariant(props.question, props.variants, mode.value))
@@ -28,8 +28,7 @@ const legendItems = computed(() => {
 		label: d.label,
 		value: total > 0 ? d.value / total : 0,
 		secondary: t("MapsPage.sidebar.places", d.value),
-		fill: getRegionPatternFill(d.label),
-		color: getRegionPattern(d.label).color,
+		color: getRegionColor(d.label),
 	}));
 });
 const mapData = computed(() =>
@@ -65,7 +64,7 @@ const mapColor = computed(
 		<div v-for="entry in legendItems" :key="entry.label" class="my-2 text-xs">
 			<div class="my-0.5">
 				<svg class="inline-block align-[-2px]" height="12" viewBox="0 0 12 12" width="12">
-					<circle cx="6" cy="6" r="5.5" :style="{ fill: entry.fill, stroke: entry.color }" />
+					<circle cx="6" cy="6" r="5.5" :style="{ fill: entry.color, stroke: 'var(--border)' }" />
 				</svg>
 				<span class="ml-2">{{ entry.label }}</span>
 				<span class="float-right">

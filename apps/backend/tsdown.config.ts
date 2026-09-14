@@ -5,6 +5,7 @@ export default defineConfig({
 	dts: true,
 	entry: ["src/*.ts"],
 	format: ["esm"],
+	fixedExtension: false,
 	platform: "node",
 	minify: false,
 	sourcemap: false,

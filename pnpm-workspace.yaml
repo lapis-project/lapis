@@ -2,18 +2,18 @@ packages:
   - "apps/*"
 
 catalog:
-  "@lucide/vue": ^1.21.0
+  "@lucide/vue": ^1.45.0
   lefthook: ^2.1.12
-  "npm-run-all2": ^9.0.2
+  "npm-run-all2": ^9.0.3
   nuxt: ^4.5.1
   oxfmt: ^0.67.0
   oxlint: ^1.82.0
   vue: ^3.5.42
-  tailwindcss: ^4.3.1
+  tailwindcss: ^4.3.3
   typescript: ^6.0.2
-  vite: ^7.3.5
+  vite: ^8.3.0
   "vue-i18n": 11.4.9
-  "vue-router": ^5.3.0
+  "vue-router": ^5.3.1
 
 overrides:
   "vue-i18n": 11.4.9

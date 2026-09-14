@@ -44,7 +44,7 @@
 		"@types/node": "^25.9.4",
 		"lefthook": "catalog:",
 		"node-gyp": "^12.4.0",
-		"npm-run-all2": "^8.0.4",
+		"npm-run-all2": "^9.0.3",
 		"oxfmt": "catalog:",
 		"oxlint": "catalog:",
 		"stylelint": "^17.15.0",

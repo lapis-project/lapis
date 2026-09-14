@@ -12,7 +12,8 @@ import {
 } from "@deck.gl/layers";
 import { LayersIcon, MinusIcon, PlusIcon } from "@lucide/vue";
 import { featureCollection, point, union, voronoi } from "@turf/turf";
-import { Map } from "maplibre-gl";
+import { Map, setWorkerUrl } from "maplibre-gl";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 
 import bundeslaenderJson from "@/assets/data/bundeslaender.json";
 import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
@@ -243,6 +244,9 @@ function _joinEntries(entries: Array<GeoJSON.Feature>) {
 }
 
 onMounted(() => {
+	// Bundle MapLibre 6's worker and its shared module through Vite.
+	setWorkerUrl(maplibreWorkerUrl);
+
 	map = new Map({
 		container: mapContainer.value!,
 		style,

@@ -8,7 +8,7 @@ usePageMetadata({
 
 <template>
 	<MainContent class="container grid content-start gap-y-8 py-8">
-		<div class="mx-auto w-full max-w-2xl border p-8">
+		<div class="mx-auto w-full max-w-2xl border border-muted rounded-lg p-8">
 			<LoginForm></LoginForm>
 		</div>
 	</MainContent>

@@ -8,7 +8,9 @@ import {
 	type MapGeoJSONFeature,
 	NavigationControl,
 	ScaleControl,
+	setWorkerUrl,
 } from "maplibre-gl";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import * as THREE from "three";
 
 import { type GeoMapContext, geoMapContextKey } from "@/components/geo-map.context";
@@ -107,6 +109,9 @@ function getPieChartTexture(
 async function create() {
 	await nextTick();
 	assert(elementRef.value != null);
+
+	// Bundle MapLibre 6's worker and its shared module through Vite.
+	setWorkerUrl(maplibreWorkerUrl);
 
 	const map = new GeoMap({
 		center: [initialViewState.longitude, initialViewState.latitude],
@@ -524,6 +529,7 @@ provide(geoMapContextKey, context);
 
 <style scopes lang="css">
 .maplibregl-marker {
+	/* stylelint-disable-next-line at-rule-prelude-no-invalid */
 	@apply cursor-pointer;
 }
 </style>

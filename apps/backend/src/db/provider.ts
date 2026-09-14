@@ -1,7 +1,8 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-import { type Migration, type MigrationProvider, Migrator, sql } from "kysely";
+import { sql } from "kysely";
+import { type Migration, type MigrationProvider, Migrator } from "kysely/migration";
 
 import { db } from "@/db/connect.ts";
 

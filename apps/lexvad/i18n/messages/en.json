@@ -164,6 +164,8 @@
 		"settings": {
 			"colors": {
 				"title": "Colours",
+				"palette": "Colour palette",
+				"count": "{n} colour | {n} colours",
 				"reset": "Reset colours",
 				"choose": "Choose colour for {label}"
 			}

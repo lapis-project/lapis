@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { austrianStatePostalCodeRanges } from "@/lib/austrianPostalCodes.ts";
 import type { TranscriptMatchesResult } from "@/search/transcriptMatches.ts";
 
 interface SearchMetadata {
@@ -28,6 +29,9 @@ const getCorpusSearchMetadata = vi.fn<
 	}),
 );
 const requestTranscriptMatches = vi.fn<(_cql: string) => Promise<TranscriptMatchesResult>>();
+const getFilterInformation = vi.fn<
+	() => Promise<Array<{ id: number; name: string | null; category: string }>>
+>(() => Promise.resolve([]));
 
 const searchRequest = vi.fn<
 	(
@@ -45,7 +49,7 @@ vi.mock("@/db/corpusRepository.ts", () => ({
 	getAllLocationsByProject: vi.fn(() => Promise.resolve([])),
 	getAllTranscripts,
 	getCorpusSearchMetadata,
-	getFilterInformation: vi.fn(() => Promise.resolve([])),
+	getFilterInformation,
 	transcriptDetailView: vi.fn(() => Promise.resolve([])),
 }));
 
@@ -56,6 +60,8 @@ const { default: corpus } = await import("@/handler/corpusHandler.ts");
 
 describe("Corpus Handler", () => {
 	beforeEach(() => {
+		getFilterInformation.mockReset();
+		getFilterInformation.mockResolvedValue([]);
 		getAllTranscripts.mockReset();
 		getAllTranscripts.mockResolvedValue([]);
 		getCorpusSearchMetadata.mockReset();
@@ -68,6 +74,41 @@ describe("Corpus Handler", () => {
 		requestTranscriptMatches.mockResolvedValue({ data: new Map([[7, 5]]), error: null });
 		searchRequest.mockReset();
 		searchRequest.mockResolvedValue(new Response(JSON.stringify({ Lines: [] })));
+	});
+
+	it("returns all Austrian states with IDs alongside existing filter information", async () => {
+		const setting = { id: 7, name: "Interview", category: "setting" };
+		const project = { id: 2, name: "DiÖ", category: "project" };
+		getFilterInformation.mockResolvedValue([setting, project]);
+
+		const response = await corpus.request("/filters");
+
+		expect(response.status).toBe(200);
+		expect(await response.json()).toEqual({
+			settings: [setting],
+			projects: [project],
+			states: [
+				{ id: 1, name: "Burgenland" },
+				{ id: 2, name: "Kärnten" },
+				{ id: 3, name: "Niederösterreich" },
+				{ id: 4, name: "Oberösterreich" },
+				{ id: 5, name: "Salzburg" },
+				{ id: 6, name: "Steiermark" },
+				{ id: 7, name: "Tirol" },
+				{ id: 8, name: "Vorarlberg" },
+				{ id: 9, name: "Wien" },
+			],
+		});
+	});
+
+	it("returns all states even when no settings or projects are available", async () => {
+		const response = await corpus.request("/filters");
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(body.settings).toEqual([]);
+		expect(body.projects).toEqual([]);
+		expect(body.states).toHaveLength(9);
 	});
 
 	it("passes repeated location, setting, and project IDs to the repository", async () => {
@@ -119,6 +160,71 @@ describe("Corpus Handler", () => {
 			2,
 			expect.objectContaining({ transcript_name: "test" }),
 		);
+	});
+
+	it.each([
+		["true", true],
+		["false", false],
+	])("passes has_bkms=%s to the repository as %s", async (queryValue, expectedValue) => {
+		const response = await corpus.request(`/search/2?has_bkms=${queryValue}`);
+
+		expect(response.status).toBe(200);
+		expect(getAllTranscripts).toHaveBeenCalledWith(2, { has_bkms: expectedValue });
+	});
+
+	it("rejects an invalid has_bkms value", async () => {
+		const response = await corpus.request("/search/2?has_bkms=invalid");
+
+		expect(response.status).toBe(400);
+		expect(getAllTranscripts).not.toHaveBeenCalled();
+	});
+
+	it.each([1, 2, 3, 4, 5, 6, 7, 8, 9] as const)(
+		"passes postal-code ranges for state=%s to the repository",
+		async (state) => {
+			const response = await corpus.request(`/search/2?state=${state}`);
+
+			expect(response.status).toBe(200);
+			expect(getAllTranscripts).toHaveBeenCalledWith(2, {
+				postal_code_ranges: austrianStatePostalCodeRanges[state],
+			});
+		},
+	);
+
+	it.each(["0", "10", "-1", "1.5", "01", "invalid", ""])(
+		"rejects invalid state=%s before querying metadata or transcripts",
+		async (state) => {
+			const response = await corpus.request(`/search/2?state=${state}`);
+
+			expect(response.status).toBe(400);
+			expect(getCorpusSearchMetadata).not.toHaveBeenCalled();
+			expect(getAllTranscripts).not.toHaveBeenCalled();
+		},
+	);
+
+	it("omits postal-code ranges when state is not provided", async () => {
+		const response = await corpus.request("/search/2");
+
+		expect(response.status).toBe(200);
+		expect(getAllTranscripts).toHaveBeenCalledWith(2, {});
+	});
+
+	it("combines state with location filters and restricts lexical search candidates", async () => {
+		getCorpusSearchMetadata.mockResolvedValue({
+			projects: [{ id: 2, project_name: "DiÖ", main_project_id: null }],
+			settings: [],
+			locations: [{ id: 9, place_name: "Innsbruck" }],
+		});
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+
+		const response = await corpus.request("/search/2?word=Haus&state=7&locations=9");
+
+		expect(response.status).toBe(200);
+		expect(getAllTranscripts).toHaveBeenCalledWith(2, {
+			locations: [9],
+			postal_code_ranges: austrianStatePostalCodeRanges[7],
+		});
+		expect(requestTranscriptMatches.mock.calls[0]?.[0]).toContain('id="transcript_7"');
 	});
 
 	it("keeps database-only filters out of CQL", async () => {

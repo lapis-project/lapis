@@ -2,6 +2,7 @@ import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect.ts";
+import type { PostalCodeRange } from "@/lib/austrianPostalCodes.ts";
 
 export async function getAllTranscripts(
 	project_id: number,
@@ -9,6 +10,7 @@ export async function getAllTranscripts(
 		age_lower?: number;
 		age_upper?: number;
 		locations?: Array<number>;
+		postal_code_ranges?: ReadonlyArray<PostalCodeRange>;
 		dialect_competence?: number;
 		standard_competence?: number;
 		gender?: string;
@@ -19,6 +21,7 @@ export async function getAllTranscripts(
 		settings?: Array<number>;
 		projects?: Array<number>;
 		transcripts?: Array<number>;
+		has_bkms?: boolean;
 	},
 ) {
 	if (filters?.transcripts?.length === 0) {
@@ -55,6 +58,16 @@ export async function getAllTranscripts(
 	if (filters?.locations?.length) {
 		query = query.where("place.id", "in", filters.locations);
 	}
+	const postalCodeRanges = filters?.postal_code_ranges;
+	if (postalCodeRanges !== undefined) {
+		query = query.where((eb) =>
+			eb.or(
+				postalCodeRanges.map(([lower, upper]) =>
+					eb.and([eb("place.plz", ">=", lower), eb("place.plz", "<=", upper)]),
+				),
+			),
+		);
+	}
 	if (filters?.dialect_competence !== undefined) {
 		query = query.where("informant.dialect_competence", "=", filters.dialect_competence);
 	}
@@ -89,6 +102,12 @@ export async function getAllTranscripts(
 	}
 	if (filters?.transcripts?.length) {
 		query = query.where("survey_conducted.instance_id", "in", filters.transcripts);
+	}
+
+	if (filters?.has_bkms === true) {
+		query = query.where("informant.comment", "like", "BKMS%");
+	} else if (filters?.has_bkms === false) {
+		query = query.where("informant.comment", "not like", "BKMS%");
 	}
 
 	return await query

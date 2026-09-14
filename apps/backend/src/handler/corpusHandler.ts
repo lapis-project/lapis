@@ -26,6 +26,11 @@ import {
 	getFilterInformation,
 	transcriptDetailView,
 } from "@/db/corpusRepository.ts";
+import {
+	type AustrianStateId,
+	austrianStatePostalCodeRanges,
+	austrianStates,
+} from "@/lib/austrianPostalCodes.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
@@ -81,6 +86,13 @@ const SearchQuerySchema = object({
 	),
 
 	locations: optional(array(string())),
+	state: optional(
+		pipe(
+			string(),
+			regex(/^[1-9]$/),
+			transform((value) => Number(value) as AustrianStateId),
+		),
+	),
 
 	first_languages: optional(array(string())),
 
@@ -109,6 +121,13 @@ const SearchQuerySchema = object({
 	),
 
 	gender: optional(string()),
+
+	has_bkms: optional(
+		pipe(
+			union([literal("true"), literal("false")]),
+			transform((val) => val === "true"),
+		),
+	),
 });
 
 type RunCgiResponse =
@@ -638,6 +657,9 @@ const corpus = new Hono<AppEnv>()
 		if (locations.length) {
 			databaseFilters.locations = locations;
 		}
+		if (result.output.state !== undefined) {
+			databaseFilters.postal_code_ranges = austrianStatePostalCodeRanges[result.output.state];
+		}
 		if (result.output.dialect_competence !== undefined) {
 			databaseFilters.dialect_competence = result.output.dialect_competence;
 		}
@@ -646,6 +668,10 @@ const corpus = new Hono<AppEnv>()
 		}
 		if (rawQuery.gender) {
 			databaseFilters.gender = rawQuery.gender;
+		}
+
+		if (result.output.has_bkms !== undefined) {
+			databaseFilters.has_bkms = result.output.has_bkms;
 		}
 		if (rawQuery.comment_search) {
 			databaseFilters.comment_search = rawQuery.comment_search;
@@ -1025,6 +1051,7 @@ const corpus = new Hono<AppEnv>()
 		const informationList = {
 			settings: settings,
 			projects: projects,
+			states: austrianStates,
 		};
 		return c.json(informationList, 200);
 	});

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ArrowLeft, Database, MapPin } from "@lucide/vue";
 import type { InferResponseType } from "hono/client";
 
 const t = useTranslations();
@@ -157,7 +156,8 @@ const formattedTitle = computed(
 			v-if="!isProjectDescription"
 			class="mb-6 inline-flex items-center gap-1"
 			to="/articles"
-			><ArrowLeft class="size-4" /> {{ t("ArticleDetailPage.back") }}</NuxtLinkLocale
+			><UIcon name="i-lucide-arrow-left" class="size-4" />
+			{{ t("ArticleDetailPage.back") }}</NuxtLinkLocale
 		>
 		<div class="flex flex-col sm:flex-row gap-8">
 			<article v-if="article" class="w-full sm:w-3/4">

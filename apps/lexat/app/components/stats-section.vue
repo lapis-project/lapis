@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { FileText, MapPinned, Microscope, UserRound } from "@lucide/vue";
 import {
 	ArcElement,
 	BarElement,
@@ -121,22 +120,22 @@ const donutChartOptions = {
 const counts = [
 	{
 		value: startPageData.value?.place?.[0]?.total ?? 0,
-		icon: MapPinned,
+		icon: "i-lucide-map-pinned",
 		translation: "HomePage.counts.locations",
 	},
 	{
 		value: startPageData.value?.inf?.[0]?.total ?? 0,
-		icon: UserRound,
+		icon: "i-lucide-user-round",
 		translation: "HomePage.counts.participants",
 	},
 	{
 		value: startPageData.value?.survey?.[0]?.total ?? 0,
-		icon: FileText,
+		icon: "i-lucide-file-text",
 		translation: "HomePage.counts.survey-rounds",
 	},
 	{
 		value: startPageData.value?.phen?.[0]?.total ?? 0,
-		icon: Microscope,
+		icon: "i-lucide-microscope",
 		translation: "HomePage.counts.phenomenons",
 	},
 ];
@@ -163,7 +162,7 @@ const counts = [
 				<div
 					class="flex size-28 sm:size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
 				>
-					<component :is="item.icon" class="size-10 sm:size-12 stroke-[1.5]" />
+					<UIcon :name="item.icon" mode="svg" class="size-10 sm:size-12 [&_*]:stroke-[1.5]" />
 					<p class="text-xl sm:text-2xl">
 						<CountUp :value="item.value" />
 					</p>

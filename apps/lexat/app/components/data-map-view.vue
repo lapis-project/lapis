@@ -2,17 +2,6 @@
 import "v-onboarding/dist/style.css";
 
 import { keyByToMap } from "@acdh-oeaw/lib";
-import {
-	CircleHelp,
-	Database,
-	FileText,
-	Image,
-	InfoIcon,
-	MapPinIcon,
-	Maximize2Icon,
-	Minimize2Icon,
-	UserIcon,
-} from "@lucide/vue";
 import { refDebounced } from "@vueuse/core";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";

@@ -1,22 +1,5 @@
 <!-- eslint-disable import-x/no-named-as-default -->
 <script setup lang="ts">
-import {
-	AlignCenterIcon,
-	AlignJustifyIcon,
-	AlignLeftIcon,
-	AlignRightIcon,
-	BoldIcon,
-	ImagePlusIcon,
-	ItalicIcon,
-	LinkIcon,
-	ListIcon,
-	ListOrderedIcon,
-	RedoIcon,
-	StrikethroughIcon,
-	TableIcon,
-	UnderlineIcon,
-	UndoIcon,
-} from "@lucide/vue";
 import CharacterCount from "@tiptap/extension-character-count";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -94,41 +77,41 @@ const editor = ref(
 );
 
 const textActions = ref([
-	{ slug: "bold", icon: BoldIcon, active: "bold" },
-	{ slug: "italic", icon: ItalicIcon, active: "italic" },
-	{ slug: "underline", icon: UnderlineIcon, active: "underline" },
-	{ slug: "strike", icon: StrikethroughIcon, active: "strike" },
+	{ slug: "bold", icon: "i-lucide-bold", active: "bold" },
+	{ slug: "italic", icon: "i-lucide-italic", active: "italic" },
+	{ slug: "underline", icon: "i-lucide-underline", active: "underline" },
+	{ slug: "strike", icon: "i-lucide-strikethrough", active: "strike" },
 	{
 		slug: "align",
 		option: "left",
-		icon: AlignLeftIcon,
+		icon: "i-lucide-align-left",
 		active: { textAlign: "left" },
 	},
 	{
 		slug: "align",
 		option: "center",
-		icon: AlignCenterIcon,
+		icon: "i-lucide-align-center",
 		active: { textAlign: "center" },
 	},
 	{
 		slug: "align",
 		option: "right",
-		icon: AlignRightIcon,
+		icon: "i-lucide-align-right",
 		active: { textAlign: "right" },
 	},
 	{
 		slug: "align",
 		option: "justify",
-		icon: AlignJustifyIcon,
+		icon: "i-lucide-align-justify",
 		active: { textAlign: "justify" },
 	},
-	{ slug: "bulletList", icon: ListIcon, active: "bulletList" },
-	{ slug: "orderedList", icon: ListOrderedIcon, active: "orderedList" },
-	{ slug: "undo", icon: UndoIcon, active: "undo" },
-	{ slug: "redo", icon: RedoIcon, active: "redo" },
-	{ slug: "link", icon: LinkIcon, active: "link" },
-	{ slug: "image", icon: ImagePlusIcon, active: "image" },
-	{ slug: "table", icon: TableIcon, active: "table" },
+	{ slug: "bulletList", icon: "i-lucide-list", active: "bulletList" },
+	{ slug: "orderedList", icon: "i-lucide-list-ordered", active: "orderedList" },
+	{ slug: "undo", icon: "i-lucide-undo", active: "undo" },
+	{ slug: "redo", icon: "i-lucide-redo", active: "redo" },
+	{ slug: "link", icon: "i-lucide-link", active: "link" },
+	{ slug: "image", icon: "i-lucide-image-plus", active: "image" },
+	{ slug: "table", icon: "i-lucide-table", active: "table" },
 ]);
 
 const wordsCount = computed(() => {
@@ -345,7 +328,7 @@ const handleFileChange = (event: Event) => {
 				:class="{ active: editor.isActive(active) }"
 				@click="onActionClick(slug as ActionSlug, option)"
 			>
-				<component :is="icon" class="size-4" />
+				<UIcon :name="icon" class="size-4" />
 			</button>
 		</div>
 

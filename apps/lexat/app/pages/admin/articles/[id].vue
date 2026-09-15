@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { UploadIcon } from "@lucide/vue";
 import type { InferResponseType } from "hono/client";
 
 import type { DropdownOption } from "@/types/dropdown-option";
@@ -401,7 +400,10 @@ usePageMetadata({
 								for="dropzone-file"
 							>
 								<div v-if="!cover" class="flex flex-col items-center justify-center pb-6 pt-5">
-									<UploadIcon class="mb-4 size-8 text-gray-500 dark:text-gray-400" />
+									<UIcon
+										name="i-lucide-upload"
+										class="mb-4 size-8 text-gray-500 dark:text-gray-400"
+									/>
 
 									<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
 										<span class="font-semibold">{{

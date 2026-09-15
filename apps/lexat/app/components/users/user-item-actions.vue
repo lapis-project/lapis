@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CircleChevronUp, KeyRound } from "@lucide/vue";
 import type { FormSubmitEvent } from "@nuxt/ui";
 import * as z from "zod";
 
@@ -128,9 +127,8 @@ const onSubmitNewUserRole = async (event: FormSubmitEvent<SetUserRoleSchema>) =>
 				square
 				:title="t('UserManagement.actions.set-password')"
 				variant="ghost"
-			>
-				<KeyRound class="size-4" />
-			</UButton>
+				icon="i-lucide-key-round"
+			/>
 
 			<template #body>
 				<UForm
@@ -186,9 +184,8 @@ const onSubmitNewUserRole = async (event: FormSubmitEvent<SetUserRoleSchema>) =>
 				square
 				:title="t('UserManagement.actions.set-role')"
 				variant="ghost"
-			>
-				<CircleChevronUp class="size-4" />
-			</UButton>
+				icon="i-lucide-circle-chevron-up"
+			/>
 
 			<template #body>
 				<UForm

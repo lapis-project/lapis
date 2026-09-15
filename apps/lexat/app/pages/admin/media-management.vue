@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { CheckCircle2, CloudUpload, FileImage, Trash2, X } from "@lucide/vue";
 import { useDropZone, useFileDialog } from "@vueuse/core";
 import type { InferResponseType } from "hono/client";
 import { computed, ref } from "vue";
@@ -244,7 +243,7 @@ const canProcess = computed(
 					<div
 						class="w-16 h-16 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center mb-6 text-gray-400"
 					>
-						<CloudUpload class="w-8 h-8" />
+						<UIcon name="i-lucide-cloud-upload" class="size-8" />
 					</div>
 					<h3 class="text-lg font-medium text-foreground mb-2">
 						{{ t("AdminPage.media.drop_off.description") }}
@@ -318,7 +317,7 @@ const canProcess = computed(
 						v-if="assets.length === 0"
 						class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4 py-20"
 					>
-						<FileImage class="w-12 h-12 opacity-20" />
+						<UIcon name="i-lucide-file-image" class="size-12 opacity-20" />
 						<p class="text-sm">{{ t("AdminPage.media.assignments.body.placeholder") }}.</p>
 					</div>
 
@@ -363,17 +362,12 @@ const canProcess = computed(
 								<div
 									class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-100 dark:text-green-900 text-xs font-medium border border-green-200"
 								>
-									<CheckCircle2 class="w-3.5 h-3.5" />
+									<UIcon name="i-lucide-check-circle-2" class="size-3.5" />
 									{{ t("AdminPage.media.assignments.body.saved_msg") }}
 								</div>
 							</template>
 							<template v-else>
-								<button
-									class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-600 dark:hover:bg-red-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-									@click="removeAsset(asset.id)"
-								>
-									<X class="w-4 h-4" />
-								</button>
+								<UButton icon="i-lucide-x" variant="ghost" @click="removeAsset(asset.id)" />
 							</template>
 						</div>
 					</div>
@@ -450,7 +444,7 @@ const canProcess = computed(
 					v-if="!allPhenomenaWithStimuli?.length"
 					class="flex flex-col items-center justify-center text-gray-400 space-y-4 py-16"
 				>
-					<FileImage class="w-12 h-12 opacity-20" />
+					<UIcon name="i-lucide-file-image" class="size-12 opacity-20" />
 					<p class="text-sm">{{ t("AdminPage.media.active_images.body.placeholder") }}</p>
 				</div>
 
@@ -478,13 +472,12 @@ const canProcess = computed(
 					</div>
 
 					<div class="col-span-2 flex items-center justify-end">
-						<button
-							class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-600 dark:hover:bg-red-100 rounded-md transition-all disabled:opacity-50"
+						<UButton
+							icon="i-lucide-trash"
+							variant="ghost"
 							:title="t('AdminPage.media.active_images.body.delete')"
 							@click="openDeleteDialog(phen)"
-						>
-							<Trash2 class="w-4 h-4" />
-						</button>
+						/>
 					</div>
 				</div>
 			</div>

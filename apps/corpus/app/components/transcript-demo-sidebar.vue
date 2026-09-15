@@ -12,15 +12,11 @@ const transcriptMetadata = computed(() => {
 	return response.value?.metadata;
 });
 
-const transcriptFileData = computed(() => {
-	return response.value?.fileData;
-});
-
 function removeSelection() {
 	const query = { ...route.query };
 	delete query.selection;
 
-	void router.push({ ...route.query });
+	void router.push({ query });
 }
 
 onMounted(() => {
@@ -44,21 +40,15 @@ watch(
 	</div>
 	<div v-else>
 		<div class="mb-5 pb-3 border-b flex gap-2 items-end flex-shrink-0 overflow-x-auto">
-			<div v-for="item in transcriptMetadata" :key="item.instance_id">
-				<div
-					:class="
-						currentId
-							? `py-1.5 px-3 flex items-center rounded bg-neutral-900 text-white border-none gap-2 text-sm`
-							: `py-1.5 px-3 flex items-center rounded bg-secondary border gap-2 text-sm`
-					"
-				>
-					<Button class="h-full m-0 size-fit cursor-pointer" size="icon" variant="transparent">
+			<div v-for="item in transcriptMetadata" :key="item.transcript_id" class="w-full">
+				<div class="flex flex-row justify-between items-center p-1">
+					<h2 class="text-lg font-semibold text-foreground">
 						{{ item.transcript_name }}
-					</Button>
+					</h2>
 					<Button
-						class="h-full m-0 size-fit cursor-pointer"
+						class="h-full m-0 size-fit cursor-pointer items-center p-2"
 						size="icon"
-						variant="transparent"
+						variant="ghost"
 						@click="removeSelection()"
 					>
 						<XIcon class="size-4" />
@@ -87,12 +77,9 @@ watch(
 					><DownloadIcon class="size-4"
 				/></Button>
 			</div>
-			<TabsContent class="p-4 text-sm text-muted-foreground space-y-2" value="info">
+			<TabsContent class="p-1 text-sm text-muted-foreground space-y-2" value="info">
 				<div v-if="transcriptMetadata != null">
-					<div class="space-y-2" v-for="item in transcriptMetadata" :key="item.instance_id">
-						<h2 class="text-lg font-semibold text-foreground">
-							{{ item.transcript_name }}
-						</h2>
+					<div class="space-y-2" v-for="item in transcriptMetadata" :key="item.transcript_id">
 						<ul class="space-y-3">
 							<li>
 								<span class="font-medium text-foreground">Ort:</span>

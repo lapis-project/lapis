@@ -97,10 +97,7 @@ const currentSelectionArray = computed(() => {
 });
 
 function handleSelection(id: string) {
-	const current = currentSelectionArray.value;
-	if (current.includes(id)) return;
-
-	router.push({ query: { ...route.query, selection: [...current, id] } });
+	router.push({ query: { ...route.query, selection: id } });
 }
 
 function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {

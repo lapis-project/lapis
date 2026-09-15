@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { ArrowDown, ArrowUp, ArrowUpDown, Download } from "@lucide/vue";
-
 export type TableEntry = Record<string, number | string | null>;
 
 export interface TableColumn {
@@ -187,15 +185,17 @@ onBeforeUnmount(() => {
 							>
 								{{ column.label }}
 								<template v-if="column.sortable">
-									<ArrowUp
+									<UIcon
+										name="i-lucide-arrow-up"
 										v-if="sortCriterion === column.value && sortOrder === 'asc'"
 										class="size-4"
 									/>
-									<ArrowDown
+									<UIcon
+										name="i-lucide-arrow-down"
 										v-else-if="sortCriterion === column.value && sortOrder === 'desc'"
 										class="size-4"
 									/>
-									<ArrowUpDown v-else class="size-4" />
+									<UIcon name="i-lucide-arrow-up-down" v-else class="size-4" />
 								</template>
 							</button>
 						</th>

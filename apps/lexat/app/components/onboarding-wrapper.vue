@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { XIcon } from "@lucide/vue";
 import { useVOnboarding, VOnboardingStep, VOnboardingWrapper } from "v-onboarding";
 
 const t = useTranslations();
@@ -93,14 +92,13 @@ const focusNextButton = (): void => {
 							</div>
 						</div>
 					</div>
-					<button
+					<UButton
 						class="absolute top-3 right-3 cursor-pointer"
-						:class="{ 'text-background': colorMode.value === 'dark' }"
-						variant="button"
+						variant="ghost"
+						icon="i-lucide-x"
+						aria-label="Dismiss onboarding"
 						@click="finishOnboarding"
-					>
-						<XIcon class="size-5" />
-					</button>
+					/>
 				</div>
 			</VOnboardingStep>
 		</template>

@@ -33,7 +33,6 @@
 		"@acdh-oeaw/lib": "^1.0.5",
 		"@iconify-json/lucide": "^1.2.132",
 		"@lapis/backend": "workspace:*",
-		"@lucide/vue": "catalog:",
 		"@nuxt/icon": "^2.5.1",
 		"@nuxt/image": "^2.1.0",
 		"@nuxt/scripts": "^1.3.9",

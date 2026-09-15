@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Edit, Trash } from "@lucide/vue";
-
 const t = useTranslations();
 const toast = useToast();
 
@@ -26,8 +24,8 @@ const deleteItem = async () => {
 </script>
 
 <template>
-	<div class="flex items-center gap-3">
-		<Edit class="size-5 cursor-pointer hover:text-secondary" @click="editItem"></Edit>
-		<Trash class="size-5 cursor-pointer hover:text-secondary" @click="deleteItem"></Trash>
+	<div>
+		<UButton icon="i-lucide-edit" variant="ghost" @click="editItem" />
+		<UButton icon="i-lucide-trash" variant="ghost" @click="deleteItem" />
 	</div>
 </template>

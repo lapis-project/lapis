@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { X } from "@lucide/vue";
-
 const currentQuestionnaireRound = 3;
 
 const hasDismissedBanner = useCookie<boolean>(`banner-dismissed-${currentQuestionnaireRound}`, {

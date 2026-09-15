@@ -306,10 +306,13 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 						/></Button>
 					</div>
 					<TabsContent class="flex flex-grow overflow-y-auto h-full min-h-0" value="plain">
-						<div v-if="isPending" class="item-center m-auto h-full">
+						<div v-if="isPending" class="justify-center flex m-auto">
 							<Spinner />
 						</div>
-						<div v-if="!isPending && transcripts != null && transcripts.length > 0" class="w-full">
+						<div
+							v-else-if="!isPending && transcripts != null && transcripts.length > 0"
+							class="w-full"
+						>
 							<p class="text-lg mb-3 flex-shrink-0 mx-2">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>

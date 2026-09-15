@@ -285,8 +285,22 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" v-model="activeTab">
 					<div class="flex gap-4 items-center flex-shrink-0">
 						<TabsList class="w-full">
-							<TabsTrigger value="plain"> Plain </TabsTrigger>
-							<TabsTrigger value="kwic"> KWIC </TabsTrigger>
+							<TabsTrigger value="plain">
+								<div class="flex flex-row gap-1 items-center">
+									<span>Plain</span>
+									<span class="text-xs text-gray-500"
+										>({{ transcripts?.length ? transcripts?.length : 0 }})
+									</span>
+								</div>
+							</TabsTrigger>
+							<TabsTrigger value="kwic">
+								<div class="flex flex-row gap-1 items-center">
+									<span>KWIC</span>
+									<span class="text-xs text-gray-500"
+										>({{ kwic?.concsize ? kwic?.concsize : 0 }})
+									</span>
+								</div>
+							</TabsTrigger>
 						</TabsList>
 						<Button class="shrink-0" size="icon" variant="ghost"
 							><Download class="size-4"
@@ -297,13 +311,13 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 							<Spinner />
 						</div>
 						<div v-if="!isPending && transcripts != null && transcripts.length > 0" class="w-full">
-							<p class="text-lg mb-3 flex-shrink-0">
+							<p class="text-lg mb-3 flex-shrink-0 mx-2">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
 							</p>
 							<div v-for="result in transcripts" :key="result.instance_id">
 								<div
-									class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
+									class="mx-2 px-4 py-2 mb-2 rounded bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80"
 								>
 									<Button
 										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"

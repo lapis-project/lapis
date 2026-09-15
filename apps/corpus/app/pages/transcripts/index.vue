@@ -249,7 +249,9 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 			</div>
 
 			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
-				<div class="flex relative items-center mb-4 pb-4 border-b gap-4">
+				<div
+					class="flex pb-5 items-center mb-4 border-b gap-4 overflow-x-auto overflow-y-hidden flex-shrink-0"
+				>
 					<SearchBar search-type="default" />
 					<Separator orientation="vertical" />
 					<Sheet v-model:open="filterOpen">

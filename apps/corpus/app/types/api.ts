@@ -75,7 +75,7 @@ export type SearchParams = {
 	mode?: "simple" | "regex";
 	fromp?: string;
 	pagesize?: string;
-	transcripts_ids?: Array<number>;
+	transcript_ids?: Array<number>;
 	age_lower?: number;
 	age_upper?: number;
 	locations?: Array<number>;
@@ -87,6 +87,8 @@ export type SearchParams = {
 	projects?: Array<number>;
 	settings?: Array<number>;
 	transcript_name?: string;
+	has_bkms: boolean;
+	state?: number;
 };
 
 export interface WaveformData {

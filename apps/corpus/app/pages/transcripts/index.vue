@@ -27,6 +27,7 @@ const bookmarkedIds = ref<Array<string>>([]);
 const { response: searchResponse, search, status, isPending } = useSearch(2);
 
 const transcripts = computed(() => {
+	if (route.query.gender === "divers") return null;
 	return searchResponse.value?.transcripts;
 });
 
@@ -155,6 +156,7 @@ watch(
 			fromp: (q.fromp as string) ?? "1",
 			pagesize: String(limit),
 			locations: [Number(q.locations)],
+			state: q.state ? Number(q.state) : undefined,
 			gender: q.gender ? (q.gender as string) : undefined,
 			dialect_competence: q.dialect_competence ? Number(q.dialect_competence) : undefined,
 			standard_competence: q.standard_competence ? Number(q.standard_competence) : undefined,
@@ -164,8 +166,9 @@ watch(
 			settings: q.settings ? [Number(q.settings)] : undefined,
 			transcript_name:
 				category != null && category === "transcript_name" ? (q.search as string) : undefined,
-			transcripts_ids:
+			transcript_ids:
 				category != null && category === "instance_id" ? [Number(q.search)] : undefined,
+			has_bkms: q.has_bkms === "true",
 		};
 		const hasSearchFilters = Object.values(filters).some((value) => {
 			if (value === undefined || value === null) {
@@ -289,11 +292,11 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 							><Download class="size-4"
 						/></Button>
 					</div>
-					<TabsContent class="flex-grow overflow-y-auto h-full" value="plain">
+					<TabsContent class="flex flex-grow overflow-y-auto h-full min-h-0" value="plain">
 						<div v-if="isPending" class="item-center m-auto h-full">
 							<Spinner />
 						</div>
-						<div v-if="!isPending && transcripts != null && transcripts.length > 0">
+						<div v-if="!isPending && transcripts != null && transcripts.length > 0" class="w-full">
 							<p class="text-lg mb-3 flex-shrink-0">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
@@ -323,7 +326,7 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 								</div>
 							</div>
 						</div>
-						<div v-else class="text-md text-muted-foreground justify-center flex m-auto h-full">
+						<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
 							Keine Ergebnisse vorhanden.
 						</div>
 					</TabsContent>
@@ -440,8 +443,8 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 								</Pagination>
 							</div>
 						</div>
-						<div v-else class="text-md text-muted-foreground justify-center flex my-auto">
-							Keine Ergebnisse vorhanden.
+						<div v-else class="justify-center flex my-auto">
+							<div class="text-md text-muted-foreground">Keine Ergebnisse vorhanden.</div>
 						</div>
 					</TabsContent>
 				</Tabs>

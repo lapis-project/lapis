@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { BookmarkIcon, FileText, Folder, FolderOpen, Undo2 } from "@lucide/vue";
+import {
+	BookmarkIcon,
+	CircleQuestionMarkIcon,
+	FileText,
+	Folder,
+	FolderOpen,
+	Undo2,
+} from "@lucide/vue";
 import { TreeItem, TreeRoot } from "reka-ui";
 
 import { usePlaces } from "#imports";
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
 import { useSettingsProjectsFilter } from "@/composables/use-settings-projects";
 import type { Transcript } from "@/pages/transcripts/[id].vue";
+
+import { austrianStates } from "../../../backend/src/lib/austrianPostalCodes.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -24,6 +33,7 @@ const activeAgeGroup = ref<string | null>(null);
 const activeGender = ref<string | null>(null);
 const activeSetting = ref<number | null>(null);
 const activeLocation = ref<number | null>(null);
+const activeState = ref<number | null>(null);
 
 const activeFilterCount = computed(() => {
 	return [
@@ -31,9 +41,11 @@ const activeFilterCount = computed(() => {
 		activeSetting.value,
 		activeAgeGroup.value,
 		activeLocation.value,
+		activeState.value,
 		activeGender.value,
 		standardCompetenceEnabled.value,
 		dialectCompetenceEnabled.value,
+		bkmsEnabled.value,
 	].filter(Boolean).length;
 });
 
@@ -76,6 +88,7 @@ const ageGroupOptions = ref<Array<{ label: string; value: string }>>([
 const genderOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Männlich", value: "männlich" },
 	{ label: "Weiblich", value: "weiblich" },
+	{ label: "Divers", value: "divers" },
 ]);
 
 const locationOptions = computed<Array<{ label: string; value: number }>>(() => {
@@ -87,6 +100,15 @@ const locationOptions = computed<Array<{ label: string; value: number }>>(() => 
 			value: place.id,
 		}));
 });
+
+const stateOptions = computed<Array<{ label: string; value: number }>>(() => {
+	return austrianStates.map((state) => ({
+		label: state.name,
+		value: state.id,
+	}));
+});
+
+const bkmsEnabled = ref(false);
 
 const dialectCompetenceEnabled = ref(false);
 const dialectCompetenceValue = ref<number[] | null>(null);
@@ -130,6 +152,14 @@ onMounted(async () => {
 		dialectCompetenceEnabled.value = true;
 		await nextTick();
 		dialectCompetenceValue.value = [Number(query.dialect_competence)];
+	}
+
+	if (query.has_bkms !== undefined) {
+		bkmsEnabled.value = query.has_bkms === "true";
+	}
+
+	if (query.state) {
+		activeState.value = Number(query.state);
 	}
 });
 
@@ -218,9 +248,11 @@ watch(
 		activeSetting,
 		activeAgeGroup,
 		activeLocation,
+		activeState,
 		activeGender,
 		dialectCompetenceValue,
 		standardCompetenceValue,
+		bkmsEnabled,
 	],
 	() => {
 		router.replace({
@@ -233,6 +265,8 @@ watch(
 
 				locations: activeLocation.value ? [activeLocation.value] : undefined,
 
+				state: activeState.value ? activeState.value : undefined,
+
 				gender: activeGender.value || undefined,
 
 				dialect_competence:
@@ -244,6 +278,8 @@ watch(
 					standardCompetenceValue.value?.[0] != null
 						? String(standardCompetenceValue.value[0])
 						: undefined,
+
+				has_bkms: bkmsEnabled.value === true ? "true" : undefined,
 
 				age_lower: ageRange.value?.lower,
 				age_upper: ageRange.value?.upper,
@@ -347,21 +383,7 @@ watch(
 							/></Button>
 						</div>
 					</div>
-					<div class="text-lg mb-1">Sprecher:innen</div>
-					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="age">Altersklasse</Label>
-						<div class="flex gap-2">
-							<BaseSelect
-								id="age"
-								v-model="activeAgeGroup"
-								:options="ageGroupOptions"
-								placeholder="Altersklasse wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeAgeGroup = null"
-								><Undo2 class="size-4"
-							/></Button>
-						</div>
-					</div>
+					<div class="text-lg mb-1">Raum</div>
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="location">Ort</Label>
 						<div class="flex gap-2">
@@ -376,6 +398,53 @@ watch(
 							/></Button>
 						</div>
 					</div>
+					<div class="grid w-full gap-1.5">
+						<Label class="tracking-wide pl-1" for="location">Bundesland</Label>
+						<div class="flex gap-2">
+							<BaseSelect
+								id="location"
+								v-model="activeState"
+								:options="stateOptions"
+								placeholder="Bundesland wählen..."
+							></BaseSelect>
+							<Button size="icon" variant="outline" @click="activeState = null"
+								><Undo2 class="size-4"
+							/></Button>
+						</div>
+					</div>
+					<div class="grid w-full gap-1.5 border-b"></div>
+					<div class="text-lg mb-1">Sprecher:innen</div>
+					<div class="grid w-full gap-1.5">
+						<Label class="tracking-wide pl-1" for="age">Altersgruppe</Label>
+						<div class="flex gap-2">
+							<BaseSelect
+								id="age"
+								v-model="activeAgeGroup"
+								:options="ageGroupOptions"
+								placeholder="Altersklasse wählen..."
+							></BaseSelect>
+							<Button size="icon" variant="outline" @click="activeAgeGroup = null"
+								><Undo2 class="size-4"
+							/></Button>
+						</div>
+					</div>
+					<div class="grid w-full gap-1.5">
+						<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>
+						<div class="flex gap-2">
+							<BaseSelect
+								id="gender"
+								v-model="activeGender"
+								:options="genderOptions"
+								placeholder="Geschlecht wählen..."
+							></BaseSelect>
+							<Button size="icon" variant="outline" @click="activeGender = null"
+								><Undo2 class="size-4"
+							/></Button>
+						</div>
+					</div>
+					<div class="grid w-full gap-1.5 border-b"></div>
+					<div class="text-lg mb-1">Sprachrepertoires</div>
+
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
 							<span class="flex-row flex gap-1">
@@ -384,7 +453,20 @@ watch(
 									id="competence-enabled"
 									v-model="standardCompetenceEnabled"
 								/>
-								<Label class="tracking-wide pl-1" for="nos">Standardsprachkompetenz</Label>
+								<Label class="tracking-wide pl-1" for="nos">Standardsprachkompetenz </Label>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger as-child>
+											<CircleQuestionMarkIcon
+												:size="16"
+												class="text-gray-400 hover:text-gray-500"
+											/>
+										</TooltipTrigger>
+										<TooltipContent>
+											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
 							</span>
 							<span
 								v-if="standardCompetenceEnabled && standardCompetenceValue"
@@ -412,10 +494,23 @@ watch(
 							<span class="flex-row flex gap-1">
 								<Checkbox
 									type="checkbox"
-									id="competence-enabled"
+									id="dialect-competence-enabled"
 									v-model="dialectCompetenceEnabled"
 								/>
 								<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz</Label>
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger as-child>
+											<CircleQuestionMarkIcon
+												:size="16"
+												class="text-gray-400 hover:text-gray-500"
+											/>
+										</TooltipTrigger>
+										<TooltipContent>
+											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)</TooltipContent
+										>
+									</Tooltip>
+								</TooltipProvider>
 							</span>
 							<span
 								v-if="dialectCompetenceEnabled && dialectCompetenceValue"
@@ -424,6 +519,7 @@ watch(
 								{{ dialectCompetenceValue[0] }}
 							</span>
 						</div>
+
 						<div class="grid w-full">
 							<div class="flex items-center gap-2"></div>
 
@@ -438,18 +534,12 @@ watch(
 							</Collapsible>
 						</div>
 					</div>
-					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>
-						<div class="flex gap-2">
-							<BaseSelect
-								id="gender"
-								v-model="activeGender"
-								:options="genderOptions"
-								placeholder="Geschlecht wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeGender = null"
-								><Undo2 class="size-4"
-							/></Button>
+					<div class="grid my-2">
+						<div class="flex w-full justify-between">
+							<span class="flex-row flex gap-1">
+								<Checkbox type="checkbox" id="bkms-enabled" v-model="bkmsEnabled" />
+								<Label class="tracking-wide pl-1" for="nos">BKMS</Label>
+							</span>
 						</div>
 					</div>
 				</div>

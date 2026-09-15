@@ -2,6 +2,8 @@ import { promises as fs } from "node:fs";
 import { join } from "node:path";
 
 import { vValidator } from "@hono/valibot-validator";
+import { XMLParser } from "fast-xml-parser";
+import { SyntaxValidator } from "fast-xml-validator";
 import { Hono } from "hono";
 import {
 	array,
@@ -20,14 +22,21 @@ import { DATA_DIR } from "@/config/config.ts";
 import {
 	getAllLocationsByProject,
 	getAllTranscripts,
+	getCorpusSearchMetadata,
 	getFilterInformation,
 	transcriptDetailView,
 } from "@/db/corpusRepository.ts";
+import {
+	type AustrianStateId,
+	austrianStatePostalCodeRanges,
+	austrianStates,
+} from "@/lib/austrianPostalCodes.ts";
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
 import { streamFile, validateTranscriptId } from "@/lib/fileStreamHelper.ts";
 import { searchRequest } from "@/search/index.ts";
+import { type NoSketchError, requestTranscriptMatches } from "@/search/transcriptMatches.ts";
 import { resolveAudioFileForInstanceId } from "@/service/audioService.ts";
 import type { TranscriptToken } from "@/types/apiTypes.ts";
 import type { paths } from "@/types/noske.d.ts";
@@ -77,6 +86,13 @@ const SearchQuerySchema = object({
 	),
 
 	locations: optional(array(string())),
+	state: optional(
+		pipe(
+			string(),
+			regex(/^[1-9]$/),
+			transform((value) => Number(value) as AustrianStateId),
+		),
+	),
 
 	first_languages: optional(array(string())),
 
@@ -105,10 +121,26 @@ const SearchQuerySchema = object({
 	),
 
 	gender: optional(string()),
+
+	has_bkms: optional(
+		pipe(
+			union([literal("true"), literal("false")]),
+			transform((val) => val === "true"),
+		),
+	),
 });
 
 type RunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
+type KwicLine = NonNullable<RunCgiResponse["Lines"]>[number];
+type Transcript = Awaited<ReturnType<typeof getAllTranscripts>>[number];
+type XmlHit = { refs: string; content: string };
+
+const DIOE_PROJECT_ID = 2;
+
+function omitNullQueryValues(values: Array<string> | undefined): Array<string> | undefined {
+	return values?.filter((value) => value !== "null");
+}
 
 function parseIdArray(values: Array<string> | undefined): Array<number> | null {
 	if (!values?.length) {
@@ -129,6 +161,302 @@ function parseIdArray(values: Array<string> | undefined): Array<number> | null {
 	}
 
 	return ids;
+}
+
+function parseDownloadFilename(contentDisposition: string | null): string {
+	if (!contentDisposition) {
+		return "concordance.xml";
+	}
+
+	const encodedMatch = /filename\*=UTF-8''([^;]+)/i.exec(contentDisposition);
+	const filenameMatch = /filename="?([^";]+)"?/i.exec(contentDisposition);
+	let filename = encodedMatch?.[1] ?? filenameMatch?.[1];
+
+	if (!filename) {
+		return "concordance.xml";
+	}
+
+	try {
+		filename = decodeURIComponent(filename);
+	} catch {
+		// Keep the upstream filename when it is not valid percent-encoded text.
+	}
+
+	return filename.split(/[\\/]/).pop() || "concordance.xml";
+}
+
+function ensureTranscriptReference(refs: string): string {
+	if (!refs) {
+		return refs;
+	}
+
+	const references = refs
+		.split(",")
+		.map((reference) => reference.trim())
+		.filter(Boolean);
+	if (references.some((reference) => reference.replace(/^=/, "") === "doc.id")) {
+		return refs;
+	}
+
+	return ["doc.id", ...references].join(",");
+}
+
+function getTranscriptIdFromReferences(references: Array<string>): number | null {
+	for (const reference of references) {
+		const match = /(?:^|\W)transcript_(\d+)(?:\W|$)/i.exec(reference);
+		if (!match?.[1]) {
+			continue;
+		}
+
+		const transcriptId = Number(match[1]);
+		if (Number.isSafeInteger(transcriptId)) {
+			return transcriptId;
+		}
+	}
+
+	return null;
+}
+
+function getTranscriptId(line: KwicLine): number | null {
+	return getTranscriptIdFromReferences([...(line.Refs ?? []), ...(line.Tbl_refs ?? [])]);
+}
+
+function parseXmlHits(content: string): Array<XmlHit> {
+	try {
+		if (SyntaxValidator.validate(content) !== true) {
+			throw new Error("Invalid NoSketch XML");
+		}
+	} catch {
+		throw new Error("Invalid NoSketch XML");
+	}
+
+	const parser = new XMLParser({
+		captureMetaData: true,
+		ignoreAttributes: false,
+		maxNestedTags: 100,
+		parseAttributeValue: false,
+		parseTagValue: false,
+		processEntities: false,
+		trimValues: false,
+	});
+	const parsed = parser.parse(content) as {
+		export?: { concordance?: { line?: unknown | Array<unknown> } };
+	};
+	const lines = parsed.export?.concordance?.line;
+	if (lines === undefined) {
+		return [];
+	}
+
+	const metadataKey = XMLParser.getMetaDataSymbol() as symbol;
+	const hits: Array<XmlHit> = [];
+	for (const value of Array.isArray(lines) ? lines : [lines]) {
+		if (typeof value !== "object" || value === null) {
+			continue;
+		}
+
+		const line = value as Record<PropertyKey, unknown>;
+		const refs = line["@_refs"];
+		const metadata = Reflect.get(line, metadataKey);
+		if (
+			typeof refs !== "string" ||
+			typeof metadata !== "object" ||
+			metadata === null ||
+			!("startIndex" in metadata) ||
+			!("endIndex" in metadata) ||
+			typeof metadata.startIndex !== "number" ||
+			typeof metadata.endIndex !== "number"
+		) {
+			continue;
+		}
+
+		hits.push({
+			refs,
+			content: content.slice(metadata.startIndex, metadata.endIndex),
+		});
+	}
+
+	return hits;
+}
+
+function groupMatchesByTranscript(
+	transcripts: Array<Transcript>,
+	kwic: RunCgiResponse | null,
+	xmlHits: Array<XmlHit>,
+	frequencies: Map<number, number> | null,
+): Record<
+	string,
+	{
+		transcript: Transcript | null;
+		hitCount: number | null;
+		lines: Array<KwicLine>;
+		xmlHits: Array<XmlHit>;
+	}
+> {
+	const transcriptById = new Map(
+		transcripts.map((transcript) => [transcript.instance_id, transcript]),
+	);
+	const matches: Record<
+		string,
+		{
+			transcript: Transcript | null;
+			hitCount: number | null;
+			lines: Array<KwicLine>;
+			xmlHits: Array<XmlHit>;
+		}
+	> = {};
+	const getOrCreateMatch = (transcriptId: number) => {
+		const key = String(transcriptId);
+		const match = matches[key] ?? {
+			transcript: transcriptById.get(transcriptId) ?? null,
+			hitCount: frequencies?.get(transcriptId) ?? null,
+			lines: [],
+			xmlHits: [],
+		};
+		matches[key] = match;
+		return match;
+	};
+
+	for (const id of frequencies?.keys() ?? []) {
+		getOrCreateMatch(id);
+	}
+
+	for (const line of kwic?.Lines ?? []) {
+		const transcriptId = getTranscriptId(line);
+		if (transcriptId === null) {
+			continue;
+		}
+
+		getOrCreateMatch(transcriptId).lines.push(line);
+	}
+
+	for (const hit of xmlHits) {
+		const transcriptId = getTranscriptIdFromReferences([hit.refs]);
+		if (transcriptId === null) {
+			continue;
+		}
+
+		getOrCreateMatch(transcriptId).xmlHits.push(hit);
+	}
+
+	return matches;
+}
+
+async function requestKwic(
+	cql: string,
+	fromp: string,
+	refs: string,
+	pagesize: string,
+): Promise<{ data: RunCgiResponse | null; error: NoSketchError | null }> {
+	try {
+		const response = await searchRequest(cql, fromp, "concordance", refs, pagesize, "json", "POST");
+		if (!response.ok) {
+			return {
+				data: null,
+				error: {
+					status: response.status,
+					message: response.statusText || "NoSketch Engine request failed",
+				},
+			};
+		}
+
+		try {
+			const data = (await response.json()) as RunCgiResponse & { error?: string };
+			if (
+				!data ||
+				typeof data !== "object" ||
+				Array.isArray(data) ||
+				data.error ||
+				(data.Lines !== undefined &&
+					(!Array.isArray(data.Lines) ||
+						data.Lines.some(
+							(line) =>
+								!line ||
+								typeof line !== "object" ||
+								[line.Refs, line.Tbl_refs].some(
+									(refs) =>
+										refs !== undefined &&
+										(!Array.isArray(refs) || refs.some((ref) => typeof ref !== "string")),
+								),
+						)))
+			) {
+				throw new Error(data?.error || "Invalid NoSketch JSON response");
+			}
+			return { data, error: null };
+		} catch (error) {
+			return {
+				data: null,
+				error: {
+					status: null,
+					message: error instanceof Error ? error.message : "Invalid JSON response",
+				},
+			};
+		}
+	} catch (error) {
+		return {
+			data: null,
+			error: {
+				status: null,
+				message: error instanceof Error ? error.message : "NoSketch Engine request failed",
+			},
+		};
+	}
+}
+
+async function requestXml(
+	cql: string,
+	fromp: string,
+	refs: string,
+	pagesize: string,
+): Promise<{
+	data: { content: string; contentType: "application/xml"; filename: string } | null;
+	error: NoSketchError | null;
+	hits: Array<XmlHit>;
+}> {
+	try {
+		const response = await searchRequest(cql, fromp, "concordance", refs, pagesize, "xml", "POST");
+		if (!response.ok) {
+			return {
+				data: null,
+				error: {
+					status: response.status,
+					message: response.statusText || "NoSketch Engine request failed",
+				},
+				hits: [],
+			};
+		}
+
+		try {
+			const content = await response.text();
+			const hits = parseXmlHits(content);
+			return {
+				data: {
+					content,
+					contentType: "application/xml",
+					filename: parseDownloadFilename(response.headers.get("content-disposition")),
+				},
+				error: null,
+				hits,
+			};
+		} catch (error) {
+			return {
+				data: null,
+				error: {
+					status: null,
+					message: error instanceof Error ? error.message : "Invalid XML response",
+				},
+				hits: [],
+			};
+		}
+	} catch (error) {
+		return {
+			data: null,
+			error: {
+				status: null,
+				message: error instanceof Error ? error.message : "NoSketch Engine request failed",
+			},
+			hits: [],
+		};
+	}
 }
 
 const corpus = new Hono<AppEnv>()
@@ -216,6 +544,278 @@ const corpus = new Hono<AppEnv>()
 			const data = (await response.json()) as RunCgiResponse;
 
 			return c.json(data, 200);
+		} catch (error) {
+			console.error(error);
+			return c.json({ error: "Internal Server Error" }, 500);
+		}
+	})
+	.get("/search/:id", async (c) => {
+		const id = c.req.param("id");
+		if (!/^\d+$/.test(id) || !Number.isSafeInteger(Number(id))) {
+			return c.json({ error: "Invalid project id" }, 400);
+		}
+		const projectId = Number(id);
+		const rawQuery = c.req.query();
+		const projectValues = omitNullQueryValues(c.req.queries("projects"));
+		const settingValues = omitNullQueryValues(c.req.queries("settings"));
+		const locationValues = omitNullQueryValues(c.req.queries("locations"));
+		const transcriptIdValues = omitNullQueryValues(c.req.queries("transcript_ids"));
+		const result = safeParse(SearchQuerySchema, {
+			...rawQuery,
+			transcripts: transcriptIdValues,
+			projects: undefined,
+			settings: undefined,
+			locations: undefined,
+			first_languages: c.req.queries("first_languages"),
+			mode: rawQuery.mode ?? "simple",
+		});
+
+		if (!result.success) {
+			return c.json(
+				{
+					error: "Validation failed",
+					details: result.issues.map((issue) => issue.message),
+				},
+				400,
+			);
+		}
+
+		const projects = parseIdArray(projectValues);
+		const settings = parseIdArray(settingValues);
+		const locations = parseIdArray(locationValues);
+		const transcriptIds = parseIdArray(transcriptIdValues);
+		if (projects === null || settings === null || locations === null || transcriptIds === null) {
+			return c.json({ error: "Invalid numeric filter id" }, 400);
+		}
+
+		if (rawQuery.gender && rawQuery.gender !== "männlich" && rawQuery.gender !== "weiblich") {
+			return c.json({ error: "Invalid gender parameter" }, 400);
+		}
+
+		let instanceId: number | undefined;
+		if (rawQuery.instance_id !== undefined) {
+			if (!/^\d+$/.test(rawQuery.instance_id)) {
+				return c.json({ error: "Invalid instance_id parameter" }, 400);
+			}
+			instanceId = Number(rawQuery.instance_id);
+			if (!Number.isSafeInteger(instanceId)) {
+				return c.json({ error: "Invalid instance_id parameter" }, 400);
+			}
+		}
+
+		const projectIds = [...new Set([projectId, ...projects])];
+		let metadata: Awaited<ReturnType<typeof getCorpusSearchMetadata>>;
+		try {
+			metadata = await getCorpusSearchMetadata(projectIds, settings, locations);
+		} catch (error) {
+			console.error(error);
+			return c.json({ error: "Internal Server Error" }, 500);
+		}
+
+		const projectById = new Map(metadata.projects.map((project) => [project.id, project]));
+		const routeProject = projectById.get(projectId);
+		if (
+			!routeProject ||
+			(projectId !== DIOE_PROJECT_ID && routeProject.main_project_id !== DIOE_PROJECT_ID)
+		) {
+			return c.json({ error: "Project is not part of the DiÖ hierarchy" }, 400);
+		}
+
+		for (const selectedId of projects) {
+			const selectedProject = projectById.get(selectedId);
+			if (
+				!selectedProject ||
+				(selectedId !== DIOE_PROJECT_ID && selectedProject.main_project_id !== DIOE_PROJECT_ID)
+			) {
+				return c.json({ error: `Unknown or invalid project id: ${String(selectedId)}` }, 400);
+			}
+			if (projectId !== DIOE_PROJECT_ID && selectedId !== projectId) {
+				return c.json({ error: "Selected project is outside the route project scope" }, 400);
+			}
+		}
+
+		const settingById = new Map(metadata.settings.map((setting) => [setting.id, setting]));
+		const locationById = new Map(metadata.locations.map((location) => [location.id, location]));
+		for (const settingId of settings) {
+			if (!settingById.get(settingId)?.survey_type_name) {
+				return c.json({ error: `Unknown setting id: ${String(settingId)}` }, 400);
+			}
+		}
+		for (const locationId of locations) {
+			if (!locationById.get(locationId)?.place_name) {
+				return c.json({ error: `Unknown location id: ${String(locationId)}` }, 400);
+			}
+		}
+
+		const databaseFilters: NonNullable<Parameters<typeof getAllTranscripts>[1]> = {};
+		if (result.output.age_lower !== undefined) {
+			databaseFilters.age_lower = result.output.age_lower;
+		}
+		if (result.output.age_upper !== undefined) {
+			databaseFilters.age_upper = result.output.age_upper;
+		}
+		if (locations.length) {
+			databaseFilters.locations = locations;
+		}
+		if (result.output.state !== undefined) {
+			databaseFilters.postal_code_ranges = austrianStatePostalCodeRanges[result.output.state];
+		}
+		if (result.output.dialect_competence !== undefined) {
+			databaseFilters.dialect_competence = result.output.dialect_competence;
+		}
+		if (result.output.standard_competence !== undefined) {
+			databaseFilters.standard_competence = result.output.standard_competence;
+		}
+		if (rawQuery.gender) {
+			databaseFilters.gender = rawQuery.gender;
+		}
+
+		if (result.output.has_bkms !== undefined) {
+			databaseFilters.has_bkms = result.output.has_bkms;
+		}
+		if (rawQuery.comment_search) {
+			databaseFilters.comment_search = rawQuery.comment_search;
+			databaseFilters.comment_search_mode =
+				rawQuery.comment_search_mode === "regex" ? "regex" : "simple";
+		}
+		if (rawQuery.transcript_name) {
+			databaseFilters.transcript_name = rawQuery.transcript_name;
+		}
+		if (instanceId !== undefined) {
+			databaseFilters.instance_id = instanceId;
+		}
+		if (settings.length) {
+			databaseFilters.settings = settings;
+		}
+		if (projects.length && !projects.includes(DIOE_PROJECT_ID)) {
+			databaseFilters.projects = projects;
+		}
+		if (result.output.transcripts?.length) {
+			databaseFilters.transcripts = result.output.transcripts;
+		}
+
+		const wordInput = result.output.word ?? result.output.query;
+		const hasLexicalCriterion = Boolean(
+			wordInput || result.output.lemma || result.output.pos || result.output.feats,
+		);
+
+		if (!hasLexicalCriterion) {
+			try {
+				const transcripts = await getAllTranscripts(projectId, databaseFilters);
+				return c.json(
+					{
+						transcripts,
+						kwic: null,
+						matchesByTranscript: {},
+						xml: null,
+						transcriptMatchesComplete: true,
+						errors: { kwic: null, xml: null, transcriptMatches: null },
+					},
+					200,
+				);
+			} catch (error) {
+				console.error(error);
+				return c.json({ error: "Internal Server Error" }, 500);
+			}
+		}
+
+		let projectNames: Array<string> = [];
+		if (projectId !== DIOE_PROJECT_ID) {
+			if (!routeProject.project_name || !/^PP\d{2}$/.test(routeProject.project_name)) {
+				return c.json({ error: "Child project has no valid project name" }, 400);
+			}
+			projectNames = [routeProject.project_name];
+		} else if (projects.length && !projects.includes(DIOE_PROJECT_ID)) {
+			projectNames = projects.map((selectedId) => projectById.get(selectedId)!.project_name!);
+			if (projectNames.some((name) => !/^PP\d{2}$/.test(name))) {
+				return c.json({ error: "Selected project has no valid project name" }, 400);
+			}
+		}
+		try {
+			const databaseFirst = Object.keys(databaseFilters).length > 0 || projects.length > 0;
+			const candidates = databaseFirst ? await getAllTranscripts(projectId, databaseFilters) : null;
+			const candidateIds = candidates
+				?.map((transcript) => transcript.instance_id)
+				.filter(
+					(id): id is number =>
+						id !== null && (!transcriptIds.length || transcriptIds.includes(id)),
+				);
+			if (candidateIds?.length === 0) {
+				return c.json({
+					transcripts: [],
+					kwic: null,
+					xml: null,
+					matchesByTranscript: {},
+					transcriptMatchesComplete: true,
+					errors: { kwic: null, xml: null, transcriptMatches: null },
+				});
+			}
+			const cql = buildCql(
+				{
+					word: wordInput,
+					lemma: result.output.lemma,
+					pos: result.output.pos,
+					feats: result.output.feats,
+					transcripts: candidateIds,
+					projects: projectNames,
+					settings: settings.map((settingId) => settingById.get(settingId)!.survey_type_name!),
+					age_lower: result.output.age_lower,
+					age_upper: result.output.age_upper,
+					locations: locations.map((locationId) => locationById.get(locationId)!.place_name!),
+					first_languages: result.output.first_languages,
+					dialect_competence: result.output.dialect_competence,
+					standard_competence: result.output.standard_competence,
+					gender:
+						rawQuery.gender === "männlich"
+							? "male"
+							: rawQuery.gender === "weiblich"
+								? "female"
+								: undefined,
+				},
+				result.output.mode,
+			);
+			const refs = ensureTranscriptReference(result.output.refs);
+			const [frequencyResult, kwicResult, xmlResult] = await Promise.all([
+				requestTranscriptMatches(cql),
+				requestKwic(cql, result.output.fromp, refs, result.output.pagesize),
+				requestXml(cql, result.output.fromp, refs, result.output.pagesize),
+			]);
+			// Failed frequency lookups resolve only IDs from the successful current-page sources.
+			const matchedIds = frequencyResult.data
+				? [...frequencyResult.data.keys()]
+				: Object.keys(groupMatchesByTranscript([], kwicResult.data, xmlResult.hits, null)).map(
+						Number,
+					);
+			const matchingIds = new Set(matchedIds);
+			const transcripts = candidates
+				? candidates.filter(
+						(transcript) =>
+							transcript.instance_id !== null &&
+							matchingIds.has(transcript.instance_id) &&
+							candidateIds!.includes(transcript.instance_id),
+					)
+				: await getAllTranscripts(projectId, { ...databaseFilters, transcripts: matchedIds });
+
+			return c.json(
+				{
+					transcripts,
+					kwic: kwicResult.data,
+					matchesByTranscript: groupMatchesByTranscript(
+						transcripts,
+						kwicResult.data,
+						xmlResult.hits,
+						frequencyResult.data,
+					),
+					xml: xmlResult.data,
+					transcriptMatchesComplete: frequencyResult.error === null,
+					errors: {
+						kwic: kwicResult.error,
+						xml: xmlResult.error,
+						transcriptMatches: frequencyResult.error,
+					},
+				},
+				200,
+			);
 		} catch (error) {
 			console.error(error);
 			return c.json({ error: "Internal Server Error" }, 500);
@@ -451,6 +1051,7 @@ const corpus = new Hono<AppEnv>()
 		const informationList = {
 			settings: settings,
 			projects: projects,
+			states: austrianStates,
 		};
 		return c.json(informationList, 200);
 	});

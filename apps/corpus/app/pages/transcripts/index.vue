@@ -4,13 +4,12 @@ import type { StringifyOptions } from "node:querystring";
 import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
-import { useSearchKwic } from "#imports";
 import initialData from "@/assets/data/transcripts-demo.json";
 import type {
 	APITranscript,
 	APITranscriptsWithBookmark,
 	KwicLine,
-	TranscriptFilters,
+	SearchParams,
 } from "@/types/api";
 
 definePageMeta({
@@ -25,20 +24,24 @@ const filterOpen = ref(false);
 const activeTab = ref<"plain" | "kwic" | "xml">("plain");
 const bookmarkedIds = ref<Array<string>>([]);
 
-const { response, isPending, refreshTranscripts } = useTranscripts(2);
-const { response: kwicResponse, search, status } = useSearchKwic();
+const { response: searchResponse, search, status, isPending } = useSearch(2);
 
 const transcripts = computed(() => {
-	return response.value;
+	if (route.query.gender === "divers") return null;
+	return searchResponse.value?.transcripts;
+});
+
+const transcriptMatches = computed(() => {
+	return searchResponse.value?.matchesByTranscript;
 });
 
 const kwic = computed(() => {
-	return kwicResponse.value;
+	return searchResponse.value?.kwic;
 });
 
 const limit = 50;
 const totalPages = computed(() => {
-	return kwic.value?.concsize ? Math.ceil(kwic.value.concsize / limit) : 0;
+	return kwic.value?.concsize ? Math.ceil(kwic.value?.concsize / limit) : 0;
 });
 const pages = computed(() => {
 	return Array.from({ length: totalPages.value }, (_, i) => i + 1);
@@ -93,23 +96,8 @@ const currentSelectionArray = computed(() => {
 			: [];
 });
 
-const handleSearch = (category: "instance_id" | "transcript_name", value: string) => {
-	if (!value.trim()) {
-		refreshTranscripts();
-		return;
-	}
-	if (category === "transcript_name") {
-		refreshTranscripts({ transcript_name: value.trim() });
-	}
-	if (category === "instance_id") {
-		refreshTranscripts({ instance_id: Number(value.trim()) });
-	}
-};
 function handleSelection(id: string) {
-	const current = currentSelectionArray.value;
-	if (current.includes(id)) return;
-
-	router.push({ query: { ...route.query, selection: [...current, id] } });
+	router.push({ query: { ...route.query, selection: id } });
 }
 
 function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
@@ -155,17 +143,29 @@ watch(
 	async (q) => {
 		const category = q.category as string;
 
-		const filters: TranscriptFilters = {
-			locations: asArray(q.locations),
-			gender: q.gender ? asArray(q.gender) : undefined,
-			dialect_competence: q.dialect_competence ? [Number(q.dialect_competence)] : undefined,
-			standard_competence: q.standard_competence ? [Number(q.standard_competence)] : undefined,
-			age_lower: q.age_lower ? [Number(q.age_lower)] : undefined,
-			age_upper: q.age_upper ? [Number(q.age_upper)] : undefined,
-			projects: q.projects ? q.projects : undefined,
-			settings: q.settings ? q.settings : undefined,
-			transcript_name: category != null && category === "transcript_name" ? q.search : undefined,
-			instance_id: category != null && category === "instance_id" ? Number(q.search) : undefined,
+		const filters: SearchParams = {
+			word: q.word as string,
+			query: q.query as string,
+			lemma: q.lemma as string,
+			pos: q.pos as string,
+			mode: (q.mode as "simple" | "regex") ?? "simple",
+			feats: q.feats as string,
+			fromp: (q.fromp as string) ?? "1",
+			pagesize: String(limit),
+			locations: [Number(q.locations)],
+			state: q.state ? Number(q.state) : undefined,
+			gender: q.gender ? (q.gender as string) : undefined,
+			dialect_competence: q.dialect_competence ? Number(q.dialect_competence) : undefined,
+			standard_competence: q.standard_competence ? Number(q.standard_competence) : undefined,
+			age_lower: q.age_lower ? Number(q.age_lower) : undefined,
+			age_upper: q.age_upper ? Number(q.age_upper) : undefined,
+			projects: q.projects ? [Number(q.projects)] : undefined,
+			settings: q.settings ? [Number(q.settings)] : undefined,
+			transcript_name:
+				category != null && category === "transcript_name" ? (q.search as string) : undefined,
+			transcript_ids:
+				category != null && category === "instance_id" ? [Number(q.search)] : undefined,
+			has_bkms: q.has_bkms === "true",
 		};
 		const hasSearchFilters = Object.values(filters).some((value) => {
 			if (value === undefined || value === null) {
@@ -177,48 +177,9 @@ watch(
 			return true;
 		});
 
-		await refreshTranscripts(hasSearchFilters ? filters : undefined);
-
-		const word = q.word ? String(q.word).trim() : "";
-		const lemma = q.lemma ? String(q.lemma).trim() : "";
-		const feats = q.feats ? String(q.feats).trim() : "";
-		const cql = q.query ? String(q.query).trim() : "";
-
-		const canSearchKwic = word.length > 0 || lemma.length > 0 || feats.length > 0 || cql.length > 0;
-
-		if (!canSearchKwic) {
-			return;
+		if (hasSearchFilters) {
+			await search(filters);
 		}
-
-		await search({
-			word: q.word as string,
-			query: q.query as string,
-			lemma: q.lemma as string,
-			pos: q.pos as string,
-
-			mode: (q.mode as "simple" | "regex") ?? "simple",
-
-			feats: q.feats as string,
-
-			fromp: (q.fromp as string) ?? "1",
-			pagesize: String(limit),
-
-			projects: asArray(q.projects),
-
-			settings: asArray(q.settings),
-
-			locations: asArray(q.locations),
-
-			gender: q.gender as string,
-
-			dialect_competence: q.dialect_competence ? Number(q.dialect_competence) : undefined,
-
-			standard_competence: q.standard_competence ? Number(q.standard_competence) : undefined,
-
-			age_lower: q.age_lower ? Number(q.age_lower) : undefined,
-
-			age_upper: q.age_upper ? Number(q.age_upper) : undefined,
-		});
 	},
 	{
 		immediate: true,
@@ -231,15 +192,23 @@ function asArray(v: unknown): string[] | undefined {
 	return Array.isArray(v) ? v.map(String) : [String(v)];
 }
 
-function copyKwicLine(line: KwicLine) {
-	const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";
-	const kwic = line.Kwic?.map((t: any) => t.str).join(" ") ?? "";
-	const right = line.Right?.map((t: any) => t.str).join(" ") ?? "";
+function copyKwicLine(line: KwicLine | string, category: string) {
+	let text = "";
+	let output = "";
+	if (category === "kwic" && typeof line !== "string") {
+		const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";
+		const kwic = line.Kwic?.map((t: any) => t.str).join(" ") ?? "";
+		const right = line.Right?.map((t: any) => t.str).join(" ") ?? "";
 
-	const text = `${left} ${kwic} ${right}`.replace(/\s+/g, " ").trim();
+		text = `${left} ${kwic} ${right}`.replace(/\s+/g, " ").trim();
+		output = "Zeile";
+	} else if (category === "xml" && typeof line === "string") {
+		text = line;
+		output = "XML";
+	} else return;
 
 	navigator.clipboard.writeText(text).then(() => {
-		toast.success("Zeile wurde in die Zwischenablage kopiert!");
+		toast.success(`${output} wurde in die Zwischenablage kopiert!`);
 	});
 }
 </script>
@@ -280,7 +249,9 @@ function copyKwicLine(line: KwicLine) {
 			</div>
 
 			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
-				<div class="flex relative items-center mb-4 pb-4 border-b gap-4">
+				<div
+					class="flex pb-5 items-center mb-4 border-b gap-4 overflow-x-auto overflow-y-hidden flex-shrink-0"
+				>
 					<SearchBar search-type="default" />
 					<Separator orientation="vertical" />
 					<Sheet v-model:open="filterOpen">
@@ -313,33 +284,48 @@ function copyKwicLine(line: KwicLine) {
 				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" v-model="activeTab">
 					<div class="flex gap-4 items-center flex-shrink-0">
 						<TabsList class="w-full">
-							<TabsTrigger value="plain"> Plain </TabsTrigger>
-							<TabsTrigger value="kwic"> KWIC </TabsTrigger>
-							<TabsTrigger value="xml"> XML </TabsTrigger>
+							<TabsTrigger value="plain">
+								<div class="flex flex-row gap-1 items-center">
+									<span>Plain</span>
+									<span class="text-xs text-gray-500"
+										>({{ transcripts?.length ? transcripts?.length : 0 }})
+									</span>
+								</div>
+							</TabsTrigger>
+							<TabsTrigger value="kwic">
+								<div class="flex flex-row gap-1 items-center">
+									<span>KWIC</span>
+									<span class="text-xs text-gray-500"
+										>({{ kwic?.concsize ? kwic?.concsize : 0 }})
+									</span>
+								</div>
+							</TabsTrigger>
 						</TabsList>
 						<Button class="shrink-0" size="icon" variant="ghost"
 							><Download class="size-4"
 						/></Button>
 					</div>
-					<TabsContent class="flex-grow overflow-y-auto h-full" value="plain">
-						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						<div v-if="isPending" class="item-center m-auto h-full">
+					<TabsContent class="flex flex-grow overflow-y-auto h-full min-h-0" value="plain">
+						<div v-if="isPending" class="justify-center flex m-auto">
 							<Spinner />
 						</div>
-						<div v-if="!isPending && transcripts != null && transcripts.length > 0">
-							<p class="text-lg mb-3 flex-shrink-0">
+						<div
+							v-else-if="!isPending && transcripts != null && transcripts.length > 0"
+							class="w-full"
+						>
+							<p class="text-lg mb-3 flex-shrink-0 mx-2">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
 							</p>
 							<div v-for="result in transcripts" :key="result.instance_id">
 								<div
-									class="px-4 py-2 mb-2 bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center"
+									class="mx-2 px-4 py-2 mb-2 rounded bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80"
 								>
 									<Button
 										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
 										hover:no-underline
 										variant="transparent"
-										@click="handleSelection(String(result.instance_id), result.transcript_name)"
+										@click="handleSelection(String(result.instance_id))"
 									>
 										<span class="sr-only"> Open Sidebar Demo </span>
 										{{ result.transcript_name }}
@@ -356,7 +342,7 @@ function copyKwicLine(line: KwicLine) {
 								</div>
 							</div>
 						</div>
-						<div v-else class="text-md text-muted-foreground justify-center flex m-auto h-full">
+						<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
 							Keine Ergebnisse vorhanden.
 						</div>
 					</TabsContent>
@@ -368,7 +354,7 @@ function copyKwicLine(line: KwicLine) {
 						<div v-else-if="kwic?.Lines?.length" class="flex flex-col flex-grow min-h-0 gap-2">
 							<p class="text-lg flex-shrink-0">
 								Ergebnisse
-								<span class="text-sm text-muted-foreground">({{ kwic.concsize }})</span>
+								<span class="text-sm text-muted-foreground">({{ kwic?.concsize }})</span>
 							</p>
 							<div
 								class="py-2 text-sm grid grid-cols-[auto_1fr] gap-3 items-center text-muted-foreground"
@@ -382,54 +368,71 @@ function copyKwicLine(line: KwicLine) {
 							</div>
 							<div class="flex-1 min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
 								<div
-									v-for="line in kwic.Lines"
-									:key="line.toknum"
-									class="grid grid-cols-[auto_1fr_auto] gap-2 items-center"
+									v-for="obj in transcriptMatches"
+									:key="obj!.transcript!.instance_id"
+									class="flex flex-col"
 								>
-									<span class="text-xs text-muted-foreground">{{ line.toknum }}</span>
-									<button
-										class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
-										@click="
-											line.Tbl_refs ? handleSelection(line.Tbl_refs[0]?.slice(18, 25) ?? '') : ''
-										"
+									<div
+										v-for="(line, index) in obj.lines"
+										:key="line.toknum"
+										class="grid grid-cols-[auto_1fr_auto] gap-2 items-center"
 									>
-										<span class="sr-only">
-											Detailview Preview zu Transkript
-											{{ line.Tbl_refs ? line.Tbl_refs[0]?.slice(18, 25) : "existiert nicht" }}
-										</span>
-
-										<div
-											class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+										<span class="text-xs text-muted-foreground">{{ line.toknum }}</span>
+										<button
+											class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
+											@click="
+												line.Tbl_refs ? handleSelection(line.Tbl_refs[0]?.slice(18, 25) ?? '') : ''
+											"
 										>
-											<div
-												class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
-											>
-												<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
-											</div>
-
-											<span
-												class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
-											>
-												{{ line.Kwic ? line.Kwic[0]?.str : "" }}
+											<span class="sr-only">
+												Detailview Preview zu Transkript
+												{{ line.Tbl_refs ? line.Tbl_refs[0]?.slice(18, 25) : "existiert nicht" }}
 											</span>
 
 											<div
-												class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
+												class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
 											>
-												<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
+												<div
+													class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+												>
+													<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
+												</div>
+
+												<span
+													class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
+												>
+													{{ line.Kwic ? line.Kwic[0]?.str : "" }}
+												</span>
+
+												<div
+													class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
+												>
+													<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
+												</div>
 											</div>
-										</div>
-									</button>
-									<Button variant="ghost" @click="copyKwicLine(line)">
-										<CopyIcon :size="16" />
-									</Button>
+										</button>
+										<DropdownMenu>
+											<DropdownMenuTrigger>
+												<Button variant="ghost"> <CopyIcon :size="16" /></Button
+											></DropdownMenuTrigger>
+											<DropdownMenuContent>
+												<DropdownMenuItem @click="copyKwicLine(line, 'kwic')"
+													>Plain Text</DropdownMenuItem
+												>
+												<DropdownMenuItem
+													@click="copyKwicLine(obj?.xmlHits[index]?.content ?? '', 'xml')"
+													>XML</DropdownMenuItem
+												>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
 								</div>
 							</div>
 							<div class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4">
 								<Pagination
 									v-model:page="currentPage"
 									:items-per-page="limit"
-									:total="kwic.concsize"
+									:total="kwic?.concsize"
 									:sibling-count="1"
 									:show-edges="true"
 									class="flex items-center gap-1"
@@ -456,13 +459,9 @@ function copyKwicLine(line: KwicLine) {
 								</Pagination>
 							</div>
 						</div>
-						<div v-else class="text-md text-muted-foreground justify-center flex my-auto">
-							Keine Ergebnisse vorhanden.
+						<div v-else class="justify-center flex my-auto">
+							<div class="text-md text-muted-foreground">Keine Ergebnisse vorhanden.</div>
 						</div>
-					</TabsContent>
-					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="xml">
-						<UtteranceViewOptions class="mb-3"></UtteranceViewOptions>
-						Sample content
 					</TabsContent>
 				</Tabs>
 			</div>

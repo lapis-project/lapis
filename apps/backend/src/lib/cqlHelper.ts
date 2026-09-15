@@ -38,6 +38,7 @@ interface CqlCriteria {
 	dialect_competence?: number;
 	standard_competence?: number;
 	gender?: string;
+	transcript_name?: string;
 }
 /*
  * When using the <doc> and <u> for the filters the within parameter needs to be chained in the following way
@@ -113,23 +114,20 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 	// -----------------------------------------------------------------
 	// age: Take the age range and pass it to the noske
 	// -----------------------------------------------------------------
-	if (criteria.age_lower) {
+	if (criteria.age_lower !== undefined) {
 		addCondition(parts_utterance, "age_lower", String(criteria.age_lower), false, " >= ");
 	}
 
-	if (criteria.age_upper) {
-		addCondition(parts_utterance, "age_lower", String(criteria.age_upper), false, " <= ");
+	if (criteria.age_upper !== undefined) {
+		addCondition(parts_utterance, "age_upper", String(criteria.age_upper), false, " <= ");
 	}
 
-	if (criteria.locations) {
-		for (const loc of criteria.locations) {
-			const escpaedLoc = escapeRegex(loc);
+	if (criteria.locations?.length) {
+		const locations = criteria.locations.map(escapeRegex);
+		const locationPattern =
+			locations.length === 1 ? `.*${locations[0] ?? ""}.*` : `.*(${locations.join("|")}).*`;
 
-			const pattern = `.*${escpaedLoc}.*`;
-
-			// Escape backslashes
-			addCondition(parts_utterance, "location", escapeCqlString(pattern));
-		}
+		addCondition(parts_utterance, "location", escapeCqlString(locationPattern));
 	}
 
 	if (criteria.first_languages) {
@@ -139,7 +137,7 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 		// addCondition(parts_utterance, "erhebungsart", escapeCqlString(languages))
 	}
 
-	if (criteria.dialect_competence) {
+	if (criteria.dialect_competence !== undefined) {
 		// Check if comptenence is below 0
 		// If yes pass unknown UNK to the search engine
 		if (criteria.dialect_competence < 0) {
@@ -149,7 +147,7 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 		}
 	}
 
-	if (criteria.standard_competence) {
+	if (criteria.standard_competence !== undefined) {
 		if (criteria.standard_competence < 0) {
 			addCondition(parts_utterance, "standard_competence", "UNK");
 		} else {
@@ -158,7 +156,17 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 	}
 
 	if (criteria.gender) {
+		if (criteria.gender === "männlich") {
+			criteria.gender = "male";
+		} else if (criteria.gender === "weiblich") {
+			criteria.gender = "female";
+		}
 		addCondition(parts_utterance, "sex", escapeCqlString(criteria.gender));
+	}
+
+	if (criteria.transcript_name) {
+		const t = escapeCqlString(criteria.transcript_name);
+		addCondition(parts_document, "name", `.*${t}.*`);
 	}
 
 	if (parts_query.length === 0) {

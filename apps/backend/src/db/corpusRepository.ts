@@ -2,6 +2,7 @@ import { sql } from "kysely";
 import { jsonBuildObject } from "kysely/helpers/postgres";
 
 import { db } from "@/db/connect.ts";
+import type { PostalCodeRange } from "@/lib/austrianPostalCodes.ts";
 
 export async function getAllTranscripts(
 	project_id: number,
@@ -9,6 +10,7 @@ export async function getAllTranscripts(
 		age_lower?: number;
 		age_upper?: number;
 		locations?: Array<number>;
+		postal_code_ranges?: ReadonlyArray<PostalCodeRange>;
 		dialect_competence?: number;
 		standard_competence?: number;
 		gender?: string;
@@ -18,8 +20,14 @@ export async function getAllTranscripts(
 		instance_id?: number;
 		settings?: Array<number>;
 		projects?: Array<number>;
+		transcripts?: Array<number>;
+		has_bkms?: boolean;
 	},
 ) {
+	if (filters?.transcripts?.length === 0) {
+		return [];
+	}
+
 	let query = db
 		.selectFrom("project")
 		.innerJoin("project_survey", "project_survey.project_id", "project.id")
@@ -50,6 +58,16 @@ export async function getAllTranscripts(
 	if (filters?.locations?.length) {
 		query = query.where("place.id", "in", filters.locations);
 	}
+	const postalCodeRanges = filters?.postal_code_ranges;
+	if (postalCodeRanges !== undefined) {
+		query = query.where((eb) =>
+			eb.or(
+				postalCodeRanges.map(([lower, upper]) =>
+					eb.and([eb("place.plz", ">=", lower), eb("place.plz", "<=", upper)]),
+				),
+			),
+		);
+	}
 	if (filters?.dialect_competence !== undefined) {
 		query = query.where("informant.dialect_competence", "=", filters.dialect_competence);
 	}
@@ -73,7 +91,7 @@ export async function getAllTranscripts(
 		query = query.where("survey_conducted.comment", "ilike", `%${filters?.transcript_name}%`);
 	}
 
-	if (filters?.instance_id) {
+	if (filters?.instance_id !== undefined) {
 		query = query.where("survey_conducted.instance_id", "=", filters.instance_id);
 	}
 	if (filters?.settings?.length) {
@@ -81,6 +99,15 @@ export async function getAllTranscripts(
 	}
 	if (filters?.projects?.length) {
 		query = query.where("project.id", "in", filters.projects);
+	}
+	if (filters?.transcripts?.length) {
+		query = query.where("survey_conducted.instance_id", "in", filters.transcripts);
+	}
+
+	if (filters?.has_bkms === true) {
+		query = query.where("informant.comment", "like", "BKMS%");
+	} else if (filters?.has_bkms === false) {
+		query = query.where("informant.comment", "not like", "BKMS%");
 	}
 
 	return await query
@@ -131,6 +158,37 @@ export async function getAllTranscripts(
 			"project.project_name",
 		])
 		.execute();
+}
+
+export async function getCorpusSearchMetadata(
+	projectIds: Array<number>,
+	settingIds: Array<number>,
+	locationIds: Array<number>,
+) {
+	const projectsQuery = db
+		.selectFrom("project")
+		.select(["id", "project_name", "main_project_id"])
+		.where("id", "in", projectIds);
+
+	const settingsQuery = settingIds.length
+		? db
+				.selectFrom("survey_type")
+				.select(["id", "survey_type_name"])
+				.where("id", "in", settingIds)
+				.execute()
+		: Promise.resolve([]);
+
+	const locationsQuery = locationIds.length
+		? db.selectFrom("place").select(["id", "place_name"]).where("id", "in", locationIds).execute()
+		: Promise.resolve([]);
+
+	const [projects, settings, locations] = await Promise.all([
+		projectsQuery.execute(),
+		settingsQuery,
+		locationsQuery,
+	]);
+
+	return { projects, settings, locations };
 }
 
 export async function transcriptDetailView(transcript_id: number) {

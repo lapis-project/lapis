@@ -23,6 +23,7 @@ interface AssetItem {
 }
 
 const config = useRuntimeConfig();
+const headers = useRequestHeaders(["cookie"]);
 const { questions } = await useQuestions();
 
 const mappedQuestions = computed(() => {
@@ -95,6 +96,7 @@ const { data: allPhenomenaWithStimuli, refresh: refreshPhenomena } =
 	await useFetch<APIPhenomenaWithStimuli>("questions/phen/all", {
 		baseURL: config.public.apiBaseUrl,
 		credentials: "include",
+		headers,
 		method: "get",
 	});
 
@@ -252,7 +254,9 @@ const canProcess = computed(
 						{{ t("AdminPage.media.drop_off.image_types") }}
 					</p>
 
-					<Button @click="openFileDialog"> {{ t("AdminPage.media.drop_off.browse_btn") }} </Button>
+					<UButton @click="openFileDialog">
+						{{ t("AdminPage.media.drop_off.browse_btn") }}
+					</UButton>
 				</div>
 
 				<!-- Status Card -->
@@ -398,7 +402,7 @@ const canProcess = computed(
 							>
 								{{ t("AdminPage.media.assignments.footer.discard") }}
 							</button>
-							<Button
+							<UButton
 								class="bg-indigo-500 hover:bg-indigo-600 text-white disabled:bg-indigo-300 disabled:opacity-70 px-6 py-2"
 								:disabled="!canProcess"
 								@click="processAssets"
@@ -408,7 +412,7 @@ const canProcess = computed(
 										? t("AdminPage.media.assignments.footer.processing")
 										: t("AdminPage.media.assignments.footer.process_btn")
 								}}
-							</Button>
+							</UButton>
 						</div>
 					</div>
 				</div>

@@ -291,7 +291,7 @@ watch(
 </script>
 
 <template>
-	<div class="flex justify-between mb-2">
+	<div class="flex h-full min-h-0 flex-col">
 		<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="filter">
 			<TabsList class="w-full flex-shrink-0">
 				<TabsTrigger value="tree"> Tree </TabsTrigger>

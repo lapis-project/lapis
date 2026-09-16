@@ -529,7 +529,6 @@ provide(geoMapContextKey, context);
 
 <style scopes lang="css">
 .maplibregl-marker {
-	/* stylelint-disable-next-line at-rule-prelude-no-invalid */
 	@apply cursor-pointer;
 }
 </style>

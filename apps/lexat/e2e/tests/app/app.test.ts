@@ -27,7 +27,6 @@ test.describe("app", () => {
 
 	test("should serve a webmanifest", async ({ request }) => {
 		const response = await request.get("/manifest.webmanifest");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const json = await response.json();
 
 		// TODO: use toMatchSnapshot

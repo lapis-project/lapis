@@ -1,13 +1,13 @@
 import { onMounted, onUnmounted, ref } from "vue";
 
+// Ease-out quadratic function for a smoother animation
+const easeOutQuad = (t: number) => t * (2 - t);
+
 export function useCountUp(targetValue: number, duration = 1000) {
 	const count = ref(0);
 	const elementRef = ref<HTMLElement | null>(null);
 	let observer: IntersectionObserver | null = null;
 	let startTime: number | null = null;
-
-	// Ease-out quadratic function for a smoother animation
-	const easeOutQuad = (t: number) => t * (2 - t);
 
 	const updateCount = (timestamp: number) => {
 		startTime ??= timestamp;

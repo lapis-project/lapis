@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { afterEach } from "node:test";
 
 import { hash } from "@node-rs/argon2";
@@ -177,7 +175,6 @@ describe("test endpoint POST /cms/articles/create", () => {
 		await logoutUser(loginHeaders);
 		await db.deleteFrom("user_post").where("user_id", "=", 4).execute();
 		await db.deleteFrom("post").where("title", "=", "Test Article").execute();
-		// eslint-disable-next-line @typescript-eslint/no-misused-promises
 		userIds.forEach(async (el) => {
 			await db.deleteFrom("user_session").where("user_id", "=", el).execute();
 		});
@@ -641,7 +638,6 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 		expect(body.articles.length).toBe(10);
 
 		// Check if contains the first 10 articles
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
 		expect(articleIdsReceived).toEqual(articleIds.slice(0, 10));
 	});
@@ -656,7 +652,6 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(10);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
 		expect(articleIdsReceived).toEqual(articleIds.slice(10, 20));
 	});
@@ -672,7 +667,6 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(10);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleIdsReceived = body.articles.map((el: { post_id: number }) => el.post_id);
 		expect(articleIdsReceived).toEqual(articleIds.slice(20, 30));
 	});
@@ -702,7 +696,6 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 		expect(body.articles.length).toBe(10);
 
 		// Should only contain articles with category commentary
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleCategories = body.articles.map((el: { post_type: string }) => el.post_type);
 		expect(articleCategories).toEqual(Array(10).fill(categories[0]));
 	});
@@ -729,7 +722,6 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(11);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleTitles = body.articles.map((el: { title: string }) => el.title);
 		expect(articleTitles).toContainEqual("Test Article 1");
 	});
@@ -744,7 +736,6 @@ describe("test endpoint GET /cms/articles/all/:project", () => {
 		expect(body).toHaveProperty("articles");
 
 		expect(body.articles.length).toBe(1);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const articleTitles = body.articles.map((el: { title: string }) => el.title);
 		expect(articleTitles).toContainEqual("Test Article 20");
 	});
@@ -1145,7 +1136,6 @@ describe("test endpoint PUT /cms/:id", () => {
 
 		expect(responseEdit2Body.article.published_at).toBe(publishedAt);
 		expect(responseEdit2Body.article.updated_at).not.toBe(updatedAt);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		expect(new Date(responseEdit2Body.article.updated_at)).above(new Date(updatedAt));
 	});
 });

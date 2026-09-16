@@ -30,15 +30,10 @@ export function useCitationGenerator() {
 				credentials: "include",
 			});
 
-			const parse = (arr: APIBibliography["data"]) =>
-				arr
-					// 1. Dig two levels deep to get the pure bibliography data object
-					.map((i) => i.data.data)
-					// 2. Filter out the notes (and fix the previous .date typo!)
-					.filter((innerData) => innerData.itemType !== "note");
-
 			if (data.value) {
-				items = parse(data.value.data) as Array<BibliographyItem>;
+				items = data.value.data
+					.map((item) => item.data.data)
+					.filter((item) => item.itemType !== "note") as Array<BibliographyItem>;
 				// cache the full list
 				cached.value = items;
 			}

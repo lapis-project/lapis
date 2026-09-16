@@ -13,7 +13,6 @@ export function useSearch(projectId: number) {
 		status.value = "pending";
 		error.value = null;
 
-		console.log("search params: ", params);
 		try {
 			const { data, error } = await useFetch(`/corpus/search/${projectId}`, {
 				baseURL: env.public.apiBaseUrl,
@@ -30,7 +29,6 @@ export function useSearch(projectId: number) {
 				return;
 			}
 
-			console.log(data.value);
 			response.value = data.value as APISearchResponse;
 
 			status.value = "success";

@@ -82,8 +82,7 @@ export function useAudioStream() {
 			if (syncUrl) router.replace({ query: { ...route.query, t: formatClock(secs) } });
 		};
 
-		if (el && el.readyState >= 1)
-			doSeek(); // HAVE_METADATA
+		if (el && el.readyState >= 1) doSeek(); // HAVE_METADATA
 		else {
 			desiredStart.value = secs;
 			el?.load(); // fetch metadata so we can seek

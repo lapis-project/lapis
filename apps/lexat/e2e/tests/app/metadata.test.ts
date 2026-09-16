@@ -114,7 +114,6 @@ test.describe("should add json+ld metadata", () => {
 		await page.goto("/en");
 
 		const metadata = await page.locator('script[type="application/ld+json"]').textContent();
-		// eslint-disable-next-line playwright/prefer-web-first-assertions
 		expect(metadata).toBe(
 			JSON.stringify({
 				"@context": "https://schema.org",
@@ -129,7 +128,6 @@ test.describe("should add json+ld metadata", () => {
 		await page.goto("/de");
 
 		const metadata = await page.locator('script[type="application/ld+json"]').textContent();
-		// eslint-disable-next-line playwright/prefer-web-first-assertions
 		expect(metadata).toBe(
 			JSON.stringify({
 				"@context": "https://schema.org",

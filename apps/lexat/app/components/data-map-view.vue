@@ -21,7 +21,6 @@ import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import type StimulusDialog from "@/components/stimulus-dialog.vue";
 import { useMapColors } from "@/composables/use-map-colors";
 import { useQuestions } from "@/composables/use-questions";
-import type { DropdownOption } from "@/types/dropdown-option";
 import type {
 	RegionFeature,
 	SurveyResponse,

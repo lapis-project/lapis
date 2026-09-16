@@ -6,7 +6,9 @@ import { defaultLocale, type Locale, type Messages } from "@/config/i18n.config"
 export type I18n = _I18n<Record<Locale, Messages>, {}, {}, Locale, false>["global"];
 
 export async function createI18n(_page: Page, locale = defaultLocale): Promise<I18n> {
-	const _messages = await import(`@/i18n/messages/${locale}.json`, { with: { type: "json" } });
+	const _messages = await import(`../../../i18n/messages/${locale}.json`, {
+		with: { type: "json" },
+	});
 	const messages = _messages.default as Messages;
 
 	// @ts-expect-error Only messages for single locale provided.

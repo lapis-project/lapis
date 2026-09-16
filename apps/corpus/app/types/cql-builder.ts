@@ -1,4 +1,4 @@
-type QueryNode = TokenNode | SequenceNode;
+export type QueryNode = TokenNode | SequenceNode;
 
 interface SequenceNode {
 	type: "sequence";

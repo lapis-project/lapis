@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { assert, describe, expect, it, vi } from "vitest";
 
 import questions from "@/handler/questionHandler.ts";

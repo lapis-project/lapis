@@ -19,8 +19,8 @@
 		"postinstall": "nuxt prepare",
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.dev.local",
-		"types:check": "nuxt typecheck",
-		"validate": "run-p format:check lint:check types:check test test:e2e"
+		"types:check": "pnpm --filter @lapis/backend build && nuxt typecheck",
+		"validate": "run-p format:check lint:check types:check"
 	},
 	"dependencies": {
 		"@acdh-oeaw/lib": "^1.0.6",

@@ -21,14 +21,14 @@ export class ResetViewControl {
 		this.exportButton.className = "maplibregl-ctrl-icon maplibregl-ctrl-reset";
 		this.exportButton.type = "button";
 		this.exportButton.title = "Reset view";
-		this.exportButton.onclick = () => {
+		this.exportButton.addEventListener("click", () => {
 			this.map?.jumpTo({
 				center: this.initialCenter,
 				zoom: this.initialZoom,
 				bearing: 0, // Reset rotation
 				pitch: 0, // Reset pitch
 			});
-		};
+		});
 
 		this.container.appendChild(this.exportButton);
 		return this.container;

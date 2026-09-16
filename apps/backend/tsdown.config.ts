@@ -10,6 +10,5 @@ export default defineConfig({
 	minify: false,
 	sourcemap: false,
 	treeshake: true,
-	skipNodeModulesBundle: true,
 	target: "node20",
 });

@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { PlusCircleIcon, XIcon } from "@lucide/vue";
 
-import type { TagNode } from "./tag-drop-zone.vue";
 import type { LegendItem } from "@/components/annotation-legend.vue";
+
+import type { TagNode } from "./tag-drop-zone.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -30,7 +31,7 @@ const legend = ref<Array<LegendItem>>([
 ]);
 
 function escapeRegex(str: string): string {
-	return str.replace(/[.*+?^${}()|[\]\\]/g, "\$&");
+	return str.replace(/[.*+?^${}()|[\]\\]/g, "$&");
 }
 
 function flattenTags(tags: TagNode[]): string[] {

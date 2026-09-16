@@ -58,6 +58,16 @@
 		]
 	},
 	"stylelint": {
-		"extends": "@acdh-oeaw/stylelint-config"
+		"extends": "@acdh-oeaw/stylelint-config",
+		"rules": {
+			"at-rule-prelude-no-invalid": [
+				true,
+				{
+					"ignoreAtRules": [
+						"apply"
+					]
+				}
+			]
+		}
 	}
 }

@@ -1,7 +1,8 @@
 import { createUrl } from "@acdh-oeaw/lib";
 
 import { locales } from "@/config/i18n.config";
-import { expect, test } from "@/e2e/lib/test";
+
+import { expect, test } from "../../lib/test";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
@@ -27,7 +28,6 @@ test.describe("app", () => {
 
 	test("should serve a webmanifest", async ({ request }) => {
 		const response = await request.get("/manifest.webmanifest");
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const json = await response.json();
 
 		// TODO: use toMatchSnapshot

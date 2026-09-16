@@ -10,7 +10,6 @@ export function useArticles() {
 
 	const currentPage = ref(Number(route.query.p) || 1);
 	const selectedCategory = ref((route.query.c as string) || null);
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	const selectedLanguage = ref<"de" | "en" | null>((route.query.l as "de" | "en") || null);
 	const currentSearchTerm = ref((route.query.q as string) || null);
 

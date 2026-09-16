@@ -58,17 +58,19 @@ async function walk(dir) {
 }
 
 const root = process.cwd();
-console.log(
+process.stdout.write(
 	`${DRY ? "DRY RUN — would delete" : "Deleting"}: ${[...MATCH_DIRS, ...MATCH_FILES].join(
 		", ",
-	)}\nFrom: ${root}\n`,
+	)}\nFrom: ${root}\n\n`,
 );
 
 const started = Date.now();
 await walk(root);
 
 const ms = Date.now() - started;
-console.log(`Done in ${ms} ms. ${DRY ? "Would remove" : "Removed"} ${removed.length} item(s).`);
+process.stdout.write(
+	`Done in ${ms} ms. ${DRY ? "Would remove" : "Removed"} ${removed.length} item(s).\n`,
+);
 if (failed.length) {
 	console.warn(`\nFailed to remove ${failed.length} item(s):`);
 	for (const f of failed) console.warn(`- ${f.p}: ${f.err}`);

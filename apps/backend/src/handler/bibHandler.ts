@@ -57,8 +57,7 @@ const bibliography = new Hono<AppEnv>()
 		}
 	})
 	/**
-	 * Retrieves a single bibliography entry based on its unique Zotero identifier from the database.
-	 * *
+	 * Retrieves a single bibliography entry based on its unique Zotero identifier from the database. *
 	 *
 	 * @param {string} bib_id - The unique identifier for the bibliography entry (validated by
 	 *   searchSchema).

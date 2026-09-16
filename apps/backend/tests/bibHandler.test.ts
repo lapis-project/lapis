@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import bibliography from "@/handler/bibHandler.ts";

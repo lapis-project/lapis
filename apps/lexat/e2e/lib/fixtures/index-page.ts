@@ -1,7 +1,8 @@
 import type { Locator, Page } from "@playwright/test";
 
 import { defaultLocale, type Locale } from "@/config/i18n.config";
-import type { I18n } from "@/e2e/lib/fixtures/i18n";
+
+import type { I18n } from "./i18n";
 
 export class IndexPage {
 	readonly page: Page;

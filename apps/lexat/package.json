@@ -26,7 +26,7 @@
 		"test:e2e:install": "playwright install --with-deps",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:update-snapshots": "playwright test --update-snapshots",
-		"types:check": "nuxt typecheck",
+		"types:check": "pnpm --filter @lapis/backend build && nuxt typecheck",
 		"validate": "run-p format:check lint:check types:check test test:e2e"
 	},
 	"dependencies": {
@@ -106,6 +106,16 @@
 		]
 	},
 	"stylelint": {
-		"extends": "@acdh-oeaw/stylelint-config"
+		"extends": "@acdh-oeaw/stylelint-config",
+		"rules": {
+			"at-rule-prelude-no-invalid": [
+				true,
+				{
+					"ignoreAtRules": [
+						"apply"
+					]
+				}
+			]
+		}
 	}
 }

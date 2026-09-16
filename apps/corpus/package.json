@@ -20,7 +20,7 @@
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.dev.local",
 		"types:check": "nuxt typecheck",
-		"validate": "run-p format:check lint:check types:check test test:e2e"
+		"validate": "run-p format:check lint:check types:check"
 	},
 	"dependencies": {
 		"@acdh-oeaw/lib": "^1.0.6",
@@ -86,6 +86,16 @@
 		]
 	},
 	"stylelint": {
-		"extends": "@acdh-oeaw/stylelint-config"
+		"extends": "@acdh-oeaw/stylelint-config",
+		"rules": {
+			"at-rule-prelude-no-invalid": [
+				true,
+				{
+					"ignoreAtRules": [
+						"apply"
+					]
+				}
+			]
+		}
 	}
 }

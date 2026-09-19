@@ -2,12 +2,21 @@ import fs from "node:fs/promises";
 
 import { expect, test } from "@playwright/test";
 
+import { downloadCsv } from "../../lib/download";
+import { gotoPage } from "../../lib/navigation";
+
 test.describe("DB page functionality", () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto("/db", { waitUntil: "domcontentloaded" });
+		await page.addInitScript(() => {
+			localStorage.setItem(
+				"db-onboarding",
+				JSON.stringify({ finishedAt: "2025-05-20T12:12:39.122Z" }),
+			);
+		});
+		await gotoPage(page, "/de/db");
 	});
 
-	test("default page has a selected question,  and  table rows", async ({ page }) => {
+	test("default page has a selected question and table rows", async ({ page }) => {
 		const questions = page.getByTestId("questions");
 		await expect(questions).toContainText("AUGENLID/LID");
 
@@ -51,6 +60,7 @@ test.describe("DB page functionality", () => {
 		// change the variant
 		await page.getByTestId("variants").click();
 		await page.getByRole("option", { name: /Dotter/ }).click();
+		await page.keyboard.press("Escape");
 
 		await expect(page).toHaveURL((url) => {
 			const p = new URL(url).searchParams;
@@ -128,10 +138,10 @@ test.describe("DB page functionality", () => {
 	});
 
 	test("csv download", async ({ page }, testInfo) => {
-		const [download] = await Promise.all([
-			page.waitForEvent("download"),
-			page.getByRole("button", { name: /Als CSV herunterladen/i }).click(),
-		]);
+		const download = await downloadCsv(
+			page,
+			page.getByRole("button", { name: /Als CSV herunterladen/i }),
+		);
 		const suggested = download.suggestedFilename();
 		expect(suggested).toMatch(/^db-augenlid_lid-\d{8}\.csv$/);
 

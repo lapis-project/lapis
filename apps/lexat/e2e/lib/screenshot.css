@@ -1,0 +1,4 @@
+/* Development tooling is not part of the page design. */
+#nuxt-devtools-container {
+	display: none !important;
+}

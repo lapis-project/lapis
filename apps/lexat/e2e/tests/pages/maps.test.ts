@@ -2,6 +2,9 @@ import fs from "node:fs/promises";
 
 import { expect, test } from "@playwright/test";
 
+import { downloadCsv } from "../../lib/download";
+import { gotoPage } from "../../lib/navigation";
+
 test.use({
 	baseURL: "http://localhost:3000",
 	storageState: {
@@ -23,18 +26,23 @@ test.use({
 test.describe("Maps page functionality", () => {
 	test.beforeEach(async ({ page }) => {
 		// stop external map/tiles from slowing the test
-		await page.route(/(tile|maplibre|carto|openstreetmap)/, (r) => r.fulfill({ status: 204 }));
+		await page.route(
+			/^https:\/\/[^/]*(?:cartocdn\.com|openstreetmap\.org|maplibre\.org)\//,
+			(route) => route.fulfill({ status: 204 }),
+		);
 
-		// skip the redirect and wait just for the DOM
-		await page.goto("/de/maps", { waitUntil: "domcontentloaded" });
+		// Use a fixed question, then exercise the empty state through the reset control.
+		await gotoPage(page, "/de/maps?q=11");
+		await page.getByTestId("reset").click();
+		await expect(page.getByTestId("questions")).toHaveText("Phänomen");
 	});
 
 	test("page filters, url params and element visibility", async ({ page }) => {
 		const questions = page.getByTestId("questions");
-		await expect(questions).toContainText("Phänomen wählen...");
+		await expect(questions).toHaveText("Phänomen");
 
 		const clipboardUrl = page.getByTestId("clipboard-url");
-		await expect(clipboardUrl).toHaveText(/\/de\/maps$/);
+		await expect(clipboardUrl).toContainText("/de/maps?");
 
 		await expect(page.getByTestId("dataLegend")).toBeHidden();
 		await expect(page.getByTestId("regionLegend")).toBeVisible();
@@ -56,7 +64,9 @@ test.describe("Maps page functionality", () => {
 				p.get("sv") === "false"
 			);
 		});
-		await expect(clipboardUrl).toContainText("/de/maps?a=0,100&q=11&r=all&v=all&sv=false");
+		await expect(clipboardUrl).toContainText(
+			"/de/maps?sr=1&sr=2&a=0,100&q=11&r=all&v=all&sv=false",
+		);
 
 		await expect(page.getByTestId("datapoints")).toContainText("Ortspunkte: 538");
 		await expect(page.getByTestId("informants")).toContainText("Antwortende: 1918");
@@ -79,7 +89,7 @@ test.describe("Maps page functionality", () => {
 		// change the register
 		const registers = page.getByTestId("registers");
 		await registers.click();
-		await page.getByRole("option", { name: /Ihr Hochdeutsch/ }).click();
+		await page.getByRole("treeitem", { name: /Ihr Hochdeutsch/ }).click();
 
 		await expect(page).toHaveURL((url) => {
 			const p = new URL(url).searchParams;
@@ -91,7 +101,7 @@ test.describe("Maps page functionality", () => {
 				p.get("sv") === "false"
 			);
 		});
-		await expect(clipboardUrl).toContainText("/de/maps?a=0,100&q=11&r=4&v=all&sv=false");
+		await expect(clipboardUrl).toContainText("/de/maps?sr=1&sr=2&a=0,100&q=11&r=4&v=all&sv=false");
 
 		await expect(page.getByTestId("datapoints")).toContainText("Ortspunkte: 165");
 		await expect(page.getByTestId("informants")).toContainText("Antwortende: 368");
@@ -103,6 +113,7 @@ test.describe("Maps page functionality", () => {
 		const variants = page.getByTestId("variants");
 		await variants.click();
 		await page.getByRole("option", { name: /Augenlid/ }).click();
+		await page.keyboard.press("Escape");
 
 		await expect(page).toHaveURL((url) => {
 			const p = new URL(url).searchParams;
@@ -114,7 +125,9 @@ test.describe("Maps page functionality", () => {
 				p.get("sv") === "false"
 			);
 		});
-		await expect(clipboardUrl).toContainText("/de/maps?a=0,100&q=11&r=4&v=Augenlid&sv=false");
+		await expect(clipboardUrl).toContainText(
+			"/de/maps?sr=1&sr=2&a=0,100&q=11&r=4&v=Augenlid&sv=false",
+		);
 
 		await expect(page.getByTestId("datapoints")).toContainText("Ortspunkte: 131");
 		await expect(page.getByTestId("informants")).toContainText("Antwortende: 271");
@@ -123,7 +136,7 @@ test.describe("Maps page functionality", () => {
 		await expect(variantTable.getByRole("row", { includeHidden: true })).toHaveCount(3);
 
 		await page.getByTestId("reset").click();
-		await expect(questions).toContainText("Phänomen wählen...");
+		await expect(questions).toHaveText("Phänomen");
 		await expect(registers).toContainText("Alle anzeigen");
 		await expect(variants).toContainText("Alle anzeigen");
 		await expect(locationTable).toBeHidden();
@@ -163,10 +176,10 @@ test.describe("Maps page functionality", () => {
 
 		const locationTable = page.getByTestId("locationTable");
 
-		const [downloadLocationTable] = await Promise.all([
-			page.waitForEvent("download"),
-			locationTable.getByRole("button", { name: /Als CSV herunterladen/i }).click(),
-		]);
+		const downloadLocationTable = await downloadCsv(
+			page,
+			locationTable.getByRole("button", { name: /Als CSV herunterladen/i }),
+		);
 
 		const suggested = downloadLocationTable.suggestedFilename();
 		expect(suggested).toMatch(/^table-data-\d{8}\.csv$/);
@@ -175,7 +188,7 @@ test.describe("Maps page functionality", () => {
 		await downloadLocationTable.saveAs(filePath);
 
 		const csv = await fs.readFile(filePath, "utf8");
-		expect(csv.split("\n")).toHaveLength(1476); // header (1) + items (5806)
+		expect(csv.split("\n")).toHaveLength(1476); // header (1) + location/variant entries (1475)
 	});
 
 	test("reset onboarding", async ({ page }) => {

@@ -2,6 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 
 import { defaultLocale, type Locale } from "@/config/i18n.config";
 
+import { gotoPage } from "../navigation";
 import type { I18n } from "./i18n";
 
 export class IndexPage {
@@ -22,9 +23,7 @@ export class IndexPage {
 	}
 
 	async goto() {
-		await this.page.goto(`/${this.locale}`, {
-			waitUntil: "domcontentloaded",
-		});
+		await gotoPage(this.page, `/${this.locale}`);
 		await this.mainContent.waitFor({ state: "visible" });
 	}
 }

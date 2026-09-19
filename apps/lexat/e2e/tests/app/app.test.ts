@@ -74,7 +74,7 @@ test.describe("app", () => {
 
 		test("with no preference", async ({ page }) => {
 			await page.goto("/en");
-			await expect(page.locator("html")).toHaveAttribute("data-ui-color-scheme", "light");
+			await expect(page.locator("html")).toContainClass("light");
 		});
 	});
 
@@ -83,7 +83,7 @@ test.describe("app", () => {
 
 		test("in light mode", async ({ page }) => {
 			await page.goto("/en");
-			await expect(page.locator("html")).toHaveAttribute("data-ui-color-scheme", "light");
+			await expect(page.locator("html")).toContainClass("light");
 		});
 	});
 
@@ -92,7 +92,7 @@ test.describe("app", () => {
 
 		test("in dark mode", async ({ page }) => {
 			await page.goto("/en");
-			await expect(page.locator("html")).toHaveAttribute("data-ui-color-scheme", "dark");
+			await expect(page.locator("html")).toContainClass("dark");
 		});
 	});
 

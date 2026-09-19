@@ -69,7 +69,7 @@ const activeVariantsQuery = computed(() => {
 // 	);
 // });
 
-const initialQuestion = {
+const initialQuestion = mappedQuestions.value.find((question) => question.id === 11) ?? {
 	id: 11,
 	value: "11",
 	label: "AUGENLID",

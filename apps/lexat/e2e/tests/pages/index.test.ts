@@ -34,13 +34,11 @@ test.describe("index page", () => {
 
 			await indexPage.goto();
 
-			// optional sanity check (uncomment if useful):
-			// await expect(indexPage.page.locator('[data-testid="stats-count"]').first()).not.toHaveText("0");
-
 			const statsLocators = indexPage.page.locator('[data-testid="stats-count"]');
 
 			await expect(indexPage.page).toHaveScreenshot({
 				mask: [statsLocators],
+				stylePath: "./e2e/lib/screenshot.css",
 				maxDiffPixelRatio: 0.01,
 			});
 		}

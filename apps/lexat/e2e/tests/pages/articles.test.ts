@@ -1,14 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+import { gotoPage } from "../../lib/navigation";
+
 test.describe("Article overview page functionality", () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto("/articles");
+		await gotoPage(page, "/de/articles");
 	});
 
 	test("article search", async ({ page }) => {
 		// type search term
 		const searchField = page.locator("#search");
-		await expect(searchField).toContainText("");
+		await expect(searchField).toHaveValue("");
 		await searchField.fill("dotter");
 
 		// choose category
@@ -25,14 +27,14 @@ test.describe("Article overview page functionality", () => {
 		await page.getByRole("option", { name: "Deutsch" }).click();
 		await expect(language).toContainText("Deutsch");
 
-		const submit = page.getByRole("button", { name: "Anwenden" });
+		const submit = page.getByRole("button", { name: "Suche", exact: true });
 		await submit.click();
 
 		const results = page.getByTestId("results");
 		await expect(results).toContainText("1 Eintrag");
 		const articles = page.getByTestId("articles");
 		await expect(articles.getByRole("listitem")).toHaveCount(1);
-		await expect(articles.getByRole("heading", { name: /DOTTER\/EIGELB/ })).toBeVisible();
+		await expect(articles.getByRole("heading", { name: /DOTTER\s*\/\s*EIGELB/ })).toBeVisible();
 
 		await language.click();
 		await page.getByRole("option", { name: "Englisch" }).click();
@@ -41,7 +43,7 @@ test.describe("Article overview page functionality", () => {
 		await expect(results).toContainText("0 Einträge");
 
 		await page.getByRole("button", { name: "Zurücksetzen" }).click();
-		await expect(searchField).toContainText("");
+		await expect(searchField).toHaveValue("");
 		await expect(category).toContainText("Kategorie wählen...");
 		await expect(language).toContainText("Sprache wählen...");
 	});

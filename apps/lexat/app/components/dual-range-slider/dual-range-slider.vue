@@ -27,30 +27,10 @@ const sliderValue = computed<Array<number>>({
 		emit("update:value", value);
 	},
 });
-
-const thumbLabels = computed(() => {
-	const range = props.max - props.min;
-
-	return sliderValue.value.map((value, index) => ({
-		value,
-		label: `${index === 1 ? "<" : ""}${value}`,
-		position: range > 0 ? ((value - props.min) / range) * 100 : 0,
-	}));
-});
 </script>
 
 <template>
 	<div class="relative w-full" :class="props.labelPosition === 'top' ? 'pt-6' : 'pb-6'">
-		<span
-			v-for="thumb in thumbLabels"
-			:key="thumb.label"
-			class="pointer-events-none absolute z-10 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-toned"
-			:class="props.labelPosition === 'top' ? 'top-0' : 'bottom-0'"
-			:style="{ left: `${thumb.position}%` }"
-		>
-			{{ thumb.label }}
-		</span>
-
 		<USlider
 			v-model="sliderValue"
 			:aria-label="props.accessibilityLabel"
@@ -59,6 +39,25 @@ const thumbLabels = computed(() => {
 			:min="props.min"
 			size="md"
 			:step="props.step"
+			:ui="{
+				thumb: [
+					'after:pointer-events-none after:absolute after:left-1/2 after:z-10 after:-translate-x-1/2 after:whitespace-nowrap after:text-xs after:font-medium after:text-toned',
+					props.labelPosition === 'top'
+						? 'after:bottom-full after:mb-1'
+						: 'after:top-full after:mt-1',
+				],
+			}"
 		/>
 	</div>
 </template>
+
+<style scoped>
+/* Anchor labels to the thumbs so they share the slider's in-bounds positioning. */
+:deep([data-slot="thumb"])::after {
+	content: attr(aria-valuenow);
+}
+
+:deep(:nth-child(2 of [data-slot="thumb"]))::after {
+	content: "<" attr(aria-valuenow);
+}
+</style>

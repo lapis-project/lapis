@@ -12,12 +12,22 @@ test.describe("app", () => {
 		const index = await request.get("/sitemap.xml");
 		const indexXml = await index.text();
 		expect(indexXml).toContain("<sitemapindex");
+		const source = await request.get("/api/sitemap/articles");
+		expect(source.ok()).toBeTruthy();
+		const articles: Array<{ loc: string; lastmod?: string }> = await source.json();
+		expect(articles.length).toBeGreaterThan(0);
 
 		// 2 ️. follow each locale sitemap and assert its URLs
 		for (const locale of locales) {
 			const subUrl = `/__sitemap__/${locale}.xml`;
 			const sub = await request.get(subUrl);
 			const subXml = await sub.text();
+			expect(sub.ok()).toBeTruthy();
+			expect(subXml).not.toMatch(/\/(?:admin|login|profile)(?:[/<"])/);
+			for (const article of articles) {
+				const loc = createUrl({ baseUrl, pathname: `/${locale}${article.loc}` }).toString();
+				expect(subXml).toContain(`<loc>${loc}</loc>`);
+			}
 
 			for (const path of ["", "/articles"]) {
 				const loc = createUrl({ baseUrl, pathname: `/${locale}${path}` }).toString();

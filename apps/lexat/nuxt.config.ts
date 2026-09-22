@@ -3,6 +3,9 @@ import { fileURLToPath } from "node:url";
 import { defaultLocale, files } from "./app/config/i18n.config";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
+const privateRoutes = ["", ...files.map(({ code }) => `/${code}`)].flatMap((prefix) =>
+	["/admin", "/admin/**", "/login", "/profile"].map((path) => `${prefix}${path}`),
+);
 
 export default defineNuxtConfig({
 	alias: {
@@ -121,6 +124,15 @@ export default defineNuxtConfig({
 				},
 			},
 		],
+	},
+
+	routeRules: Object.fromEntries(
+		privateRoutes.map((path) => [path, { robots: "noindex" as const }]),
+	),
+
+	sitemap: {
+		exclude: privateRoutes,
+		sources: ["/api/sitemap/articles"],
 	},
 
 	runtimeConfig: {

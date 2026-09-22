@@ -5,9 +5,21 @@ import type { AppEnv } from "@/lib/context.ts";
 import { generateSignedImageUrl } from "@/service/imageService.ts";
 import type { Availablelang } from "@/types/db.ts";
 
-import { getAllArticlesByProject, getArticleByAlias } from "../db/articleRepository.ts";
+import {
+	getAllArticlesByProject,
+	getArticleByAlias,
+	getSitemapArticlesByProject,
+} from "../db/articleRepository.ts";
 
 const articles = new Hono<AppEnv>()
+	// A compact, unpaginated list including published project descriptions.
+	.get("/sitemap/:project", async (c) => {
+		const projectId = Number(c.req.param("project"));
+		if (!Number.isSafeInteger(projectId) || projectId <= 0) {
+			return c.json("Provided projectId is not a positive integer", 400);
+		}
+		return c.json(await getSitemapArticlesByProject(projectId), 200);
+	})
 
 	/**
 	 * Fetches all articles by project id which have the status as published. Will return this in a

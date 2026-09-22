@@ -6,6 +6,24 @@ import type { Availablelang, Poststatus } from "@/types/db.ts";
 
 import type { PagedArticlesResult } from "../types/apiTypes.ts";
 
+export async function getSitemapArticlesByProject(projectId: number) {
+	return db
+		.selectFrom("post")
+		.where("post.post_status", "=", "Published")
+		.where((eb) =>
+			eb.exists(
+				eb
+					.selectFrom("project_post")
+					.select("project_post.post_id")
+					.whereRef("project_post.post_id", "=", "post.id")
+					.where("project_post.project_id", "=", projectId),
+			),
+		)
+		.select(["post.alias", "post.updated_at", "post.published_at"])
+		.orderBy("post.id")
+		.execute();
+}
+
 export async function getArticleByAlias(alias: string) {
 	const query = db
 		.selectFrom("post")

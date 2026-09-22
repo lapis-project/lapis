@@ -8,7 +8,12 @@ export default {
 			return savedPosition;
 		}
 		if (to.hash) {
-			return { el: to.hash, behavior: "smooth" };
+			return {
+				el: to.hash,
+				// Keep publication headings below the sticky header.
+				top: to.path.endsWith("/publications") ? 90 : 0,
+				behavior: "smooth",
+			};
 		}
 		if (to.path === from.path) {
 			return;

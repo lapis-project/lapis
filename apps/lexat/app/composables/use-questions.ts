@@ -1,22 +1,23 @@
 import type { InferResponseType } from "hono/client";
 
-export async function useQuestions() {
+export async function useQuestions(surveyId?: MaybeRefOrGetter<string | number | undefined>) {
 	const env = useRuntimeConfig();
 	const { apiClient } = useApiClient();
 
 	const _getPhenomenons = apiClient.questions.survey[":project"].$get;
 	type APIPhenomenons = InferResponseType<typeof _getPhenomenons, 200>;
 
-	const questionsState = useState<APIPhenomenons | null>("questions", () => null);
+	const query = computed(() => {
+		const survey = toValue(surveyId);
+		return survey === undefined ? {} : { survey: String(survey) };
+	});
 
-	if (!questionsState.value) {
-		const { data } = await useFetch<APIPhenomenons>("/questions/survey/1", {
-			baseURL: env.public.apiBaseUrl,
-			method: "GET",
-			credentials: "include",
-		});
-		questionsState.value = data.value ?? null;
-	}
+	const { data: questions, status } = await useFetch<APIPhenomenons>("/questions/survey/1", {
+		baseURL: env.public.apiBaseUrl,
+		method: "GET",
+		query,
+		credentials: "include",
+	});
 
-	return { questions: questionsState };
+	return { questions, status };
 }

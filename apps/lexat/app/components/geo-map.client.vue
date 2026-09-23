@@ -140,9 +140,8 @@ async function create() {
 
 	context.map = map;
 
-	// reference: https://docs.mapbox.com/mapbox-gl-js/example/add-image-missing-generated/
-	map.on("styleimagemissing", (e) => {
-		const id = e.id;
+	// Resolve generated icons before MapLibre reports them as missing.
+	map.setMissingStyleImageResolver((id) => {
 		const prefix = "id-";
 
 		if (!id.startsWith(prefix)) {
@@ -160,7 +159,9 @@ async function create() {
 					webglcontext,
 					result.answerCount,
 				);
-				map.addImage(id, { width: size, height: size, data: data });
+				if (!map.hasImage(id)) {
+					map.addImage(id, { width: size, height: size, data: data });
+				}
 			}
 		} catch (error) {
 			console.error(`Failed to parse icon-image id "${id}":`, error.message);
@@ -345,7 +346,7 @@ function init() {
 		data.features.forEach((feature) => {
 			feature.properties.zoomFactor = zoomFactor;
 		});
-		// Re-set the data -> triggers styleimagemissing for new icon IDs
+		// Re-set the data so the image resolver generates any new icon IDs.
 		source.setData(data);
 	});
 

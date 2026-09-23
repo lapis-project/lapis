@@ -15,6 +15,8 @@ const props = defineProps<{
 	columns: Array<TableColumn>;
 	serverSideSorting?: boolean;
 	isLoading?: boolean;
+	fixedHeight?: boolean;
+	emptyMessage?: string;
 }>();
 
 const t = useTranslations();
@@ -167,6 +169,7 @@ onBeforeUnmount(() => {
 		<div
 			ref="dbTable"
 			class="relative max-h-[500px] overflow-x-auto overflow-y-scroll shadow-md sm:rounded-lg"
+			:class="{ 'h-[500px]': fixedHeight }"
 		>
 			<table class="min-w-full table-fixed text-left text-sm rtl:text-right">
 				<thead class="sticky top-0 bg-gray-100 text-xs uppercase text-foreground dark:bg-gray-700">
@@ -218,6 +221,7 @@ onBeforeUnmount(() => {
 					</tr>
 				</tbody>
 				<tfoot
+					v-if="columns.some((column) => column.footer || column.sum)"
 					class="sticky bottom-0 bg-gray-50 text-xs font-bold uppercase text-foreground dark:bg-gray-700"
 				>
 					<tr>
@@ -234,6 +238,13 @@ onBeforeUnmount(() => {
 					</tr>
 				</tfoot>
 			</table>
+			<p
+				v-if="!data.length && !isLoading && emptyMessage"
+				class="absolute inset-x-0 top-1/2 -translate-y-1/2 px-6 text-center text-muted"
+				role="status"
+			>
+				{{ emptyMessage }}
+			</p>
 		</div>
 		<div class="mt-3 justify-end flex gap-3">
 			<slot name="left"></slot>

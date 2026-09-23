@@ -296,6 +296,8 @@
 		"table": {
 			"results": "Ergebnisse",
 			"items-per-page": "Einträge pro Seite",
+			"no-phenomenon": "Kein Phänomen ausgewählt. Wähle oben ein Phänomen aus, um die zugehörigen Belege anzuzeigen.",
+			"no-results": "Keine Belege für diese Filterauswahl gefunden. Passe die Filter an.",
 			"infid": "Informant",
 			"response": "Antwort",
 			"annotation": "Variante",
@@ -397,6 +399,7 @@
 		"description": "Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert"
 	},
 	"MapsPage": {
+		"show-stimulus": "Impuls anzeigen",
 		"meta": {
 			"title": "Kartierung",
 			"description": "Interaktives Mapping-Tool: Zugang zu Fragebogendaten, visualisiert lautliche, grammatische und lexikalische Variation der deutschen Sprache in Österreich."

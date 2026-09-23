@@ -147,7 +147,11 @@ const questions = new Hono<AppEnv>()
 		 *
 		 * example: ["+anno", "-phen"] would sort by annotation in an ascending order and afterwards phen in a descending order
 		 */
-		const { annotations, varIds } = c.req.queries();
+		const { annotations, varIds, surveyIds } = c.req.queries();
+		const surveyIdsParsed = (surveyIds ?? []).map(Number);
+		if (surveyIdsParsed.some((id) => !Number.isInteger(id) || id <= 0)) {
+			return c.json("Survey IDs must be positive integers", 400);
+		}
 
 		if (!phenomenonId || Number.isNaN(Number(phenomenonId))) {
 			return c.json("Phenomenon id is required", 400);
@@ -226,6 +230,7 @@ const questions = new Hono<AppEnv>()
 			upperAgeParsed,
 			orderByParsed,
 			orderByDir,
+			surveyIdsParsed,
 		);
 
 		const totalCount = Number(fetchedResponses[0]?.total);

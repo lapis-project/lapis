@@ -247,6 +247,7 @@ export async function getResultsByPhaen(
 	upper_age_limit: number,
 	order_by: string,
 	order_by_dir: string,
+	surveyIds: Array<number> = [],
 ) {
 	let row_num_query = sql<number>`ROW_NUMBER() OVER (ORDER BY ${sql.ref(order_by)} ${sql.raw(order_by_dir)})`;
 	if (order_by === "") {
@@ -292,6 +293,17 @@ export async function getResultsByPhaen(
 				"age_group.age_group_name",
 				"informant.comment",
 			]);
+
+		if (surveyIds.length > 0) {
+			dbQuery = dbQuery.where(({ exists, selectFrom }) =>
+				exists(
+					selectFrom("survey_contains_task")
+						.select("survey_contains_task.task_id")
+						.whereRef("survey_contains_task.task_id", "=", "task.id")
+						.where("survey_contains_task.survey_id", "in", surveyIds),
+				),
+			);
+		}
 
 		if (varIds.length > 0) {
 			dbQuery = dbQuery.where("variety.id", "in", varIds);

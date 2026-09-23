@@ -23,7 +23,7 @@ test.describe("DB page functionality", () => {
 		const results = page.locator("main").getByText(/^\d+\s+Ergebnisse$/);
 		await expect(results).toHaveText(/5806\s+Ergebnisse/);
 
-		await expect(page.getByRole("row")).toHaveCount(102);
+		await expect(page.locator("tbody").getByRole("row")).toHaveCount(100);
 	});
 
 	test("page filters", async ({ page }) => {
@@ -75,11 +75,14 @@ test.describe("DB page functionality", () => {
 
 		await page.getByTestId("reset").click();
 		const questions = page.getByTestId("questions");
-		await expect(questions).toHaveText(/AUGENLID\/LID/);
-		await expect(results).toHaveText(/5806\s+Ergebnisse/);
+		await expect(questions).not.toContainText("DOTTER/EIGELB");
+		await expect(results).toHaveText(/^0\s+Ergebnisse$/);
 	});
 
 	test("age slider", async ({ page }) => {
+		await expect(page.getByRole("slider").first()).toBeHidden();
+		await page.getByTestId("advanced").click();
+		await expect(page.getByTestId("advanced")).toHaveAttribute("aria-expanded", "true");
 		// move the lower‑bound thumb from 0 to 10
 		const thumb = page.getByRole("slider").first();
 

@@ -5,6 +5,38 @@ import questions from "@/handler/questionHandler.ts";
 import * as questionRepo from "../src/db/questionRepository.ts";
 
 describe("Question Handler", () => {
+	describe("table survey filtering", () => {
+		it.each(["1", "1&surveyIds=2"])(
+			"passes survey IDs to the table query: %s",
+			async (surveyIds) => {
+				const query = vi.spyOn(questionRepo, "getResultsByPhaen").mockResolvedValueOnce([]);
+				try {
+					const response = await questions.request(
+						`/table/11?surveyIds=${surveyIds}&lowerAge=0&upperAge=100`,
+					);
+					expect(response.status).toBe(200);
+					expect(query.mock.calls[0]?.[9]).toEqual(surveyIds === "1" ? [1] : [1, 2]);
+				} finally {
+					query.mockRestore();
+				}
+			},
+		);
+
+		it.each(["nope", "0", "-1", "1.5"])(
+			"rejects invalid survey ID %s before querying",
+			async (surveyId) => {
+				const query = vi.spyOn(questionRepo, "getResultsByPhaen");
+				try {
+					const response = await questions.request(`/table/11?surveyIds=${surveyId}`);
+					expect(response.status).toBe(400);
+					expect(query).not.toHaveBeenCalled();
+				} finally {
+					query.mockRestore();
+				}
+			},
+		);
+	});
+
 	describe("GET /", () => {
 		it("should return all data from all surveys of round 1 without projectId with phenomenon 10 (Knöchel/Enkel)", async () => {
 			const data = await questions.request("/?surveyId=1&phenomenonId=10");

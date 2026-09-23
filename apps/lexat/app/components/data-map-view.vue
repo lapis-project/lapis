@@ -52,7 +52,10 @@ const onboardingWrapper = ref<{ startOnboarding: () => void } | null>(null);
 
 const { colors, specialColors, resetColors } = useMapColors();
 
-const { questions } = await useQuestions();
+const activeSurveyRounds = ref<Array<string>>(["1", "2"]);
+const { questions, status: questionsStatus } = await useQuestions(() =>
+	activeSurveyRounds.value.length === 1 ? activeSurveyRounds.value[0] : undefined,
+);
 
 const mappedQuestions = computed(() => {
 	return (
@@ -66,7 +69,6 @@ const mappedQuestions = computed(() => {
 
 const activeAgeGroup = ref([0, 100]);
 const activeLocations = ref<Array<LocationOption>>([]);
-const activeSurveyRounds = ref<Array<string>>(["1", "2"]);
 const changedColors = ref<Record<string, string>>({});
 const debouncedActiveAgeGroup = refDebounced(activeAgeGroup, 250);
 const activeBasemap = ref<string>("https://basemaps.cartocdn.com/gl/positron-gl-style/style.json");
@@ -625,12 +627,12 @@ const updateUrlParams = async () => {
 	});
 };
 
-const resetSelection = async (omit?: Array<"age" | "question" | "register">) => {
+const resetSelection = async (omit?: Array<"age" | "question" | "register" | "survey">) => {
 	if (!omit?.includes("age")) {
 		activeAgeGroup.value = [0, 100];
 	}
 	if (!omit?.includes("question")) {
-		activeQuestion.value = "";
+		activeQuestion.value = undefined;
 	}
 	if (!omit?.includes("register")) {
 		activeRegisters.value = ["all"];
@@ -639,7 +641,9 @@ const resetSelection = async (omit?: Array<"age" | "question" | "register">) => 
 	activeLocations.value = [];
 	popover.value = null;
 	changedColors.value = {};
-	activeSurveyRounds.value = ["1", "2"];
+	if (!omit?.includes("survey")) {
+		activeSurveyRounds.value = ["1", "2"];
+	}
 	await updateUrlParams();
 };
 
@@ -648,6 +652,9 @@ const fallbackQuestion = {
 	value: "11",
 	label: "AUGENLID",
 };
+
+// Serialize the random seed so server rendering and hydration choose the same question.
+const initialQuestionSeed = useState(`map-initial-question-${useId()}`, () => Math.random());
 
 const initializeFromUrl = () => {
 	// flag to track if we generated local state
@@ -664,8 +671,8 @@ const initializeFromUrl = () => {
 			mappedQuestions.value?.find((m) => m.value === questionParam) ?? fallbackQuestion;
 	} else if (mappedQuestions.value && mappedQuestions.value.length > 0) {
 		// Pick a random question if none is specified in the URL
-		const randomIndex = Math.floor(Math.random() * mappedQuestions.value.length);
-		const randomQuestion = mappedQuestions.value.find((m) => m.id === randomIndex);
+		const randomIndex = Math.floor(initialQuestionSeed.value * mappedQuestions.value.length);
+		const randomQuestion = mappedQuestions.value[randomIndex];
 
 		if (randomQuestion) {
 			activeQuestion.value = randomQuestion;
@@ -714,9 +721,11 @@ const initializeFromUrl = () => {
 		});
 	}
 
-	// sync the URL once all other params have been safely parsed
+	// Wait until hydration finishes before changing the URL.
 	if (requiresUrlUpdate) {
-		void updateUrlParams();
+		onMounted(() => {
+			void updateUrlParams();
+		});
 	}
 };
 
@@ -840,16 +849,32 @@ const resetOnboarding = () => {
 	onboardingWrapper.value?.startOnboarding();
 };
 
+watch([questions, questionsStatus], ([availableQuestions, status]) => {
+	// Keep the selection while loading or on failure; only validate against a successful response.
+	if (status !== "success" || !availableQuestions || !activeQuestion.value) return;
+
+	if (!availableQuestions.some((question) => question.id === activeQuestion.value?.id)) {
+		activeQuestion.value = undefined;
+	}
+});
+
 watch(activeQuestion, async () => {
-	await resetSelection(["question"]);
+	await resetSelection(["question", "survey"]);
 	resetColors();
 });
 
 watch(
 	activeSurveyRounds,
-	async () => {
-		popover.value = null;
-		await updateUrlParams();
+	async (selection, previousSelection) => {
+		if (selection.length < previousSelection.length) {
+			showStateCapitals.value = true;
+			showUrbanLocations.value = true;
+			resetColors();
+			await resetSelection(["survey"]);
+		} else {
+			popover.value = null;
+			await updateUrlParams();
+		}
 	},
 	{ deep: true },
 );
@@ -877,7 +902,7 @@ watch(simplifiedView, async () => {
 watch(
 	activeRegisters,
 	async () => {
-		await resetSelection(["age", "question", "register"]);
+		await resetSelection(["age", "question", "register", "survey"]);
 	},
 	{
 		deep: true,
@@ -895,8 +920,29 @@ watch(activeVariants, updateUrlParams, {
 			<div class="flex gap-2">
 				<div class="grow rounded-lg border border-muted p-5">
 					<div class="grid grid-cols-4 gap-5">
+						<div id="surveyround">
+							<div class="mb-1 ml-1 text-sm font-semibold align-center flex gap-1 items-center">
+								{{ t("MapsPage.selection.survey.title") }}
+								<UTooltip
+									:content="{ side: 'top' }"
+									:delay-duration="0"
+									:text="t('MapsPage.selection.variable.tooltip')"
+								>
+									<UIcon name="i-lucide-info" class="size-4" />
+								</UTooltip>
+							</div>
+							<USelect
+								data-testid="survey"
+								:items="surveyRoundOptions"
+								:model-value="activeSurveyRounds"
+								multiple
+								size="lg"
+								class="w-64"
+								@update:model-value="updateActiveSurveyRounds"
+							/>
+						</div>
 						<div id="phenomenon">
-							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
 								{{ t("MapsPage.selection.variable.title") }}
 								<UTooltip
 									:content="{ side: 'top' }"
@@ -917,7 +963,7 @@ watch(activeVariants, updateUrlParams, {
 							/>
 						</div>
 						<div id="register">
-							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
 								{{ t("MapsPage.selection.register.title") }}
 								<UTooltip
 									:content="{ side: 'top' }"
@@ -936,7 +982,7 @@ watch(activeVariants, updateUrlParams, {
 							/>
 						</div>
 						<div id="variant">
-							<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold">
+							<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
 								{{ t("MapsPage.selection.variants.title") }}
 								<UTooltip
 									:content="{ side: 'top' }"
@@ -958,49 +1004,25 @@ watch(activeVariants, updateUrlParams, {
 								@update:model-value="updateActiveVariants"
 							/>
 						</div>
-						<div id="age-group">
-							<div class="ml-1 flex gap-1 text-sm font-semibold">
-								{{ t("MapsPage.selection.age.title") }}
-							</div>
-							<div class="max-w-64 pl-1">
-								<DualRangeSlider
-									accessibility-label="Age Group"
-									:max="100"
-									:min="0"
-									:step="5"
-									:value="activeAgeGroup"
-									@update:value="setAgeGroup"
-								/>
-							</div>
-						</div>
 					</div>
 					<UCollapsible v-model:open="open">
 						<template #content>
 							<hr class="mt-5 border-muted" />
 							<div class="mt-4 grid grid-cols-4 gap-5">
-								<div>
-									<div class="mb-1 ml-1 text-sm font-semibold">
-										{{ t("MapsPage.selection.basemap.title") }}
+								<div id="age-group">
+									<div class="ml-1 flex gap-1 text-sm font-semibold">
+										{{ t("MapsPage.selection.age.title") }}
 									</div>
-									<USelect
-										v-model="activeBasemap"
-										:items="basemapOptions"
-										:placeholder="t('MapsPage.selection.basemap.placeholder')"
-										size="lg"
-										class="w-64"
-									/>
-									<div class="mt-2 mb-1 ml-1 text-sm font-semibold">
-										{{ t("MapsPage.selection.survey.title") }}
+									<div class="max-w-64 pl-1">
+										<DualRangeSlider
+											accessibility-label="Age Group"
+											:max="100"
+											:min="0"
+											:step="5"
+											:value="activeAgeGroup"
+											@update:value="setAgeGroup"
+										/>
 									</div>
-									<USelect
-										data-testid="survey"
-										:items="surveyRoundOptions"
-										:model-value="activeSurveyRounds"
-										multiple
-										size="lg"
-										class="w-64"
-										@update:model-value="updateActiveSurveyRounds"
-									/>
 								</div>
 								<div class="">
 									<div class="mb-1 ml-1 text-sm font-semibold">
@@ -1023,7 +1045,7 @@ watch(activeVariants, updateUrlParams, {
 											</UTooltip>
 										</label>
 									</div>
-									<div class="flex w-64 space-x-2 self-center rounded border border-muted p-2">
+									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
 										<UCheckbox id="showRegions" v-model="showRegions" />
 										<label
 											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1032,6 +1054,13 @@ watch(activeVariants, updateUrlParams, {
 											{{ t("MapsPage.selection.show-regions") }}
 										</label>
 									</div>
+									<USelect
+										v-model="activeBasemap"
+										:items="basemapOptions"
+										:placeholder="t('MapsPage.selection.basemap.placeholder')"
+										size="lg"
+										class="w-64"
+									/>
 								</div>
 								<div class="">
 									<label class="mb-1 ml-1 block text-sm font-semibold" for="location-filter">
@@ -1213,12 +1242,14 @@ watch(activeVariants, updateUrlParams, {
 			</div>
 			<div v-if="stimulusDialogRef?.hasImage" class="absolute top-14 right-2 z-10">
 				<UButton
-					size="lg"
+					size="xl"
+					square
 					:title="t('MapsPage.show-stimulus')"
 					variant="outline"
+					icon="i-lucide-image"
+					color="neutral"
 					@click="handleShowImage"
 				>
-					<UIcon name="i-lucide-image" class="size-5" />
 					<span class="sr-only">Show Phenomenon Image</span>
 				</UButton>
 			</div>
@@ -1359,5 +1390,5 @@ watch(activeVariants, updateUrlParams, {
 		>
 		</OnboardingWrapper>
 	</div>
-	<!-- <StimulusDialog ref="stimulusDialogRef" :phenomenon-id="activeQuestionId" /> -->
+	<StimulusDialog ref="stimulusDialogRef" :phenomenon-id="activeQuestionId" />
 </template>

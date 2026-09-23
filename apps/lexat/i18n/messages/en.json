@@ -296,6 +296,8 @@
 		"table": {
 			"results": "Results",
 			"items-per-page": "Items per page",
+			"no-phenomenon": "No phenomenon selected. Choose a phenomenon above to view its data.",
+			"no-results": "No records match these filters. Try adjusting your filters.",
 			"infid": "Informant",
 			"response": "Response",
 			"annotation": "Variant",
@@ -397,6 +399,7 @@
 		"description": "Atlas on lexical variation in Austria in the 21st century"
 	},
 	"MapsPage": {
+		"show-stimulus": "Show stimulus",
 		"meta": {
 			"title": "Maps",
 			"description": "Interactive mapping environment providing direct access to survey data and visualising phonetic, grammatical, and lexical variation in Austrian German."

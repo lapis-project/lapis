@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-	phenomenonId: number | null;
+	phenomenonId: number | undefined;
 }>();
 
 const stimulusImageUrl = ref<string | null>(null);

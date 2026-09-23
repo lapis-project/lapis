@@ -149,8 +149,14 @@ test.describe("Maps page functionality", () => {
 	});
 
 	test("age slider", async ({ page }) => {
+		const advancedFilters = page.getByRole("button", { name: "Toggle advanced filters" });
+		await expect(page.getByRole("slider").first()).toBeHidden();
+		await advancedFilters.click();
+		await expect(advancedFilters).toHaveAttribute("aria-expanded", "true");
+
 		// move the lower‑bound thumb from 0 to 10
 		const thumb = page.getByRole("slider").first();
+		await expect(thumb).toBeVisible();
 
 		await thumb.focus();
 		await thumb.press("Home");

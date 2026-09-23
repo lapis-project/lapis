@@ -23,7 +23,7 @@ test.describe("DB page functionality", () => {
 		const results = page.locator("main").getByText(/^\d+\s+Ergebnisse$/);
 		await expect(results).toHaveText(/5806\s+Ergebnisse/);
 
-		await expect(page.getByRole("row")).toHaveCount(102);
+		await expect(page.locator("tbody").getByRole("row")).toHaveCount(100);
 	});
 
 	test("page filters", async ({ page }) => {

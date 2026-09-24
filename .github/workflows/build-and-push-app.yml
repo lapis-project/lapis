@@ -87,8 +87,7 @@ jobs:
       PUBLIC_URL: "${{ steps.generate_public_url.outputs.public_url }}"
       APP_ROOT: "${{ steps.generate_app_root.outputs.app_root }}"
       KUBE_NAMESPACE: "${{ steps.generate_kube_namespace.outputs.kube_namespace }}"
-      KUBE_INGRESS_BASE_DOMAIN:
-        "${{ steps.generate_kube_ingress.outputs.kube_ingress_base_domain }}"
+      KUBE_INGRESS_BASE_DOMAIN: "${{ steps.generate_kube_ingress.outputs.kube_ingress_base_domain }}"
   build_and_deploy:
     needs:
       - setup_workflow_env
@@ -199,6 +198,7 @@ jobs:
     secrets: inherit
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
+      do_not_generate_additional_host_names: "true"
       DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-${{ inputs.app_name }}-dev
       APP_NAME: lapis-${{ needs.setup_workflow_env.outputs.APP_NAME }}-dev
       APP_ROOT: "${{ needs.generate_workflow_vars.outputs.APP_ROOT }}"
@@ -207,7 +207,6 @@ jobs:
       default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
       KUBE_NAMESPACE: ${{ needs.generate_workflow_vars.outputs.KUBE_NAMESPACE }}
       KUBE_INGRESS_BASE_DOMAIN: ${{ needs.generate_workflow_vars.outputs.KUBE_INGRESS_BASE_DOMAIN }}
-      do_not_generate_additional_host_names: true
   clean_up_cache:
     permissions:
       actions: write

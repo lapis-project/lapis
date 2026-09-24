@@ -137,6 +137,7 @@ jobs:
     secrets: inherit
     with:
       environment: "${{ needs.setup_workflow_env.outputs.environment }}"
+      do_not_generate_additional_host_names: "true"
       DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-backend
       APP_NAME: "${{ needs.setup_workflow_env.outputs.app_name }}"
       APP_ROOT: "${{ needs.setup_workflow_env.outputs.APP_ROOT }}"

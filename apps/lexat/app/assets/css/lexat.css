@@ -95,9 +95,9 @@ To use solid black or white as your primary color, set it directly in your main.
 	}
 
 	.article-content h3,
-	h4,
-	h5,
-	h6 {
+	.article-content h4,
+	.article-content h5,
+	.article-content h6 {
 		@apply font-semibold;
 	}
 
@@ -192,5 +192,256 @@ To use solid black or white as your primary color, set it directly in your main.
 
 	.article-content caption {
 		@apply text-muted text-sm mt-2;
+	}
+}
+
+/* Article detail: a reading column with a quiet scholarly apparatus. */
+@layer base {
+	.article-detail {
+		padding-top: 1.5rem;
+		padding-bottom: 5rem;
+	}
+
+	.article-back {
+		@apply text-sm text-muted;
+
+		margin-bottom: 1.25rem;
+	}
+
+	.article-layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: 2.5rem;
+	}
+
+	.article-main {
+		min-width: 0;
+	}
+
+	.article-intro {
+		@apply border-b border-default;
+
+		display: grid;
+		gap: 1.25rem;
+		align-items: start;
+		margin-bottom: 1.5rem;
+		padding-bottom: 1.25rem;
+	}
+
+	.article-header {
+		min-width: 0;
+	}
+
+	.article-category,
+	.article-section-label {
+		@apply text-sm font-semibold;
+
+		letter-spacing: 0.04em;
+	}
+
+	.article-category {
+		@apply text-secondary;
+
+		margin-bottom: 0.5rem;
+	}
+
+	.article-title {
+		margin-bottom: 0.75rem;
+		font-weight: 500;
+		font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+		font-family: Georgia, "Times New Roman", serif;
+		line-height: 1.2;
+		overflow-wrap: anywhere;
+	}
+
+	.article-authors {
+		@apply text-sm font-medium;
+
+		margin-bottom: 0.5rem;
+	}
+
+	.article-dates {
+		@apply text-sm text-muted;
+
+		line-height: 1.7;
+	}
+
+	.article-share {
+		margin-top: 0.5rem;
+	}
+
+	/* Reserve the same geometry in SSR and after the image decodes. */
+	.article-cover {
+		@apply bg-muted;
+
+		overflow: hidden;
+		width: 100%;
+		aspect-ratio: 16 / 9;
+	}
+
+	.article-cover-image {
+		display: block;
+		object-fit: cover;
+		width: 100%;
+		height: 100%;
+	}
+
+	.article-detail .article-content {
+		font-size: 1.125rem;
+		font-family: Georgia, "Times New Roman", serif;
+		line-height: 1.8;
+		overflow-wrap: anywhere;
+	}
+
+	.article-detail .article-content :is(h2, h3, h4, h5, h6) {
+		font-family: var(--font-sans);
+		line-height: 1.4;
+		scroll-margin-top: 6rem;
+	}
+
+	.article-detail .article-content h2 {
+		margin-top: 2.75rem;
+		margin-bottom: 1rem;
+		font-weight: 600;
+		font-size: 1.4rem;
+	}
+
+	.article-detail .article-content h3 {
+		margin-top: 2rem;
+		font-size: 1.15rem;
+	}
+
+	.article-detail .article-content > :first-child {
+		margin-top: 0;
+	}
+
+	/* CMS justification creates large word gaps in narrow reading columns. */
+	.article-detail .article-content [style*="text-align: justify"] {
+		text-align: start !important;
+	}
+
+	.article-detail .article-content p {
+		margin-top: 1rem;
+		line-height: inherit;
+	}
+
+	.article-toc-list a {
+		@apply text-muted;
+
+		display: block;
+		padding: 0.4rem 0;
+	}
+
+	.article-toc-list a:hover,
+	.article-back:hover {
+		@apply text-secondary;
+
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
+
+	.article-detail .article-content a {
+		text-underline-offset: 0.2em;
+		text-decoration-thickness: 1px;
+	}
+
+	.article-detail .article-content img {
+		display: block;
+		height: auto;
+		margin: 2rem auto 0.75rem;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	.article-detail .article-content figcaption {
+		@apply text-muted;
+
+		font-style: normal;
+		font-size: 0.8125rem;
+		font-family: var(--font-sans);
+		line-height: 1.6;
+		text-align: left;
+	}
+
+	.article-detail .article-bibliography {
+		@apply border-t border-default;
+
+		margin-top: 3rem;
+		font-size: 1rem;
+	}
+
+	.article-detail .article-bibliography > p {
+		padding-left: 1.5rem;
+		text-indent: -1.5rem;
+	}
+
+	.article-citation {
+		@apply border-l-2 border-secondary bg-muted;
+
+		margin-top: 2.5rem;
+		padding: 1.5rem;
+	}
+
+	.article-citation-text {
+		margin-top: 0.75rem;
+		font-family: Georgia, "Times New Roman", serif;
+		line-height: 1.75;
+		overflow-wrap: anywhere;
+	}
+
+	.article-sidebar {
+		display: none;
+	}
+
+	.article-sidebar-inner {
+		@apply border-l border-default;
+
+		position: sticky;
+		top: 6rem;
+		overflow-y: auto;
+		max-height: calc(100dvh - 8rem);
+		padding-left: 1.5rem;
+	}
+
+	.article-toc-list {
+		margin-top: 1rem;
+		list-style: none;
+		font-size: 0.875rem;
+		line-height: 1.55;
+	}
+
+	.article-mobile-toc {
+		@apply border-y border-default;
+
+		margin-bottom: 1.25rem;
+		padding: 0.75rem 0;
+	}
+
+	.article-mobile-toc summary {
+		font-weight: 600;
+		font-size: 0.875rem;
+		cursor: pointer;
+	}
+}
+
+@layer base {
+	@media (width >= 768px) {
+		.article-intro-with-cover {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 38%);
+		}
+	}
+
+	@media (width >= 1024px) {
+		.article-layout {
+			grid-template-columns: minmax(0, 1fr) minmax(14rem, 22%);
+		}
+
+		.article-sidebar {
+			display: block;
+		}
+
+		.article-mobile-toc {
+			display: none;
+		}
 	}
 }

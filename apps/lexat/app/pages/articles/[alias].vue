@@ -151,92 +151,103 @@ const formattedTitle = computed(
 </script>
 
 <template>
-	<MainContent class="container py-8">
+	<MainContent class="container article-detail">
 		<NuxtLinkLocale
 			v-if="!isProjectDescription"
-			class="mb-6 inline-flex items-center gap-1"
+			class="article-back inline-flex items-center gap-2"
 			to="/articles"
 			><UIcon name="i-lucide-arrow-left" class="size-4" />
 			{{ t("ArticleDetailPage.back") }}</NuxtLinkLocale
 		>
-		<div class="flex flex-col sm:flex-row gap-8">
-			<article v-if="article" class="w-full sm:w-3/4">
-				<div
-					v-if="!isProjectDescription"
-					class="mb-2 inline-block rounded-full bg-slate-200 px-3 py-0.5 tracking-wider dark:text-primary-foreground"
-				>
-					{{ t(`AdminPage.editor.category.${article.post_type_name}`) }}
-				</div>
-				<h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold break-words">
-					{{ formattedTitle }}
-				</h1>
-				<div class="mb-4 mt-4">
-					<ShareButton :title="article?.title ?? ''" />
-				</div>
-				<p v-if="article.authors?.length" class="mb-1">
-					{{ t("ArticleDetailPage.authors") }}: {{ formatAuthors(article.authors) }}
-				</p>
-				<div v-if="publishedAt" class="mb-4 italic">
-					{{ t("ArticleDetailPage.published_at") }}: {{ publishedAt }}
-					<span v-if="updatedAt && updatedAt !== publishedAt"
-						>({{ t("ArticleDetailPage.updated_at") }}: {{ updatedAt }})</span
-					>
-				</div>
-				<NuxtImg
-					v-if="article.cover"
-					:alt="article.cover_alt ?? 'Cover'"
-					class="object-cover aspect-video"
-					placeholder
-					:src="article.cover"
-				/>
-				<div v-if="article?.post_type_name !== 'short_description'" class="block sm:hidden">
-					<hr class="my-8 border-muted" />
-					<div class="font-bold block sm:hidden text-2xl mb-5">
-						{{ t("ArticleDetailPage.toc") }}
+		<div class="article-layout">
+			<article v-if="article" class="article-main">
+				<div class="article-intro" :class="{ 'article-intro-with-cover': article.cover }">
+					<header class="article-header">
+						<div v-if="!isProjectDescription" class="article-category">
+							{{ t(`AdminPage.editor.category.${article.post_type_name}`) }}
+						</div>
+						<h1 class="article-title">
+							{{ formattedTitle }}
+						</h1>
+						<p v-if="article.authors?.length" class="article-authors">
+							{{ t("ArticleDetailPage.authors") }}: {{ formatAuthors(article.authors) }}
+						</p>
+						<div v-if="publishedAt" class="article-dates">
+							{{ t("ArticleDetailPage.published_at") }}: {{ publishedAt }}
+							<span v-if="updatedAt && updatedAt !== publishedAt"
+								>({{ t("ArticleDetailPage.updated_at") }}: {{ updatedAt }})</span
+							>
+						</div>
+						<div class="article-share"><ShareButton :title="article.title ?? ''" /></div>
+					</header>
+					<div v-if="article.cover" class="article-cover">
+						<NuxtImg
+							:alt="article.cover_alt ?? 'Cover'"
+							class="article-cover-image"
+							width="960"
+							height="540"
+							:src="article.cover"
+						/>
 					</div>
-					<ul class="-ml-4 list-inside list-disc text-xl">
-						<li
-							v-for="item in tableOfContents"
-							:key="item.id"
-							class="py-1"
-							:style="{ marginLeft: `${(item.level - 1) * 20}px` }"
-						>
-							<a :href="`#${item.id}`">{{ item.text }}</a>
-						</li>
-					</ul>
 				</div>
-				<hr class="mt-5 border-muted" />
-				<div class="article-content" v-html="article.content"></div>
-				<div v-if="bibliography?.length" class="article-content">
-					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>
-					<p v-for="item in bibliography" :key="item" v-html="item"></p>
-				</div>
-				<hr class="mt-5 border-muted" />
-				<div v-if="article.citation">
-					<h2 class="mb-4 mt-8 text-xl font-bold">{{ t("ArticleDetailPage.citation") }}</h2>
-					<blockquote class="max-w-2xl italic break-all sm:break-keep">
-						{{ article.citation }}
-					</blockquote>
-				</div>
-			</article>
-			<aside class="hidden sm:block w-1/4">
-				<section class="sticky top-20 border border-muted p-5">
-					<template v-if="article?.post_type_name !== 'short_description'">
-						<div class="font-bold">{{ t("ArticleDetailPage.toc") }}</div>
-						<hr class="my-2 border-muted" />
-						<ul class="-ml-4 list-inside list-disc">
+				<nav
+					v-if="article.post_type_name !== 'short_description' && tableOfContents.length"
+					class="article-mobile-toc"
+					:aria-label="t('ArticleDetailPage.toc')"
+				>
+					<details>
+						<summary>{{ t("ArticleDetailPage.toc") }}</summary>
+						<ul class="article-toc-list">
 							<li
 								v-for="item in tableOfContents"
 								:key="item.id"
-								:style="{ marginLeft: `${(item.level - 1) * 20}px` }"
+								:style="{ paddingLeft: `${Math.max(0, item.level - 2) * 12}px` }"
+							>
+								<a :href="`#${item.id}`">{{ item.text }}</a>
+							</li>
+						</ul>
+					</details>
+				</nav>
+				<div class="article-content" v-html="article.content"></div>
+				<div v-if="bibliography?.length" class="article-content article-bibliography">
+					<h2>{{ t("ArticleDetailPage.bibliography") }}</h2>
+					<p v-for="item in bibliography" :key="item" v-html="item"></p>
+				</div>
+				<section v-if="article.citation" class="article-citation">
+					<h2 class="article-section-label">{{ t("ArticleDetailPage.citation") }}</h2>
+					<blockquote class="article-citation-text">
+						{{ article.citation }}
+					</blockquote>
+				</section>
+			</article>
+			<aside
+				v-if="
+					article &&
+					((article.post_type_name !== 'short_description' && tableOfContents.length) ||
+						phenomenonId)
+				"
+				class="article-sidebar"
+			>
+				<section class="article-sidebar-inner">
+					<nav
+						v-if="article.post_type_name !== 'short_description'"
+						:aria-label="t('ArticleDetailPage.toc')"
+					>
+						<div class="article-section-label">{{ t("ArticleDetailPage.toc") }}</div>
+
+						<ul class="article-toc-list">
+							<li
+								v-for="item in tableOfContents"
+								:key="item.id"
+								:style="{ paddingLeft: `${Math.max(0, item.level - 2) * 12}px` }"
 							>
 								<a :href="`#${item.id}`" @click.prevent="scrollTo(item.id)">{{ item.text }}</a>
 							</li>
 						</ul>
-					</template>
+					</nav>
 					<template v-else-if="phenomenonId">
-						<div class="font-bold">{{ t("ArticleDetailPage.interlinking.title") }}</div>
-						<hr class="my-2 border-muted" />
+						<div class="article-section-label">{{ t("ArticleDetailPage.interlinking.title") }}</div>
+
 						<p class="mb-5">{{ t("ArticleDetailPage.interlinking.text") }}</p>
 						<div class="flex flex-col items-center gap-3">
 							<UButton icon="i-lucide-map-pin" variant="outline" size="lg" @click="goToMapsPage">{{

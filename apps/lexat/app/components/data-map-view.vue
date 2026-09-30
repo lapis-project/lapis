@@ -5,7 +5,11 @@ import { keyByToMap } from "@acdh-oeaw/lib";
 import { refDebounced } from "@vueuse/core";
 import type { MapGeoJSONFeature } from "maplibre-gl";
 import { useRoute, useRouter } from "nuxt/app";
-import type { LocationQueryValue, RouteLocationNormalizedLoaded } from "vue-router";
+import type {
+	LocationQueryRaw,
+	LocationQueryValue,
+	RouteLocationNormalizedLoaded,
+} from "vue-router";
 
 import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
 import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
@@ -19,6 +23,7 @@ import {
 } from "@/assets/data/static-filter-data";
 import type { TableColumn, TableEntry } from "@/components/data-table.vue";
 import type StimulusDialog from "@/components/stimulus-dialog.vue";
+import { DEFAULT_DATASET_ID } from "@/composables/use-dataset-store";
 import { useMapColors } from "@/composables/use-map-colors";
 import { useQuestions } from "@/composables/use-questions";
 import type {
@@ -28,6 +33,7 @@ import type {
 } from "@/types/feature-collection";
 import type { LocationOption } from "@/types/location-option";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
+import { datasetQuestions, datasetResponses, matchesDatasetAge } from "@/utils/dataset";
 import {
 	countUniqueVariants,
 	getSortedVariants,
@@ -43,7 +49,27 @@ const route = useRoute();
 const env = useRuntimeConfig();
 const localePath = useLocalePath();
 
-const registerOptions = getRegisterOptions(t);
+const datasetStore = useDatasetStore();
+const selectedDatasetId = ref(
+	typeof route.query.dataset === "string" ? route.query.dataset : DEFAULT_DATASET_ID,
+);
+const customDataset = computed(() =>
+	datasetStore.customDatasets.find((dataset) => dataset.id === selectedDatasetId.value),
+);
+const isCustomDataset = computed(() => customDataset.value !== undefined);
+const datasetOptions = computed(() => [
+	{ label: t("DatasetSwitcher.default-dataset"), value: DEFAULT_DATASET_ID },
+	...datasetStore.customDatasets.map((dataset) => ({ label: dataset.name, value: dataset.id })),
+]);
+const registerOptions = computed(() => {
+	if (!customDataset.value) return getRegisterOptions(t);
+	return [
+		{ label: t("MapsPage.selection.register.show-all"), value: "all", level: 0 },
+		...[...new Set(customDataset.value.entries.map((entry) => entry.register))]
+			.filter(Boolean)
+			.map((label, index) => ({ label, value: `custom-${index}`, level: 1 })),
+	];
+});
 
 const popover = ref<{ coordinates: [number, number]; entities: Array<SurveyResponse> } | null>(
 	null,
@@ -58,6 +84,7 @@ const { questions, status: questionsStatus } = await useQuestions(() =>
 );
 
 const mappedQuestions = computed(() => {
+	if (customDataset.value) return datasetQuestions(customDataset.value.entries);
 	return (
 		questions.value?.map((q) => ({
 			id: q.id,
@@ -93,6 +120,7 @@ const activeQuestionId = computed(() => {
 const stimulusDialogRef = ref<InstanceType<typeof StimulusDialog> | null>(null);
 
 function handleShowImage() {
+	if (isCustomDataset.value) return;
 	stimulusDialogRef.value?.openDialog();
 }
 
@@ -119,18 +147,34 @@ const updateActiveSurveyRounds = (selection: Array<string>) => {
 	}
 };
 
-const { data: questionData } = await useFetch<Array<SurveyResponse>>("/questions", {
-	query: { phenomenonId: activeQuestionId, projectId: "1", surveyIds: activeSurveyRounds },
-	baseURL: env.public.apiBaseUrl,
-	method: "get",
-});
+const apiQuestionId = computed(() => (isCustomDataset.value ? undefined : activeQuestionId.value));
+const { data: questionData, execute: fetchQuestionData } = await useFetch<Array<SurveyResponse>>(
+	"/questions",
+	{
+		immediate: false,
+		watch: false,
+		query: { phenomenonId: apiQuestionId, projectId: "1", surveyIds: activeSurveyRounds },
+		baseURL: env.public.apiBaseUrl,
+		method: "get",
+	},
+);
+
+watch(
+	[activeQuestionId, activeSurveyRounds, isCustomDataset],
+	() => {
+		if (!isCustomDataset.value) void fetchQuestionData();
+	},
+	{ immediate: true, deep: true },
+);
 
 const entities = computed((): Array<RegionFeature> => {
 	return dialectRegions.features;
 });
 
 const points = computed(() => {
-	let features = questionData.value ?? [];
+	let features = customDataset.value
+		? datasetResponses(customDataset.value.entries, activeQuestion.value?.label ?? "")
+		: (questionData.value ?? []);
 
 	features.forEach((f) => {
 		if (Array.isArray(f.informants)) {
@@ -144,7 +188,7 @@ const points = computed(() => {
 			// Remove coalesce entries whose answers array is now empty
 			f.informants = f.informants.filter((entry) => entry.answers.length > 0);
 		}
-		f.id = `${f.plz.toString()}-${f.place_name}`;
+		if (!isCustomDataset.value) f.id = `${f.plz.toString()}-${f.place_name}`;
 	});
 
 	// only entries with coordinates are considered valid points
@@ -153,7 +197,7 @@ const points = computed(() => {
 	if (!activeRegisters.value.includes("all")) {
 		const activeRegisterLabels: Array<string> = [];
 		for (const register of activeRegisters.value) {
-			const label = registerOptions.find((r) => r.value === register)?.label;
+			const label = registerOptions.value.find((r) => r.value === register)?.label;
 			if (label) activeRegisterLabels.push(label);
 		}
 
@@ -236,6 +280,12 @@ const filteredPoints = computed(() => {
 	filteredPoints = filteredPoints
 		.map((item) => {
 			const filteredProperties = item.informants.filter((prop) => {
+				if (isCustomDataset.value)
+					return matchesDatasetAge(
+						prop.age,
+						debouncedActiveAgeGroup.value[0] ?? 0,
+						debouncedActiveAgeGroup.value[1] ?? 100,
+					);
 				const ageBounds = prop.age.split("-");
 				return (
 					parseInt(ageBounds[0]!) >= (debouncedActiveAgeGroup.value[0] ?? 0) &&
@@ -597,11 +647,12 @@ const getQueryArray = (
 const updateUrlParams = async () => {
 	const queryObject: LocationQueryRaw = {};
 	Object.entries(route.query).forEach(([key, value]) => {
-		if (!["a", "q", "r", "v", "c", "sv", "sr"].includes(key)) {
+		if (!["a", "q", "r", "v", "c", "sv", "sr", "dataset"].includes(key)) {
 			queryObject[key] = value;
 		}
 	});
-	if (activeSurveyRounds.value.length > 0) {
+	if (selectedDatasetId.value !== DEFAULT_DATASET_ID) queryObject.dataset = selectedDatasetId.value;
+	if (!isCustomDataset.value && activeSurveyRounds.value.length > 0) {
 		queryObject.sr = activeSurveyRounds.value;
 	}
 	if (activeAgeGroup.value.length > 0) {
@@ -657,6 +708,7 @@ const fallbackQuestion = {
 const initialQuestionSeed = useState(`map-initial-question-${useId()}`, () => Math.random());
 
 const initializeFromUrl = () => {
+	if (selectedDatasetId.value !== DEFAULT_DATASET_ID && !customDataset.value) return false;
 	// flag to track if we generated local state
 	let requiresUrlUpdate = false;
 
@@ -668,7 +720,8 @@ const initializeFromUrl = () => {
 	const questionParam = route.query.q;
 	if (typeof questionParam === "string" && questionParam !== "") {
 		activeQuestion.value =
-			mappedQuestions.value?.find((m) => m.value === questionParam) ?? fallbackQuestion;
+			mappedQuestions.value?.find((m) => m.value === questionParam) ??
+			(isCustomDataset.value ? mappedQuestions.value?.[0] : fallbackQuestion);
 	} else if (mappedQuestions.value && mappedQuestions.value.length > 0) {
 		// Pick a random question if none is specified in the URL
 		const randomIndex = Math.floor(initialQuestionSeed.value * mappedQuestions.value.length);
@@ -722,11 +775,7 @@ const initializeFromUrl = () => {
 	}
 
 	// Wait until hydration finishes before changing the URL.
-	if (requiresUrlUpdate) {
-		onMounted(() => {
-			void updateUrlParams();
-		});
-	}
+	return requiresUrlUpdate;
 };
 
 const setAgeGroup = (newValues: Array<number>) => {
@@ -753,10 +802,14 @@ const handleColorUpdate = (index: number, newColor: string) => {
 const capitalsOnly = computed(() => Boolean(showStateCapitals.value && !showUrbanLocations.value));
 
 const postAlias = computed(() => {
+	if (isCustomDataset.value) return undefined;
 	return questions.value?.find((q) => q.id === activeQuestionId.value)?.post_alias;
 });
 
-initializeFromUrl();
+const needsInitialUrlUpdate = initializeFromUrl();
+onMounted(() => {
+	if (needsInitialUrlUpdate) void updateUrlParams();
+});
 
 const highlightRegion = (regionName: string) => {
 	highlightedRegion.value = regionName;
@@ -835,9 +888,9 @@ const onOnboardingFinished = () => {
 onMounted(() => {
 	const onboardingData = localStorage.getItem("map-onboarding");
 
-	if (!onboardingData) {
+	if (!onboardingData && selectedDatasetId.value === DEFAULT_DATASET_ID) {
 		onboardingWrapper.value?.startOnboarding();
-	} else {
+	} else if (onboardingData) {
 		const { finishedAt } = JSON.parse(onboardingData);
 		// eslint-disable-next-line no-console
 		console.info("Onboarding completed at:", finishedAt);
@@ -851,14 +904,42 @@ const resetOnboarding = () => {
 
 watch([questions, questionsStatus], ([availableQuestions, status]) => {
 	// Keep the selection while loading or on failure; only validate against a successful response.
-	if (status !== "success" || !availableQuestions || !activeQuestion.value) return;
+	if (isCustomDataset.value || status !== "success" || !availableQuestions || !activeQuestion.value)
+		return;
 
 	if (!availableQuestions.some((question) => question.id === activeQuestion.value?.id)) {
 		activeQuestion.value = undefined;
 	}
 });
 
+watch(
+	() => route.query.dataset,
+	(id) => {
+		selectedDatasetId.value = typeof id === "string" ? id : DEFAULT_DATASET_ID;
+	},
+);
+
+let restoringDataset = false;
+watch(customDataset, async (dataset, previous) => {
+	// Browser storage arrives after hydration. Preserve the link's phenomenon and filters.
+	if (dataset && !previous && route.query.dataset === dataset.id) {
+		restoringDataset = true;
+		initializeFromUrl();
+		await nextTick();
+		restoringDataset = false;
+		return;
+	}
+	activeQuestion.value = mappedQuestions.value?.[0];
+	await resetSelection(["question"]);
+	resetColors();
+});
+
+function selectDataset(id: string) {
+	selectedDatasetId.value = id;
+}
+
 watch(activeQuestion, async () => {
+	if (restoringDataset) return;
 	await resetSelection(["question", "survey"]);
 	resetColors();
 });
@@ -866,6 +947,7 @@ watch(activeQuestion, async () => {
 watch(
 	activeSurveyRounds,
 	async (selection, previousSelection) => {
+		if (restoringDataset) return;
 		if (selection.length < previousSelection.length) {
 			showStateCapitals.value = true;
 			showUrbanLocations.value = true;
@@ -902,6 +984,7 @@ watch(simplifiedView, async () => {
 watch(
 	activeRegisters,
 	async () => {
+		if (restoringDataset) return;
 		await resetSelection(["age", "question", "register", "survey"]);
 	},
 	{
@@ -909,18 +992,43 @@ watch(
 	},
 );
 
-watch(activeVariants, updateUrlParams, {
-	deep: true,
-});
+watch(
+	activeVariants,
+	() => {
+		if (!restoringDataset) void updateUrlParams();
+	},
+	{
+		deep: true,
+	},
+);
 </script>
 
 <template>
 	<div class="relative flex flex-col gap-5">
+		<div v-if="datasetStore.customDatasets.length" class="flex flex-wrap items-center gap-3">
+			<label for="map-dataset" class="text-sm font-semibold">{{
+				t("DatasetSwitcher.label")
+			}}</label>
+			<USelect
+				id="map-dataset"
+				data-testid="dataset"
+				:model-value="customDataset?.id ?? DEFAULT_DATASET_ID"
+				:items="datasetOptions"
+				class="min-w-64"
+				@update:model-value="selectDataset"
+			/>
+			<UBadge v-if="isCustomDataset" color="warning" variant="subtle">{{
+				t("DatasetSwitcher.custom-badge")
+			}}</UBadge>
+		</div>
+		<p v-if="isCustomDataset" class="text-sm text-muted-foreground">
+			{{ t("DatasetSwitcher.local-hint") }}
+		</p>
 		<div id="welcome">
 			<div class="flex gap-2">
 				<div class="grow rounded-lg border border-muted p-5">
 					<div class="grid grid-cols-4 gap-5">
-						<div id="surveyround">
+						<div v-if="!isCustomDataset" id="surveyround">
 							<div class="mb-1 ml-1 text-sm font-semibold align-center flex gap-1 items-center">
 								{{ t("MapsPage.selection.survey.title") }}
 								<UTooltip
@@ -1352,7 +1460,7 @@ watch(activeVariants, updateUrlParams, {
 					>{{ t("MapsPage.go-to-article") }}</UButton
 				>
 				<UButton
-					v-if="activeQuestionId"
+					v-if="activeQuestionId && !isCustomDataset"
 					data-testid="goToDbPage"
 					icon="i-lucide-database"
 					size="lg"
@@ -1378,7 +1486,7 @@ watch(activeVariants, updateUrlParams, {
 			data-testid="locationTable"
 		></DataTable>
 		<DataTable
-			v-if="tableDataForRegisters.length"
+			v-if="!isCustomDataset && tableDataForRegisters.length"
 			:columns="columnsRegisters"
 			:data="tableDataForRegisters"
 			data-testid="variantTable"
@@ -1390,5 +1498,9 @@ watch(activeVariants, updateUrlParams, {
 		>
 		</OnboardingWrapper>
 	</div>
-	<StimulusDialog ref="stimulusDialogRef" :phenomenon-id="activeQuestionId" />
+	<StimulusDialog
+		v-if="!isCustomDataset"
+		ref="stimulusDialogRef"
+		:phenomenon-id="activeQuestionId"
+	/>
 </template>

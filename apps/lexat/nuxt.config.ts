@@ -4,7 +4,7 @@ import { defaultLocale, files } from "./app/config/i18n.config";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 const privateRoutes = ["", ...files.map(({ code }) => `/${code}`)].flatMap((prefix) =>
-	["/admin", "/admin/**", "/login", "/profile"].map((path) => `${prefix}${path}`),
+	["/admin", "/admin/**", "/login", "/profile", "/custom-data"].map((path) => `${prefix}${path}`),
 );
 
 export default defineNuxtConfig({

@@ -17,6 +17,13 @@ catalog:
 
 overrides:
   "vue-i18n": 11.4.9
+  # lexvad pins deck.gl 9.3.10; deck.gl 9.4 / luma.gl 9.4 break ScatterplotLayer and GPU
+  # HexagonLayer on ANGLE D3D11 (Intel). deck.gl's `^9.3.3` luma range would pull in 9.4,
+  # so luma.gl is forced here. Remove together with the deck.gl pin once fixed upstream.
+  "@luma.gl/core": 9.3.6
+  "@luma.gl/engine": 9.3.6
+  "@luma.gl/shadertools": 9.3.6
+  "@luma.gl/webgl": 9.3.6
 
 # -------------------------
 # Hoisting Rules

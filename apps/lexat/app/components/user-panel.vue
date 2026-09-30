@@ -33,8 +33,14 @@ const firstLetterUppercase = (value: string) => {
 };
 
 const menuItems = computed<Array<Array<DropdownMenuItem>>>(() => {
+	const customData: DropdownMenuItem = {
+		label: t("UserPanel.custom-data"),
+		icon: "i-lucide-upload",
+		to: localePath("/custom-data"),
+	};
 	if (!user.value) {
 		return [
+			[customData],
 			[
 				{
 					label: t("UserPanel.login"),
@@ -52,6 +58,7 @@ const menuItems = computed<Array<Array<DropdownMenuItem>>>(() => {
 	}
 
 	groups.push(
+		[customData],
 		[
 			{
 				label: t("UserPanel.profile"),
@@ -92,7 +99,7 @@ const menuItems = computed<Array<Array<DropdownMenuItem>>>(() => {
 			size="sm"
 			square
 			class="rounded-full"
-			:aria-label="user?.username ?? t('UserPanel.login')"
+			:aria-label="user?.username ?? t('UserPanel.menu')"
 		>
 			<span
 				v-if="user?.username"

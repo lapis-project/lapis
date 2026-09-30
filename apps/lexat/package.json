@@ -20,7 +20,7 @@
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.dev.local",
 		"start-test": "nuxt preview",
-		"test": "exit 0",
+		"test": "node --test tests/*.test.mjs",
 		"test:e2e": "playwright test",
 		"test:e2e:codegen": "playwright codegen",
 		"test:e2e:install": "playwright install --with-deps",

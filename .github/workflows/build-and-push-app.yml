@@ -87,7 +87,8 @@ jobs:
       PUBLIC_URL: "${{ steps.generate_public_url.outputs.public_url }}"
       APP_ROOT: "${{ steps.generate_app_root.outputs.app_root }}"
       KUBE_NAMESPACE: "${{ steps.generate_kube_namespace.outputs.kube_namespace }}"
-      KUBE_INGRESS_BASE_DOMAIN: "${{ steps.generate_kube_ingress.outputs.kube_ingress_base_domain }}"
+      KUBE_INGRESS_BASE_DOMAIN:
+        "${{ steps.generate_kube_ingress.outputs.kube_ingress_base_domain }}"
   build_and_deploy:
     needs:
       - setup_workflow_env

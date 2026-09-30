@@ -46,6 +46,8 @@ export const useDatasetStore = defineStore("datasets", () => {
 	const datasetByMap = ref<Record<string, string>>({});
 	const persistenceFailed = ref(false);
 
+	const restored = ref(false);
+
 	const datasets = computed<Array<DatasetInfo>>(() => [
 		{ id: PILOT_DATASET_ID, size: pilotEntries.length, custom: false },
 		...customDatasets.value.map((dataset) => ({
@@ -107,6 +109,8 @@ export const useDatasetStore = defineStore("datasets", () => {
 			customDatasets.value = parsed.datasets.filter(isDataset);
 		} catch {
 			localStorage.removeItem(STORAGE_KEY);
+		} finally {
+			restored.value = true;
 		}
 	}
 
@@ -134,10 +138,12 @@ export const useDatasetStore = defineStore("datasets", () => {
 		datasetInfo,
 		datasets,
 		entriesFor,
+		has,
 		hasCustomDatasets,
 		persistenceFailed,
 		removeDataset,
 		restore,
+		restored,
 		setDatasetForMap,
 	};
 });

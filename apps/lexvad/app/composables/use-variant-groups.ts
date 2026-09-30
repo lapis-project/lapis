@@ -17,7 +17,7 @@ function groupDisplayLabel(group: VariantGroup) {
 }
 
 function normaliseGroups(
-	groups: Array<VariantGroup>,
+	groups: Array<Omit<VariantGroup, "id">>,
 	variants: Array<string>,
 ): Array<VariantGroup> {
 	const known = new Set(variants);

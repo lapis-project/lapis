@@ -19,7 +19,8 @@ const emit = defineEmits<{
 }>();
 
 const t = useTranslations();
-const { setDefaultColorsForQuestion, hasQuestion, getColorForGroup } = useColorStore();
+const { setDefaultColorsForQuestion, resetColorsForQuestion, hasQuestion, getColorForGroup } =
+	useColorStore();
 const { byVariant, normaliseGroups, groupsForMap } = useVariantGroups();
 const datasetStore = useDatasetStore();
 const datasetId = useMapDataset(props.mapId);
@@ -41,7 +42,7 @@ const uniqueVariants = computed(() => {
 		}))
 		.toSorted((a, b) => b.count - a.count);
 });
-const activeVariants = ref<Array<string>>([]);
+const activeVariants = defineModel<Array<string>>("variants", { default: () => [] });
 
 const storedGroups = groupsForMap(props.mapId, () => activeQuestion.value);
 const variantGroups = computed(() =>
@@ -62,7 +63,7 @@ function resetSelection() {
 }
 
 function resetColors() {
-	setDefaultColorsForQuestion(
+	resetColorsForQuestion(
 		datasetId.value,
 		activeQuestion.value,
 		uniqueVariants.value.map((v) => v.label),
@@ -70,15 +71,17 @@ function resetColors() {
 }
 
 function ensureColors() {
-	if (activeQuestion.value && !hasQuestion(datasetId.value, activeQuestion.value)) resetColors();
+	if (activeQuestion.value && !hasQuestion(datasetId.value, activeQuestion.value))
+		setDefaultColorsForQuestion(
+			datasetId.value,
+			activeQuestion.value,
+			uniqueVariants.value.map((v) => v.label),
+		);
 }
 
 onMounted(ensureColors);
 
-watch([activeQuestion, datasetId], () => {
-	ensureColors();
-	activeVariants.value = [];
-});
+watch([activeQuestion, datasetId], ensureColors);
 
 const settingsOpen = ref(false);
 

@@ -2,7 +2,12 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { buildDatasetEntries, detectFieldMapping } from "../app/utils/dataset-import.ts";
-import { datasetQuestions, datasetResponses, matchesDatasetAge } from "../app/utils/dataset.ts";
+import {
+	datasetQuestions,
+	datasetResponses,
+	matchesDatasetAge,
+	resolveDatasetQuestion,
+} from "../app/utils/dataset.ts";
 import { parseTabularText } from "../app/utils/tabular-data.ts";
 
 const csv = `iddoc,PLZ,Ort,Kreis,Land,Latitude,Longitude,Item,Benennungsvariante,age,gender
@@ -77,4 +82,29 @@ test("accepts GeoJSON points and splits multiple variants into answers", () => {
 	);
 	const { entries } = buildDatasetEntries(parsed.rows, detectFieldMapping(parsed.columns));
 	assert.equal(datasetResponses(entries, "A")[0].informants[0].answers.length, 2);
+});
+
+test("custom map links select a phenomenon from their own dataset and preserve explicit selections", () => {
+	const { entries } = build();
+	const questions = datasetQuestions(entries);
+	for (const query of [undefined, "", "999", ["2"]]) {
+		const selected = resolveDatasetQuestion(questions, query);
+		assert.equal(selected.label, "KEHREN");
+		assert.equal(
+			datasetResponses(entries, selected.label)[0].informants[0].answers[0].annotation,
+			"zusammenkehren",
+		);
+	}
+	const selected = resolveDatasetQuestion(questions, "2");
+	assert.equal(selected.label, "ANDERES");
+	assert.equal(
+		datasetResponses(entries, selected.label)[0].informants[0].answers[0].annotation,
+		"anders",
+	);
+
+	const otherQuestions = datasetQuestions(
+		entries.map((entry) => ({ ...entry, Item: "OTHER UPLOAD" })),
+	);
+	assert.equal(resolveDatasetQuestion(otherQuestions, "2").label, "OTHER UPLOAD");
+	assert.equal(resolveDatasetQuestion([], "1"), undefined);
 });

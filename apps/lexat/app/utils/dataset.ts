@@ -26,6 +26,14 @@ export function datasetQuestions(entries: Array<DatasetEntry>) {
 	}));
 }
 
+/** Custom links always resolve within their own dataset, with a deterministic default. */
+export function resolveDatasetQuestion(
+	questions: ReturnType<typeof datasetQuestions>,
+	questionId: unknown,
+) {
+	return questions.find((question) => question.value === questionId) ?? questions[0];
+}
+
 /** Adapt flat answers to the location/informant structure used throughout the LexAT map. */
 export function datasetResponses(
 	entries: Array<DatasetEntry>,

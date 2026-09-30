@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { datasetQuestions } from "@/utils/dataset";
+
 const t = useTranslations();
 const locale = useLocale();
 const localePath = useLocalePath();
@@ -13,7 +15,10 @@ const datasets = computed(() =>
 		id: dataset.id,
 		name: dataset.name,
 		createdAt: dateFormat.value.format(new Date(dataset.createdAt)),
-		mapLink: localePath({ path: "/maps", query: { dataset: dataset.id } }),
+		mapLink: localePath({
+			path: "/maps",
+			query: { dataset: dataset.id, q: datasetQuestions(dataset.entries)[0]?.value },
+		}),
 		places: dataset.entries.length,
 		variables: new Set(dataset.entries.map((entry) => entry.Item)).size,
 	})),

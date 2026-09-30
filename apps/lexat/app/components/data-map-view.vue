@@ -33,7 +33,12 @@ import type {
 } from "@/types/feature-collection";
 import type { LocationOption } from "@/types/location-option";
 import type { GeoJsonFeature } from "@/utils/create-geojson-feature";
-import { datasetQuestions, datasetResponses, matchesDatasetAge } from "@/utils/dataset";
+import {
+	datasetQuestions,
+	datasetResponses,
+	matchesDatasetAge,
+	resolveDatasetQuestion,
+} from "@/utils/dataset";
 import {
 	countUniqueVariants,
 	getSortedVariants,
@@ -718,10 +723,12 @@ const initializeFromUrl = () => {
 	}
 
 	const questionParam = route.query.q;
-	if (typeof questionParam === "string" && questionParam !== "") {
+	if (isCustomDataset.value) {
+		activeQuestion.value = resolveDatasetQuestion(mappedQuestions.value ?? [], questionParam);
+		requiresUrlUpdate = activeQuestion.value?.value !== questionParam;
+	} else if (typeof questionParam === "string" && questionParam !== "") {
 		activeQuestion.value =
-			mappedQuestions.value?.find((m) => m.value === questionParam) ??
-			(isCustomDataset.value ? mappedQuestions.value?.[0] : fallbackQuestion);
+			mappedQuestions.value?.find((m) => m.value === questionParam) ?? fallbackQuestion;
 	} else if (mappedQuestions.value && mappedQuestions.value.length > 0) {
 		// Pick a random question if none is specified in the URL
 		const randomIndex = Math.floor(initialQuestionSeed.value * mappedQuestions.value.length);
@@ -924,8 +931,9 @@ watch(customDataset, async (dataset, previous) => {
 	// Browser storage arrives after hydration. Preserve the link's phenomenon and filters.
 	if (dataset && !previous && route.query.dataset === dataset.id) {
 		restoringDataset = true;
-		initializeFromUrl();
+		const needsUrlUpdate = initializeFromUrl();
 		await nextTick();
+		if (needsUrlUpdate) await updateUrlParams();
 		restoringDataset = false;
 		return;
 	}
@@ -1041,6 +1049,7 @@ watch(
 							</div>
 							<USelect
 								data-testid="survey"
+								:disabled="isCustomDataset"
 								:items="surveyRoundOptions"
 								:model-value="activeSurveyRounds"
 								multiple

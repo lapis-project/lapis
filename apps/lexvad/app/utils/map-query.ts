@@ -2,6 +2,13 @@ import type { LocationQuery, LocationQueryRaw } from "vue-router";
 
 import type { VariantGroup } from "@/composables/use-variant-groups";
 import { type ColorPaletteId, colorPalettes } from "@/stores/use-color-store";
+import {
+	clampHexagonRadius,
+	DEFAULT_MAP_MODE,
+	hexagonRadius,
+	type MapMode,
+	mapModes,
+} from "@/utils/map-mode";
 import { PILOT_DATASET_ID } from "@/utils/pilot-data";
 
 export const mapQueryPositions = ["left", "right"] as const;
@@ -14,6 +21,8 @@ export interface MapQueryState {
 	variants: Array<string>;
 	groups: Array<Omit<VariantGroup, "id">>;
 	colors: Record<string, string>;
+	mode: MapMode;
+	radius: number;
 }
 
 export interface MapQuery {
@@ -27,6 +36,8 @@ const mapKeys = {
 	variants: "v",
 	groups: "g",
 	colors: "c",
+	mode: "m",
+	radius: "r",
 } as const;
 
 const PALETTE_KEY = "p";
@@ -83,6 +94,13 @@ function parseColor(value: string): [string, string] | undefined {
 	return match ? [match[2]!, `#${match[1]!}`] : undefined;
 }
 
+function parseRadius(value: string | undefined) {
+	const radius = Number(value);
+	return value !== undefined && Number.isFinite(radius)
+		? clampHexagonRadius(radius)
+		: hexagonRadius.default;
+}
+
 function parseMap(query: LocationQuery, position: MapQueryPosition): MapQueryState | undefined {
 	const has = (name: keyof typeof mapKeys) => values(query, key(position, name)).length > 0;
 	if (!(Object.keys(mapKeys) as Array<keyof typeof mapKeys>).some(has)) return undefined;
@@ -98,6 +116,9 @@ function parseMap(query: LocationQuery, position: MapQueryPosition): MapQuerySta
 				.map(parseColor)
 				.filter((color) => color !== undefined),
 		),
+		mode:
+			mapModes.find((mode) => mode === values(query, key(position, "mode"))[0]) ?? DEFAULT_MAP_MODE,
+		radius: parseRadius(values(query, key(position, "radius"))[0]),
 	};
 }
 
@@ -122,6 +143,9 @@ export function serializeMapQuery({ palette, maps }: MapQuery): LocationQueryRaw
 		if (state.variants.length > 0) query[key(position, "variants")] = state.variants;
 		const groups = state.groups.filter((group) => group.variants.length > 1);
 		if (groups.length > 0) query[key(position, "groups")] = groups.map(serializeGroup);
+		if (state.mode !== DEFAULT_MAP_MODE) query[key(position, "mode")] = state.mode;
+		if (state.mode === "hexagon" && state.radius !== hexagonRadius.default)
+			query[key(position, "radius")] = String(state.radius);
 		const colors = Object.entries(state.colors);
 		if (colors.length > 0)
 			query[key(position, "colors")] = colors.map(([variant, color]) =>

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { X } from "@lucide/vue";
 
+import { DEFAULT_MAP_MODE, hexagonRadius, type MapMode } from "@/utils/map-mode";
 import {
 	type MapQueryPosition as MapPosition,
 	mapQueryKeys,
@@ -9,18 +10,21 @@ import {
 	parseMapQuery,
 	serializeMapQuery,
 } from "@/utils/map-query";
+import { PILOT_DATASET_ID } from "@/utils/pilot-data";
 
 interface SidebarState {
 	open: boolean;
 	question: string;
 	variant: string;
 	selectedVariants: Array<string>;
+	mode: MapMode;
+	radius: number;
 }
 
 const t = useTranslations();
 const datasetStore = useDatasetStore();
 const colorStore = useColorStore();
-const { groupsForMap, normaliseGroups } = useVariantGroups();
+const { groupsForMap } = useVariantGroups();
 const route = useRoute();
 const router = useRouter();
 
@@ -48,18 +52,16 @@ function takeUrlState(position: MapPosition) {
 }
 
 function restoreUrlState(position: MapPosition, state: MapQueryState, question: string) {
-	const datasetId = datasetStore.datasetForMap(position);
-	const known = [...new Set(questions[position].getValuesForQuestion(question))];
-	groupsForMap(position, () => question).value = normaliseGroups(state.groups, known);
-	colorStore.setCustomColors(
-		datasetId,
+	return restoreMapState(
+		position,
+		datasetStore.datasetForMap(position),
 		question,
-		Object.fromEntries(Object.entries(state.colors).filter(([variant]) => known.includes(variant))),
+		questions[position].getValuesForQuestion(question),
+		state,
 	);
-	return state.variants.filter((variant) => known.includes(variant));
 }
 
-function createSidebarState(position: MapPosition): SidebarState {
+function createSidebarState(position: MapPosition, previous?: SidebarState): SidebarState {
 	const allQuestions = questions[position].allQuestions.value;
 	const urlState = takeUrlState(position);
 	const question =
@@ -71,6 +73,8 @@ function createSidebarState(position: MapPosition): SidebarState {
 		question,
 		variant: defaultVariant(position, question),
 		selectedVariants: urlState ? restoreUrlState(position, urlState, question) : [],
+		mode: urlState?.mode ?? previous?.mode ?? DEFAULT_MAP_MODE,
+		radius: urlState?.radius ?? previous?.radius ?? hexagonRadius.default,
 	};
 }
 
@@ -113,7 +117,7 @@ positions.forEach((position) => {
 	watch(
 		() => datasetStore.datasetForMap(position),
 		() => {
-			sidebars.value[position] = createSidebarState(position);
+			sidebars.value[position] = createSidebarState(position, sidebars.value[position]);
 		},
 	);
 
@@ -134,7 +138,7 @@ watch(
 		positions.forEach((position) => {
 			const dataset = pendingUrlState[position]?.dataset;
 			if (dataset !== undefined && !datasetStore.has(dataset))
-				sidebars.value[position] = createSidebarState(position);
+				sidebars.value[position] = createSidebarState(position, sidebars.value[position]);
 		});
 	},
 );
@@ -147,7 +151,7 @@ const storedGroups = Object.fromEntries(
 ) as Record<MapPosition, ReturnType<typeof groupsForMap>>;
 
 function currentState(position: MapPosition): MapQueryState {
-	const { question, selectedVariants } = sidebars.value[position];
+	const { question, selectedVariants, mode, radius } = sidebars.value[position];
 	const dataset = datasetStore.datasetForMap(position);
 	return {
 		dataset,
@@ -155,8 +159,24 @@ function currentState(position: MapPosition): MapQueryState {
 		variants: selectedVariants,
 		groups: storedGroups[position].value,
 		colors: colorStore.getCustomColors(dataset, question),
+		mode,
+		radius,
 	};
 }
+
+const embedQueries = computed(() =>
+	Object.fromEntries(
+		positions.map((position) => [
+			position,
+			datasetStore.datasetForMap(position) === PILOT_DATASET_ID
+				? serializeMapQuery({
+						palette: colorStore.activePaletteId,
+						maps: { left: currentState(position) },
+					})
+				: undefined,
+		]),
+	),
+);
 
 const currentQuery = computed(() =>
 	serializeMapQuery({
@@ -200,6 +220,9 @@ onMounted(() => {
 					@toggle-sidebar="(question, variant) => updateSidebar('left', question, variant)"
 					v-model:question="sidebars.left.question"
 					v-model:variants="sidebars.left.selectedVariants"
+					v-model:mode="sidebars.left.mode"
+					v-model:radius="sidebars.left.radius"
+					:embed-query="embedQueries.left"
 					map-id="left"
 				/>
 				<template v-if="splitMode">
@@ -210,6 +233,9 @@ onMounted(() => {
 						@toggle-sidebar="(question, variant) => updateSidebar('right', question, variant)"
 						v-model:question="sidebars.right.question"
 						v-model:variants="sidebars.right.selectedVariants"
+						v-model:mode="sidebars.right.mode"
+						v-model:radius="sidebars.right.radius"
+						:embed-query="embedQueries.right"
 						map-id="right"
 					/>
 					<UButton

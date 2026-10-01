@@ -94,6 +94,11 @@
 		},
 		"skip-to-main-content": "Skip to main content"
 	},
+	"EmbedPage": {
+		"open": "Open in LexVAD20",
+		"unavailable": "This map uses an uploaded dataset and cannot be embedded.",
+		"title": "LexVAD20: {question}"
+	},
 	"ErrorBoundary": {
 		"error": "Error"
 	},
@@ -159,7 +164,10 @@
 			"open-sidebar": "Data insights",
 			"close-split-view": "Close split view",
 			"reset": "Reset selection",
-			"settings": "Map settings"
+			"settings": "Map settings",
+			"zoom-in": "Zoom in",
+			"zoom-out": "Zoom out",
+			"embed": "Embed"
 		},
 		"settings": {
 			"colors": {
@@ -181,6 +189,10 @@
 			"labels": {
 				"data-insights": "Data insights"
 			}
+		},
+		"embed": {
+			"title": "Embed map",
+			"description": "Paste this code into your website. The map shows the phenomenon, variants, groups, colors and map type as set here."
 		}
 	},
 	"MobileAlert": {

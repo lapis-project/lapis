@@ -1,12 +1,15 @@
 <script lang="ts" setup>
 import { InfoIcon, RotateCcwIcon, SettingsIcon, SquareSplitHorizontalIcon } from "@lucide/vue";
+import type { LocationQueryRaw } from "vue-router";
 
 import { useMapDataset } from "@/stores/use-dataset-store";
+import { hexagonRadius, type MapMode } from "@/utils/map-mode";
 
 const props = withDefaults(
 	defineProps<{
 		mapId: string;
 		splitMode?: boolean;
+		embedQuery?: LocationQueryRaw;
 	}>(),
 	{
 		splitMode: false,
@@ -19,81 +22,27 @@ const emit = defineEmits<{
 }>();
 
 const t = useTranslations();
-const { setDefaultColorsForQuestion, hasQuestion, getColorForGroup } = useColorStore();
-const { byVariant, normaliseGroups, groupsForMap } = useVariantGroups();
 const datasetStore = useDatasetStore();
 const datasetId = useMapDataset(props.mapId);
 
 const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
-const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } =
-	useQuestions(datasetId);
+
+const activeVariants = defineModel<Array<string>>("variants", { default: () => [] });
+const mapMode = defineModel<MapMode>("mode", { default: "point" });
+const radius = defineModel<number>("radius", { default: hexagonRadius.default });
+
+const { allQuestions, data, resetColors, uniqueVariants, variantColors, variantGroups } =
+	useMapData(props.mapId, datasetId, activeQuestion, activeVariants);
 
 const mappedQuestions = computed(() => {
 	return allQuestions.value.map((q) => ({ label: q, value: q }));
 });
-const uniqueVariants = computed(() => {
-	return countAnswersForQuestion(activeQuestion.value)
-		.map((v) => ({
-			anno: v.label,
-			value: v.label,
-			label: v.label,
-			count: v.abs,
-		}))
-		.toSorted((a, b) => b.count - a.count);
-});
-const activeVariants = ref<Array<string>>([]);
-
-const storedGroups = groupsForMap(props.mapId, () => activeQuestion.value);
-const variantGroups = computed(() =>
-	normaliseGroups(
-		storedGroups.value,
-		uniqueVariants.value.map((v) => v.value),
-	),
-);
-
-const variantColors = computed(() =>
-	byVariant(variantGroups.value, (group) =>
-		getColorForGroup(datasetId.value, activeQuestion.value, group),
-	),
-);
 
 function resetSelection() {
 	activeVariants.value = [];
 }
 
-function resetColors() {
-	setDefaultColorsForQuestion(
-		datasetId.value,
-		activeQuestion.value,
-		uniqueVariants.value.map((v) => v.label),
-	);
-}
-
-function ensureColors() {
-	if (activeQuestion.value && !hasQuestion(datasetId.value, activeQuestion.value)) resetColors();
-}
-
-onMounted(ensureColors);
-
-watch([activeQuestion, datasetId], () => {
-	ensureColors();
-	activeVariants.value = [];
-});
-
 const settingsOpen = ref(false);
-
-const data = computed(() => {
-	const variantsInUse = activeVariants.value.length
-		? activeVariants.value
-		: uniqueVariants.value.map((v) => v.value);
-	return filterDataByQuestionAndVariant(activeQuestion.value, variantsInUse).map((entry) => ({
-		coordinates: [Number(entry.Longitude), Number(entry.Latitude)] as [number, number],
-		color:
-			variantColors.value[entry.variants.filter((v) => variantsInUse.includes(v))[0] ?? ""] ?? "",
-		name: entry.Ort,
-		...entry,
-	}));
-});
 </script>
 
 <template>
@@ -173,6 +122,7 @@ const data = computed(() => {
 							<span class="sr-only">{{ t("MapsPage.controls.reset") }}</span>
 						</UButton>
 					</UTooltip>
+					<EmbedDialog v-if="embedQuery" :query="embedQuery" :question="activeQuestion" />
 					<UTooltip :content="{ side: 'top' }" :text="t('MapsPage.controls.settings')">
 						<UButton
 							:aria-expanded="settingsOpen"
@@ -212,7 +162,8 @@ const data = computed(() => {
 				:question="activeQuestion"
 			/>
 			<div v-if="height && width" class="w-full h-full">
-				<GeoMap :colors="variantColors" :data="data"> </GeoMap>
+				<GeoMap v-model:mode="mapMode" v-model:radius="radius" :colors="variantColors" :data="data">
+				</GeoMap>
 			</div>
 		</VisualisationContainer>
 	</div>

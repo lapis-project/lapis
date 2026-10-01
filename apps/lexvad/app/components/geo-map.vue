@@ -2,7 +2,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { HexagonLayer } from "@deck.gl/aggregation-layers";
-import { Deck } from "@deck.gl/core";
+import { Deck, WebMercatorViewport } from "@deck.gl/core";
 import { MaskExtension } from "@deck.gl/extensions";
 import {
 	GeoJsonLayer,
@@ -11,13 +11,14 @@ import {
 	ScatterplotLayer,
 } from "@deck.gl/layers";
 import { LayersIcon, MinusIcon, PlusIcon } from "@lucide/vue";
-import { featureCollection, point, union, voronoi } from "@turf/turf";
+import { bbox, featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map, setWorkerUrl } from "maplibre-gl";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 
 import bundeslaenderJson from "@/assets/data/bundeslaender.json";
 import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import MapTooltip from "@/components/map-tooltip.vue";
+import { hexagonRadius, type MapMode } from "@/utils/map-mode";
 
 const regions = regionsJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
 const bundeslaender = bundeslaenderJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
@@ -34,9 +35,10 @@ interface MapDataType {
 interface MapProps {
 	data: Array<MapDataType>;
 	colors: Record<string, string>;
+	controls?: boolean;
 }
 
-const props = defineProps<MapProps>();
+const props = withDefaults(defineProps<MapProps>(), { controls: true, fit: false });
 
 const style = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
@@ -50,7 +52,8 @@ const INITIAL_VIEW_STATE = {
 
 const points = computed(() => props.data.map((entry) => point(entry.coordinates, entry)));
 
-const mapMode = ref("point");
+const mapMode = defineModel<MapMode>("mode", { default: "point" });
+const radius = defineModel<number>("radius", { default: hexagonRadius.default });
 const mapContainer = ref<HTMLDivElement | null>(null);
 const deckCanvas = ref<HTMLCanvasElement | null>(null);
 
@@ -65,6 +68,26 @@ const tooltip = ref<TooltipState | null>(null);
 
 let map: Map | null = null;
 let deck: Deck | null = null;
+let viewState: typeof INITIAL_VIEW_STATE = INITIAL_VIEW_STATE;
+
+function zoomBy(delta: number) {
+	viewState = { ...viewState, zoom: viewState.zoom + delta };
+	deck?.setProps({ initialViewState: { ...viewState, transitionDuration: 200 } });
+}
+
+function fittedViewState() {
+	const { clientWidth: width, clientHeight: height } = deckCanvas.value!;
+	if (width === 0 || height === 0) return INITIAL_VIEW_STATE;
+	const [west, south, east, north] = bbox(regions);
+	const { longitude, latitude, zoom } = new WebMercatorViewport({ width, height }).fitBounds(
+		[
+			[west, south],
+			[east, north],
+		],
+		{ padding: 16 },
+	);
+	return { ...INITIAL_VIEW_STATE, longitude, latitude, zoom };
+}
 
 const { getRegionColor, DEFAULT_REGION_COLOR } = useColorStore();
 
@@ -117,7 +140,6 @@ function _getDominantVariant(d: Array<GeoJSON.Feature<GeoJSON.Point>>) {
 
 const colorsArray = computed(() => Object.entries(props.colors));
 
-const radius = ref(10000);
 function createHexagonLayer() {
 	return new HexagonLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: "HexagonLayer",
@@ -220,7 +242,6 @@ function createLayers() {
 				createScatterplotLayer(true),
 			];
 	}
-	return [];
 }
 
 function _joinEntries(entries: Array<GeoJSON.Feature>) {
@@ -246,21 +267,22 @@ function _joinEntries(entries: Array<GeoJSON.Feature>) {
 onMounted(() => {
 	// Bundle MapLibre 6's worker and its shared module through Vite.
 	setWorkerUrl(maplibreWorkerUrl);
+	viewState = fittedViewState();
 
 	map = new Map({
 		container: mapContainer.value!,
 		style,
-		center: [INITIAL_VIEW_STATE.longitude, INITIAL_VIEW_STATE.latitude],
-		zoom: INITIAL_VIEW_STATE.zoom,
-		bearing: INITIAL_VIEW_STATE.bearing,
-		pitch: INITIAL_VIEW_STATE.pitch,
+		center: [viewState.longitude, viewState.latitude],
+		zoom: viewState.zoom,
+		bearing: viewState.bearing,
+		pitch: viewState.pitch,
 		maxZoom: 20,
 		interactive: false,
 	});
 
 	deck = new Deck({
 		canvas: deckCanvas.value!,
-		initialViewState: INITIAL_VIEW_STATE,
+		initialViewState: viewState,
 		controller: true,
 		onHover: ({ object, x, y }) => {
 			if (!object) {
@@ -281,12 +303,13 @@ onMounted(() => {
 				};
 			}
 		},
-		onViewStateChange: ({ viewState }) => {
+		onViewStateChange: ({ viewState: next }) => {
+			viewState = next as typeof INITIAL_VIEW_STATE;
 			map?.jumpTo({
-				center: [viewState.longitude, viewState.latitude],
-				zoom: viewState.zoom,
-				bearing: viewState.bearing,
-				pitch: viewState.pitch,
+				center: [next.longitude, next.latitude],
+				zoom: next.zoom,
+				bearing: next.bearing,
+				pitch: next.pitch,
 			});
 		},
 		layers: createLayers(),
@@ -339,6 +362,7 @@ const layerItems = computed(() =>
 <template>
 	<div class="relative size-full">
 		<div
+			v-if="controls"
 			class="absolute top-4 left-1/2 h-12 z-20 bg-card py-4 px-0.5 border border-border rounded-lg flex gap-2 text-xs -translate-x-1/2 items-center shadow-lg"
 		>
 			<UTabs
@@ -363,10 +387,10 @@ const layerItems = computed(() =>
 					v-model="radius"
 					class="w-36"
 					color="neutral"
-					:max="20000"
-					:min="3000"
+					:max="hexagonRadius.max"
+					:min="hexagonRadius.min"
 					size="xs"
-					:step="500"
+					:step="hexagonRadius.step"
 				>
 				</USlider>
 				<span class="text-muted-foreground mr-4">{{ (radius / 1000).toFixed(1) }} km</span>
@@ -378,15 +402,19 @@ const layerItems = computed(() =>
 					class="rounded-b-none aspect-square justify-center"
 					color="neutral"
 					variant="outline"
+					@click="zoomBy(1)"
 				>
 					<PlusIcon class="size-4"></PlusIcon>
+					<span class="sr-only">{{ t("MapsPage.controls.zoom-in") }}</span>
 				</UButton>
 				<UButton
 					class="rounded-t-none aspect-square justify-center"
 					color="neutral"
 					variant="outline"
+					@click="zoomBy(-1)"
 				>
 					<MinusIcon class="size-4"></MinusIcon>
+					<span class="sr-only">{{ t("MapsPage.controls.zoom-out") }}</span>
 				</UButton>
 			</div>
 			<UDropdownMenu

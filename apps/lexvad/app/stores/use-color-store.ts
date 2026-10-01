@@ -108,28 +108,44 @@ export const useColorStore = defineStore("colors", () => {
 	}
 
 	const colors = ref<Record<string, Record<string, string>>>({});
+	const customColors = ref<Record<string, Record<string, string>>>({});
 
 	function setDefaultColorsForQuestion(
 		datasetId: string,
 		question: string,
 		variants: Array<string>,
 	) {
-		colors.value[datasetScopedKey(datasetId, question)] = paletteColors(variants);
+		const key = datasetScopedKey(datasetId, question);
+		colors.value[key] = { ...paletteColors(variants), ...customColors.value[key] };
+	}
+
+	function resetColorsForQuestion(datasetId: string, question: string, variants: Array<string>) {
+		delete customColors.value[datasetScopedKey(datasetId, question)];
+		setDefaultColorsForQuestion(datasetId, question, variants);
 	}
 
 	function setPalette(id: ColorPaletteId) {
 		activePaletteId.value = id;
+		customColors.value = {};
 		Object.entries(colors.value).forEach(([key, colorsByVariant]) => {
 			colors.value[key] = paletteColors(Object.keys(colorsByVariant));
 		});
 	}
 
 	function setColorForVariant(datasetId: string, question: string, variant: string, color: string) {
-		if (!colors.value[datasetScopedKey(datasetId, question)])
-			colors.value[datasetScopedKey(datasetId, question)] = {
-				[variant]: color,
-			};
-		else colors.value[datasetScopedKey(datasetId, question)]![variant] = color;
+		const key = datasetScopedKey(datasetId, question);
+		(customColors.value[key] ??= {})[variant] = color;
+		(colors.value[key] ??= {})[variant] = color;
+	}
+
+	function getCustomColors(datasetId: string, question: string) {
+		return customColors.value[datasetScopedKey(datasetId, question)] ?? {};
+	}
+
+	function setCustomColors(datasetId: string, question: string, custom: Record<string, string>) {
+		const key = datasetScopedKey(datasetId, question);
+		customColors.value[key] = { ...custom };
+		if (colors.value[key]) colors.value[key] = { ...colors.value[key], ...custom };
 	}
 
 	function getColorForVariant(datasetId: string, question: string, variant: string) {
@@ -159,8 +175,11 @@ export const useColorStore = defineStore("colors", () => {
 		getColorForVariant,
 		getColorForGroup,
 		getColorsForQuestion,
+		getCustomColors,
+		resetColorsForQuestion,
 		setDefaultColorsForQuestion,
 		setColorForVariant,
+		setCustomColors,
 		getRegionColor,
 		DEFAULT_REGION_COLOR,
 	};

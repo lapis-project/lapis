@@ -94,6 +94,11 @@
 		},
 		"skip-to-main-content": "Zum Hauptinhalt springen"
 	},
+	"EmbedPage": {
+		"open": "In LexVAD20 öffnen",
+		"unavailable": "Diese Karte verwendet einen hochgeladenen Datensatz und kann nicht eingebettet werden.",
+		"title": "LexVAD20: {question}"
+	},
 	"ErrorBoundary": {
 		"error": "Fehler"
 	},
@@ -159,7 +164,10 @@
 			"open-sidebar": "Dateneinblicke",
 			"close-split-view": "Geteilte Ansicht schließen",
 			"reset": "Auswahl zurücksetzen",
-			"settings": "Karteneinstellungen"
+			"settings": "Karteneinstellungen",
+			"zoom-in": "Vergrößern",
+			"zoom-out": "Verkleinern",
+			"embed": "Einbetten"
 		},
 		"settings": {
 			"colors": {
@@ -181,6 +189,10 @@
 			"labels": {
 				"data-insights": "Dateneinblicke"
 			}
+		},
+		"embed": {
+			"title": "Karte einbetten",
+			"description": "Fügen Sie diesen Code in Ihre Webseite ein. Die Karte zeigt Phänomen, Varianten, Gruppen, Farben und Kartentyp wie hier eingestellt."
 		}
 	},
 	"MobileAlert": {

@@ -1,43 +1,88 @@
 <script lang="ts" setup>
 import { X } from "@lucide/vue";
 
-const positions = ["left", "right"] as const;
-
-type MapPosition = (typeof positions)[number];
+import { DEFAULT_MAP_MODE, hexagonRadius, type MapMode } from "@/utils/map-mode";
+import {
+	type MapQueryPosition as MapPosition,
+	mapQueryKeys,
+	mapQueryPositions as positions,
+	type MapQueryState,
+	parseMapQuery,
+	serializeMapQuery,
+} from "@/utils/map-query";
+import { PILOT_DATASET_ID } from "@/utils/pilot-data";
 
 interface SidebarState {
 	open: boolean;
 	question: string;
 	variant: string;
+	selectedVariants: Array<string>;
+	mode: MapMode;
+	radius: number;
 }
 
 const t = useTranslations();
 const datasetStore = useDatasetStore();
+const colorStore = useColorStore();
+const { groupsForMap } = useVariantGroups();
 const route = useRoute();
+const router = useRouter();
 
 const questions: Record<MapPosition, ReturnType<typeof useQuestions>> = {
 	left: useQuestions(() => datasetStore.datasetForMap("left")),
 	right: useQuestions(() => datasetStore.datasetForMap("right")),
 };
 
-const splitMode = ref(false);
+const urlQuery = parseMapQuery(route.query);
+const pendingUrlState = { ...urlQuery.maps };
+if (urlQuery.palette) colorStore.setPalette(urlQuery.palette);
+const splitMode = ref(urlQuery.maps.right !== undefined);
 
 function defaultVariant(position: MapPosition, question: string) {
 	return questions[position].getValuesForQuestion(question)[0] ?? "";
 }
 
-function createSidebarState(position: MapPosition): SidebarState {
-	const question = questions[position].allQuestions.value[0] ?? "";
+function takeUrlState(position: MapPosition) {
+	const state = pendingUrlState[position];
+	if (state === undefined) return undefined;
+	const missing = datasetStore.restored && !datasetStore.has(state.dataset);
+	if (!missing && state.dataset !== datasetStore.datasetForMap(position)) return undefined;
+	delete pendingUrlState[position];
+	return state;
+}
+
+function restoreUrlState(position: MapPosition, state: MapQueryState, question: string) {
+	return restoreMapState(
+		position,
+		datasetStore.datasetForMap(position),
+		question,
+		questions[position].getValuesForQuestion(question),
+		state,
+	);
+}
+
+function createSidebarState(position: MapPosition, previous?: SidebarState): SidebarState {
+	const allQuestions = questions[position].allQuestions.value;
+	const urlState = takeUrlState(position);
+	const question =
+		urlState?.question !== undefined && allQuestions.includes(urlState.question)
+			? urlState.question
+			: (allQuestions[0] ?? "");
 	return {
 		open: false,
 		question,
 		variant: defaultVariant(position, question),
+		selectedVariants: urlState ? restoreUrlState(position, urlState, question) : [],
+		mode: urlState?.mode ?? previous?.mode ?? DEFAULT_MAP_MODE,
+		radius: urlState?.radius ?? previous?.radius ?? hexagonRadius.default,
 	};
 }
 
 watchEffect(() => {
-	const id = route.query.dataset;
-	if (typeof id === "string") datasetStore.setDatasetForMap("left", id);
+	positions.forEach((position) => {
+		const dataset = pendingUrlState[position]?.dataset;
+		if (dataset !== undefined) datasetStore.setDatasetForMap(position, dataset);
+	});
 });
 
 const sidebars = ref<Record<MapPosition, SidebarState>>({
@@ -72,15 +117,85 @@ positions.forEach((position) => {
 	watch(
 		() => datasetStore.datasetForMap(position),
 		() => {
-			sidebars.value[position] = createSidebarState(position);
+			sidebars.value[position] = createSidebarState(position, sidebars.value[position]);
 		},
 	);
 
 	watch(
 		() => sidebars.value[position].question,
 		(question) => {
-			sidebars.value[position].variant = defaultVariant(position, question);
+			const sidebar = sidebars.value[position];
+			const known = questions[position].getValuesForQuestion(question);
+			sidebar.variant = defaultVariant(position, question);
+			sidebar.selectedVariants = sidebar.selectedVariants.filter((v) => known.includes(v));
 		},
+	);
+});
+
+watch(
+	() => datasetStore.restored,
+	() => {
+		positions.forEach((position) => {
+			const dataset = pendingUrlState[position]?.dataset;
+			if (dataset !== undefined && !datasetStore.has(dataset))
+				sidebars.value[position] = createSidebarState(position, sidebars.value[position]);
+		});
+	},
+);
+
+const storedGroups = Object.fromEntries(
+	positions.map((position) => [
+		position,
+		groupsForMap(position, () => sidebars.value[position].question),
+	]),
+) as Record<MapPosition, ReturnType<typeof groupsForMap>>;
+
+function currentState(position: MapPosition): MapQueryState {
+	const { question, selectedVariants, mode, radius } = sidebars.value[position];
+	const dataset = datasetStore.datasetForMap(position);
+	return {
+		dataset,
+		question,
+		variants: selectedVariants,
+		groups: storedGroups[position].value,
+		colors: colorStore.getCustomColors(dataset, question),
+		mode,
+		radius,
+	};
+}
+
+const embedQueries = computed(() =>
+	Object.fromEntries(
+		positions.map((position) => [
+			position,
+			datasetStore.datasetForMap(position) === PILOT_DATASET_ID
+				? serializeMapQuery({
+						palette: colorStore.activePaletteId,
+						maps: { left: currentState(position) },
+					})
+				: undefined,
+		]),
+	),
+);
+
+const currentQuery = computed(() =>
+	serializeMapQuery({
+		palette: colorStore.activePaletteId,
+		maps: {
+			left: currentState("left"),
+			right: splitMode.value ? currentState("right") : undefined,
+		},
+	}),
+);
+
+onMounted(() => {
+	watch(
+		currentQuery,
+		(query) => {
+			const unrelated = Object.entries(route.query).filter(([key]) => !mapQueryKeys.has(key));
+			void router.replace({ query: { ...Object.fromEntries(unrelated), ...query } });
+		},
+		{ immediate: true },
 	);
 });
 </script>
@@ -104,6 +219,10 @@ positions.forEach((position) => {
 					@toggle-compare-mode="splitMode = true"
 					@toggle-sidebar="(question, variant) => updateSidebar('left', question, variant)"
 					v-model:question="sidebars.left.question"
+					v-model:variants="sidebars.left.selectedVariants"
+					v-model:mode="sidebars.left.mode"
+					v-model:radius="sidebars.left.radius"
+					:embed-query="embedQueries.left"
 					map-id="left"
 				/>
 				<template v-if="splitMode">
@@ -113,6 +232,10 @@ positions.forEach((position) => {
 						:split-mode="splitMode"
 						@toggle-sidebar="(question, variant) => updateSidebar('right', question, variant)"
 						v-model:question="sidebars.right.question"
+						v-model:variants="sidebars.right.selectedVariants"
+						v-model:mode="sidebars.right.mode"
+						v-model:radius="sidebars.right.radius"
+						:embed-query="embedQueries.right"
 						map-id="right"
 					/>
 					<UButton

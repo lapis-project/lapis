@@ -1280,7 +1280,12 @@ watch(
 				class="absolute bottom-12 right-0 z-10 mr-2"
 				data-testid="variantLegend"
 			>
-				<UCard variant="outline" class="text-sm shadow-md" :ui="{ body: 'p-3 sm:p-3' }">
+				<!-- Real borders are captured by html2canvas; Nuxt UI's box-shadow rings are not. -->
+				<UCard
+					variant="outline"
+					class="text-sm shadow-md"
+					:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
+				>
 					<ul class="space-y-0.5">
 						<li
 							v-for="variant in filteredUniqueVariants"
@@ -1317,7 +1322,10 @@ watch(
 				<UCard
 					variant="outline"
 					class="text-sm shadow-md"
-					:ui="{ body: 'px-2 py-0.5 sm:px-2 sm:py-0.5' }"
+					:ui="{
+						root: 'border border-default ring-0',
+						body: 'px-2 py-0.5 sm:px-2 sm:py-0.5',
+					}"
 				>
 					<ul class="gap-3 flex">
 						<li
@@ -1376,13 +1384,20 @@ watch(
 				class="absolute bottom-12 left-0 z-10 ml-2"
 				data-testid="dataLegend"
 			>
-				<UCard variant="outline" class="text-sm shadow-md" :ui="{ body: 'p-3 sm:p-3' }">
+				<UCard
+					variant="outline"
+					class="text-sm shadow-md"
+					:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
+				>
+					<!-- html2canvas captures SVG icons, but does not support Nuxt Icon's CSS masks. -->
 					<div class="mb-1 flex items-center gap-1" data-testid="datapoints">
-						<UIcon name="i-lucide-map-pin" class="size-4" /> {{ t("MapsPage.map.datapoints") }}:
+						<UIcon name="i-lucide-map-pin" mode="svg" class="size-4" />
+						{{ t("MapsPage.map.datapoints") }}:
 						{{ filteredPoints.length }}
 					</div>
 					<div class="flex items-center gap-1" data-testid="informants">
-						<UIcon name="i-lucide-user" class="size-4" />{{ t("MapsPage.map.informants") }}:
+						<UIcon name="i-lucide-user" mode="svg" class="size-4" />
+						{{ t("MapsPage.map.informants") }}:
 						{{ numberOfInformants }}
 					</div>
 				</UCard>

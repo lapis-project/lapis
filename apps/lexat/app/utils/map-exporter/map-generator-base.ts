@@ -232,10 +232,8 @@ export abstract class MapGeneratorBase {
 				await this.addLegend(renderMap, includeLegend, "regionLegend", "bottom-left", 8);
 				await this.addLegend(renderMap, includeLegend, "dataLegend", "bottom-left-append", 40);
 
-				// wait for map to settle once
-				if (renderMap.loaded()) {
-					// Proceed
-				} else {
+				// Wait for the style and attribution control to load before adding attribution.
+				if (!renderMap.loaded()) {
 					await new Promise((resolve) => renderMap.once("idle", resolve));
 				}
 
@@ -246,13 +244,14 @@ export abstract class MapGeneratorBase {
 				const markers = this.getMarkers();
 				if (markers.length > 0) {
 					renderMap = this.renderMarkers(renderMap);
-					// small delay to ensure markers are painted
-					renderMap.once("idle", () => {
-						this.exportImage(renderMap, hidden, actualPixelRatio);
-					});
-				} else {
-					this.exportImage(renderMap, hidden, actualPixelRatio);
 				}
+
+				// Attribution, terrain, and markers must be painted before capturing the canvas.
+				await new Promise<void>((resolve) => {
+					renderMap.once("idle", () => resolve());
+					renderMap.triggerRepaint();
+				});
+				this.exportImage(renderMap, hidden, actualPixelRatio);
 			} catch (err) {
 				console.error("Export failed", err);
 			}

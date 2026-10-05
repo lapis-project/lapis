@@ -308,11 +308,11 @@ const canProcess = computed(
 				</div>
 
 				<div
-					class="grid grid-cols-12 gap-4 px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-600 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+					class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(7rem,max-content)] gap-3 px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-600 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
 				>
-					<div class="col-span-5">{{ t("AdminPage.media.assignments.columns.preview") }}</div>
-					<div class="col-span-5">{{ t("AdminPage.media.assignments.columns.category") }}</div>
-					<div class="col-span-2 text-right">
+					<div>{{ t("AdminPage.media.assignments.columns.preview") }}</div>
+					<div>{{ t("AdminPage.media.assignments.columns.category") }}</div>
+					<div class="text-right">
 						{{ t("AdminPage.media.assignments.columns.status") }}
 					</div>
 				</div>
@@ -328,9 +328,9 @@ const canProcess = computed(
 					<div
 						v-for="asset in assets"
 						:key="asset.id"
-						class="grid grid-cols-12 gap-4 items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group"
+						class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(7rem,max-content)] gap-3 items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors group"
 					>
-						<div class="col-span-5 flex min-w-0 items-center gap-4">
+						<div class="flex min-w-0 items-center gap-4">
 							<div
 								class="w-20 h-20 rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 shrink-0 shadow-sm"
 							>
@@ -348,7 +348,7 @@ const canProcess = computed(
 							</p>
 						</div>
 
-						<div class="col-span-5">
+						<div class="min-w-0">
 							<USelectMenu
 								v-model="asset.category"
 								class="w-full"
@@ -361,10 +361,10 @@ const canProcess = computed(
 							/>
 						</div>
 
-						<div class="col-span-2 flex items-center justify-end">
+						<div class="flex items-center justify-end">
 							<template v-if="asset.status === 'success'">
 								<div
-									class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-100 dark:text-green-900 text-xs font-medium border border-green-200"
+									class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1 rounded-full bg-green-50 text-green-700 dark:bg-green-100 dark:text-green-900 text-xs font-medium border border-green-200"
 								>
 									<UIcon name="i-lucide-check-circle-2" class="size-3.5" />
 									{{ t("AdminPage.media.assignments.body.saved_msg") }}

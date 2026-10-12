@@ -34,12 +34,90 @@ import {
 import { restrictedRoute } from "@/lib/authHelper.ts";
 import type { AppEnv } from "@/lib/context.ts";
 import { buildCql } from "@/lib/cqlHelper.ts";
-import { streamFile, validateTranscriptId } from "@/lib/fileStreamHelper.ts";
+import { streamFile, validateFile, validateTranscriptId } from "@/lib/fileStreamHelper.ts";
 import { searchRequest } from "@/search/index.ts";
 import { type NoSketchError, requestTranscriptMatches } from "@/search/transcriptMatches.ts";
 import { resolveAudioFileForInstanceId } from "@/service/audioService.ts";
 import type { TranscriptToken } from "@/types/apiTypes.ts";
 import type { paths } from "@/types/noske.d.ts";
+
+const transcriptSortFields = [
+	"token_id",
+	"transcript_id_id",
+	"ID_Inf_id",
+	"start_time",
+	"end_time",
+	"token_reihung",
+	"ortho",
+	"phon",
+	"text_in_ortho",
+	"sppos",
+	"sptag",
+	"splemma",
+	"spdep",
+	"spenttype",
+] as const satisfies ReadonlyArray<keyof TranscriptToken>;
+
+type TranscriptSortField = (typeof transcriptSortFields)[number];
+
+const transcriptSortFieldSet = new Set<string>(transcriptSortFields);
+
+export function parseTranscriptSortFields(
+	values: Array<string>,
+): Array<TranscriptSortField> | null {
+	const fields = values.flatMap((value) => value.split(",")).map((value) => value.trim());
+
+	if (
+		fields.length === 0 ||
+		fields.some((field) => field.length === 0 || !transcriptSortFieldSet.has(field))
+	) {
+		return null;
+	}
+
+	return fields as Array<TranscriptSortField>;
+}
+
+function transcriptTimeToSeconds(value: string): number {
+	const parts = value.split(":").map(Number);
+	if (parts.length !== 3 || parts.some(Number.isNaN)) {
+		return Number.NaN;
+	}
+
+	return parts[0]! * 3600 + parts[1]! * 60 + parts[2]!;
+}
+
+function compareTranscriptValues(
+	left: TranscriptToken[TranscriptSortField],
+	right: TranscriptToken[TranscriptSortField],
+	field: TranscriptSortField,
+): number {
+	if (left === right) return 0;
+	if (left === null) return 1;
+	if (right === null) return -1;
+
+	if (field === "start_time" || field === "end_time") {
+		const timeDifference =
+			transcriptTimeToSeconds(String(left)) - transcriptTimeToSeconds(String(right));
+		if (!Number.isNaN(timeDifference) && timeDifference !== 0) return timeDifference;
+	}
+
+	if (typeof left === "number" && typeof right === "number") return left - right;
+	return String(left).localeCompare(String(right));
+}
+
+export function sortTranscriptData(
+	transcriptData: Array<TranscriptToken>,
+	fields: Array<TranscriptSortField>,
+): Array<TranscriptToken> {
+	return transcriptData.toSorted((left, right) => {
+		for (const field of fields) {
+			const difference = compareTranscriptValues(left[field], right[field], field);
+			if (difference !== 0) return difference;
+		}
+
+		return 0;
+	});
+}
 
 const SearchQuerySchema = object({
 	// Allow 'word' OR 'query' for text input
@@ -821,9 +899,10 @@ const corpus = new Hono<AppEnv>()
 			return c.json({ error: "Internal Server Error" }, 500);
 		}
 	})
-	.get("/transcript/:transcript_id/:format", (c) => {
+	.get("/transcript/:transcript_id/:format", async (c) => {
 		const id = c.req.param("transcript_id");
 		const format = c.req.param("format"); // 'xml' or 'json'
+		let sortByQuery = c.req.queries("sort_by");
 
 		// 1. Validate transcript ID (Security Critical)
 		const safeId = validateTranscriptId(id);
@@ -835,6 +914,45 @@ const corpus = new Hono<AppEnv>()
 		const extension = format === "json" ? "json" : "xml";
 		const filename = `${safeId}.${extension}`;
 		const filePath = join(DATA_DIR, extension, filename);
+
+		// Set default value for sortByQuery if field is left empty or NULL
+		if (!sortByQuery) {
+			sortByQuery = ["start_time", "ID_Inf_id", "token_reihung"];
+		}
+		if (sortByQuery.length > 0) {
+			if (format !== "json") {
+				return c.json({ error: "sort_by is only supported for JSON transcripts" }, 400);
+			}
+
+			const sortFields = parseTranscriptSortFields(sortByQuery);
+			if (!sortFields) {
+				return c.json(
+					{
+						error: "Invalid sort_by parameter",
+						allowed_fields: transcriptSortFields,
+					},
+					400,
+				);
+			}
+
+			const validation = validateFile(filePath);
+			if (!validation.valid) {
+				return c.json({ error: validation.error }, 404);
+			}
+
+			const transcript = JSON.parse(await fs.readFile(filePath, "utf-8")) as {
+				transcript_data?: Array<TranscriptToken>;
+				[key: string]: unknown;
+			};
+			if (!Array.isArray(transcript.transcript_data)) {
+				return c.json({ error: "Invalid transcript data" }, 500);
+			}
+
+			return c.json({
+				...transcript,
+				transcript_data: sortTranscriptData(transcript.transcript_data, sortFields),
+			});
+		}
 
 		// 3. Stream file with optimizations (compression, caching, etc.)
 		return streamFile(c, {

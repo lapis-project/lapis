@@ -1,7 +1,10 @@
+import { fileURLToPath } from "node:url";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { austrianStatePostalCodeRanges } from "@/lib/austrianPostalCodes.ts";
 import type { TranscriptMatchesResult } from "@/search/transcriptMatches.ts";
+import type { TranscriptToken } from "@/types/apiTypes.ts";
 
 interface SearchMetadata {
 	projects: Array<{ id: number; project_name: string | null; main_project_id: number | null }>;
@@ -45,6 +48,14 @@ const searchRequest = vi.fn<
 	) => Promise<Response>
 >(() => Promise.resolve(new Response(JSON.stringify({ Lines: [] }))));
 
+vi.mock("@/config/config.ts", async (importOriginal) => {
+	const config = await importOriginal<typeof import("@/config/config.ts")>();
+	return {
+		...config,
+		DATA_DIR: fileURLToPath(new URL("./fixtures/transcripts", import.meta.url)),
+	};
+});
+
 vi.mock("@/db/corpusRepository.ts", () => ({
 	getAllLocationsByProject: vi.fn(() => Promise.resolve([])),
 	getAllTranscripts,
@@ -56,7 +67,37 @@ vi.mock("@/db/corpusRepository.ts", () => ({
 vi.mock("@/search/index.ts", () => ({ searchRequest }));
 vi.mock("@/search/transcriptMatches.ts", () => ({ requestTranscriptMatches }));
 
-const { default: corpus } = await import("@/handler/corpusHandler.ts");
+const {
+	default: corpus,
+	parseTranscriptSortFields,
+	sortTranscriptData,
+} = await import("@/handler/corpusHandler.ts");
+
+function transcriptToken(
+	tokenId: number,
+	startTime: string,
+	informantId: number,
+	tokenOrder: number,
+): TranscriptToken {
+	return {
+		token_id: tokenId,
+		transcript_id_id: 1,
+		ID_Inf_id: informantId,
+		start_time: startTime,
+		end_time: startTime,
+		token_reihung: tokenOrder,
+		ortho: "",
+		phon: null,
+		text_in_ortho: "",
+		sppos: null,
+		sptag: null,
+		splemma: null,
+		spdep: null,
+		spenttype: null,
+		tags: [],
+		tokenset_ids: [],
+	};
+}
 
 describe("Corpus Handler", () => {
 	beforeEach(() => {
@@ -74,6 +115,58 @@ describe("Corpus Handler", () => {
 		requestTranscriptMatches.mockResolvedValue({ data: new Map([[7, 5]]), error: null });
 		searchRequest.mockReset();
 		searchRequest.mockResolvedValue(new Response(JSON.stringify({ Lines: [] })));
+	});
+
+	it("sorts transcript data by each sort_by field in priority order", () => {
+		const tokens = [
+			transcriptToken(1, "0:00:10", 2, 1),
+			transcriptToken(2, "0:00:02", 2, 2),
+			transcriptToken(3, "0:00:02", 1, 2),
+			transcriptToken(4, "0:00:02", 1, 1),
+		];
+		const fields = parseTranscriptSortFields(["start_time,ID_Inf_id,token_reihung"]);
+
+		expect(fields).not.toBeNull();
+		expect(sortTranscriptData(tokens, fields!).map((token) => token.token_id)).toEqual([
+			4, 3, 2, 1,
+		]);
+		expect(tokens.map((token) => token.token_id)).toEqual([1, 2, 3, 4]);
+	});
+
+	it("accepts repeated sort_by parameters and rejects unsupported fields", () => {
+		expect(parseTranscriptSortFields(["start_time", "ID_Inf_id,token_reihung"])).toEqual([
+			"start_time",
+			"ID_Inf_id",
+			"token_reihung",
+		]);
+		expect(parseTranscriptSortFields(["start_time,unknown"])).toBeNull();
+	});
+
+	it("returns transcript_data sorted by the requested fields", async () => {
+		const response = await corpus.request(
+			"/transcript/1/json?sort_by=start_time,ID_Inf_id,token_reihung",
+		);
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(body.transcript_data.map((token: TranscriptToken) => token.token_id)).toEqual([
+			4, 3, 2, 1,
+		]);
+		expect(body.unique_informant_ids).toEqual([1, 2]);
+	});
+
+	it("rejects invalid transcript sorting requests", async () => {
+		const invalidFieldResponse = await corpus.request("/transcript/1/json?sort_by=unknown");
+		const xmlResponse = await corpus.request("/transcript/1/xml?sort_by=start_time");
+
+		expect(invalidFieldResponse.status).toBe(400);
+		expect(await invalidFieldResponse.json()).toMatchObject({
+			error: "Invalid sort_by parameter",
+		});
+		expect(xmlResponse.status).toBe(400);
+		expect(await xmlResponse.json()).toEqual({
+			error: "sort_by is only supported for JSON transcripts",
+		});
 	});
 
 	it("returns all Austrian states with IDs alongside existing filter information", async () => {

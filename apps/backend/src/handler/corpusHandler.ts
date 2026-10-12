@@ -61,6 +61,11 @@ const transcriptSortFields = [
 type TranscriptSortField = (typeof transcriptSortFields)[number];
 
 const transcriptSortFieldSet = new Set<string>(transcriptSortFields);
+const previewTranscriptSortFields: Array<TranscriptSortField> = [
+	"start_time",
+	"ID_Inf_id",
+	"token_reihung",
+];
 
 export function parseTranscriptSortFields(
 	values: Array<string>,
@@ -1105,7 +1110,11 @@ const corpus = new Hono<AppEnv>()
 			// 4. Group tokens by ID_Inf_id into events
 			const tokensByInformant = new Map<number, Array<TranscriptToken>>();
 
-			for (const token of transcriptJson.transcript_data) {
+			const sortedTokens = sortTranscriptData(
+				transcriptJson.transcript_data as Array<TranscriptToken>,
+				previewTranscriptSortFields,
+			);
+			for (const token of sortedTokens) {
 				const infId = token.ID_Inf_id;
 				if (!tokensByInformant.has(infId)) {
 					tokensByInformant.set(infId, []);

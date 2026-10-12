@@ -66,6 +66,9 @@ vi.mock("@/db/corpusRepository.ts", () => ({
 
 vi.mock("@/search/index.ts", () => ({ searchRequest }));
 vi.mock("@/search/transcriptMatches.ts", () => ({ requestTranscriptMatches }));
+vi.mock("@/service/audioService.ts", () => ({
+	resolveAudioFileForInstanceId: vi.fn(() => Promise.resolve(null)),
+}));
 
 const {
 	default: corpus,
@@ -153,6 +156,22 @@ describe("Corpus Handler", () => {
 			4, 3, 2, 1,
 		]);
 		expect(body.unique_informant_ids).toEqual([1, 2]);
+	});
+
+	it("sorts preview event tokens by time, informant, and token order", async () => {
+		const response = await corpus.request("/preview/1");
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(body.unique_informant_ids).toEqual([1, 2]);
+		expect(
+			Object.values(body.transcript_data.events).map((tokens) =>
+				(tokens as Array<TranscriptToken>).map((token) => token.token_id),
+			),
+		).toEqual([
+			[4, 3],
+			[2, 1],
+		]);
 	});
 
 	it("rejects invalid transcript sorting requests", async () => {

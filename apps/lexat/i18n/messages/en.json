@@ -370,6 +370,7 @@
 		"counts": {
 			"locations": "Localities",
 			"participants": "Finished questionnaires",
+			"answers": "Answers",
 			"phenomenons": "Phenomena",
 			"survey-rounds": "Survey rounds"
 		},

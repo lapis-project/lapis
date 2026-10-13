@@ -117,6 +117,8 @@ const donutChartOptions = {
 	},
 };
 
+const formatThousands = (value: number) => `${Math.round(value / 1_000)}K`;
+
 const counts = [
 	{
 		value: startPageData.value?.place?.[0]?.total ?? 0,
@@ -127,6 +129,11 @@ const counts = [
 		value: startPageData.value?.inf?.[0]?.total ?? 0,
 		icon: "i-lucide-user-round",
 		translation: "HomePage.counts.participants",
+	},
+	{
+		value: startPageData.value?.response?.[0]?.total ?? 0,
+		icon: "i-lucide-audio-lines",
+		translation: "HomePage.counts.answers",
 	},
 	{
 		value: startPageData.value?.survey?.[0]?.total ?? 0,
@@ -142,33 +149,45 @@ const counts = [
 </script>
 
 <template>
-	<section class="flex flex-col gap-12 items-center">
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-24">
-			<div class="flex items-center justify-center h-80">
+	<section class="flex w-full min-w-0 max-w-6xl flex-col items-center gap-10 sm:gap-12">
+		<div class="grid w-full min-w-0 grid-cols-1 gap-10 md:grid-cols-2 md:gap-8 lg:gap-16">
+			<div class="relative h-72 min-w-0 sm:h-80">
 				<Bar class="w-full" :data="ageData" :options="barChartOptions" />
 			</div>
-			<div class="flex items-center justify-center h-80">
+			<div class="relative h-72 min-w-0 sm:h-80">
 				<Doughnut class="w-full" :data="genderData" :options="donutChartOptions" />
 			</div>
 		</div>
-		<div
-			class="grid grid-cols-2 gap-6 md:flex md:mx-auto md:gap-12 lg:gap-20 xl:gap-24 self-stretch mb-8"
+		<ul
+			class="mb-8 flex w-full flex-wrap justify-center gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:flex-nowrap"
 		>
-			<div
-				v-for="(item, index) in counts"
-				:key="index"
-				class="flex flex-col items-center justify-center gap-4"
+			<li
+				v-for="item in counts"
+				:key="item.translation"
+				class="flex min-w-0 basis-[calc((100%-1rem)/2)] flex-col items-center gap-3 text-center sm:basis-[calc((100%-3rem)/3)] lg:flex-1 lg:basis-0"
 			>
 				<div
-					class="flex size-28 sm:size-32 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white"
+					class="flex size-28 shrink-0 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white sm:size-32"
 				>
-					<UIcon :name="item.icon" mode="svg" class="size-10 sm:size-12 [&_*]:stroke-[1.5]" />
-					<p class="text-xl sm:text-2xl">
-						<CountUp :value="item.value" />
+					<UIcon
+						:name="item.icon"
+						mode="svg"
+						class="size-10 sm:size-12 [&_*]:stroke-[1.5]"
+						aria-hidden="true"
+					/>
+					<p :title="String(item.value)" class="text-xl font-semibold tabular-nums sm:text-2xl">
+						<span class="sr-only">{{ item.value }}</span>
+						<CountUp
+							:value="item.value"
+							:format="item.value >= 100_000 ? formatThousands : undefined"
+							aria-hidden="true"
+						/>
 					</p>
 				</div>
-				<p class="md:text-xl">{{ t(item.translation) }}</p>
-			</div>
-		</div>
+				<p class="max-w-48 text-sm leading-snug break-words sm:text-base lg:text-lg">
+					{{ t(item.translation) }}
+				</p>
+			</li>
+		</ul>
 	</section>
 </template>

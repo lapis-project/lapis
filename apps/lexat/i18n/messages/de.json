@@ -370,6 +370,7 @@
 		"counts": {
 			"locations": "Ortspunkte",
 			"participants": "Ausgefüllte Fragebögen",
+			"answers": "Antworten",
 			"phenomenons": "Phänomene",
 			"survey-rounds": "Fragebogenrunden"
 		},

@@ -1,4 +1,4 @@
-export const mapModes = ["point", "voronoi", "hexagon"] as const;
+export const mapModes = ["point", "voronoi", "hexagon", "kriging"] as const;
 
 export type MapMode = (typeof mapModes)[number];
 

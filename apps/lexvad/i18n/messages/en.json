@@ -180,6 +180,8 @@
 			"area-map": "Area map",
 			"voronoi": "Voronoi",
 			"hexagon": "Hexagon",
+			"kriging": "Areas",
+			"kriging-tooltip": "Interpolates the most likely variant for every location from the surrounding data points (kriging). Paler colours mean the variants are more evenly mixed there.",
 			"layers": {
 				"none": "No layers",
 				"regions": "Dialectal regions",

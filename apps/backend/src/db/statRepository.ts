@@ -145,6 +145,11 @@ export async function getAllStatData(project_id: number) {
 				.where("project_survey.project_id", "=", project_id)
 				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")]),
 		)
+		.with("response_count", (query) =>
+			query
+				.selectFrom("response")
+				.select(({ eb }) => [eb.val("query").as("type"), eb.fn.countAll().as("total")]),
+		)
 		.with("survey_conducted_query", (query) =>
 			query
 				.selectFrom("informant_survey_conducted")
@@ -173,6 +178,7 @@ export async function getAllStatData(project_id: number) {
 		.innerJoin("inf_count", "inf_count.type", "gender_count.inftype")
 		.innerJoin("survey_count", "survey_count.type", "gender_count.inftype")
 		.innerJoin("survey_conducted_query", "survey_conducted_query.type", "gender_count.inftype")
+		.innerJoin("response_count", "response_count.type", "gender_count.inftype")
 		.select(({ eb }) => [
 			eb.fn
 				.jsonAgg(
@@ -183,6 +189,18 @@ export async function getAllStatData(project_id: number) {
 				)
 				.filterWhere("gender_count.type", "is not", null)
 				.as("gender"),
+			eb.fn
+				.coalesce(
+					eb.fn
+						.jsonAgg(
+							jsonbBuildObject({
+								total: eb.ref("response_count.total"),
+							}),
+						)
+						.filterWhere("response_count.type", "is not", null),
+					sql`'[]'`,
+				)
+				.as("response"),
 			eb.fn
 				.coalesce(
 					eb.fn

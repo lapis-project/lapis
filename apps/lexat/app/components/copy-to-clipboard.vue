@@ -3,6 +3,8 @@ import { useClipboard } from "@vueuse/core";
 
 const props = defineProps<{
 	text: string;
+	copyLabel?: string;
+	copiedLabel?: string;
 }>();
 
 const toast = useToast();
@@ -29,8 +31,8 @@ const copyToClipboard = async (text: string) => {
 			:icon="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'"
 			@click="copyToClipboard(props.text)"
 		>
-			<span v-if="!copied">{{ t("Clipboard.copy") }}</span>
-			<span v-else>{{ t("Clipboard.copied") }}</span>
+			<span v-if="!copied">{{ props.copyLabel ?? t("Clipboard.copy") }}</span>
+			<span v-else>{{ props.copiedLabel ?? t("Clipboard.copied") }}</span>
 		</UButton>
 	</ClientOnly>
 </template>

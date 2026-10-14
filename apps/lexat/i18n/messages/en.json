@@ -266,6 +266,8 @@
 	"Clipboard": {
 		"copy": "Copy",
 		"copied": "Copied",
+		"copy-url": "Copy URL",
+		"copied-url": "URL copied",
 		"copy-success": "Copied to clipboard",
 		"copy-fail": "Cant save to clipboard"
 	},

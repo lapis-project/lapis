@@ -1463,17 +1463,11 @@ watch(
 			</GeoMap>
 		</VisualisationContainer>
 		<div class="flex w-full items-start justify-between gap-8">
-			<div class="flex min-w-0 flex-1 items-start gap-3">
-				<p
-					class="min-w-0 flex-1 break-all rounded-md border border-muted p-2 text-sm text-foreground/70"
-					data-testid="clipboard-url"
-				>
-					{{ fullRoute }}
-				</p>
-				<div class="shrink-0">
-					<CopyToClipboard :text="fullRoute" />
-				</div>
-			</div>
+			<CopyToClipboard
+				:text="fullRoute"
+				:copy-label="t('Clipboard.copy-url')"
+				:copied-label="t('Clipboard.copied-url')"
+			/>
 			<div class="flex shrink-0 gap-3">
 				<UButton
 					v-if="postAlias"

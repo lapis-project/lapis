@@ -266,6 +266,8 @@
 	"Clipboard": {
 		"copy": "Kopieren",
 		"copied": "Kopiert",
+		"copy-url": "URL kopieren",
+		"copied-url": "URL kopiert",
 		"copy-success": "In Zwischenablage gespeichert",
 		"copy-fail": "Konnte nicht in Zwischenablage gespeichert werden"
 	},

@@ -9,6 +9,7 @@ import {
 	Title,
 	Tooltip,
 } from "chart.js";
+import type { ChartOptions } from "chart.js";
 import type { InferResponseType } from "hono/client";
 import { Bar, Doughnut } from "vue-chartjs";
 
@@ -17,6 +18,8 @@ ChartJS.register(Title, Tooltip, Legend, BarElement, ArcElement, CategoryScale, 
 const { apiClient } = useApiClient();
 const env = useRuntimeConfig();
 const t = useTranslations();
+const colorMode = useColorMode();
+const chartTextColor = computed(() => (colorMode.value === "dark" ? "#d4d4d8" : "#52525b"));
 
 usePageMetadata({
 	title: t("HomePage.meta.title"),
@@ -43,9 +46,9 @@ const ageData = computed(() => {
 					startPageData.value?.age?.bucket_30_50 ?? 0,
 					startPageData.value?.age?.bucket_50_100 ?? 0,
 				],
-				// backgroundColor: ["#8580ff", "#ff8080", "#ca80ff"], // sexy
-				// COLOR PALETTE '#d6ce93', '#efebce', '#bb8588', '#559cad', '#d8a48f' https://coolors.co/visualizer/d6ce93-efebce-bb8588-559cad-d8a48f
 				backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
+				borderRadius: 4,
+				maxBarThickness: 60,
 			},
 		],
 	};
@@ -67,55 +70,64 @@ const genderData = computed(() => {
 					startPageData.value?.gender?.find((g) => g.gender === "divers")?.total ?? 0,
 				],
 				backgroundColor: ["#d6ce93", "#bb8588", "#559cad"],
+				borderWidth: 0,
+				spacing: 3,
 			},
 		],
 	};
 });
 
-const barChartOptions = {
+const barChartOptions = computed<ChartOptions<"bar">>(() => ({
 	responsive: true,
 	maintainAspectRatio: false,
+	color: chartTextColor.value,
 	plugins: {
 		legend: {
-			labels: {
-				boxWidth: 0, // This hides the colored box
-				font: {
-					size: 14, // Adjust legend font size
-				},
-			},
+			display: false,
 		},
 	},
 	scales: {
 		x: {
+			grid: { display: false },
+			border: { display: false },
 			ticks: {
-				font: {
-					size: 14, // Adjust x-axis font size
-				},
+				color: chartTextColor.value,
+				font: { size: 13 },
 			},
 		},
 		y: {
+			beginAtZero: true,
+			border: { display: false },
+			grid: {
+				color: colorMode.value === "dark" ? "#ffffff14" : "#0000000d",
+			},
 			ticks: {
-				font: {
-					size: 14, // Adjust y-axis font size
-				},
+				color: chartTextColor.value,
+				maxTicksLimit: 5,
+				font: { size: 12 },
 			},
 		},
 	},
-};
+}));
 
-const donutChartOptions = {
+const donutChartOptions = computed<ChartOptions<"doughnut">>(() => ({
 	responsive: true,
 	maintainAspectRatio: false,
+	cutout: "64%",
 	plugins: {
 		legend: {
+			position: "bottom",
 			labels: {
-				font: {
-					size: 14, // Adjust legend font size
-				},
+				color: chartTextColor.value,
+				usePointStyle: true,
+				boxWidth: 8,
+				boxHeight: 8,
+				padding: 16,
+				font: { size: 12 },
 			},
 		},
 	},
-};
+}));
 
 const formatThousands = (value: number) => `${Math.round(value / 1_000)}K`;
 
@@ -149,30 +161,48 @@ const counts = [
 </script>
 
 <template>
-	<section class="flex w-full min-w-0 max-w-6xl flex-col items-center gap-10 sm:gap-12">
-		<div class="grid w-full min-w-0 grid-cols-1 gap-10 md:grid-cols-2 md:gap-8 lg:gap-16">
-			<div class="relative h-72 min-w-0 sm:h-80">
-				<Bar class="w-full" :data="ageData" :options="barChartOptions" />
-			</div>
-			<div class="relative h-72 min-w-0 sm:h-80">
-				<Doughnut class="w-full" :data="genderData" :options="donutChartOptions" />
-			</div>
+	<section class="flex w-full min-w-0 max-w-4xl flex-col items-center gap-10 sm:gap-12">
+		<div class="grid w-full min-w-0 grid-cols-1 gap-6 md:grid-cols-2">
+			<figure class="min-w-0 rounded-2xl border border-muted p-4 sm:p-6">
+				<figcaption class="mb-6 text-center text-base font-medium">
+					{{ t("HomePage.charts.age-distribution.label") }}
+				</figcaption>
+				<div class="relative mx-auto h-64 w-full max-w-sm">
+					<Bar
+						class="w-full"
+						:data="ageData"
+						:options="barChartOptions"
+						:aria-label="t('HomePage.charts.age-distribution.label')"
+					/>
+				</div>
+			</figure>
+			<figure class="min-w-0 rounded-2xl border border-muted p-4 sm:p-6">
+				<figcaption class="mb-6 text-center text-base font-medium">
+					{{ t("HomePage.charts.gender-distribution.label") }}
+				</figcaption>
+				<div class="relative mx-auto h-64 w-full max-w-xs">
+					<Doughnut
+						class="w-full"
+						:data="genderData"
+						:options="donutChartOptions"
+						:aria-label="t('HomePage.charts.gender-distribution.label')"
+					/>
+				</div>
+			</figure>
 		</div>
-		<ul
-			class="mb-8 flex w-full flex-wrap justify-center gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10 lg:flex-nowrap"
-		>
+		<ul class="flex w-full flex-wrap justify-center gap-x-4 gap-y-8 sm:gap-x-6 md:flex-nowrap">
 			<li
 				v-for="item in counts"
 				:key="item.translation"
-				class="flex min-w-0 basis-[calc((100%-1rem)/2)] flex-col items-center gap-3 text-center sm:basis-[calc((100%-3rem)/3)] lg:flex-1 lg:basis-0"
+				class="flex min-w-0 basis-[calc((100%-1rem)/2)] flex-col items-center gap-3 text-center sm:basis-[calc((100%-3rem)/3)] md:flex-1 md:basis-0"
 			>
 				<div
-					class="flex size-28 shrink-0 flex-col items-center justify-center gap-2 rounded-full bg-[#bb8588] text-white sm:size-32"
+					class="flex size-24 shrink-0 flex-col items-center justify-center gap-1.5 rounded-full bg-[#bb8588] text-white sm:size-28"
 				>
 					<UIcon
 						:name="item.icon"
 						mode="svg"
-						class="size-10 sm:size-12 [&_*]:stroke-[1.5]"
+						class="size-8 sm:size-10 [&_*]:stroke-[1.5]"
 						aria-hidden="true"
 					/>
 					<p :title="String(item.value)" class="text-xl font-semibold tabular-nums sm:text-2xl">
@@ -184,7 +214,7 @@ const counts = [
 						/>
 					</p>
 				</div>
-				<p class="max-w-48 text-sm leading-snug break-words sm:text-base lg:text-lg">
+				<p class="max-w-40 text-sm leading-snug break-words sm:text-base">
 					{{ t(item.translation) }}
 				</p>
 			</li>

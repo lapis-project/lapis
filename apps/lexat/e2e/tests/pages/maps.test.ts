@@ -37,12 +37,22 @@ test.describe("Maps page functionality", () => {
 		await expect(page.getByTestId("questions")).toHaveText("Phänomen");
 	});
 
-	test("page filters, url params and element visibility", async ({ page }) => {
+	test("page filters, url params and element visibility", async ({ page, context }) => {
+		await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+			origin: "http://localhost:3000",
+		});
+
 		const questions = page.getByTestId("questions");
 		await expect(questions).toHaveText("Phänomen");
 
-		const clipboardUrl = page.getByTestId("clipboard-url");
-		await expect(clipboardUrl).toContainText("/de/maps?");
+		const copyUrl = page.getByRole("button", { name: /^URL kopier(en|t)$/ });
+		const expectCopiedUrl = async () => {
+			await copyUrl.click();
+			await expect(copyUrl).toHaveText("URL kopiert");
+			await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(page.url());
+		};
+		await expect(copyUrl).toHaveText("URL kopieren");
+		await expectCopiedUrl();
 
 		await expect(page.getByTestId("dataLegend")).toBeHidden();
 		await expect(page.getByTestId("regionLegend")).toBeVisible();
@@ -64,9 +74,7 @@ test.describe("Maps page functionality", () => {
 				p.get("sv") === "false"
 			);
 		});
-		await expect(clipboardUrl).toContainText(
-			"/de/maps?sr=1&sr=2&a=0,100&q=11&r=all&v=all&sv=false",
-		);
+		await expectCopiedUrl();
 
 		await expect(page.getByTestId("datapoints")).toContainText("Ortspunkte: 538");
 		await expect(page.getByTestId("informants")).toContainText("Antwortende: 1918");
@@ -101,7 +109,7 @@ test.describe("Maps page functionality", () => {
 				p.get("sv") === "false"
 			);
 		});
-		await expect(clipboardUrl).toContainText("/de/maps?sr=1&sr=2&a=0,100&q=11&r=4&v=all&sv=false");
+		await expectCopiedUrl();
 
 		await expect(page.getByTestId("datapoints")).toContainText("Ortspunkte: 165");
 		await expect(page.getByTestId("informants")).toContainText("Antwortende: 368");
@@ -125,9 +133,7 @@ test.describe("Maps page functionality", () => {
 				p.get("sv") === "false"
 			);
 		});
-		await expect(clipboardUrl).toContainText(
-			"/de/maps?sr=1&sr=2&a=0,100&q=11&r=4&v=Augenlid&sv=false",
-		);
+		await expectCopiedUrl();
 
 		await expect(page.getByTestId("datapoints")).toContainText("Ortspunkte: 131");
 		await expect(page.getByTestId("informants")).toContainText("Antwortende: 271");

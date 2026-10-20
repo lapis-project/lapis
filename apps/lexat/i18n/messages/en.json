@@ -411,6 +411,10 @@
 		"go-to-article": "Read commentary",
 		"go-to-db": "Browse data",
 		"help": "Help",
+		"controls": {
+			"open-sidebar": "Data insights",
+			"close-sidebar": "Close data insights"
+		},
 		"selection": {
 			"locations": "Enter locations",
 			"legend": "Legend",
@@ -491,6 +495,16 @@
 				"countSt": "Standard",
 				"totalCount": "Total"
 			}
+		},
+		"sidebar": {
+			"variable": "Phenomenon",
+			"variant": "Variant",
+			"region": "Spatial patterns",
+			"labels": {
+				"data-insights": "Data insights"
+			},
+			"answers": "{n} answer | {n} answers",
+			"empty": "No data is available for the current selection."
 		}
 	},
 	"MobileAlert": {
@@ -704,5 +718,43 @@
 			"title": "Experimental feature",
 			"text": "Your data stays in this browser and is never sent to a server. It is stored locally and is lost when you clear your browser data."
 		}
+	},
+	"RegionDistributionCard": {
+		"title": "Distribution of all variants"
+	},
+	"SelectedPhenomenonCard": {
+		"title": "Selected phenomenon",
+		"forms": "Forms",
+		"variants": "Variants",
+		"categories": {
+			"noun": "Noun"
+		}
+	},
+	"SelectedVariantCard": {
+		"title": "Selected variant",
+		"mentions": "mentions",
+		"notations": "notations"
+	},
+	"VariantDistributionCard": {
+		"title": "Distribution per",
+		"dialectal-region": "Dialectal region",
+		"state": "Federal state"
+	},
+	"VariantGroupingCard": {
+		"title": "Variant overview",
+		"new-group": "Remove from group",
+		"new-group-hint": "Drag a variant here to remove it from its current group",
+		"group-name": "Group name",
+		"rename": "Rename group",
+		"ungroup": "Ungroup"
+	},
+	"VariantOverviewCard": {
+		"title": "Variant overview",
+		"regional-cooccurrences": "Regional Cooccurrences",
+		"cooccurrences-subtitle-region": "Other variants in the same dialectal regions",
+		"cooccurrences-subtitle-bundesland": "Other variants in the same federal states"
+	},
+	"VariantSelectionCard": {
+		"title": "Select variant"
 	}
 }

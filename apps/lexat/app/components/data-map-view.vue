@@ -39,6 +39,7 @@ import {
 	matchesDatasetAge,
 	resolveDatasetQuestion,
 } from "@/utils/dataset";
+import { groupDisplayLabel, normaliseGroups, type VariantGroup } from "@/utils/variant-groups";
 import {
 	countUniqueVariants,
 	getSortedVariants,
@@ -114,6 +115,7 @@ const showRegions = ref<boolean>(true);
 const showStateCapitals = ref<boolean>(true);
 const showUrbanLocations = ref<boolean>(true);
 const open = ref(false);
+const sidebarOpen = ref(false);
 const showVariantPercentages = ref<boolean>(true);
 const highlightedRegion = ref<string>("");
 
@@ -260,6 +262,13 @@ const mappedColors = computed(() => {
 			colorMap[u.anno] = color;
 		}
 	});
+	for (const group of variantGroups.value) {
+		const color = colorMap[group.variants[0] ?? ""];
+		if (color)
+			group.variants.forEach((variant) => {
+				colorMap[variant] = color;
+			});
+	}
 	return colorMap;
 });
 
@@ -334,9 +343,9 @@ const filteredPoints = computed(() => {
 // });
 
 const dataPoints = computed(() => {
-	const visibleLocationPoints = structuredClone(filteredPoints.value);
+	const visibleLocationPoints = structuredClone(groupedPoints.value);
 	const geoJsonPoints = visibleLocationPoints.map((entity) => {
-		return createGeoJsonFeature(entity, mappedColors.value);
+		return createGeoJsonFeature(entity, groupedColors.value);
 	});
 
 	return geoJsonPoints.toSorted((a, b) => b.properties.answerCount! - a.properties.answerCount!);
@@ -356,13 +365,59 @@ const entitiesById = computed(() => {
 });
 
 const filteredUniqueVariants = computed(() =>
-	processUniqueVariants(filteredPoints.value, specialOrder),
+	processUniqueVariants(groupedPoints.value, specialOrder),
 );
 
 const uniqueVariants = computed(() => {
 	const countedUniqueVariants = countUniqueVariants(points.value);
 	return getSortedVariants(countedUniqueVariants);
 });
+
+const groupsByQuestion = ref<Record<string, Array<VariantGroup>>>({});
+const groupScope = computed(() =>
+	JSON.stringify([selectedDatasetId.value, activeQuestion.value?.value]),
+);
+const variantGroups = computed({
+	get: () =>
+		normaliseGroups(
+			groupsByQuestion.value[groupScope.value] ?? [],
+			uniqueVariants.value.map((variant) => variant.anno),
+		),
+	set: (groups: Array<VariantGroup>) => {
+		groupsByQuestion.value[groupScope.value] = groups;
+	},
+});
+const groupIdsByVariant = computed(
+	() =>
+		new Map(
+			variantGroups.value.flatMap((group) =>
+				group.variants.map((variant) => [variant, group.id] as const),
+			),
+		),
+);
+const groupedColors = computed(() =>
+	Object.fromEntries(
+		variantGroups.value.map((group) => [
+			group.id,
+			mappedColors.value[group.variants[0] ?? ""] ?? "#777777",
+		]),
+	),
+);
+const groupLabels = computed(() =>
+	Object.fromEntries(variantGroups.value.map((group) => [group.id, groupDisplayLabel(group)])),
+);
+const groupedPoints = computed(() =>
+	filteredPoints.value.map((point) => ({
+		...point,
+		informants: point.informants.map((informant) => ({
+			...informant,
+			answers: informant.answers.map((answer) => ({
+				...answer,
+				annotation: groupIdsByVariant.value.get(answer.annotation) ?? answer.annotation,
+			})),
+		})),
+	})),
+);
 
 const uniqueVariantsOptions = computed<Array<{ label: string; value: string }>>(() => {
 	const variantOptions = uniqueVariants.value
@@ -1012,509 +1067,539 @@ watch(
 </script>
 
 <template>
-	<div class="relative flex flex-col gap-5">
-		<div v-if="datasetStore.customDatasets.length" class="flex flex-wrap items-center gap-3">
-			<label for="map-dataset" class="text-sm font-semibold">{{
-				t("DatasetSwitcher.label")
-			}}</label>
-			<USelect
-				id="map-dataset"
-				data-testid="dataset"
-				:model-value="customDataset?.id ?? DEFAULT_DATASET_ID"
-				:items="datasetOptions"
-				class="min-w-64"
-				@update:model-value="selectDataset"
-			/>
-			<UBadge v-if="isCustomDataset" color="warning" variant="subtle">{{
-				t("DatasetSwitcher.custom-badge")
-			}}</UBadge>
-		</div>
-		<p v-if="isCustomDataset" class="text-sm text-muted-foreground">
-			{{ t("DatasetSwitcher.local-hint") }}
-		</p>
-		<div id="welcome">
-			<div class="flex gap-2">
-				<div class="grow rounded-lg border border-muted p-5">
-					<div class="grid grid-cols-4 gap-5">
-						<div v-if="!isCustomDataset" id="surveyround">
-							<div class="mb-1 ml-1 text-sm font-semibold align-center flex gap-1 items-center">
-								{{ t("MapsPage.selection.survey.title") }}
-								<UTooltip
-									:content="{ side: 'top' }"
-									:delay-duration="0"
-									:text="t('MapsPage.selection.variable.tooltip')"
-								>
-									<UIcon name="i-lucide-info" class="size-4" />
-								</UTooltip>
-							</div>
-							<USelect
-								data-testid="survey"
-								:disabled="isCustomDataset"
-								:items="surveyRoundOptions"
-								:model-value="activeSurveyRounds"
-								multiple
-								size="lg"
-								class="w-64"
-								@update:model-value="updateActiveSurveyRounds"
-							/>
-						</div>
-						<div id="phenomenon">
-							<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
-								{{ t("MapsPage.selection.variable.title") }}
-								<UTooltip
-									:content="{ side: 'top' }"
-									:delay-duration="0"
-									:text="t('MapsPage.selection.variable.tooltip')"
-								>
-									<UIcon name="i-lucide-info" class="size-4" />
-								</UTooltip>
-							</div>
-							<USelectMenu
-								v-if="mappedQuestions?.length"
-								v-model="activeQuestion"
-								data-testid="questions"
-								:items="mappedQuestions"
-								size="lg"
-								:placeholder="t('MapsPage.selection.variable.placeholder')"
-								class="w-64"
-							/>
-						</div>
-						<div id="register">
-							<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
-								{{ t("MapsPage.selection.register.title") }}
-								<UTooltip
-									:content="{ side: 'top' }"
-									:delay-duration="0"
-									arrow
-									:text="t('MapsPage.selection.register.tooltip')"
-								>
-									<UIcon name="i-lucide-info" class="size-4" />
-								</UTooltip>
-							</div>
-							<RegisterSelect
-								v-model="activeRegisters"
-								data-testid="registers"
-								:options="registerOptions"
-								:placeholder="t('MapsPage.selection.register.placeholder')"
-							/>
-						</div>
-						<div id="variant">
-							<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
-								{{ t("MapsPage.selection.variants.title") }}
-								<UTooltip
-									:content="{ side: 'top' }"
-									:delay-duration="0"
-									arrow
-									:text="t('MapsPage.selection.variants.tooltip')"
-								>
-									<UIcon name="i-lucide-info" class="size-4" />
-								</UTooltip>
-							</div>
-							<USelect
-								data-testid="variants"
-								:model-value="activeVariants"
-								multiple
-								size="lg"
-								:items="uniqueVariantsOptions"
-								:placeholder="t('MapsPage.selection.variants.placeholder')"
-								class="w-62"
-								@update:model-value="updateActiveVariants"
-							/>
-						</div>
-					</div>
-					<UCollapsible v-model:open="open">
-						<template #content>
-							<hr class="mt-5 border-muted" />
-							<div class="mt-4 grid grid-cols-4 gap-5">
-								<div id="age-group">
-									<div class="ml-1 flex gap-1 text-sm font-semibold">
-										{{ t("MapsPage.selection.age.title") }}
-									</div>
-									<div class="max-w-64 pl-1">
-										<DualRangeSlider
-											accessibility-label="Age Group"
-											:max="100"
-											:min="0"
-											:step="5"
-											:value="activeAgeGroup"
-											@update:value="setAgeGroup"
-										/>
-									</div>
+	<div class="flex min-w-0">
+		<div class="container @container relative min-w-0 flex-1 flex flex-col gap-5">
+			<div v-if="datasetStore.customDatasets.length" class="flex flex-wrap items-center gap-3">
+				<label for="map-dataset" class="text-sm font-semibold">{{
+					t("DatasetSwitcher.label")
+				}}</label>
+				<USelect
+					id="map-dataset"
+					data-testid="dataset"
+					:model-value="customDataset?.id ?? DEFAULT_DATASET_ID"
+					:items="datasetOptions"
+					class="min-w-64"
+					@update:model-value="selectDataset"
+				/>
+				<UBadge v-if="isCustomDataset" color="warning" variant="subtle">{{
+					t("DatasetSwitcher.custom-badge")
+				}}</UBadge>
+			</div>
+			<p v-if="isCustomDataset" class="text-sm text-muted-foreground">
+				{{ t("DatasetSwitcher.local-hint") }}
+			</p>
+			<div id="welcome">
+				<div class="flex gap-2">
+					<div class="min-w-0 grow rounded-lg border border-muted p-5">
+						<div class="grid grid-cols-2 @4xl:grid-cols-4 gap-5">
+							<div v-if="!isCustomDataset" id="surveyround">
+								<div class="mb-1 ml-1 text-sm font-semibold align-center flex gap-1 items-center">
+									{{ t("MapsPage.selection.survey.title") }}
+									<UTooltip
+										:content="{ side: 'top' }"
+										:delay-duration="0"
+										:text="t('MapsPage.selection.variable.tooltip')"
+									>
+										<UIcon name="i-lucide-info" class="size-4" />
+									</UTooltip>
 								</div>
-								<div class="">
-									<div class="mb-1 ml-1 text-sm font-semibold">
-										{{ t("MapsPage.selection.display-options") }}
+								<USelect
+									data-testid="survey"
+									:disabled="isCustomDataset"
+									:items="surveyRoundOptions"
+									:model-value="activeSurveyRounds"
+									multiple
+									size="lg"
+									class="w-full"
+									@update:model-value="updateActiveSurveyRounds"
+								/>
+							</div>
+							<div id="phenomenon">
+								<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
+									{{ t("MapsPage.selection.variable.title") }}
+									<UTooltip
+										:content="{ side: 'top' }"
+										:delay-duration="0"
+										:text="t('MapsPage.selection.variable.tooltip')"
+									>
+										<UIcon name="i-lucide-info" class="size-4" />
+									</UTooltip>
+								</div>
+								<USelectMenu
+									v-if="mappedQuestions?.length"
+									v-model="activeQuestion"
+									data-testid="questions"
+									:items="mappedQuestions"
+									size="lg"
+									:placeholder="t('MapsPage.selection.variable.placeholder')"
+									class="w-full"
+								/>
+							</div>
+							<div id="register" class="[&>button]:w-full">
+								<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
+									{{ t("MapsPage.selection.register.title") }}
+									<UTooltip
+										:content="{ side: 'top' }"
+										:delay-duration="0"
+										arrow
+										:text="t('MapsPage.selection.register.tooltip')"
+									>
+										<UIcon name="i-lucide-info" class="size-4" />
+									</UTooltip>
+								</div>
+								<RegisterSelect
+									v-model="activeRegisters"
+									data-testid="registers"
+									:options="registerOptions"
+									:placeholder="t('MapsPage.selection.register.placeholder')"
+								/>
+							</div>
+							<div id="variant">
+								<div class="mb-1 ml-1 text-sm font-semibold flex gap-1 items-center">
+									{{ t("MapsPage.selection.variants.title") }}
+									<UTooltip
+										:content="{ side: 'top' }"
+										:delay-duration="0"
+										arrow
+										:text="t('MapsPage.selection.variants.tooltip')"
+									>
+										<UIcon name="i-lucide-info" class="size-4" />
+									</UTooltip>
+								</div>
+								<USelect
+									data-testid="variants"
+									:model-value="activeVariants"
+									multiple
+									size="lg"
+									:items="uniqueVariantsOptions"
+									:placeholder="t('MapsPage.selection.variants.placeholder')"
+									class="w-full"
+									@update:model-value="updateActiveVariants"
+								/>
+							</div>
+						</div>
+						<UCollapsible v-model:open="open">
+							<template #content>
+								<hr class="mt-5 border-muted" />
+								<div class="mt-4 grid grid-cols-2 @6xl:grid-cols-4 gap-5">
+									<div id="age-group">
+										<div class="ml-1 flex gap-1 text-sm font-semibold">
+											{{ t("MapsPage.selection.age.title") }}
+										</div>
+										<div class="max-w-64 pl-1">
+											<DualRangeSlider
+												accessibility-label="Age Group"
+												:max="100"
+												:min="0"
+												:step="5"
+												:value="activeAgeGroup"
+												@update:value="setAgeGroup"
+											/>
+										</div>
 									</div>
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
-										<UCheckbox id="showData" v-model="simplifiedView" />
-										<label
-											class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-											for="showData"
+									<div class="">
+										<div class="mb-1 ml-1 text-sm font-semibold">
+											{{ t("MapsPage.selection.display-options") }}
+										</div>
+										<div
+											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
 										>
-											{{ t("MapsPage.selection.simplified-view.label") }}
-											<UTooltip
-												:content="{ side: 'top' }"
-												:delay-duration="0"
-												arrow
-												:text="t('MapsPage.selection.simplified-view.tooltip')"
+											<UCheckbox id="showData" v-model="simplifiedView" />
+											<label
+												class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+												for="showData"
 											>
-												<UIcon name="i-lucide-info" class="size-4" />
-											</UTooltip>
-										</label>
-									</div>
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
-										<UCheckbox id="showRegions" v-model="showRegions" />
-										<label
-											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-											for="showRegions"
+												{{ t("MapsPage.selection.simplified-view.label") }}
+												<UTooltip
+													:content="{ side: 'top' }"
+													:delay-duration="0"
+													arrow
+													:text="t('MapsPage.selection.simplified-view.tooltip')"
+												>
+													<UIcon name="i-lucide-info" class="size-4" />
+												</UTooltip>
+											</label>
+										</div>
+										<div
+											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
 										>
-											{{ t("MapsPage.selection.show-regions") }}
-										</label>
-									</div>
-									<USelect
-										v-model="activeBasemap"
-										:items="basemapOptions"
-										:placeholder="t('MapsPage.selection.basemap.placeholder')"
-										size="lg"
-										class="w-64"
-									/>
-								</div>
-								<div class="">
-									<label class="mb-1 ml-1 block text-sm font-semibold" for="location-filter">
-										{{ t("MapsPage.selection.filter-locations") }}
-									</label>
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
-										<UCheckbox id="showStateCapitals" v-model="showStateCapitals" />
-										<label
-											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-											for="showStateCapitals"
-										>
-											{{ t("MapsPage.selection.show-state-capitals") }}
-										</label>
-									</div>
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
-										<UCheckbox id="showUrbanLocations" v-model="showUrbanLocations" />
-										<label
-											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-											for="showUrbanLocations"
-										>
-											{{ t("MapsPage.selection.show-urban-locations") }}
-										</label>
-									</div>
-									<LocationSearch
-										v-if="filteredPoints?.length"
-										id="location-filter"
-										v-model="activeLocations"
-										:options="activeLocationOptions"
-										:placeholder="t('MapsPage.selection.locations')"
-									/>
-								</div>
-								<div
-									v-if="mappedColors && Object.values(mappedColors).length"
-									class="col-span-1 text-sm font-semibold"
-								>
-									<div class="mb-1 ml-1 text-sm font-semibold">
-										{{ t("MapsPage.selection.legend") }}
-									</div>
-
-									<div class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2">
-										<UCheckbox id="showVariantPercentages" v-model="showVariantPercentages" />
-										<label
-											class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-											for="showVariantPercentages"
-										>
-											{{ t("MapsPage.selection.show-variant-percentages") }}
-										</label>
-									</div>
-									<div class="flex flex-wrap gap-2">
-										<ColorPicker
-											v-for="(color, index) in Object.values(mappedColors)"
-											:key="index"
-											:model-value="Object.values(mappedColors)[index]"
-											@update:model-value="handleColorUpdate(index, $event)"
+											<UCheckbox id="showRegions" v-model="showRegions" />
+											<label
+												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+												for="showRegions"
+											>
+												{{ t("MapsPage.selection.show-regions") }}
+											</label>
+										</div>
+										<USelect
+											v-model="activeBasemap"
+											:items="basemapOptions"
+											:placeholder="t('MapsPage.selection.basemap.placeholder')"
+											size="lg"
+											class="w-64"
 										/>
 									</div>
+									<div class="">
+										<label class="mb-1 ml-1 block text-sm font-semibold" for="location-filter">
+											{{ t("MapsPage.selection.filter-locations") }}
+										</label>
+										<div
+											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
+										>
+											<UCheckbox id="showStateCapitals" v-model="showStateCapitals" />
+											<label
+												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+												for="showStateCapitals"
+											>
+												{{ t("MapsPage.selection.show-state-capitals") }}
+											</label>
+										</div>
+										<div
+											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
+										>
+											<UCheckbox id="showUrbanLocations" v-model="showUrbanLocations" />
+											<label
+												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+												for="showUrbanLocations"
+											>
+												{{ t("MapsPage.selection.show-urban-locations") }}
+											</label>
+										</div>
+										<LocationSearch
+											v-if="filteredPoints?.length"
+											id="location-filter"
+											v-model="activeLocations"
+											:options="activeLocationOptions"
+											:placeholder="t('MapsPage.selection.locations')"
+										/>
+									</div>
+									<div
+										v-if="mappedColors && Object.values(mappedColors).length"
+										class="col-span-1 text-sm font-semibold"
+									>
+										<div class="mb-1 ml-1 text-sm font-semibold">
+											{{ t("MapsPage.selection.legend") }}
+										</div>
+
+										<div
+											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
+										>
+											<UCheckbox id="showVariantPercentages" v-model="showVariantPercentages" />
+											<label
+												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+												for="showVariantPercentages"
+											>
+												{{ t("MapsPage.selection.show-variant-percentages") }}
+											</label>
+										</div>
+										<div class="flex flex-wrap gap-2">
+											<ColorPicker
+												v-for="(color, index) in Object.values(mappedColors)"
+												:key="index"
+												:model-value="Object.values(mappedColors)[index]"
+												@update:model-value="handleColorUpdate(index, $event)"
+											/>
+										</div>
+									</div>
 								</div>
-							</div>
-						</template>
-					</UCollapsible>
-				</div>
-				<div class="grid content-start gap-2">
-					<UButton
-						id="reset"
-						data-testid="reset"
-						size="lg"
-						color="neutral"
-						variant="outline"
-						icon="i-lucide-rotate-ccw"
-						@click="resetSelection()"
-					/>
-					<UButton
-						id="advanced"
-						aria-label="Toggle advanced filters"
-						:aria-expanded="open"
-						size="lg"
-						color="neutral"
-						variant="outline"
-						square
-						@click="open = !open"
-					>
-						<UIcon
-							name="i-lucide-chevron-down"
-							class="size-5 transition-transform"
-							:class="{ 'rotate-180': open }"
+							</template>
+						</UCollapsible>
+					</div>
+					<div class="grid content-start gap-2">
+						<UButton
+							id="reset"
+							data-testid="reset"
+							size="lg"
+							color="neutral"
+							variant="outline"
+							icon="i-lucide-rotate-ccw"
+							@click="resetSelection()"
 						/>
+						<UButton
+							id="advanced"
+							aria-label="Toggle advanced filters"
+							:aria-expanded="open"
+							size="lg"
+							color="neutral"
+							variant="outline"
+							square
+							@click="open = !open"
+						>
+							<UIcon
+								name="i-lucide-chevron-down"
+								class="size-5 transition-transform"
+								:class="{ 'rotate-180': open }"
+							/>
+						</UButton>
+					</div>
+				</div>
+			</div>
+			<VisualisationContainer
+				v-slot="{ height, width }"
+				class="border border-muted"
+				:class="{ 'h-[600px]': !mapExpanded }"
+				:fullscreen="mapExpanded"
+			>
+				<div
+					v-if="filteredUniqueVariants.length"
+					id="variantLegend"
+					class="absolute bottom-12 right-0 z-10 mr-2"
+					data-testid="variantLegend"
+				>
+					<!-- Real borders are captured by html2canvas; Nuxt UI's box-shadow rings are not. -->
+					<UCard
+						variant="outline"
+						class="text-sm shadow-md"
+						:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
+					>
+						<ul class="space-y-0.5">
+							<li
+								v-for="variant in filteredUniqueVariants"
+								:key="variant.anno"
+								class="flex items-center gap-1"
+							>
+								<svg class="inline align-baseline" height="12" width="12">
+									<circle
+										cx="6"
+										cy="6"
+										:fill="groupedColors[variant.anno]"
+										r="5"
+										:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
+										stroke-align="inner"
+										stroke-width="1"
+									/>
+								</svg>
+								<span
+									:class="{
+										italic: !Object.keys(specialOrder).includes(variant.anno),
+									}"
+									>{{ groupLabels[variant.anno] ?? variant.anno }}</span
+								>({{ showVariantPercentages ? `${variant.percentage}%` : variant.count }})
+							</li>
+						</ul>
+					</UCard>
+				</div>
+				<div
+					v-if="features.length"
+					id="regionLegend"
+					class="absolute bottom-2 left-28 z-10 mr-2"
+					data-testid="regionLegend"
+				>
+					<UCard
+						variant="outline"
+						class="text-sm shadow-md"
+						:ui="{
+							root: 'border border-default ring-0',
+							body: 'px-2 py-0.5 sm:px-2 sm:py-0.5',
+						}"
+					>
+						<ul class="gap-3 flex">
+							<li
+								v-for="region in regions.map((r) => ({ ...r, name: t(`Regions.${r.name}`) }))"
+								:key="region.id"
+								class="flex items-center gap-1 cursor-default hover:underline"
+								role="button"
+								tabindex="0"
+								@blur="highlightRegion('')"
+								@focus="highlightRegion(region.name)"
+								@mouseout="highlightRegion('')"
+								@mouseover="highlightRegion(region.name)"
+							>
+								<svg class="inline align-baseline" height="12" width="12">
+									<circle
+										cx="6"
+										cy="6"
+										:fill="region.color"
+										r="5"
+										:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
+										stroke-align="inner"
+										stroke-width="1"
+									/>
+								</svg>
+								<span class="italic">{{ region.name }}</span>
+							</li>
+						</ul>
+					</UCard>
+				</div>
+				<div id="expand" class="absolute right-2 top-2 z-10">
+					<UButton
+						aria-label="Fullscreen"
+						size="xl"
+						variant="outline"
+						color="neutral"
+						:icon="!mapExpanded ? 'i-lucide-fullscreen' : 'i-lucide-minimize-2'"
+						@click="mapExpanded = !mapExpanded"
+					/>
+				</div>
+				<div v-if="stimulusDialogRef?.hasImage" class="absolute top-14 right-2 z-10">
+					<UButton
+						size="xl"
+						square
+						:title="t('MapsPage.show-stimulus')"
+						variant="outline"
+						icon="i-lucide-image"
+						color="neutral"
+						@click="handleShowImage"
+					>
+						<span class="sr-only">Show Phenomenon Image</span>
+					</UButton>
+				</div>
+				<div
+					v-if="filteredPoints?.length && numberOfInformants"
+					id="dataLegend"
+					class="absolute bottom-12 left-0 z-10 ml-2"
+					data-testid="dataLegend"
+				>
+					<UCard
+						variant="outline"
+						class="text-sm shadow-md"
+						:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
+					>
+						<!-- html2canvas captures SVG icons, but does not support Nuxt Icon's CSS masks. -->
+						<div class="mb-1 flex items-center gap-1" data-testid="datapoints">
+							<UIcon name="i-lucide-map-pin" mode="svg" class="size-4" />
+							{{ t("MapsPage.map.datapoints") }}:
+							{{ filteredPoints.length }}
+						</div>
+						<div class="flex items-center gap-1" data-testid="informants">
+							<UIcon name="i-lucide-user" mode="svg" class="size-4" />
+							{{ t("MapsPage.map.informants") }}:
+							{{ numberOfInformants }}
+						</div>
+					</UCard>
+				</div>
+				<GeoMap
+					v-if="height && width"
+					:basemap="activeBasemap"
+					:capitals-only="capitalsOnly"
+					:features="features"
+					:geo-outline="geoOutline"
+					:height="height"
+					:highlighted-region="highlightedRegion"
+					:locations="dataPoints"
+					:show-region-names="showRegionNames"
+					:show-regions="showRegions"
+					:simplified-view="simplifiedView"
+					:width="width"
+					@layer-click="onLayerClick"
+				>
+					<GeoMapPopup
+						v-if="popover !== null"
+						:coordinates="popover.coordinates"
+						@close="popover = null"
+					>
+						<article class="grid w-58 gap-1">
+							<div v-for="entity in popover.entities" :key="entity.id">
+								<p>
+									<strong>{{ entity.place_name }}</strong
+									>, {{ entity.plz }} ({{ getEntityTotal(entity) }})
+								</p>
+								<ul>
+									<li v-for="(value, key) in getEntityOccurrences(entity)" :key="key">
+										<details :name="key">
+											<summary>
+												<div class="inline-flex items-center gap-1 align-top">
+													<svg height="12" width="12">
+														<circle
+															cx="6"
+															cy="6"
+															:fill="mappedColors[key]"
+															r="5"
+															stroke="black"
+															stroke-width="1"
+														/>
+													</svg>
+													<span
+														:class="{
+															italic: !Object.keys(specialOrder).includes(key),
+														}"
+													>
+														{{ key }}</span
+													>
+													({{ showVariantPercentages ? `${value.percentage}%` : value.total }})
+												</div>
+											</summary>
+											<p v-for="(v, k) in value.varieties" :key="k" class="">- {{ k }}: {{ v }}</p>
+										</details>
+									</li>
+								</ul>
+							</div>
+						</article>
+					</GeoMapPopup>
+				</GeoMap>
+			</VisualisationContainer>
+			<div class="flex w-full items-start justify-between gap-8">
+				<CopyToClipboard
+					:text="fullRoute"
+					:copy-label="t('Clipboard.copy-url')"
+					:copied-label="t('Clipboard.copied-url')"
+				/>
+				<div class="flex flex-wrap justify-end gap-3">
+					<UButton
+						v-if="postAlias"
+						data-testid="goToArticlePage"
+						icon="i-lucide-file-text"
+						size="lg"
+						@click="goToArticlePage"
+						>{{ t("MapsPage.go-to-article") }}</UButton
+					>
+					<UButton
+						v-if="activeQuestionId && !isCustomDataset"
+						data-testid="goToDbPage"
+						icon="i-lucide-database"
+						size="lg"
+						@click="goToDbPage"
+						>{{ t("MapsPage.go-to-db") }}</UButton
+					>
+					<UButton
+						v-else
+						data-testid="resetOnboarding"
+						variant="outline"
+						icon="i-lucide-circle-help"
+						size="lg"
+						@click="resetOnboarding"
+					>
+						{{ t("MapsPage.help") }}</UButton
+					>
+					<UButton
+						class="gap-2 p-2"
+						variant="outline"
+						icon="i-lucide-microscope"
+						data-testid="open-sidebar"
+						:aria-expanded="sidebarOpen"
+						@click="sidebarOpen = !sidebarOpen"
+					>
+						<span>{{ t("MapsPage.controls.open-sidebar") }}</span>
 					</UButton>
 				</div>
 			</div>
+			<DataTable
+				v-if="tableData.length"
+				:columns="columnsLocations"
+				:data="tableData"
+				data-testid="locationTable"
+			></DataTable>
+			<DataTable
+				v-if="!isCustomDataset && tableDataForRegisters.length"
+				:columns="columnsRegisters"
+				:data="tableDataForRegisters"
+				data-testid="variantTable"
+			></DataTable>
+			<OnboardingWrapper
+				ref="onboardingWrapper"
+				:steps="steps"
+				@finished-onboarding="onOnboardingFinished"
+			>
+			</OnboardingWrapper>
 		</div>
-		<VisualisationContainer
-			v-slot="{ height, width }"
-			class="border border-muted"
-			:class="{ 'h-[600px]': !mapExpanded }"
-			:fullscreen="mapExpanded"
-		>
-			<div
-				v-if="filteredUniqueVariants.length"
-				id="variantLegend"
-				class="absolute bottom-12 right-0 z-10 mr-2"
-				data-testid="variantLegend"
-			>
-				<!-- Real borders are captured by html2canvas; Nuxt UI's box-shadow rings are not. -->
-				<UCard
-					variant="outline"
-					class="text-sm shadow-md"
-					:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
-				>
-					<ul class="space-y-0.5">
-						<li
-							v-for="variant in filteredUniqueVariants"
-							:key="variant.anno"
-							class="flex items-center gap-1"
-						>
-							<svg class="inline align-baseline" height="12" width="12">
-								<circle
-									cx="6"
-									cy="6"
-									:fill="mappedColors[variant.anno]"
-									r="5"
-									:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
-									stroke-align="inner"
-									stroke-width="1"
-								/>
-							</svg>
-							<span
-								:class="{
-									italic: !Object.keys(specialOrder).includes(variant.anno),
-								}"
-								>{{ variant.anno }}</span
-							>({{ showVariantPercentages ? `${variant.percentage}%` : variant.count }})
-						</li>
-					</ul>
-				</UCard>
-			</div>
-			<div
-				v-if="features.length"
-				id="regionLegend"
-				class="absolute bottom-2 left-28 z-10 mr-2"
-				data-testid="regionLegend"
-			>
-				<UCard
-					variant="outline"
-					class="text-sm shadow-md"
-					:ui="{
-						root: 'border border-default ring-0',
-						body: 'px-2 py-0.5 sm:px-2 sm:py-0.5',
-					}"
-				>
-					<ul class="gap-3 flex">
-						<li
-							v-for="region in regions.map((r) => ({ ...r, name: t(`Regions.${r.name}`) }))"
-							:key="region.id"
-							class="flex items-center gap-1 cursor-default hover:underline"
-							role="button"
-							tabindex="0"
-							@blur="highlightRegion('')"
-							@focus="highlightRegion(region.name)"
-							@mouseout="highlightRegion('')"
-							@mouseover="highlightRegion(region.name)"
-						>
-							<svg class="inline align-baseline" height="12" width="12">
-								<circle
-									cx="6"
-									cy="6"
-									:fill="region.color"
-									r="5"
-									:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
-									stroke-align="inner"
-									stroke-width="1"
-								/>
-							</svg>
-							<span class="italic">{{ region.name }}</span>
-						</li>
-					</ul>
-				</UCard>
-			</div>
-			<div id="expand" class="absolute right-2 top-2 z-10">
-				<UButton
-					aria-label="Fullscreen"
-					size="xl"
-					variant="outline"
-					color="neutral"
-					:icon="!mapExpanded ? 'i-lucide-fullscreen' : 'i-lucide-minimize-2'"
-					@click="mapExpanded = !mapExpanded"
-				/>
-			</div>
-			<div v-if="stimulusDialogRef?.hasImage" class="absolute top-14 right-2 z-10">
-				<UButton
-					size="xl"
-					square
-					:title="t('MapsPage.show-stimulus')"
-					variant="outline"
-					icon="i-lucide-image"
-					color="neutral"
-					@click="handleShowImage"
-				>
-					<span class="sr-only">Show Phenomenon Image</span>
-				</UButton>
-			</div>
-			<div
-				v-if="filteredPoints?.length && numberOfInformants"
-				id="dataLegend"
-				class="absolute bottom-12 left-0 z-10 ml-2"
-				data-testid="dataLegend"
-			>
-				<UCard
-					variant="outline"
-					class="text-sm shadow-md"
-					:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
-				>
-					<!-- html2canvas captures SVG icons, but does not support Nuxt Icon's CSS masks. -->
-					<div class="mb-1 flex items-center gap-1" data-testid="datapoints">
-						<UIcon name="i-lucide-map-pin" mode="svg" class="size-4" />
-						{{ t("MapsPage.map.datapoints") }}:
-						{{ filteredPoints.length }}
-					</div>
-					<div class="flex items-center gap-1" data-testid="informants">
-						<UIcon name="i-lucide-user" mode="svg" class="size-4" />
-						{{ t("MapsPage.map.informants") }}:
-						{{ numberOfInformants }}
-					</div>
-				</UCard>
-			</div>
-			<GeoMap
-				v-if="height && width"
-				:basemap="activeBasemap"
-				:capitals-only="capitalsOnly"
-				:features="features"
-				:geo-outline="geoOutline"
-				:height="height"
-				:highlighted-region="highlightedRegion"
-				:locations="dataPoints"
-				:show-region-names="showRegionNames"
-				:show-regions="showRegions"
-				:simplified-view="simplifiedView"
-				:width="width"
-				@layer-click="onLayerClick"
-			>
-				<GeoMapPopup
-					v-if="popover !== null"
-					:coordinates="popover.coordinates"
-					@close="popover = null"
-				>
-					<article class="grid w-58 gap-1">
-						<div v-for="entity in popover.entities" :key="entity.id">
-							<p>
-								<strong>{{ entity.place_name }}</strong
-								>, {{ entity.plz }} ({{ getEntityTotal(entity) }})
-							</p>
-							<ul>
-								<li v-for="(value, key) in getEntityOccurrences(entity)" :key="key">
-									<details :name="key">
-										<summary>
-											<div class="inline-flex items-center gap-1 align-top">
-												<svg height="12" width="12">
-													<circle
-														cx="6"
-														cy="6"
-														:fill="mappedColors[key]"
-														r="5"
-														stroke="black"
-														stroke-width="1"
-													/>
-												</svg>
-												<span
-													:class="{
-														italic: !Object.keys(specialOrder).includes(key),
-													}"
-												>
-													{{ key }}</span
-												>
-												({{ showVariantPercentages ? `${value.percentage}%` : value.total }})
-											</div>
-										</summary>
-										<p v-for="(v, k) in value.varieties" :key="k" class="">- {{ k }}: {{ v }}</p>
-									</details>
-								</li>
-							</ul>
-						</div>
-					</article>
-				</GeoMapPopup>
-			</GeoMap>
-		</VisualisationContainer>
-		<div class="flex w-full items-start justify-between gap-8">
-			<CopyToClipboard
-				:text="fullRoute"
-				:copy-label="t('Clipboard.copy-url')"
-				:copied-label="t('Clipboard.copied-url')"
-			/>
-			<div class="flex shrink-0 gap-3">
-				<UButton
-					v-if="postAlias"
-					data-testid="goToArticlePage"
-					icon="i-lucide-file-text"
-					size="lg"
-					@click="goToArticlePage"
-					>{{ t("MapsPage.go-to-article") }}</UButton
-				>
-				<UButton
-					v-if="activeQuestionId && !isCustomDataset"
-					data-testid="goToDbPage"
-					icon="i-lucide-database"
-					size="lg"
-					@click="goToDbPage"
-					>{{ t("MapsPage.go-to-db") }}</UButton
-				>
-				<UButton
-					v-else
-					data-testid="resetOnboarding"
-					variant="outline"
-					icon="i-lucide-circle-help"
-					size="lg"
-					@click="resetOnboarding"
-				>
-					{{ t("MapsPage.help") }}</UButton
-				>
-			</div>
-		</div>
-		<DataTable
-			v-if="tableData.length"
-			:columns="columnsLocations"
-			:data="tableData"
-			data-testid="locationTable"
-		></DataTable>
-		<DataTable
-			v-if="!isCustomDataset && tableDataForRegisters.length"
-			:columns="columnsRegisters"
-			:data="tableDataForRegisters"
-			data-testid="variantTable"
-		></DataTable>
-		<OnboardingWrapper
-			ref="onboardingWrapper"
-			:steps="steps"
-			@finished-onboarding="onOnboardingFinished"
-		>
-		</OnboardingWrapper>
+		<AppSidebar
+			v-model:open="sidebarOpen"
+			v-model:groups="variantGroups"
+			:active-question="activeQuestion?.label ?? ''"
+			:active-variants="activeVariants"
+			:points="filteredPoints"
+			:colors="mappedColors"
+		/>
 	</div>
 	<StimulusDialog
 		v-if="!isCustomDataset"

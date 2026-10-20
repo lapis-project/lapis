@@ -1095,10 +1095,16 @@ const corpus = new Hono<AppEnv>()
 				return c.json({ error: "Invalid transcript ID" }, 400);
 			}
 
+			const projectIds = parseIdArray(c.req.queries("project_id"));
+			if (projectIds === null || projectIds.length > 1 || projectIds[0] === 0) {
+				return c.json({ error: "Invalid project_id parameter" }, 400);
+			}
+
 			const parsedId = Number(safeId);
+			const parsedProjectId = projectIds[0] ?? DIOE_PROJECT_ID;
 
 			// 2. Fetch metadata from database
-			const transcriptData = await transcriptDetailView(parsedId);
+			const transcriptData = await transcriptDetailView(parsedId, parsedProjectId);
 
 			// 3. Read and process transcript file
 			const filePath = join(DATA_DIR, "json", `${String(parsedId)}.json`);

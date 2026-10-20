@@ -191,7 +191,7 @@ export async function getCorpusSearchMetadata(
 	return { projects, settings, locations };
 }
 
-export async function transcriptDetailView(transcript_id: number) {
+export async function transcriptDetailView(transcript_id: number, project_id: number) {
 	return await db
 		.selectFrom("survey_conducted")
 		.innerJoin(
@@ -202,6 +202,7 @@ export async function transcriptDetailView(transcript_id: number) {
 		.innerJoin("place", "place.id", "place_survey_conducted.place_id")
 		.innerJoin("survey", "survey.id", "survey_conducted.survey_id")
 		.innerJoin("survey_type", "survey_type.id", "survey.survey_type_id")
+		.innerJoin("project_survey", "survey.id", "project_survey.survey_id")
 		.innerJoin(
 			"informant_survey_conducted",
 			"informant_survey_conducted.survey_conducted_id",
@@ -210,6 +211,7 @@ export async function transcriptDetailView(transcript_id: number) {
 		.innerJoin("informant", "informant.id", "informant_survey_conducted.informant_id")
 		.innerJoin("age_group", "age_group.id", "informant.age_group_id")
 		.where("survey_conducted.instance_id", "=", transcript_id)
+		.where("project_survey.project_id", "=", project_id)
 		.select(({ eb, fn }) => [
 			"survey_conducted.conducted_on",
 			eb.ref("survey_conducted.comment").as("transcript_name"),

@@ -411,6 +411,10 @@
 		"go-to-article": "Kommentar lesen",
 		"go-to-db": "Belege ansehen",
 		"help": "Hilfe",
+		"controls": {
+			"open-sidebar": "Dateneinblicke",
+			"close-sidebar": "Dateneinblicke schließen"
+		},
 		"selection": {
 			"locations": "Ortsnamen eingeben",
 			"legend": "Legende",
@@ -491,6 +495,16 @@
 				"countSt": "Standard",
 				"totalCount": "Gesamt"
 			}
+		},
+		"sidebar": {
+			"variable": "Phänomen",
+			"variant": "Variante",
+			"region": "Raumbilder",
+			"labels": {
+				"data-insights": "Dateneinblicke"
+			},
+			"answers": "{n} Antwort | {n} Antworten",
+			"empty": "Für die aktuelle Auswahl sind keine Daten vorhanden."
 		}
 	},
 	"MobileAlert": {
@@ -704,5 +718,43 @@
 			"title": "Experimentelle Funktion",
 			"text": "Ihre Daten bleiben in diesem Browser und werden nicht an einen Server übertragen. Sie werden lokal gespeichert und gehen verloren, wenn Sie die Browserdaten löschen."
 		}
+	},
+	"RegionDistributionCard": {
+		"title": "Verteilung aller Varianten"
+	},
+	"SelectedPhenomenonCard": {
+		"title": "Ausgewähltes Phänomen",
+		"forms": "Bögen",
+		"variants": "Varianten",
+		"categories": {
+			"noun": "Substantiv"
+		}
+	},
+	"SelectedVariantCard": {
+		"title": "Ausgewählte Variante",
+		"mentions": "Nennungen",
+		"notations": "Schreibweisen"
+	},
+	"VariantDistributionCard": {
+		"title": "Verteilung nach",
+		"dialectal-region": "Dialektregion",
+		"state": "Bundesland"
+	},
+	"VariantGroupingCard": {
+		"title": "Varianten-Übersicht",
+		"new-group": "Aus Gruppe entfernen",
+		"new-group-hint": "Variante hierher ziehen, um sie aus der Gruppe zu entfernen",
+		"group-name": "Gruppenname",
+		"rename": "Gruppe umbenennen",
+		"ungroup": "Gruppierung aufheben"
+	},
+	"VariantOverviewCard": {
+		"title": "Varianten-Übersicht",
+		"regional-cooccurrences": "Regionale Kovorkommnisse",
+		"cooccurrences-subtitle-region": "Andere Varianten in denselben Dialektregionen",
+		"cooccurrences-subtitle-bundesland": "Andere Varianten in denselben Bundesländern"
+	},
+	"VariantSelectionCard": {
+		"title": "Variante auswählen"
 	}
 }

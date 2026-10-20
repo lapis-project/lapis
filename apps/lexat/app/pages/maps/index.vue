@@ -7,11 +7,9 @@ usePageMetadata({
 </script>
 
 <template>
-	<MainContent
-		class="container grid grid-rows-[auto_1fr] content-start py-8 overflow-x-scroll sm:overflow-x-auto"
-	>
-		<MobileAlert class="mb-5" />
-		<div>
+	<MainContent class="min-w-0 py-8">
+		<div class="container">
+			<MobileAlert class="mb-5" />
 			<PageTitle class="sr-only">{{ t("MapsPage.title") }}</PageTitle>
 		</div>
 		<DataMapView />

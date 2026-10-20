@@ -51,6 +51,7 @@
 		"@tiptap/pm": "^3.31.3",
 		"@tiptap/starter-kit": "^3.31.3",
 		"@tiptap/vue-3": "^3.31.3",
+		"@turf/boolean-point-in-polygon": "^7.4.0",
 		"@types/three": "^0.186.0",
 		"@vue/devtools-api": "^8.2.1",
 		"@vueuse/core": "^14.4.0",
@@ -72,6 +73,7 @@
 		"vue-i18n": "catalog:",
 		"vue-i18n-routing": "^1.2.0",
 		"vue-router": "catalog:",
+		"vuedraggable": "^4.1.0",
 		"zod": "^4.6.4"
 	},
 	"devDependencies": {

@@ -22,11 +22,24 @@ const testDb = new Kysely<DB>({
 });
 const selectFrom = vi.spyOn(testDb, "selectFrom");
 vi.mock("@/db/connect.ts", () => ({ db: testDb }));
-const { getAllTranscripts } = await import("@/db/corpusRepository.ts");
+const { getAllTranscripts, transcriptDetailView } = await import("@/db/corpusRepository.ts");
 
 describe("Corpus repository", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+	});
+
+	it.each([2, 3])("restricts preview metadata to project %i", async (projectId) => {
+		await transcriptDetailView(1, projectId);
+
+		const query = logQuery.mock.calls[0]?.[0].query;
+		expect(query?.sql).toContain(
+			'inner join "project_survey" on "survey"."id" = "project_survey"."survey_id"',
+		);
+		expect(query?.sql).toContain(
+			'where "survey_conducted"."instance_id" = $1 and "project_survey"."project_id" = $2',
+		);
+		expect(query?.parameters).toEqual([1, projectId]);
 	});
 
 	it("matches nothing for an explicit empty transcript restriction", async () => {

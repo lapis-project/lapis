@@ -35,6 +35,9 @@ const requestTranscriptMatches = vi.fn<(_cql: string) => Promise<TranscriptMatch
 const getFilterInformation = vi.fn<
 	() => Promise<Array<{ id: number; name: string | null; category: string }>>
 >(() => Promise.resolve([]));
+const transcriptDetailView = vi.fn<typeof import("@/db/corpusRepository.ts").transcriptDetailView>(
+	() => Promise.resolve([]),
+);
 
 const searchRequest = vi.fn<
 	(
@@ -61,7 +64,7 @@ vi.mock("@/db/corpusRepository.ts", () => ({
 	getAllTranscripts,
 	getCorpusSearchMetadata,
 	getFilterInformation,
-	transcriptDetailView: vi.fn(() => Promise.resolve([])),
+	transcriptDetailView,
 }));
 
 vi.mock("@/search/index.ts", () => ({ searchRequest }));
@@ -104,6 +107,8 @@ function transcriptToken(
 
 describe("Corpus Handler", () => {
 	beforeEach(() => {
+		transcriptDetailView.mockReset();
+		transcriptDetailView.mockResolvedValue([]);
 		getFilterInformation.mockReset();
 		getFilterInformation.mockResolvedValue([]);
 		getAllTranscripts.mockReset();
@@ -172,6 +177,46 @@ describe("Corpus Handler", () => {
 			[4, 3],
 			[2, 1],
 		]);
+	});
+
+	it.each([
+		["", 2],
+		["?project_id=2", 2],
+		["?project_id=3", 3],
+	])("fetches preview metadata with project %s", async (query, projectId) => {
+		const response = await corpus.request(`/preview/1${query}`);
+
+		expect(response.status).toBe(200);
+		expect(transcriptDetailView).toHaveBeenCalledExactlyOnceWith(1, projectId);
+		expect(await response.json()).toMatchObject({ metadata: [] });
+	});
+
+	it.each([
+		"",
+		"abc",
+		"0",
+		"-1",
+		"1.5",
+		"Infinity",
+		"9007199254740992",
+		"%20",
+		"2,3",
+		"2&project_id=3",
+		"2&project_id=2",
+	])("rejects invalid preview project_id=%s", async (projectId) => {
+		const response = await corpus.request(`/preview/1?project_id=${projectId}`);
+
+		expect(response.status).toBe(400);
+		expect(await response.json()).toEqual({ error: "Invalid project_id parameter" });
+		expect(transcriptDetailView).not.toHaveBeenCalled();
+	});
+
+	it("rejects an invalid preview transcript ID with a valid project ID", async () => {
+		const response = await corpus.request("/preview/abc?project_id=3");
+
+		expect(response.status).toBe(400);
+		expect(await response.json()).toEqual({ error: "Invalid transcript ID" });
+		expect(transcriptDetailView).not.toHaveBeenCalled();
 	});
 
 	it("rejects invalid transcript sorting requests", async () => {

@@ -21,7 +21,6 @@ const router = useRouter();
 
 const filterOpen = ref(false);
 
-const activeTab = ref<"plain" | "kwic" | "xml">("plain");
 const bookmarkedIds = ref<Array<string>>([]);
 
 const { response: searchResponse, search, status, isPending } = useSearch(2);
@@ -29,6 +28,13 @@ const { response: searchResponse, search, status, isPending } = useSearch(2);
 const transcripts = computed(() => {
 	if (route.query.gender === "divers") return null;
 	return searchResponse.value?.transcripts;
+});
+
+const displayTranscripts = computed(() => {
+	return (transcripts.value ?? []).map((result) => ({
+		...result,
+		bookmarked: bookmarkedIds.value.includes(String(result.instance_id)),
+	})) as APITranscriptsWithBookmark;
 });
 
 const transcriptMatches = computed(() => {
@@ -141,8 +147,6 @@ watch(
 watch(
 	() => route.query,
 	async (q) => {
-		const category = q.category as string;
-
 		const filters: SearchParams = {
 			word: q.word as string,
 			query: q.query as string,
@@ -161,10 +165,8 @@ watch(
 			age_upper: q.age_upper ? Number(q.age_upper) : undefined,
 			projects: q.projects ? [Number(q.projects)] : undefined,
 			settings: q.settings ? [Number(q.settings)] : undefined,
-			transcript_name:
-				category != null && category === "transcript_name" ? (q.search as string) : undefined,
-			transcript_ids:
-				category != null && category === "instance_id" ? [Number(q.search)] : undefined,
+			transcript_name: q.transcript_name ? String(q.transcript_name) : undefined,
+			transcript_ids: q.instance_id ? [Number(q.instance_id)] : undefined,
 			has_bkms: q.has_bkms === "true",
 		};
 		const hasSearchFilters = Object.values(filters).some((value) => {
@@ -249,221 +251,79 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 			</div>
 
 			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
-				<div
-					class="flex pb-5 items-center mb-4 border-b gap-4 overflow-x-auto overflow-y-hidden flex-shrink-0"
-				>
-					<SearchBar search-type="default" />
-					<Separator orientation="vertical" />
-					<Sheet v-model:open="filterOpen">
-						<SheetTrigger><Button variant="outline"> Erweiterte Suche </Button></SheetTrigger>
-						<SheetContent class="h-[50vh] scroll-y-auto max-h-full" side="bottom">
-							<Tabs
-								class="w-full flex flex-col flex-grow min-h-0 overflow-hidden"
-								default-value="plain"
-							>
-								<div class="flex gap-4 mx-10 mt-2 items-center flex-shrink-0">
-									<TabsList class="w-full">
-										<TabsTrigger value="tags"> Tags </TabsTrigger>
-										<TabsTrigger value="word"> Word / Lemma / POS </TabsTrigger>
-										<TabsTrigger value="cql"> CQL </TabsTrigger>
-									</TabsList>
-								</div>
-								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
-									<TagBuilderGroup @search="filterOpen = false" />
-								</TabsContent>
-								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
-									<SearchKwic @search="filterOpen = false" />
-								</TabsContent>
-								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="cql">
-									Sample content
-								</TabsContent>
-							</Tabs>
-						</SheetContent>
-					</Sheet>
-				</div>
-				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" v-model="activeTab">
-					<div class="flex gap-4 items-center flex-shrink-0">
-						<TabsList class="w-full">
-							<TabsTrigger value="plain">
-								<div class="flex flex-row gap-1 items-center">
-									<span>Plain</span>
-									<span class="text-xs text-gray-500"
-										>({{ transcripts?.length ? transcripts?.length : 0 }})
-									</span>
-								</div>
-							</TabsTrigger>
-							<TabsTrigger value="kwic">
-								<div class="flex flex-row gap-1 items-center">
-									<span>KWIC</span>
-									<span class="text-xs text-gray-500"
-										>({{ kwic?.concsize ? kwic?.concsize : 0 }})
-									</span>
-								</div>
-							</TabsTrigger>
-						</TabsList>
-						<Button class="shrink-0" size="icon" variant="ghost"
-							><Download class="size-4"
-						/></Button>
+				<div class="flex flex-col flex-grow min-h-0 overflow-hidden">
+					<div v-if="isPending" class="justify-center flex m-auto">
+						<Spinner />
 					</div>
-					<TabsContent class="flex flex-grow overflow-y-auto h-full min-h-0" value="plain">
-						<div v-if="isPending" class="justify-center flex m-auto">
-							<Spinner />
-						</div>
-						<div
-							v-else-if="!isPending && transcripts != null && transcripts.length > 0"
-							class="w-full"
-						>
-							<p class="text-lg mb-3 flex-shrink-0 mx-2">
+					<div class="w-full flex flex-col flex-grow min-h-0 overflow-y-auto">
+						<div class="grid grid-cols-[auto_1fr] mt-2 mb-5 pb-5 items-center mx-2 border-b">
+							<p class="text-lg">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
 							</p>
-							<div v-for="result in transcripts" :key="result.instance_id">
-								<div
-									class="mx-2 px-4 py-2 mb-2 rounded bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80"
-								>
-									<Button
-										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
-										hover:no-underline
-										variant="transparent"
-										@click="handleSelection(String(result.instance_id))"
-									>
-										<span class="sr-only"> Open Sidebar Demo </span>
-										{{ result.transcript_name }}
-									</Button>
-									<div class="w-full flex justify-end">
-										<Button
-											class="p-0 w-fit self-end"
-											variant="transparent"
-											@click="handleBookmark(result)"
+							<div class="flex justify-end">
+								<Sheet v-model:open="filterOpen">
+									<SheetTrigger><Button> Erweiterte Suche </Button></SheetTrigger>
+									<SheetContent class="h-[50vh] scroll-y-auto max-h-full" side="bottom">
+										<Tabs
+											class="w-full flex flex-col flex-grow min-h-0 overflow-hidden"
+											default-value="plain"
 										>
-											<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
-										</Button>
-									</div>
+											<div class="flex gap-4 mx-10 mt-2 items-center flex-shrink-0">
+												<TabsList class="w-full">
+													<TabsTrigger value="tags"> Tags </TabsTrigger>
+													<TabsTrigger value="word"> Word / Lemma / POS </TabsTrigger>
+													<TabsTrigger value="cql"> CQL </TabsTrigger>
+												</TabsList>
+											</div>
+											<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
+												<TagBuilderGroup @search="filterOpen = false" />
+											</TabsContent>
+											<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
+												<SearchKwic @search="filterOpen = false" />
+											</TabsContent>
+											<TabsContent class="flex-grow overflow-y-auto min-h-0" value="cql">
+												Sample content
+											</TabsContent>
+										</Tabs>
+									</SheetContent>
+								</Sheet>
+							</div>
+						</div>
+						<div
+							v-if="!isPending && transcripts != null && transcripts.length > 0"
+							v-for="result in displayTranscripts"
+							:key="String(result.instance_id ?? '')"
+							class="px-2 pb-2"
+						>
+							<div
+								class="px-4 py-2 rounded bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80"
+							>
+								<Button
+									class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
+									hover:no-underline
+									variant="transparent"
+									@click="handleSelection(String(result.instance_id))"
+								>
+									<span class="sr-only"> Open Sidebar Demo </span>
+									{{ result.transcript_name }}
+								</Button>
+								<div class="w-full flex justify-end">
+									<Button
+										class="p-0 w-fit self-end"
+										variant="transparent"
+										@click="handleBookmark(result)"
+									>
+										<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
+									</Button>
 								</div>
 							</div>
 						</div>
 						<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
 							Keine Ergebnisse vorhanden.
 						</div>
-					</TabsContent>
-					<TabsContent class="flex flex-col flex-grow min-h-0" value="kwic">
-						<div v-if="status === 'pending'" class="flex justify-center my-auto py-6">
-							<Spinner />
-						</div>
-
-						<div v-else-if="kwic?.Lines?.length" class="flex flex-col flex-grow min-h-0 gap-2">
-							<p class="text-lg flex-shrink-0">
-								Ergebnisse
-								<span class="text-sm text-muted-foreground">({{ kwic?.concsize }})</span>
-							</p>
-							<div
-								class="py-2 text-sm grid grid-cols-[auto_1fr] gap-3 items-center text-muted-foreground"
-							>
-								<span>Line ID</span>
-								<div class="flex justify-center mr-27">
-									<span class="text-right">Rechter Kontext</span>
-									<span class="px-5">KWIC</span>
-									<span class="text-left">Linker Kontext</span>
-								</div>
-							</div>
-							<div class="flex-1 min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
-								<div
-									v-for="obj in transcriptMatches"
-									:key="obj!.transcript!.instance_id"
-									class="flex flex-col"
-								>
-									<div
-										v-for="(line, index) in obj.lines"
-										:key="line.toknum"
-										class="grid grid-cols-[auto_1fr_auto] gap-2 items-center"
-									>
-										<span class="text-xs text-muted-foreground">{{ line.toknum }}</span>
-										<button
-											class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
-											@click="
-												line.Tbl_refs ? handleSelection(line.Tbl_refs[0]?.slice(18, 25) ?? '') : ''
-											"
-										>
-											<span class="sr-only">
-												Detailview Preview zu Transkript
-												{{ line.Tbl_refs ? line.Tbl_refs[0]?.slice(18, 25) : "existiert nicht" }}
-											</span>
-
-											<div
-												class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
-											>
-												<div
-													class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
-												>
-													<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
-												</div>
-
-												<span
-													class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
-												>
-													{{ line.Kwic ? line.Kwic[0]?.str : "" }}
-												</span>
-
-												<div
-													class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
-												>
-													<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
-												</div>
-											</div>
-										</button>
-										<DropdownMenu>
-											<DropdownMenuTrigger>
-												<Button variant="ghost"> <CopyIcon :size="16" /></Button
-											></DropdownMenuTrigger>
-											<DropdownMenuContent>
-												<DropdownMenuItem @click="copyKwicLine(line, 'kwic')"
-													>Plain Text</DropdownMenuItem
-												>
-												<DropdownMenuItem
-													@click="copyKwicLine(obj?.xmlHits[index]?.content ?? '', 'xml')"
-													>XML</DropdownMenuItem
-												>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-								</div>
-							</div>
-							<div class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4">
-								<Pagination
-									v-model:page="currentPage"
-									:items-per-page="limit"
-									:total="kwic?.concsize"
-									:sibling-count="1"
-									:show-edges="true"
-									class="flex items-center gap-1"
-								>
-									<PaginationContent v-slot="{ items }">
-										<PaginationPrevious />
-
-										<template v-for="(item, i) in items" :key="i">
-											<PaginationEllipsis v-if="item.type === 'ellipsis'" />
-
-											<PaginationItem v-else-if="item.type === 'page'" :value="item.value" as-child>
-												<Button
-													class="size-9 p-0"
-													:variant="item.value === currentPage ? 'default' : 'outline'"
-													@click="currentPage = item.value"
-												>
-													{{ item.value }}
-												</Button>
-											</PaginationItem>
-										</template>
-
-										<PaginationNext />
-									</PaginationContent>
-								</Pagination>
-							</div>
-						</div>
-						<div v-else class="justify-center flex my-auto">
-							<div class="text-md text-muted-foreground">Keine Ergebnisse vorhanden.</div>
-						</div>
-					</TabsContent>
-				</Tabs>
+					</div>
+				</div>
 			</div>
 			<div
 				v-if="currentId != null"

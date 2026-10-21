@@ -12,15 +12,23 @@ import { TreeItem, TreeRoot } from "reka-ui";
 import { usePlaces } from "#imports";
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
 import { useSettingsProjectsFilter } from "@/composables/use-settings-projects";
-import type { Transcript } from "@/pages/transcripts/[id].vue";
 
 import { austrianStates } from "../../../backend/src/lib/austrianPostalCodes.ts";
+
+type FilterSidebarTranscript = {
+	id?: number | string;
+	name?: string;
+	setting?: number;
+	location?: number;
+	icon?: string;
+	bookmarked?: boolean;
+};
 
 const router = useRouter();
 const route = useRoute();
 
 const props = defineProps<{
-	transcripts: Array<Transcript>;
+	transcripts: Array<FilterSidebarTranscript>;
 }>();
 
 const { response: filter, isPending: isLoading } = useSettingsProjectsFilter();
@@ -28,12 +36,14 @@ const { response: places, isPending, hasError } = usePlaces(2);
 
 const emit = defineEmits(["closeFilterSidebar", "handleBookmark", "handleSelection"]);
 
-const activeContext = ref<number | null>(null);
-const activeAgeGroup = ref<string | null>(null);
-const activeGender = ref<string | null>(null);
-const activeSetting = ref<number | null>(null);
-const activeLocation = ref<number | null>(null);
-const activeState = ref<number | null>(null);
+const activeContext = ref<string | undefined>();
+const activeAgeGroup = ref<string | undefined>();
+const activeGender = ref<string | undefined>();
+const activeSetting = ref<string | undefined>();
+const activeLocation = ref<string | undefined>();
+const activeState = ref<string | undefined>();
+const searchName = ref<string>("");
+const searchId = ref<string>("");
 
 const activeFilterCount = computed(() => {
 	return [
@@ -46,8 +56,12 @@ const activeFilterCount = computed(() => {
 		standardCompetenceEnabled.value,
 		dialectCompetenceEnabled.value,
 		bkmsEnabled.value,
+		searchName.value,
+		searchId.value,
 	].filter(Boolean).length;
 });
+
+const hasActiveFilters = computed(() => activeFilterCount.value > 0);
 
 const ageRange = computed(() => {
 	if (!activeAgeGroup.value) return null;
@@ -60,23 +74,23 @@ const ageRange = computed(() => {
 	};
 });
 
-const projectOptions = computed<Array<{ label: string; value: number }>>(() => {
+const projectOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (filter.value?.projects ?? [])
 		.filter((project) => project.name != null)
 		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
 		.map((project) => ({
 			label: project.name!,
-			value: project.id,
+			value: String(project.id),
 		}));
 });
 
-const settingOptions = computed<Array<{ label: string; value: number }>>(() => {
+const settingOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (filter.value?.settings ?? [])
 		.filter((setting) => setting.name != null)
 		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
 		.map((setting) => ({
 			label: setting.name!,
-			value: setting.id,
+			value: String(setting.id),
 		}));
 });
 
@@ -91,20 +105,20 @@ const genderOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Divers", value: "divers" },
 ]);
 
-const locationOptions = computed<Array<{ label: string; value: number }>>(() => {
+const locationOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (places.value ?? [])
 		.filter((place) => place.place_name != null)
 		.toSorted((a, b) => a.place_name!.localeCompare(b.place_name!, "de"))
 		.map((place) => ({
 			label: place.place_name!,
-			value: place.id,
+			value: String(place.id),
 		}));
 });
 
-const stateOptions = computed<Array<{ label: string; value: number }>>(() => {
+const stateOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return austrianStates.map((state) => ({
 		label: state.name,
-		value: state.id,
+		value: String(state.id),
 	}));
 });
 
@@ -121,22 +135,24 @@ onMounted(async () => {
 	const locationQuery = route.query.locations;
 	const settingQuery = route.query.settings;
 	const projectQuery = route.query.projects;
+	const transcriptNameQuery = route.query.transcript_name;
+	const instanceIdQuery = route.query.instance_id;
 
 	if (projectQuery) {
-		activeContext.value = Number(Array.isArray(projectQuery) ? projectQuery[0] : projectQuery);
+		activeContext.value = String(Array.isArray(projectQuery) ? projectQuery[0] : projectQuery);
 	}
 
 	if (settingQuery) {
-		activeSetting.value = Number(Array.isArray(settingQuery) ? settingQuery[0] : settingQuery);
+		activeSetting.value = String(Array.isArray(settingQuery) ? settingQuery[0] : settingQuery);
 	}
 
 	if (locationQuery) {
-		activeLocation.value = Number(Array.isArray(locationQuery) ? locationQuery[0] : locationQuery);
+		activeLocation.value = String(Array.isArray(locationQuery) ? locationQuery[0] : locationQuery);
 	}
 
 	activeGender.value = query.gender
 		? String(Array.isArray(query.gender) ? query.gender[0] : query.gender)
-		: null;
+		: undefined;
 
 	if (query.age_lower || query.age_upper) {
 		activeAgeGroup.value = `${query.age_lower ?? 18}-${query.age_upper ?? 999}`;
@@ -159,45 +175,40 @@ onMounted(async () => {
 	}
 
 	if (query.state) {
-		activeState.value = Number(query.state);
+		activeState.value = String(query.state);
+	}
+
+	if (transcriptNameQuery != null) {
+		searchName.value = String(
+			Array.isArray(transcriptNameQuery) ? transcriptNameQuery[0] : transcriptNameQuery,
+		);
+	}
+
+	if (instanceIdQuery != null) {
+		searchId.value = String(Array.isArray(instanceIdQuery) ? instanceIdQuery[0] : instanceIdQuery);
 	}
 });
 
 watch(
-	() => {
-		return dialectCompetenceEnabled.value;
+	[searchName, searchId],
+	([name, id]) => {
+		router.replace({
+			query: {
+				...route.query,
+				transcript_name: name || undefined,
+				instance_id: id || undefined,
+			},
+		});
 	},
-	() => {
-		if (dialectCompetenceEnabled.value) {
-			dialectCompetenceValue.value = [1];
-		} else {
-			dialectCompetenceValue.value = null;
-		}
-	},
-	{ immediate: true },
-);
-
-watch(
-	() => {
-		return standardCompetenceEnabled.value;
-	},
-	() => {
-		if (standardCompetenceEnabled.value) {
-			standardCompetenceValue.value = [1];
-		} else {
-			standardCompetenceValue.value = null;
-		}
-	},
-	{ immediate: true },
+	{ deep: true },
 );
 
 const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
 
 const filteredTranscripts = computed(() => {
 	return props.transcripts.filter((transcript) => {
-		if (activeSetting.value && transcript.setting !== activeSetting.value) return false;
-		if (activeLocation.value && transcript.location !== activeLocation.value) return false;
-		// add other filters here
+		if (activeSetting.value && transcript.setting !== Number(activeSetting.value)) return false;
+		if (activeLocation.value && transcript.location !== Number(activeLocation.value)) return false;
 		return true;
 	});
 });
@@ -207,26 +218,27 @@ const bookmarkedTranscripts = computed(() => {
 		if (entry.bookmarked) {
 			return entry;
 		}
-		return null;
+		return false;
 	});
 });
 
 const treeItems = computed(() => {
-	const groups = filteredTranscripts.value?.reduce(
+	const groups = filteredTranscripts.value.reduce(
 		(acc, transcript) => {
+			if (transcript.setting == null) return acc;
 			if (!acc[transcript.setting]) acc[transcript.setting] = [];
 
 			acc[transcript.setting]?.push({
-				id: transcript.id as unknown as string,
+				id: String(transcript.id),
 				title: transcript.name,
 				icon: transcript.icon,
 			});
 			return acc;
 		},
-		{} as Record<string, Array<{ id: string; title: string; icon: string }>>,
+		{} as Record<number, Array<{ id: string; title?: string; icon?: string }>>,
 	);
 
-	return Object.entries(groups).map(([setting, transcripts]) => ({
+	return Object.entries(groups ?? {}).map(([setting, transcripts]) => ({
 		id: setting,
 		title: setting,
 		icon: "lucide:folder",
@@ -234,12 +246,28 @@ const treeItems = computed(() => {
 	}));
 });
 
-function handleBookmark(transcript: Transcript) {
+function handleBookmark(transcript: FilterSidebarTranscript) {
 	emit("handleBookmark", transcript);
 }
 
 function handleSelection(id: string) {
 	emit("handleSelection", id);
+}
+
+function clearAllFilters() {
+	activeContext.value = undefined;
+	activeAgeGroup.value = undefined;
+	activeGender.value = undefined;
+	activeSetting.value = undefined;
+	activeLocation.value = undefined;
+	activeState.value = undefined;
+	searchName.value = "";
+	searchId.value = "";
+	dialectCompetenceEnabled.value = false;
+	dialectCompetenceValue.value = null;
+	standardCompetenceEnabled.value = false;
+	standardCompetenceValue.value = null;
+	bkmsEnabled.value = false;
 }
 
 watch(
@@ -259,13 +287,13 @@ watch(
 			query: {
 				...route.query,
 
-				projects: activeContext.value ? [activeContext.value] : undefined,
+				projects: activeContext.value ? [Number(activeContext.value)] : undefined,
 
-				settings: activeSetting.value ? [activeSetting.value] : undefined,
+				settings: activeSetting.value ? [Number(activeSetting.value)] : undefined,
 
-				locations: activeLocation.value ? [activeLocation.value] : undefined,
+				locations: activeLocation.value ? [Number(activeLocation.value)] : undefined,
 
-				state: activeState.value ? activeState.value : undefined,
+				state: activeState.value ? Number(activeState.value) : undefined,
 
 				gender: activeGender.value || undefined,
 
@@ -297,12 +325,6 @@ watch(
 				<TabsTrigger value="tree"> Tree </TabsTrigger>
 				<TabsTrigger class="inline-flex items-center gap-2" value="filter">
 					<span>Filter</span>
-					<span
-						v-if="activeFilterCount > 0"
-						class="flex size-5 items-center justify-center rounded-full bg-black text-xs font-medium text-white"
-					>
-						<span class="mr-0.5">{{ activeFilterCount }}</span>
-					</span>
 				</TabsTrigger>
 				<TabsTrigger value="bookmark">
 					Bibliothek
@@ -355,6 +377,44 @@ watch(
 			</TabsContent>
 			<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="filter">
 				<div class="flex flex-col gap-4">
+					<div class="flex items-center justify-between gap-3 border-b pb-3">
+						<div
+							class="flex items-center gap-1 py-1.5"
+							:class="activeFilterCount > 0 ? 'text-accent-foreground' : ''"
+						>
+							<span class="text-sm"> Aktive Filter </span>
+							<span class="flex text-xs items-center justify-end"> ({{ activeFilterCount }}) </span>
+						</div>
+						<Button
+							v-if="hasActiveFilters"
+							variant="ghost"
+							size="sm"
+							class="h-8 px-2 text-xs"
+							@click="clearAllFilters"
+						>
+							Alle löschen
+						</Button>
+					</div>
+					<div class="grid w-full gap-1.5 border-b pb-4">
+						<div class="grid w-full gap-1.5 pb-4">
+							<Label class="tracking-wide pl-1" for="name-input">Transkriptname</Label>
+							<div class="flex gap-2">
+								<Input id="name-input" v-model="searchName" placeholder="Transkriptname eingeben" />
+								<Button size="icon" variant="outline" @click="searchName = ''"
+									><Undo2 class="size-4"
+								/></Button>
+							</div>
+						</div>
+						<div class="grid w-full gap-1.5">
+							<Label class="tracking-wide pl-1" for="id-input">Transkript ID</Label>
+							<div class="flex gap-2">
+								<Input id="id-input" v-model="searchId" placeholder="Transkript ID eingeben" />
+								<Button size="icon" variant="outline" @click="searchId = ''"
+									><Undo2 class="size-4"
+								/></Button>
+							</div>
+						</div>
+					</div>
 					<div class="grid w-full gap-1.5">
 						<Label class="tracking-wide pl-1" for="context">Projektkontext</Label>
 						<div class="flex gap-2">
@@ -364,7 +424,7 @@ watch(
 								:options="projectOptions"
 								placeholder="Projektkontext wählen..."
 							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeContext = null"
+							<Button size="icon" variant="outline" @click="activeContext = undefined"
 								><Undo2 class="size-4"
 							/></Button>
 						</div>
@@ -378,7 +438,7 @@ watch(
 								:options="settingOptions"
 								placeholder="Setting wählen..."
 							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeSetting = null"
+							<Button size="icon" variant="outline" @click="activeSetting = undefined"
 								><Undo2 class="size-4"
 							/></Button>
 						</div>
@@ -393,7 +453,7 @@ watch(
 								:options="locationOptions"
 								placeholder="Ort wählen..."
 							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeLocation = null"
+							<Button size="icon" variant="outline" @click="activeLocation = undefined"
 								><Undo2 class="size-4"
 							/></Button>
 						</div>
@@ -407,7 +467,7 @@ watch(
 								:options="stateOptions"
 								placeholder="Bundesland wählen..."
 							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeState = null"
+							<Button size="icon" variant="outline" @click="activeState = undefined"
 								><Undo2 class="size-4"
 							/></Button>
 						</div>
@@ -421,9 +481,9 @@ watch(
 								id="age"
 								v-model="activeAgeGroup"
 								:options="ageGroupOptions"
-								placeholder="Altersklasse wählen..."
+								placeholder="Altersgruppe wählen..."
 							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeAgeGroup = null"
+							<Button size="icon" variant="outline" @click="activeAgeGroup = undefined"
 								><Undo2 class="size-4"
 							/></Button>
 						</div>
@@ -437,7 +497,7 @@ watch(
 								:options="genderOptions"
 								placeholder="Geschlecht wählen..."
 							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeGender = null"
+							<Button size="icon" variant="outline" @click="activeGender = undefined"
 								><Undo2 class="size-4"
 							/></Button>
 						</div>

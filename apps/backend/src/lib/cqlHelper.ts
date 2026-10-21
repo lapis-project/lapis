@@ -194,6 +194,5 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 		queryCore += ` within (<u ${parts_utterance.join(" & ")}/> within <doc ${parts_document.join(" & ")}/>)`;
 	}
 
-	log.info(queryCore);
 	return queryCore;
 };

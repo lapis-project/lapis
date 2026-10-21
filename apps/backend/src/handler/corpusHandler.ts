@@ -216,10 +216,48 @@ const SearchQuerySchema = object({
 type RunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
 type KwicLine = NonNullable<RunCgiResponse["Lines"]>[number];
+type KwicContextItem = { str?: string; strc?: string };
 type Transcript = Awaited<ReturnType<typeof getAllTranscripts>>[number];
 type XmlHit = { refs: string; content: string };
 
 const DIOE_PROJECT_ID = 2;
+const OPENING_TAG_REGEX = /<doc(?=[\s>]|$)/;
+const CLOSING_TAG_REGEX = /<\/doc\s*>/;
+
+function hasOpeningTag(context: Array<KwicContextItem> | undefined): boolean {
+	return (
+		context?.some(
+			(item) =>
+				(typeof item.strc === "string" && OPENING_TAG_REGEX.test(item.strc)) ||
+				(typeof item.str === "string" && OPENING_TAG_REGEX.test(item.str)),
+		) ?? false
+	);
+}
+
+function hasClosingTag(context: Array<KwicContextItem> | undefined): boolean {
+	return (
+		context?.some(
+			(item) =>
+				(typeof item.strc === "string" && CLOSING_TAG_REGEX.test(item.strc)) ||
+				(typeof item.str === "string" && CLOSING_TAG_REGEX.test(item.str)),
+		) ?? false
+	);
+}
+
+function clearBoundaryContext(kwic: RunCgiResponse | null): RunCgiResponse | null {
+	if (!kwic?.Lines) {
+		return kwic;
+	}
+
+	return {
+		...kwic,
+		Lines: kwic.Lines.map((line) => ({
+			...line,
+			...(line.Left !== undefined && hasOpeningTag(line.Left) ? { Left: [] } : {}),
+			...(line.Right !== undefined && hasClosingTag(line.Right) ? { Right: [] } : {}),
+		})),
+	};
+}
 
 function omitNullQueryValues(values: Array<string> | undefined): Array<string> | undefined {
 	return values?.filter((value) => value !== "null");
@@ -863,12 +901,16 @@ const corpus = new Hono<AppEnv>()
 				requestKwic(cql, result.output.fromp, refs, result.output.pagesize),
 				requestXml(cql, result.output.fromp, refs, result.output.pagesize),
 			]);
+			const isBoundaryMarkerSearch =
+				wordInput?.trim().toUpperCase() === "XXX" ||
+				result.output.lemma?.trim().toUpperCase() === "XXX";
+			const kwicData = isBoundaryMarkerSearch
+				? clearBoundaryContext(kwicResult.data)
+				: kwicResult.data;
 			// Failed frequency lookups resolve only IDs from the successful current-page sources.
 			const matchedIds = frequencyResult.data
 				? [...frequencyResult.data.keys()]
-				: Object.keys(groupMatchesByTranscript([], kwicResult.data, xmlResult.hits, null)).map(
-						Number,
-					);
+				: Object.keys(groupMatchesByTranscript([], kwicData, xmlResult.hits, null)).map(Number);
 			const matchingIds = new Set(matchedIds);
 			const transcripts = candidates
 				? candidates.filter(
@@ -882,10 +924,10 @@ const corpus = new Hono<AppEnv>()
 			return c.json(
 				{
 					transcripts,
-					kwic: kwicResult.data,
+					kwic: kwicData,
 					matchesByTranscript: groupMatchesByTranscript(
 						transcripts,
-						kwicResult.data,
+						kwicData,
 						xmlResult.hits,
 						frequencyResult.data,
 					),

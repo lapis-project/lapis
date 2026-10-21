@@ -342,7 +342,58 @@ function getTranscriptId(line: KwicLine): number | null {
 	return getTranscriptIdFromReferences([...(line.Refs ?? []), ...(line.Tbl_refs ?? [])]);
 }
 
-function parseXmlHits(content: string): Array<XmlHit> {
+const XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
+const REF_ATTRIBUTE_NAME_PATTERN = /^[A-Za-z_][\w.-]*$/;
+
+function parseRefAttributes(refs: string): Array<{ name: string; value: string }> {
+	const parsedAttributes: Array<{ name: string; value: string }> = [];
+	for (const part of refs.split(",")) {
+		const separatorIndex = part.indexOf("=");
+		const candidateName = separatorIndex === -1 ? "" : part.slice(0, separatorIndex);
+		if (separatorIndex !== -1 && REF_ATTRIBUTE_NAME_PATTERN.test(candidateName)) {
+			parsedAttributes.push({
+				name: candidateName,
+				value: part.slice(separatorIndex + 1),
+			});
+		} else {
+			const previousAttribute = parsedAttributes[parsedAttributes.length - 1];
+			if (previousAttribute !== undefined) {
+				previousAttribute.value += `,${part}`;
+			}
+		}
+	}
+	return parsedAttributes;
+}
+
+function formatLineDivAsTeiXml(refs: string, line: Record<PropertyKey, unknown>): string {
+	const attributes = [
+		'xmlns:lapis="lapis-online.at"',
+		'type="resultLine"',
+		...parseRefAttributes(refs).map(({ name, value }) => `lapis:${name}="${value}"`),
+	];
+
+	const divOpen = `<div ${attributes.join("\n     ")}>`;
+	const segments: Array<string> = [];
+
+	for (const segmentType of ["left", "kwic", "right"] as const) {
+		const rawSegment = line[segmentType];
+		if (typeof rawSegment !== "string") {
+			continue;
+		}
+		const tokens = rawSegment.trim().split(/\s+/).filter(Boolean);
+		if (tokens.length === 0) {
+			segments.push(`      <seg type="${segmentType}"/>`);
+		} else {
+			const words = tokens.map((token) => `         <w>${token}</w>`).join("\n");
+			segments.push(`      <seg type="${segmentType}">\n${words}\n      </seg>`);
+		}
+	}
+
+	const uBody = segments.length > 0 ? `\n${segments.join("\n")}\n   ` : "";
+	return `${divOpen}\n   <u>${uBody}</u>\n</div>`;
+}
+
+function parseXmlConcordance(content: string): { content: string; hits: Array<XmlHit> } {
 	try {
 		if (SyntaxValidator.validate(content) !== true) {
 			throw new Error("Invalid NoSketch XML");
@@ -352,7 +403,6 @@ function parseXmlHits(content: string): Array<XmlHit> {
 	}
 
 	const parser = new XMLParser({
-		captureMetaData: true,
 		ignoreAttributes: false,
 		maxNestedTags: 100,
 		parseAttributeValue: false,
@@ -365,10 +415,13 @@ function parseXmlHits(content: string): Array<XmlHit> {
 	};
 	const lines = parsed.export?.concordance?.line;
 	if (lines === undefined) {
-		return [];
+		return {
+			content: `${XML_DECLARATION}\n<concordance/>`,
+			hits: [],
+		};
 	}
 
-	const metadataKey = XMLParser.getMetaDataSymbol() as symbol;
+	const divBlocks: Array<string> = [];
 	const hits: Array<XmlHit> = [];
 	for (const value of Array.isArray(lines) ? lines : [lines]) {
 		if (typeof value !== "object" || value === null) {
@@ -377,26 +430,25 @@ function parseXmlHits(content: string): Array<XmlHit> {
 
 		const line = value as Record<PropertyKey, unknown>;
 		const refs = line["@_refs"];
-		const metadata = Reflect.get(line, metadataKey);
-		if (
-			typeof refs !== "string" ||
-			typeof metadata !== "object" ||
-			metadata === null ||
-			!("startIndex" in metadata) ||
-			!("endIndex" in metadata) ||
-			typeof metadata.startIndex !== "number" ||
-			typeof metadata.endIndex !== "number"
-		) {
+		if (typeof refs !== "string") {
 			continue;
 		}
 
+		const divXml = formatLineDivAsTeiXml(refs, line);
+		divBlocks.push(divXml);
 		hits.push({
 			refs,
-			content: content.slice(metadata.startIndex, metadata.endIndex),
+			content: `${XML_DECLARATION}\n${divXml}`,
 		});
 	}
 
-	return hits;
+	return {
+		content:
+			divBlocks.length === 0
+				? `${XML_DECLARATION}\n<concordance/>`
+				: `${XML_DECLARATION}\n<concordance>\n${divBlocks.join("\n")}\n</concordance>`,
+		hits,
+	};
 }
 
 function groupMatchesByTranscript(
@@ -547,8 +599,8 @@ async function requestXml(
 		}
 
 		try {
-			const content = await response.text();
-			const hits = parseXmlHits(content);
+			const rawContent = await response.text();
+			const { content, hits } = parseXmlConcordance(rawContent);
 			return {
 				data: {
 					content,

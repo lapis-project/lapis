@@ -58,6 +58,7 @@ export async function getAllTranscripts(
 	if (filters?.locations?.length) {
 		query = query.where("place.id", "in", filters.locations);
 	}
+
 	const postalCodeRanges = filters?.postal_code_ranges;
 	if (postalCodeRanges !== undefined) {
 		query = query.where((eb) =>

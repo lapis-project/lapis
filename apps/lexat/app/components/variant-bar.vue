@@ -11,6 +11,7 @@ defineProps<{
 	<div class="my-2 text-xs">
 		<div class="my-0.5 flex items-center gap-2">
 			<span
+				v-if="color"
 				class="rounded-full size-2 inline-block shrink-0"
 				:style="{ backgroundColor: color }"
 			></span>
@@ -27,7 +28,7 @@ defineProps<{
 				class="transition-[width] duration-500"
 				height="4"
 				rx="2"
-				:style="{ width: `${value * 100}%`, fill: color }"
+				:style="{ width: `${value * 100}%`, fill: color ?? '#92969a' }"
 			/>
 		</svg>
 	</div>

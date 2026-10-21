@@ -244,7 +244,6 @@ const tabItems = computed(() => [
 						<VariantBar
 							v-for="entry in distribution"
 							:key="entry.id"
-							color="#92969a"
 							:secondary="entry.secondary"
 							:value="entry.value"
 						>

@@ -913,6 +913,132 @@ describe("Corpus Handler", () => {
 		expect(response.status).toBe(500);
 	});
 
+	it("clears Left with opening tags and Right with closing tags when searching for XXX", async () => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+			Promise.resolve(
+				format === "xml"
+					? new Response("<export><concordance /></export>")
+					: new Response(
+							JSON.stringify({
+								Lines: [
+									{
+										toknum: 1,
+										Refs: ["transcript_7"],
+										Left: [
+											{ str: "Stärkere" },
+											{ str: "war" },
+											{ str: "." },
+											{ strc: "</doc><doc" },
+											{ strc: "id=transcript_7>" },
+										],
+										Kwic: [{ str: "XXX", coll: 1 }],
+										Right: [{ str: "Nordwind" }, { str: "und" }, { str: "Sonne" }],
+									},
+									{
+										toknum: 2,
+										Refs: ["transcript_7"],
+										Left: [{ str: "Stärkere" }, { str: "war" }, { str: "." }],
+										Kwic: [{ str: "XXX", coll: 1 }],
+										Right: [
+											{ strc: "</doc><doc" },
+											{ strc: "id=transcript_8>" },
+											{ str: "XXX" },
+											{ str: "Nordwind" },
+										],
+									},
+								],
+							}),
+						),
+			),
+		);
+
+		const response = await corpus.request("/search/2?word=XXX");
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		const expectedLines = [
+			{
+				toknum: 1,
+				Refs: ["transcript_7"],
+				Left: [],
+				Kwic: [{ str: "XXX", coll: 1 }],
+				Right: [{ str: "Nordwind" }, { str: "und" }, { str: "Sonne" }],
+			},
+			{
+				toknum: 2,
+				Refs: ["transcript_7"],
+				Left: [{ str: "Stärkere" }, { str: "war" }, { str: "." }],
+				Kwic: [{ str: "XXX", coll: 1 }],
+				Right: [],
+			},
+		];
+		expect(body.kwic.Lines).toEqual(expectedLines);
+		expect(body.matchesByTranscript["7"].lines).toEqual(expectedLines);
+	});
+
+	it.each([
+		["<doc>", "</doc>", true],
+		['<doc id="transcript_7">', "</doc>", true],
+		["<doc", "</doc>", true],
+		["<s>", "</s>", false],
+		["<u>", "</u>", false],
+		["<document>", "</document>", false],
+		["<docx>", "</docx>", false],
+	])("handles XXX context tags %s and %s", async (opening, closing, clearsContext) => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+		const rawLines = ["str", "strc"].map((field) => ({
+			Refs: ["transcript_7"],
+			Left: [{ [field]: opening }, { str: "before" }],
+			Kwic: [{ str: "XXX", coll: 1 }],
+			Right: [{ str: "after" }, { [field]: closing }],
+		}));
+		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+			Promise.resolve(
+				format === "xml"
+					? new Response("<export><concordance /></export>")
+					: new Response(JSON.stringify({ Lines: rawLines })),
+			),
+		);
+
+		const response = await corpus.request("/search/2?word=XXX");
+		const body = await response.json();
+		const expectedLines = clearsContext
+			? rawLines.map((line) => ({ ...line, Left: [], Right: [] }))
+			: rawLines;
+
+		expect(response.status).toBe(200);
+		expect(body.kwic.Lines).toEqual(expectedLines);
+		expect(body.matchesByTranscript["7"].lines).toEqual(expectedLines);
+	});
+
+	it("preserves Left and Right tags when searching for terms other than XXX", async () => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+		const rawLines = [
+			{
+				toknum: 1,
+				Refs: ["transcript_7"],
+				Left: [{ strc: "</doc><doc" }, { strc: "id=transcript_7>" }, { str: "XXX" }],
+				Kwic: [{ str: "Nordwind", coll: 1 }],
+				Right: [{ str: "und" }, { strc: "</doc>" }],
+			},
+		];
+		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+			Promise.resolve(
+				format === "xml"
+					? new Response("<export><concordance /></export>")
+					: new Response(JSON.stringify({ Lines: rawLines })),
+			),
+		);
+
+		const response = await corpus.request("/search/2?word=Nordwind");
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(body.kwic.Lines).toEqual(rawLines);
+		expect(body.matchesByTranscript["7"].lines).toEqual(rawLines);
+	});
+
 	it("keeps the legacy KWIC response contract unchanged", async () => {
 		searchRequest.mockResolvedValueOnce(new Response(JSON.stringify({ Lines: [{ Kwic: [] }] })));
 

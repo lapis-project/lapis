@@ -73,7 +73,6 @@
 		"vue-i18n": "catalog:",
 		"vue-i18n-routing": "^1.2.0",
 		"vue-router": "catalog:",
-		"vuedraggable": "^4.1.0",
 		"zod": "^4.6.4"
 	},
 	"devDependencies": {

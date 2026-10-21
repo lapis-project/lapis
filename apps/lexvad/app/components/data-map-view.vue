@@ -24,7 +24,7 @@ interface SidebarState {
 const t = useTranslations();
 const datasetStore = useDatasetStore();
 const colorStore = useColorStore();
-const { groupsForMap } = useVariantGroups();
+const { groupsForMap } = useVariantGroupStore();
 const route = useRoute();
 const router = useRouter();
 

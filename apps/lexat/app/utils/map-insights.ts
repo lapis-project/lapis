@@ -1,8 +1,8 @@
 import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
 
+import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import type { SurveyResponse } from "@/types/feature-collection";
-import type { VariantGroup } from "@/utils/variant-groups";
 
 export type DistributionMode = "region" | "bundesland";
 

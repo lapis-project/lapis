@@ -1,4 +1,4 @@
-import type { VariantGroup } from "@/composables/use-variant-groups";
+import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import type { LocatedEntry } from "@/utils/dataset";
 
 function splitVariants(value: string) {

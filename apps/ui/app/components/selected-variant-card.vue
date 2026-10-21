@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
 defineProps<{
 	variant: string;
 	count: number;
@@ -6,7 +8,7 @@ defineProps<{
 	color: string;
 }>();
 
-const t = useTranslations();
+const { t } = useI18n();
 </script>
 
 <template>

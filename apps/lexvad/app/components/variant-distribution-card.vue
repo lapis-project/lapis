@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import type { Feature, MultiPolygon, Polygon } from "geojson";
+
+import statesJson from "#layers/ui/app/assets/data/bundeslaender.json";
+import regionsJson from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+
+const regions = regionsJson.features as Array<Feature<Polygon | MultiPolygon>>;
+const states = statesJson.features as Array<Feature<Polygon | MultiPolygon>>;
+
 const props = defineProps<{
 	datasetId: string;
 	question: string;
@@ -59,7 +67,8 @@ const mapColor = computed(
 			class="w-full h-52"
 			:color="mapColor"
 			:data="mapData"
-			:mode="mode"
+			:features="mode === 'region' ? regions : states"
+			:name-key="mode === 'region' ? 'Dialektregion_Name' : 'name'"
 		></SimpleHeatMap>
 		<div v-for="entry in legendItems" :key="entry.label" class="my-2 text-xs">
 			<div class="my-0.5">

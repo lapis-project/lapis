@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { VariantGroup } from "@/composables/use-variant-groups";
+import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 
 const props = defineProps<{
 	datasetId: string;

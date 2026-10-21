@@ -216,10 +216,48 @@ const SearchQuerySchema = object({
 type RunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
 type KwicLine = NonNullable<RunCgiResponse["Lines"]>[number];
+type KwicContextItem = { str?: string; strc?: string };
 type Transcript = Awaited<ReturnType<typeof getAllTranscripts>>[number];
 type XmlHit = { refs: string; content: string };
 
 const DIOE_PROJECT_ID = 2;
+const OPENING_TAG_REGEX = /<doc(?=[\s>]|$)/;
+const CLOSING_TAG_REGEX = /<\/doc\s*>/;
+
+function hasOpeningTag(context: Array<KwicContextItem> | undefined): boolean {
+	return (
+		context?.some(
+			(item) =>
+				(typeof item.strc === "string" && OPENING_TAG_REGEX.test(item.strc)) ||
+				(typeof item.str === "string" && OPENING_TAG_REGEX.test(item.str)),
+		) ?? false
+	);
+}
+
+function hasClosingTag(context: Array<KwicContextItem> | undefined): boolean {
+	return (
+		context?.some(
+			(item) =>
+				(typeof item.strc === "string" && CLOSING_TAG_REGEX.test(item.strc)) ||
+				(typeof item.str === "string" && CLOSING_TAG_REGEX.test(item.str)),
+		) ?? false
+	);
+}
+
+function clearBoundaryContext(kwic: RunCgiResponse | null): RunCgiResponse | null {
+	if (!kwic?.Lines) {
+		return kwic;
+	}
+
+	return {
+		...kwic,
+		Lines: kwic.Lines.map((line) => ({
+			...line,
+			...(line.Left !== undefined && hasOpeningTag(line.Left) ? { Left: [] } : {}),
+			...(line.Right !== undefined && hasClosingTag(line.Right) ? { Right: [] } : {}),
+		})),
+	};
+}
 
 function omitNullQueryValues(values: Array<string> | undefined): Array<string> | undefined {
 	return values?.filter((value) => value !== "null");
@@ -304,7 +342,58 @@ function getTranscriptId(line: KwicLine): number | null {
 	return getTranscriptIdFromReferences([...(line.Refs ?? []), ...(line.Tbl_refs ?? [])]);
 }
 
-function parseXmlHits(content: string): Array<XmlHit> {
+const XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
+const REF_ATTRIBUTE_NAME_PATTERN = /^[A-Za-z_][\w.-]*$/;
+
+function parseRefAttributes(refs: string): Array<{ name: string; value: string }> {
+	const parsedAttributes: Array<{ name: string; value: string }> = [];
+	for (const part of refs.split(",")) {
+		const separatorIndex = part.indexOf("=");
+		const candidateName = separatorIndex === -1 ? "" : part.slice(0, separatorIndex);
+		if (separatorIndex !== -1 && REF_ATTRIBUTE_NAME_PATTERN.test(candidateName)) {
+			parsedAttributes.push({
+				name: candidateName,
+				value: part.slice(separatorIndex + 1),
+			});
+		} else {
+			const previousAttribute = parsedAttributes[parsedAttributes.length - 1];
+			if (previousAttribute !== undefined) {
+				previousAttribute.value += `,${part}`;
+			}
+		}
+	}
+	return parsedAttributes;
+}
+
+function formatLineDivAsTeiXml(refs: string, line: Record<PropertyKey, unknown>): string {
+	const attributes = [
+		'xmlns:lapis="lapis-online.at"',
+		'type="resultLine"',
+		...parseRefAttributes(refs).map(({ name, value }) => `lapis:${name}="${value}"`),
+	];
+
+	const divOpen = `<div ${attributes.join("\n     ")}>`;
+	const segments: Array<string> = [];
+
+	for (const segmentType of ["left", "kwic", "right"] as const) {
+		const rawSegment = line[segmentType];
+		if (typeof rawSegment !== "string") {
+			continue;
+		}
+		const tokens = rawSegment.trim().split(/\s+/).filter(Boolean);
+		if (tokens.length === 0) {
+			segments.push(`      <seg type="${segmentType}"/>`);
+		} else {
+			const words = tokens.map((token) => `         <w>${token}</w>`).join("\n");
+			segments.push(`      <seg type="${segmentType}">\n${words}\n      </seg>`);
+		}
+	}
+
+	const uBody = segments.length > 0 ? `\n${segments.join("\n")}\n   ` : "";
+	return `${divOpen}\n   <u>${uBody}</u>\n</div>`;
+}
+
+function parseXmlConcordance(content: string): { content: string; hits: Array<XmlHit> } {
 	try {
 		if (SyntaxValidator.validate(content) !== true) {
 			throw new Error("Invalid NoSketch XML");
@@ -314,7 +403,6 @@ function parseXmlHits(content: string): Array<XmlHit> {
 	}
 
 	const parser = new XMLParser({
-		captureMetaData: true,
 		ignoreAttributes: false,
 		maxNestedTags: 100,
 		parseAttributeValue: false,
@@ -327,10 +415,13 @@ function parseXmlHits(content: string): Array<XmlHit> {
 	};
 	const lines = parsed.export?.concordance?.line;
 	if (lines === undefined) {
-		return [];
+		return {
+			content: `${XML_DECLARATION}\n<concordance/>`,
+			hits: [],
+		};
 	}
 
-	const metadataKey = XMLParser.getMetaDataSymbol() as symbol;
+	const divBlocks: Array<string> = [];
 	const hits: Array<XmlHit> = [];
 	for (const value of Array.isArray(lines) ? lines : [lines]) {
 		if (typeof value !== "object" || value === null) {
@@ -339,26 +430,25 @@ function parseXmlHits(content: string): Array<XmlHit> {
 
 		const line = value as Record<PropertyKey, unknown>;
 		const refs = line["@_refs"];
-		const metadata = Reflect.get(line, metadataKey);
-		if (
-			typeof refs !== "string" ||
-			typeof metadata !== "object" ||
-			metadata === null ||
-			!("startIndex" in metadata) ||
-			!("endIndex" in metadata) ||
-			typeof metadata.startIndex !== "number" ||
-			typeof metadata.endIndex !== "number"
-		) {
+		if (typeof refs !== "string") {
 			continue;
 		}
 
+		const divXml = formatLineDivAsTeiXml(refs, line);
+		divBlocks.push(divXml);
 		hits.push({
 			refs,
-			content: content.slice(metadata.startIndex, metadata.endIndex),
+			content: `${XML_DECLARATION}\n${divXml}`,
 		});
 	}
 
-	return hits;
+	return {
+		content:
+			divBlocks.length === 0
+				? `${XML_DECLARATION}\n<concordance/>`
+				: `${XML_DECLARATION}\n<concordance>\n${divBlocks.join("\n")}\n</concordance>`,
+		hits,
+	};
 }
 
 function groupMatchesByTranscript(
@@ -509,8 +599,8 @@ async function requestXml(
 		}
 
 		try {
-			const content = await response.text();
-			const hits = parseXmlHits(content);
+			const rawContent = await response.text();
+			const { content, hits } = parseXmlConcordance(rawContent);
 			return {
 				data: {
 					content,
@@ -863,12 +953,16 @@ const corpus = new Hono<AppEnv>()
 				requestKwic(cql, result.output.fromp, refs, result.output.pagesize),
 				requestXml(cql, result.output.fromp, refs, result.output.pagesize),
 			]);
+			const isBoundaryMarkerSearch =
+				wordInput?.trim().toUpperCase() === "XXX" ||
+				result.output.lemma?.trim().toUpperCase() === "XXX";
+			const kwicData = isBoundaryMarkerSearch
+				? clearBoundaryContext(kwicResult.data)
+				: kwicResult.data;
 			// Failed frequency lookups resolve only IDs from the successful current-page sources.
 			const matchedIds = frequencyResult.data
 				? [...frequencyResult.data.keys()]
-				: Object.keys(groupMatchesByTranscript([], kwicResult.data, xmlResult.hits, null)).map(
-						Number,
-					);
+				: Object.keys(groupMatchesByTranscript([], kwicData, xmlResult.hits, null)).map(Number);
 			const matchingIds = new Set(matchedIds);
 			const transcripts = candidates
 				? candidates.filter(
@@ -882,10 +976,10 @@ const corpus = new Hono<AppEnv>()
 			return c.json(
 				{
 					transcripts,
-					kwic: kwicResult.data,
+					kwic: kwicData,
 					matchesByTranscript: groupMatchesByTranscript(
 						transcripts,
-						kwicResult.data,
+						kwicData,
 						xmlResult.hits,
 						frequencyResult.data,
 					),

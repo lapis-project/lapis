@@ -1,5 +1,7 @@
 import { fileURLToPath } from "node:url";
 
+import { XMLParser } from "fast-xml-parser";
+import { SyntaxValidator } from "fast-xml-validator";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { austrianStatePostalCodeRanges } from "@/lib/austrianPostalCodes.ts";
@@ -446,12 +448,17 @@ describe("Corpus Handler", () => {
 				},
 			},
 			xml: {
-				content: "<concordance />",
+				content: '<?xml version="1.0" encoding="UTF-8"?>\n<concordance/>',
 				contentType: "application/xml",
 				filename: "hits.xml",
 			},
 			transcriptMatchesComplete: true,
 			errors: { kwic: null, xml: null, transcriptMatches: null },
+		});
+		expect(SyntaxValidator.validate(body.xml.content)).toBe(true);
+		expect(new XMLParser({ ignoreAttributes: false }).parse(body.xml.content)).toEqual({
+			"?xml": { "@_version": "1.0", "@_encoding": "UTF-8" },
+			concordance: "",
 		});
 		expect(searchRequest).toHaveBeenCalledTimes(2);
 		const [jsonCall, xmlCall] = searchRequest.mock.calls;
@@ -506,7 +513,19 @@ describe("Corpus Handler", () => {
 				xmlHits: [
 					{
 						refs: "doc.id=transcript_7,u.who=spk_1",
-						content: firstXmlHit,
+						content: [
+							'<?xml version="1.0" encoding="UTF-8"?>',
+							'<div xmlns:lapis="lapis-online.at"',
+							'     type="resultLine"',
+							'     lapis:doc.id="transcript_7"',
+							'     lapis:u.who="spk_1">',
+							"   <u>",
+							'      <seg type="kwic">',
+							"         <w>Haus</w>",
+							"      </seg>",
+							"   </u>",
+							"</div>",
+						].join("\n"),
 					},
 				],
 			},
@@ -517,7 +536,55 @@ describe("Corpus Handler", () => {
 				xmlHits: [
 					{
 						refs: "doc.id=transcript_8,u.who=spk_2",
-						content: secondXmlHit,
+						content: [
+							'<?xml version="1.0" encoding="UTF-8"?>',
+							'<div xmlns:lapis="lapis-online.at"',
+							'     type="resultLine"',
+							'     lapis:doc.id="transcript_8"',
+							'     lapis:u.who="spk_2">',
+							"   <u>",
+							'      <seg type="kwic">',
+							"         <w>gehen</w>",
+							"      </seg>",
+							"   </u>",
+							"</div>",
+						].join("\n"),
+					},
+				],
+			},
+		});
+		expect(SyntaxValidator.validate(body.xml.content)).toBe(true);
+		expect(
+			new XMLParser({ ignoreAttributes: false, parseAttributeValue: false }).parse(
+				body.xml.content,
+			),
+		).toEqual({
+			"?xml": { "@_version": "1.0", "@_encoding": "UTF-8" },
+			concordance: {
+				div: [
+					{
+						"@_xmlns:lapis": "lapis-online.at",
+						"@_type": "resultLine",
+						"@_lapis:doc.id": "transcript_7",
+						"@_lapis:u.who": "spk_1",
+						u: {
+							seg: {
+								"@_type": "kwic",
+								w: "Haus",
+							},
+						},
+					},
+					{
+						"@_xmlns:lapis": "lapis-online.at",
+						"@_type": "resultLine",
+						"@_lapis:doc.id": "transcript_8",
+						"@_lapis:u.who": "spk_2",
+						u: {
+							seg: {
+								"@_type": "kwic",
+								w: "gehen",
+							},
+						},
 					},
 				],
 			},
@@ -662,7 +729,7 @@ describe("Corpus Handler", () => {
 
 		expect(response.status).toBe(200);
 		expect(body.kwic).toBeNull();
-		expect(body.xml.content).toBe("<ok />");
+		expect(body.xml.content).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<concordance/>');
 		expect(body.errors.kwic).toEqual({ status: 503, message: "Unavailable" });
 		expect(body.errors.xml).toBeNull();
 	});
@@ -713,7 +780,7 @@ describe("Corpus Handler", () => {
 
 		expect(response.status).toBe(200);
 		expect(body.kwic).toBeNull();
-		expect(body.xml.content).toBe("<ok />");
+		expect(body.xml.content).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<concordance/>');
 		expect(body.errors.kwic).toEqual({ status: null, message: "JSON network down" });
 	});
 
@@ -727,7 +794,7 @@ describe("Corpus Handler", () => {
 
 		expect(response.status).toBe(200);
 		expect(body.kwic).toBeNull();
-		expect(body.xml.content).toBe("<ok />");
+		expect(body.xml.content).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<concordance/>');
 		expect(body.errors.kwic.status).toBeNull();
 	});
 
@@ -1037,6 +1104,98 @@ describe("Corpus Handler", () => {
 		expect(response.status).toBe(200);
 		expect(body.kwic.Lines).toEqual(rawLines);
 		expect(body.matchesByTranscript["7"].lines).toEqual(rawLines);
+	});
+
+	it("transforms NoSketch concordance XML lines into TEI resultLine format", async () => {
+		requestTranscriptMatches.mockResolvedValue({
+			data: new Map([[1, 1]]),
+			error: null,
+		});
+		getAllTranscripts.mockResolvedValue([{ instance_id: 1 }]);
+		const sourceLine = [
+			'<line refs="doc.id=transcript_1,doc.title====NONE===,doc.erhebung=Interview_PP0308,doc.erhebungsart=Interview,doc.name=0030_NECK_alt_f_INT,file.id=1.xml,u.who=spk_11,u.sex=female,u.age=Alt (65+),u.name=Informant 0030,u.start=0:05:50.885000,u.end=0:05:51.672000,u.subproject=UNK,u.dialect_competence=UNK,u.standard_competence=UNK,u.location=Neckenmarkt, Bezirk Oberpullendorf, Burgenland, 7311, Österreich,u.lat=47.599776,u.lon=16.5483316" num="0" label="_">',
+			"    <left>. ich konnte nicht in die in mhm . Hauptschule</left>",
+			"    <kwic>gehen</kwic>",
+			"    <right>. mhm . ich ko/ ko/ bin nach Hause gekommen und</right>",
+			"</line>",
+		].join("\n");
+		const expectedDiv = [
+			'<div xmlns:lapis="lapis-online.at"',
+			'     type="resultLine"',
+			'     lapis:doc.id="transcript_1"',
+			'     lapis:doc.title="===NONE==="',
+			'     lapis:doc.erhebung="Interview_PP0308"',
+			'     lapis:doc.erhebungsart="Interview"',
+			'     lapis:doc.name="0030_NECK_alt_f_INT"',
+			'     lapis:file.id="1.xml"',
+			'     lapis:u.who="spk_11"',
+			'     lapis:u.sex="female"',
+			'     lapis:u.age="Alt (65+)"',
+			'     lapis:u.name="Informant 0030"',
+			'     lapis:u.start="0:05:50.885000"',
+			'     lapis:u.end="0:05:51.672000"',
+			'     lapis:u.subproject="UNK"',
+			'     lapis:u.dialect_competence="UNK"',
+			'     lapis:u.standard_competence="UNK"',
+			'     lapis:u.location="Neckenmarkt, Bezirk Oberpullendorf, Burgenland, 7311, Österreich"',
+			'     lapis:u.lat="47.599776"',
+			'     lapis:u.lon="16.5483316">',
+			"   <u>",
+			'      <seg type="left">',
+			"         <w>.</w>",
+			"         <w>ich</w>",
+			"         <w>konnte</w>",
+			"         <w>nicht</w>",
+			"         <w>in</w>",
+			"         <w>die</w>",
+			"         <w>in</w>",
+			"         <w>mhm</w>",
+			"         <w>.</w>",
+			"         <w>Hauptschule</w>",
+			"      </seg>",
+			'      <seg type="kwic">',
+			"         <w>gehen</w>",
+			"      </seg>",
+			'      <seg type="right">',
+			"         <w>.</w>",
+			"         <w>mhm</w>",
+			"         <w>.</w>",
+			"         <w>ich</w>",
+			"         <w>ko/</w>",
+			"         <w>ko/</w>",
+			"         <w>bin</w>",
+			"         <w>nach</w>",
+			"         <w>Hause</w>",
+			"         <w>gekommen</w>",
+			"         <w>und</w>",
+			"      </seg>",
+			"   </u>",
+			"</div>",
+		].join("\n");
+		const expectedTei = `<?xml version="1.0" encoding="UTF-8"?>\n${expectedDiv}`;
+
+		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+			Promise.resolve(
+				format === "xml"
+					? new Response(`<export><concordance>${sourceLine}</concordance></export>`)
+					: new Response(JSON.stringify({ Lines: [{ toknum: 1, Refs: ["transcript_1"] }] })),
+			),
+		);
+
+		const response = await corpus.request("/search/2?word=gehen");
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(SyntaxValidator.validate(body.xml.content)).toBe(true);
+		expect(body.xml.content).toBe(
+			`<?xml version="1.0" encoding="UTF-8"?>\n<concordance>\n${expectedDiv}\n</concordance>`,
+		);
+		expect(body.matchesByTranscript["1"].xmlHits).toEqual([
+			{
+				refs: "doc.id=transcript_1,doc.title====NONE===,doc.erhebung=Interview_PP0308,doc.erhebungsart=Interview,doc.name=0030_NECK_alt_f_INT,file.id=1.xml,u.who=spk_11,u.sex=female,u.age=Alt (65+),u.name=Informant 0030,u.start=0:05:50.885000,u.end=0:05:51.672000,u.subproject=UNK,u.dialect_competence=UNK,u.standard_competence=UNK,u.location=Neckenmarkt, Bezirk Oberpullendorf, Burgenland, 7311, Österreich,u.lat=47.599776,u.lon=16.5483316",
+				content: expectedTei,
+			},
+		]);
 	});
 
 	it("keeps the legacy KWIC response contract unchanged", async () => {

@@ -18,6 +18,7 @@
 		"generate:noske": "openapi-typescript ./specs/openapi.yaml -o ./src/types/noske.d.ts",
 		"migrate:latest": "NODE_OPTIONS='--import tsx' kysely migrate:latest -e local",
 		"start": "node --env-file .env.local ./dist/index.js",
+		"test": "vitest run",
 		"test:article-handler": "vitest articleHandler",
 		"test:audio-handler": "vitest audioHandler",
 		"test:audio-waveforms": "vitest audioWaveformGenerator",

@@ -30,14 +30,51 @@ const transcripts = computed(() => {
 	return searchResponse.value?.transcripts;
 });
 
+function getTranscriptIdFromRefs(references: Array<string> | undefined) {
+	for (const reference of references ?? []) {
+		const match = /(?:^|\W)transcript_(\d+)(?:\W|$)/i.exec(reference);
+		if (!match?.[1]) continue;
+		const id = Number(match[1]);
+		if (Number.isSafeInteger(id)) return id;
+	}
+	return null;
+}
+
+const currentPageKwicByTranscript = computed(() => {
+	const grouped: Record<string, Array<KwicLine>> = {};
+	for (const line of kwic.value?.Lines ?? []) {
+		const transcriptId =
+			getTranscriptIdFromRefs(line.Tbl_refs) ?? getTranscriptIdFromRefs(line.Refs) ?? null;
+		if (transcriptId == null) continue;
+		const key = String(transcriptId);
+		grouped[key] = [...(grouped[key] ?? []), line];
+	}
+	return grouped;
+});
+
+const currentPageTranscriptIds = computed(() => {
+	return new Set(
+		Object.keys(currentPageKwicByTranscript.value)
+			.map((key) => Number(key))
+			.filter(Number.isSafeInteger),
+	);
+});
+
 const displayTranscripts = computed(() => {
-	return (transcripts.value ?? []).map((result) => ({
+	const currentPageIds = currentPageTranscriptIds.value;
+	const hasCurrentKwicPage = kwic.value?.Lines != null && kwic.value.Lines.length > 0;
+	const filtered = (transcripts.value ?? []).filter((result) => {
+		if (!hasCurrentKwicPage) return true;
+		return result.instance_id != null && currentPageIds.has(Number(result.instance_id));
+	});
+
+	return filtered.map((result) => ({
 		...result,
 		bookmarked: bookmarkedIds.value.includes(String(result.instance_id)),
 	})) as APITranscriptsWithBookmark;
 });
 
-const transcriptMatches = computed(() => {
+const matchesByTranscript = computed(() => {
 	return searchResponse.value?.matchesByTranscript;
 });
 
@@ -47,20 +84,18 @@ const kwic = computed(() => {
 
 const limit = 50;
 const totalPages = computed(() => {
-	return kwic.value?.concsize ? Math.ceil(kwic.value?.concsize / limit) : 0;
-});
-const pages = computed(() => {
-	return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+	return kwic.value?.concsize ? Math.ceil(kwic.value.concsize / limit) : 0;
 });
 
 const currentPage = computed({
 	get: () => Number(route.query.page ?? 1),
 	set: (page: number) => {
+		const safePage = Math.min(Math.max(page, 1), totalPages.value || 1);
 		router.push({
 			query: {
 				...route.query,
-				page: String(page),
-				fromp: String(page),
+				page: String(safePage),
+				fromp: String(safePage),
 			},
 		});
 	},
@@ -92,14 +127,6 @@ const gridColumns = computed(() => {
 
 const currentId = computed(() => {
 	return route.query.selection;
-});
-
-const currentSelectionArray = computed(() => {
-	return Array.isArray(route.query.selection)
-		? (route.query.selection as Array<string>)
-		: route.query.selection
-			? [route.query.selection as string]
-			: [];
 });
 
 function handleSelection(id: string) {
@@ -189,30 +216,23 @@ watch(
 	},
 );
 
-function asArray(v: unknown): string[] | undefined {
-	if (v == null) return undefined;
-	return Array.isArray(v) ? v.map(String) : [String(v)];
-}
+const hasKwicSearch = computed(() => {
+	const q = route.query;
+	return Boolean(q.word || q.query || q.lemma || q.pos || q.feats || q.comment_search || q.mode);
+});
 
-function copyKwicLine(line: KwicLine | string, category: string) {
-	let text = "";
-	let output = "";
-	if (category === "kwic" && typeof line !== "string") {
-		const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";
-		const kwic = line.Kwic?.map((t: any) => t.str).join(" ") ?? "";
-		const right = line.Right?.map((t: any) => t.str).join(" ") ?? "";
-
-		text = `${left} ${kwic} ${right}`.replace(/\s+/g, " ").trim();
-		output = "Zeile";
-	} else if (category === "xml" && typeof line === "string") {
-		text = line;
-		output = "XML";
-	} else return;
-
-	navigator.clipboard.writeText(text).then(() => {
-		toast.success(`${output} wurde in die Zwischenablage kopiert!`);
-	});
-}
+const kwicTranscriptResults = computed(() => {
+	if (!kwic.value || !transcripts.value) return [];
+	return transcripts.value.filter(
+		(result) =>
+			result.instance_id != null &&
+			(kwic.value?.Lines ?? []).some((line) => {
+				const transcriptId =
+					getTranscriptIdFromRefs(line.Tbl_refs) ?? getTranscriptIdFromRefs(line.Refs) ?? null;
+				return transcriptId != null && Number(result.instance_id) === transcriptId;
+			}),
+	);
+});
 </script>
 
 <template>
@@ -259,7 +279,9 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 						<div class="grid grid-cols-[auto_1fr] mt-2 mb-5 pb-5 items-center mx-2 border-b">
 							<p class="text-lg">
 								Ergebnisse
-								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
+								<span class="text-sm text-muted-foreground"
+									>({{ searchResponse?.transcripts.length }})</span
+								>
 							</p>
 							<div class="flex justify-end">
 								<Sheet v-model:open="filterOpen">
@@ -291,38 +313,67 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 							</div>
 						</div>
 						<div
-							v-if="!isPending && transcripts != null && transcripts.length > 0"
-							v-for="result in displayTranscripts"
-							:key="String(result.instance_id ?? '')"
-							class="px-2 pb-2"
+							v-if="!isPending && transcripts != null && transcripts.length > 0 && !hasKwicSearch"
+							class="w-full"
 						>
-							<div
-								class="px-4 py-2 rounded bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80"
-							>
-								<Button
-									class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
-									hover:no-underline
-									variant="transparent"
-									@click="handleSelection(String(result.instance_id))"
-								>
-									<span class="sr-only"> Open Sidebar Demo </span>
-									{{ result.transcript_name }}
-								</Button>
-								<div class="w-full flex justify-end">
-									<Button
-										class="p-0 w-fit self-end"
-										variant="transparent"
-										@click="handleBookmark(result)"
-									>
-										<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
-									</Button>
-								</div>
-							</div>
+							<PlainTranscriptResults
+								:transcripts="displayTranscripts"
+								@select="handleSelection"
+								@bookmark="handleBookmark"
+							/>
 						</div>
+						<div
+							v-else-if="
+								!isPending && transcripts != null && transcripts.length > 0 && hasKwicSearch
+							"
+							class="w-full"
+						>
+							<KwicTranscriptResults
+								:kwic="kwic ?? {}"
+								:transcripts="matchesByTranscript ?? {}"
+								:bookmarked-ids="bookmarkedIds"
+								@select="handleSelection"
+								@bookmark="handleBookmark"
+							/>
+						</div>
+
 						<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
 							Keine Ergebnisse vorhanden.
 						</div>
 					</div>
+				</div>
+				<div
+					v-if="hasKwicSearch"
+					class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4"
+				>
+					<Pagination
+						v-model:page="currentPage"
+						:items-per-page="limit"
+						:total="kwic?.concsize"
+						:sibling-count="1"
+						:show-edges="true"
+						class="flex items-center gap-1"
+					>
+						<PaginationContent v-slot="{ items }">
+							<PaginationPrevious />
+
+							<template v-for="(item, i) in items" :key="i">
+								<PaginationEllipsis v-if="item.type === 'ellipsis'" />
+
+								<PaginationItem v-else-if="item.type === 'page'" :value="item.value" as-child>
+									<Button
+										class="size-9 p-0"
+										:variant="item.value === currentPage ? 'default' : 'outline'"
+										@click="currentPage = item.value"
+									>
+										{{ item.value }}
+									</Button>
+								</PaginationItem>
+							</template>
+
+							<PaginationNext />
+						</PaginationContent>
+					</Pagination>
 				</div>
 			</div>
 			<div

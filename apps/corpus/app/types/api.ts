@@ -38,6 +38,8 @@ export type APISearchResponse = ExcludeStrings<
 	InferResponseType<ApiClient["corpus"]["search"][":id"]["$get"], 200>
 >;
 
+export type APIMatchesByTranscript = APISearchResponse["matchesByTranscript"];
+
 export type APISearchParams = ExcludeStrings<
 	InferRequestType<ApiClient["corpus"]["search"][":id"]["$get"]>["param"]
 >;

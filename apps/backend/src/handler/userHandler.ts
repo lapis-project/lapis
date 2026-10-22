@@ -116,7 +116,7 @@ user
 		const userRole = c.get("role");
 		const editedUserRole = userObject.role_name;
 
-		if (editedUserRole === "superadmin" && userRole !== "superadmin") {
+		if (isRoleModificationForbidden(editedUserRole, userRole)) {
 			return c.json("Forbidden action", 403);
 		}
 

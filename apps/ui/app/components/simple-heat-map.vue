@@ -6,6 +6,7 @@ const props = defineProps<{
 	nameKey: string;
 	data: Record<string, number>;
 	color: string;
+	defaultFillColor?: string;
 }>();
 
 // A fixed Mercator projection keeps both administrative and dialect boundaries aligned.
@@ -47,7 +48,7 @@ const viewBox = computed(() => {
 			v-for="shape in shapes"
 			:key="shape.name"
 			:d="shape.path"
-			fill="var(--ui-bg-accented)"
+			:fill="defaultFillColor ?? 'var(--ui-bg-accented)'"
 			fill-rule="evenodd"
 		/>
 		<path

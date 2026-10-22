@@ -113,17 +113,13 @@ const toggleThirdColumn = () => {
 	showThirdColumn.value = !showThirdColumn.value;
 };
 
-const gridColumns = computed(() => {
-	if (currentId.value == null) {
-		return [showFirstColumn.value ? "340px" : "0px", "1fr"].join(" ");
-	} else {
-		return [
-			showFirstColumn.value ? "340px" : "0px",
-			"1fr",
-			showThirdColumn.value ? "500px" : "0px",
-		].join(" ");
-	}
-});
+const gridColumns = computed(() =>
+	[
+		showFirstColumn.value ? "340px" : "0px",
+		"minmax(0, 1fr)",
+		showThirdColumn.value ? "340px" : "0px",
+	].join(" "),
+);
 
 const currentId = computed(() => {
 	return route.query.selection;
@@ -246,16 +242,15 @@ const kwicTranscriptResults = computed(() => {
 			<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
 		</Button>
 		<Button
-			v-if="currentId"
 			class="fixed z-10 flex items-center border rounded-none rounded-bl-md rounded-tl-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
-			:class="showThirdColumn ? 'right-[531px]' : 'right-0'"
+			:class="showThirdColumn ? 'right-[371px]' : 'right-0'"
 			variant="ghost"
 			@click="toggleThirdColumn"
 		>
 			<ChevronLeft class="size-4" :class="{ 'rotate-180': showThirdColumn }" />
 		</Button>
 		<div
-			class="relative gap-8 flex-grow grid h-full min-h-0 duration-250 items-stretch delay-150 transition-[grid-template-columns] ease-in-out"
+			class="relative gap-10 flex-grow grid grid-cols-1 h-full min-h-0 duration-250 items-stretch delay-150 transition-[grid-template-columns] ease-in-out"
 			:data-selection="currentId != null ? 'true' : undefined"
 			:style="{ gridTemplateColumns: gridColumns }"
 		>
@@ -283,34 +278,6 @@ const kwicTranscriptResults = computed(() => {
 									>({{ searchResponse?.transcripts.length }})</span
 								>
 							</p>
-							<div class="flex justify-end">
-								<Sheet v-model:open="filterOpen">
-									<SheetTrigger><Button> Erweiterte Suche </Button></SheetTrigger>
-									<SheetContent class="h-[50vh] scroll-y-auto max-h-full" side="bottom">
-										<Tabs
-											class="w-full flex flex-col flex-grow min-h-0 overflow-hidden"
-											default-value="plain"
-										>
-											<div class="flex gap-4 mx-10 mt-2 items-center flex-shrink-0">
-												<TabsList class="w-full">
-													<TabsTrigger value="tags"> Tags </TabsTrigger>
-													<TabsTrigger value="word"> Word / Lemma / POS </TabsTrigger>
-													<TabsTrigger value="cql"> CQL </TabsTrigger>
-												</TabsList>
-											</div>
-											<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
-												<TagBuilderGroup @search="filterOpen = false" />
-											</TabsContent>
-											<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
-												<SearchKwic @search="filterOpen = false" />
-											</TabsContent>
-											<TabsContent class="flex-grow overflow-y-auto min-h-0" value="cql">
-												Sample content
-											</TabsContent>
-										</Tabs>
-									</SheetContent>
-								</Sheet>
-							</div>
 						</div>
 						<div
 							v-if="!isPending && transcripts != null && transcripts.length > 0 && !hasKwicSearch"
@@ -377,11 +344,27 @@ const kwicTranscriptResults = computed(() => {
 				</div>
 			</div>
 			<div
-				v-if="currentId != null"
 				class="transition p-4 border border-foreground/20 rounded-b-lg rounded-tr-lg flex flex-col overflow-hidden"
 				:class="{ 'opacity-0 pointer-events-none transition-all': !showThirdColumn }"
 			>
-				<TranscriptDemoSidebar :transcripts="transcripts ?? []" />
+				<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="word">
+					<div class="flex gap-4 items-center flex-shrink-0">
+						<TabsList class="w-full">
+							<TabsTrigger value="tags"> Tags </TabsTrigger>
+							<TabsTrigger value="word"> Word / Lemma / POS </TabsTrigger>
+							<TabsTrigger value="cql"> CQL </TabsTrigger>
+						</TabsList>
+					</div>
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
+						<TagBuilderGroup @search="filterOpen = false" />
+					</TabsContent>
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
+						<SearchKwic @search="filterOpen = false" />
+					</TabsContent>
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="cql">
+						Sample content
+					</TabsContent>
+				</Tabs>
 			</div>
 		</div>
 	</main>

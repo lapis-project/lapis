@@ -53,13 +53,13 @@ watch(
 </script>
 
 <template>
-	<div class="inline-flex items-center">
+	<div class="flex w-full items-start">
 		<div
 			id="hello"
-			class="inline-flex items-center rounded p-1"
+			class="flex w-full flex-col items-start rounded p-1"
 			:style="{ 'background-color': props.colors[props.depth]?.color }"
 		>
-			<div class="inline-flex items-center gap-2">
+			<div class="flex w-full items-center gap-2">
 				<div class="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary text-white text-sm">
 					<span class="pr-4">{{ currentNode?.label }}</span>
 
@@ -82,7 +82,7 @@ watch(
 				</button>
 			</div>
 			<!-- Expand/Load children -->
-			<div v-if="expanded && currentNode != null" class="ml-1">
+			<div v-if="expanded && currentNode != null" class="ml-1 mt-2 w-full">
 				<div v-if="expanded && currentNode">
 					<TagDropZone
 						v-model="currentNode.children"

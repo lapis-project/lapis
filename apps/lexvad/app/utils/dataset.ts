@@ -1,7 +1,7 @@
 import { booleanPointInPolygon, point } from "@turf/turf";
 
-import bundeslaender from "@/assets/data/bundeslaender.json";
-import regions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import bundeslaender from "#layers/ui/app/assets/data/bundeslaender.json";
+import regions from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 
 export interface DataEntry {
 	iddoc: number | string;

@@ -3,6 +3,13 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import {
+	byGroup,
+	byVariant,
+	countEntriesByGroup,
+	groupDisplayLabel,
+	normaliseGroups,
+} from "../../ui/app/utils/variant-groups.ts";
+import {
 	countGroups,
 	countRegions,
 	locatePoint,
@@ -10,7 +17,6 @@ import {
 	regionalDistributions,
 	surveyAnswers,
 } from "../app/utils/map-insights.ts";
-import { normaliseGroups } from "../app/utils/variant-groups.ts";
 
 const groups = normaliseGroups([], ["A", "B", "C"]);
 const answers = [
@@ -95,15 +101,46 @@ test("normalises groups after filtering, ungrouping, and changing phenomena with
 test("locates real Austrian points in both boundary datasets and leaves foreign points unassigned", () => {
 	const regions = JSON.parse(
 		readFileSync(
-			new URL("../app/assets/data/dialektregionen-lexat21-optimized.geojson.json", import.meta.url),
+			new URL(
+				"../../ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json",
+				import.meta.url,
+			),
 		),
 	).features;
 	const states = JSON.parse(
-		readFileSync(new URL("../app/assets/data/bundeslaender.json", import.meta.url)),
+		readFileSync(new URL("../../ui/app/assets/data/bundeslaender.json", import.meta.url)),
 	).features;
 	assert.equal(locatePoint([16.3738, 48.2082], states, "name"), "Wien");
 	assert.equal(locatePoint([11.4041, 47.2692], states, "name"), "Tirol");
 	assert.equal(locatePoint([16.3738, 48.2082], regions, "Dialektregion_Name"), "Ostmittelbairisch");
 	assert.equal(locatePoint([0, 0], regions, "Dialektregion_Name"), undefined);
 	assert.equal(locatePoint([0, 0], states, "name"), undefined);
+});
+
+test("restores groups without ids and counts each location once per group", () => {
+	const restored = normaliseGroups(
+		[{ label: "Together", variants: ["A", "B", "removed"] }, { variants: ["B", "C"] }],
+		["A", "B", "C", "D"],
+	);
+	assert.deepEqual(byGroup(restored, groupDisplayLabel), {
+		"A,B": "Together",
+		C: "C",
+		D: "D",
+	});
+	assert.deepEqual(
+		byVariant(restored, (group) => group.id),
+		{
+			A: "A,B",
+			B: "A,B",
+			C: "C",
+			D: "D",
+		},
+	);
+	assert.deepEqual(
+		countEntriesByGroup(
+			[{ variants: ["A", "A", "B", "C"] }, { variants: ["B"] }, { variants: [] }],
+			restored,
+		),
+		{ "A,B": 2, C: 1 },
+	);
 });

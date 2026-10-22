@@ -10,14 +10,18 @@
 	},
 	"dependencies": {
 		"@acdh-oeaw/lib": "^1.0.6",
+		"@iconify-json/lucide": "^1.2.132",
 		"@lucide/vue": "catalog:",
 		"@vueuse/core": "^14.4.0",
 		"nuxt": "catalog:",
-		"vue": "catalog:"
+		"vue": "catalog:",
+		"vue-i18n": "catalog:",
+		"vuedraggable": "^4.1.0"
 	},
 	"devDependencies": {
 		"@acdh-oeaw/stylelint-config": "^3.0.3",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
+		"@types/geojson": "^7946.0.16",
 		"@types/node": "^25.9.4",
 		"npm-run-all2": "catalog:",
 		"stylelint": "^17.15.0",

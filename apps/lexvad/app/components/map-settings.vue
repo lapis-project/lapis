@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CheckIcon, PaletteIcon, RotateCcwIcon } from "@lucide/vue";
 
-import type { VariantGroup } from "@/composables/use-variant-groups";
+import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import { type ColorPaletteId, colorPalettes } from "@/stores/use-color-store";
 
 const props = defineProps<{

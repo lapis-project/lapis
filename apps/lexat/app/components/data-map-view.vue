@@ -11,8 +11,13 @@ import type {
 	RouteLocationNormalizedLoaded,
 } from "vue-router";
 
-import austriaGeoBoundaries from "@/assets/data/austria-lexat21-optimized.geojson.json";
-import dialectRegions from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import austriaGeoBoundaries from "#layers/ui/app/assets/data/austria-lexat21-optimized.geojson.json";
+import dialectRegions from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import {
+	groupDisplayLabel,
+	normaliseGroups,
+	type VariantGroup,
+} from "#layers/ui/app/utils/variant-groups";
 import {
 	basemapOptions,
 	getRegisterOptions,
@@ -39,7 +44,6 @@ import {
 	matchesDatasetAge,
 	resolveDatasetQuestion,
 } from "@/utils/dataset";
-import { groupDisplayLabel, normaliseGroups, type VariantGroup } from "@/utils/variant-groups";
 import {
 	countUniqueVariants,
 	getSortedVariants,

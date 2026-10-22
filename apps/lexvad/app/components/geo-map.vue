@@ -15,8 +15,8 @@ import { bbox, featureCollection, point, union, voronoi } from "@turf/turf";
 import { Map, setWorkerUrl } from "maplibre-gl";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 
-import bundeslaenderJson from "@/assets/data/bundeslaender.json";
-import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import bundeslaenderJson from "#layers/ui/app/assets/data/bundeslaender.json";
+import regionsJson from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import MapTooltip from "@/components/map-tooltip.vue";
 import { hexagonRadius, type MapMode } from "@/utils/map-mode";
 

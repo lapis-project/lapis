@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import type { VariantGroup } from "@/composables/use-variant-groups";
+import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import { datasetScopedKey } from "@/utils/dataset";
 
 const DEFAULT_REGION_COLOR = "#adb5bd";

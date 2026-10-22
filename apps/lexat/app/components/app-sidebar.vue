@@ -2,8 +2,9 @@
 import { useElementBounding } from "@vueuse/core";
 import type { Feature, MultiPolygon, Polygon } from "geojson";
 
-import statesJson from "@/assets/data/bundeslaender.json";
-import regionsJson from "@/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import statesJson from "#layers/ui/app/assets/data/bundeslaender.json";
+import regionsJson from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import { groupDisplayLabel, type VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import type { SurveyResponse } from "@/types/feature-collection";
 import {
 	countGroups,
@@ -14,7 +15,6 @@ import {
 	regionalDistributions,
 	surveyAnswers,
 } from "@/utils/map-insights";
-import { groupDisplayLabel, type VariantGroup } from "@/utils/variant-groups";
 
 const props = defineProps<{
 	activeQuestion: string;
@@ -244,7 +244,6 @@ const tabItems = computed(() => [
 						<VariantBar
 							v-for="entry in distribution"
 							:key="entry.id"
-							color="#92969a"
 							:secondary="entry.secondary"
 							:value="entry.value"
 						>

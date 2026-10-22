@@ -8,7 +8,8 @@ export function useMapData(
 ) {
 	const { setDefaultColorsForQuestion, resetColorsForQuestion, hasQuestion, getColorForGroup } =
 		useColorStore();
-	const { byVariant, normaliseGroups, groupsForMap } = useVariantGroups();
+	const { byVariant, normaliseGroups } = useVariantGroups();
+	const { groupsForMap } = useVariantGroupStore();
 	const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } =
 		useQuestions(datasetId);
 
@@ -87,7 +88,8 @@ export function restoreMapState(
 	knownVariants: Array<string>,
 	state: MapQueryState,
 ) {
-	const { groupsForMap, normaliseGroups } = useVariantGroups();
+	const { normaliseGroups } = useVariantGroups();
+	const { groupsForMap } = useVariantGroupStore();
 	const known = [...new Set(knownVariants)];
 	groupsForMap(mapId, () => question).value = normaliseGroups(state.groups, known);
 	useColorStore().setCustomColors(

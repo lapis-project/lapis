@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { PlusIcon, UngroupIcon } from "@lucide/vue";
+import { useI18n } from "vue-i18n";
 import Draggable from "vuedraggable";
 
-import type { VariantGroup } from "@/composables/use-variant-groups";
+import { groupDisplayLabel, type VariantGroup } from "../utils/variant-groups";
 
 const props = defineProps<{
 	data: Array<{ id: string; label: string; value: number; secondary?: string }>;
 	variants: Array<{ label: string; abs: number }>;
 	title?: string;
 	colors: Record<string, string>;
+	formatCount?: (count: number) => string;
 }>();
 
 const groups = defineModel<Array<VariantGroup>>("groups", { required: true });
 
-const t = useTranslations();
-const { groupDisplayLabel } = useVariantGroups();
+const { t } = useI18n();
 
 const uid = useId();
 const variantsDragGroup = `grouping-variants-${uid}`;
@@ -31,6 +31,7 @@ const current = computed(() => staged.value ?? groups.value);
 
 watch(groups, () => {
 	staged.value = null;
+	clearDropTarget();
 });
 
 function commit(next: Array<VariantGroup>) {
@@ -111,8 +112,8 @@ function commitRenaming(group: VariantGroup) {
 </script>
 
 <template>
-	<div class="rounded-lg p-3.5 border">
-		<div class="uppercase font-semibold text-muted-foreground text-xs">
+	<div class="rounded-lg p-3.5 border border-default">
+		<div class="uppercase font-semibold text-muted text-xs">
 			{{ title ?? t("VariantGroupingCard.title") }}
 		</div>
 
@@ -133,7 +134,7 @@ function commitRenaming(group: VariantGroup) {
 						v-if="editedGroupId === group.id"
 						ref="labelInput"
 						v-model="editedLabel"
-						class="min-w-0 flex-1 rounded-sm border border-input bg-background px-1"
+						class="min-w-0 flex-1 rounded-sm border border-default bg-default px-1"
 						:placeholder="t('VariantGroupingCard.group-name')"
 						@blur="commitRenaming(group)"
 						@keydown.enter="commitRenaming(group)"
@@ -151,12 +152,12 @@ function commitRenaming(group: VariantGroup) {
 				</template>
 				<template #actions>
 					<button
-						class="text-muted-foreground hover:text-foreground"
+						class="text-muted hover:text-default"
 						:title="t('VariantGroupingCard.ungroup')"
 						type="button"
 						@click="ungroup(group)"
 					>
-						<UngroupIcon class="size-3" />
+						<UIcon name="i-lucide-ungroup" class="size-3" />
 						<span class="sr-only">{{ t("VariantGroupingCard.ungroup") }}</span>
 					</button>
 				</template>
@@ -184,8 +185,11 @@ function commitRenaming(group: VariantGroup) {
 								:style="{ backgroundColor: colors[group.id] }"
 							></span>
 							<span class="truncate">{{ variant }}</span>
-							<span class="ml-auto shrink-0 text-muted-foreground">
-								{{ t("MapsPage.sidebar.places", countByVariant[variant] ?? 0) }}
+							<span class="ml-auto shrink-0 text-muted">
+								{{
+									formatCount?.(countByVariant[variant] ?? 0) ??
+									t("MapsPage.sidebar.answers", countByVariant[variant] ?? 0)
+								}}
 							</span>
 						</div>
 						<VariantBar
@@ -210,9 +214,9 @@ function commitRenaming(group: VariantGroup) {
 		>
 			<span
 				v-if="isDragging"
-				class="pointer-events-none absolute inset-0 flex items-center justify-center gap-1 px-2 text-xs text-muted-foreground"
+				class="pointer-events-none absolute inset-0 flex items-center justify-center gap-1 px-2 text-xs text-muted"
 			>
-				<PlusIcon class="size-3" />
+				<UIcon name="i-lucide-plus" class="size-3" />
 				{{ t("VariantGroupingCard.new-group") }}
 			</span>
 			<Draggable

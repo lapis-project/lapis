@@ -1,6 +1,6 @@
 import type { LocationQuery, LocationQueryRaw } from "vue-router";
 
-import type { VariantGroup } from "@/composables/use-variant-groups";
+import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import { type ColorPaletteId, colorPalettes } from "@/stores/use-color-store";
 import {
 	clampHexagonRadius,

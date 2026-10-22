@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { X } from "@lucide/vue";
 
-import type { VariantGroup } from "@/composables/use-variant-groups";
+import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import { useMapDataset } from "@/stores/use-dataset-store";
 
 const open = defineModel<boolean>("open", { default: false });
@@ -27,7 +27,8 @@ const {
 	getRegionalCooccurrencesForVariant,
 } = useQuestions(datasetId);
 const { getColorForGroup } = useColorStore();
-const { byGroup, groupDisplayLabel, normaliseGroups, groupsForMap } = useVariantGroups();
+const { byGroup, groupDisplayLabel, normaliseGroups } = useVariantGroups();
+const { groupsForMap } = useVariantGroupStore();
 const storedGroups = groupsForMap(props.mapId, () => props.activeQuestion);
 
 const distributionMode = ref<"region" | "bundesland">("region");
@@ -184,6 +185,7 @@ const tabItems = computed(() => [
 						class="w-full"
 						:colors="colors"
 						:data="groupCount"
+						:format-count="(count) => t('MapsPage.sidebar.places', count)"
 						:variants="variantCount"
 					></VariantGroupingCard>
 				</div>

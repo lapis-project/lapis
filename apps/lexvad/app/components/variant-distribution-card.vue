@@ -69,6 +69,7 @@ const mapColor = computed(
 			:data="mapData"
 			:features="mode === 'region' ? regions : states"
 			:name-key="mode === 'region' ? 'Dialektregion_Name' : 'name'"
+			default-fill-color="var(--ui-bg-muted)"
 		></SimpleHeatMap>
 		<div v-for="entry in legendItems" :key="entry.label" class="my-2 text-xs">
 			<div class="my-0.5">

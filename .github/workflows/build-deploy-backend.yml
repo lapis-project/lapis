@@ -6,6 +6,12 @@ concurrency:
   workflow_call: null
   workflow_dispatch: null
 jobs:
+  validate:
+    name: Validate backend
+    uses: ./.github/workflows/validate.yml
+    with:
+      backend_only: true
+    secrets: inherit
   setup_workflow_env:
     runs-on: ubuntu-latest
     outputs:
@@ -85,6 +91,7 @@ jobs:
   build-and-push-image:
     name: Build and push docker image
     needs:
+      - validate
       - setup_workflow_env
       - generate_workflow_vars
     runs-on: ubuntu-latest

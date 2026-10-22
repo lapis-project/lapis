@@ -4,6 +4,13 @@ on:
   pull_request:
     branches:
       - main
+  workflow_call:
+    inputs:
+      backend_only:
+        description: "Run only backend validation checks"
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -14,6 +21,59 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      lexat_e2e: ${{ steps.filter.outputs.lexat_e2e }}
+    steps:
+      - name: Checkout repository
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine affected test suites
+        id: filter
+        env:
+          BACKEND_ONLY: ${{ inputs.backend_only }}
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ "$BACKEND_ONLY" = "true" ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+            echo "lexat_e2e=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+            echo "lexat_e2e=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+            echo "lexat_e2e=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if echo "$CHANGED_FILES" | grep -q '^apps/backend/'; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$CHANGED_FILES" | grep -qv '^apps/backend/'; then
+            echo "lexat_e2e=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "lexat_e2e=false" >> "$GITHUB_OUTPUT"
+          fi
+
   quality:
     name: Repository lint and format
     runs-on: ubuntu-latest
@@ -43,6 +103,7 @@ jobs:
 
   apps:
     name: Check ${{ matrix.app }}
+    if: ${{ !inputs.backend_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -84,8 +145,64 @@ jobs:
       - name: Build
         run: pnpm --filter ./apps/${{ matrix.app }} build
 
+  backend-tests:
+    name: Backend tests
+    needs: [changes]
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ALLOWED_ORIGINS: http://localhost:3000
+      BACKEND_PORT: "5000"
+      IMGPROXY_KEY: 520f986b998545b4785e0defbc4f3c1203f22de2374a3d53cb7a7fe9fea309c5
+      IMGPROXY_SALT: 943b421c9eb07c830af81030552c86009268de4e532ba2ee2eab8247c6da0881
+      PGDATABASE: lapis_dev
+      PGHOST: localhost
+      PGPASSWORD: mysupersecretpassword
+      PGPORT: "54321"
+      PGUSER: lapis_dev
+      S3_ACCESS_KEY: test-access-key
+      S3_BUCKET_NAME: test-bucket
+      S3_ENDPOINT: http://localhost:9000
+      S3_SECRET_ACCESS_KEY: test-secret-key
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Start database
+        run: docker compose --env-file .env.localsetup up -d --wait --wait-timeout 180
+
+      - name: Seed database
+        run:
+          docker compose --env-file .env.localsetup exec -T database sh -c 'psql -v ON_ERROR_STOP=1
+          -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < ./db/backend_test_seed.sql
+
+      - name: Build backend
+        run: pnpm --filter ./apps/backend build
+
+      - name: Run backend tests
+        run: pnpm --filter ./apps/backend test
+
+      - name: Stop services
+        if: always()
+        run: docker compose --env-file .env.localsetup down
+
   lexat-e2e:
     name: LexAT Playwright
+    needs: [changes]
+    if: needs.changes.outputs.lexat_e2e == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: testing
@@ -164,12 +281,20 @@ jobs:
   validate:
     name: Validate
     if: always()
-    needs: [quality, apps, lexat-e2e]
+    needs: [changes, quality, apps, backend-tests, lexat-e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Require all checks to succeed
         env:
+          BACKEND_ONLY: ${{ inputs.backend_only }}
           RESULTS: ${{ toJSON(needs) }}
         run: |
-          echo "$RESULTS" | jq -e 'all(.[]; .result == "success")'
+          echo "$RESULTS" | jq -e --arg backend_only "$BACKEND_ONLY" '
+            .changes.result == "success" and
+            .quality.result == "success" and
+            (.apps.result == "success" or ($backend_only == "true" and .apps.result == "skipped")) and
+            (."backend-tests".result | IN("success", "skipped")) and
+            (."lexat-e2e".result | IN("success", "skipped")) and
+            (."backend-tests".result == "success" or ."lexat-e2e".result == "success")
+          '

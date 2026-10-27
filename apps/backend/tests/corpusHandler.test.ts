@@ -308,17 +308,30 @@ describe("Corpus Handler", () => {
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({
 			transcripts: [{ instance_id: 42 }],
-			kwic: null,
 			matchesByTranscript: {},
-			xml: null,
+			totalHits: 0,
 			transcriptMatchesComplete: true,
-			errors: { kwic: null, xml: null, transcriptMatches: null },
+			errors: { transcriptMatches: null },
 		});
 		expect(searchRequest).not.toHaveBeenCalled();
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
 		expect(getAllTranscripts).toHaveBeenCalledWith(
 			2,
 			expect.objectContaining({ transcript_name: "test" }),
 		);
+	});
+
+	it("rejects /search/:id/hits when no lexical parameter is provided", async () => {
+		const response = await corpus.request("/search/2/hits?transcript_name=test");
+
+		expect(response.status).toBe(400);
+		expect(await response.json()).toEqual({
+			error: "At least one search parameter (word, lemma, pos, feats) is required",
+		});
+		expect(getCorpusSearchMetadata).not.toHaveBeenCalled();
+		expect(getAllTranscripts).not.toHaveBeenCalled();
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
+		expect(searchRequest).not.toHaveBeenCalled();
 	});
 
 	it.each([
@@ -384,29 +397,59 @@ describe("Corpus Handler", () => {
 			postal_code_ranges: austrianStatePostalCodeRanges[7],
 		});
 		expect(requestTranscriptMatches.mock.calls[0]?.[0]).toContain('id="transcript_7"');
+		expect(searchRequest).not.toHaveBeenCalled();
 	});
 
-	it("keeps database-only filters out of CQL", async () => {
+	it("keeps database-only filters out of CQL on both /search/:id and /search/:id/hits", async () => {
 		getAllTranscripts.mockResolvedValue([{ instance_id: 17 }]);
-		const response = await corpus.request(
-			"/search/2?word=Haus&transcript_name=private-name&comment_search=private-comment" +
-				"&comment_search_mode=regex&instance_id=17",
-		);
-		const cql = searchRequest.mock.calls[0]?.[0];
+		const query =
+			"?word=Haus&transcript_name=private-name&comment_search=private-comment" +
+			"&comment_search_mode=regex&instance_id=17";
+		const overviewResponse = await corpus.request(`/search/2${query}`);
+		const overviewCql = requestTranscriptMatches.mock.calls[0]?.[0];
 
-		expect(response.status).toBe(200);
-		expect(cql).not.toContain("private-name");
-		expect(cql).not.toContain("private-comment");
+		expect(overviewResponse.status).toBe(200);
+		expect(overviewCql).not.toContain("private-name");
+		expect(overviewCql).not.toContain("private-comment");
 		expect(getAllTranscripts).toHaveBeenCalledWith(2, {
 			transcript_name: "private-name",
 			comment_search: "private-comment",
 			comment_search_mode: "regex",
 			instance_id: 17,
 		});
+
+		const hitsResponse = await corpus.request(`/search/2/hits${query}`);
+		const hitsCql = searchRequest.mock.calls[0]?.[0];
+
+		expect(hitsResponse.status).toBe(200);
+		expect(hitsCql).toBe(overviewCql);
+		expect(requestTranscriptMatches).toHaveBeenCalledTimes(1);
 	});
 
-	it("returns transcripts, KWIC, and XML with identical NoSketch pagination", async () => {
+	it("returns transcripts and hit counts on /search/:id without requesting KWIC or XML", async () => {
 		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+
+		const response = await corpus.request("/search/2?word=Haus");
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(body).toEqual({
+			transcripts: [{ instance_id: 7 }],
+			matchesByTranscript: {
+				"7": {
+					transcript: { instance_id: 7 },
+					hitCount: 5,
+				},
+			},
+			totalHits: 5,
+			transcriptMatchesComplete: true,
+			errors: { transcriptMatches: null },
+		});
+		expect(requestTranscriptMatches).toHaveBeenCalledTimes(1);
+		expect(searchRequest).not.toHaveBeenCalled();
+	});
+
+	it("returns KWIC and XML with identical NoSketch pagination on /search/:id/hits without requesting frequencies", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			Promise.resolve(
 				format === "xml"
@@ -429,20 +472,17 @@ describe("Corpus Handler", () => {
 		);
 
 		const response = await corpus.request(
-			"/search/2?word=Haus&fromp=3&pagesize=25&refs=doc.id%2Cu.who",
+			"/search/2/hits?word=Haus&fromp=3&pagesize=25&refs=doc.id%2Cu.who",
 		);
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
 		expect(body).toEqual({
-			transcripts: [{ instance_id: 7 }],
 			kwic: {
 				Lines: [{ Refs: ["transcript_7"], Left: [], Kwic: [], Right: [] }],
 			},
 			matchesByTranscript: {
 				"7": {
-					transcript: { instance_id: 7 },
-					hitCount: 5,
 					lines: [{ Refs: ["transcript_7"], Left: [], Kwic: [], Right: [] }],
 					xmlHits: [],
 				},
@@ -452,14 +492,15 @@ describe("Corpus Handler", () => {
 				contentType: "application/xml",
 				filename: "hits.xml",
 			},
-			transcriptMatchesComplete: true,
-			errors: { kwic: null, xml: null, transcriptMatches: null },
+			errors: { kwic: null, xml: null },
 		});
 		expect(SyntaxValidator.validate(body.xml.content)).toBe(true);
 		expect(new XMLParser({ ignoreAttributes: false }).parse(body.xml.content)).toEqual({
 			"?xml": { "@_version": "1.0", "@_encoding": "UTF-8" },
 			concordance: "",
 		});
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
+		expect(getAllTranscripts).not.toHaveBeenCalled();
 		expect(searchRequest).toHaveBeenCalledTimes(2);
 		const [jsonCall, xmlCall] = searchRequest.mock.calls;
 		expect(jsonCall?.slice(0, 5)).toEqual(xmlCall?.slice(0, 5));
@@ -467,7 +508,7 @@ describe("Corpus Handler", () => {
 		expect(xmlCall?.[5]).toBe("xml");
 	});
 
-	it("groups current-page KWIC and XML hits and retains missing database metadata", async () => {
+	it("groups transcript hit counts and retains missing database metadata on /search/:id", async () => {
 		requestTranscriptMatches.mockResolvedValue({
 			data: new Map([
 				[7, 5],
@@ -476,6 +517,31 @@ describe("Corpus Handler", () => {
 			error: null,
 		});
 		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+
+		const response = await corpus.request("/search/2?word=Haus");
+		const body = await response.json();
+
+		expect(response.status).toBe(200);
+		expect(body).toEqual({
+			transcripts: [{ instance_id: 7 }],
+			matchesByTranscript: {
+				"7": {
+					transcript: { instance_id: 7 },
+					hitCount: 5,
+				},
+				"8": {
+					transcript: null,
+					hitCount: 2,
+				},
+			},
+			totalHits: 7,
+			transcriptMatchesComplete: true,
+			errors: { transcriptMatches: null },
+		});
+		expect(searchRequest).not.toHaveBeenCalled();
+	});
+
+	it("groups current-page KWIC and XML hits on /search/:id/hits", async () => {
 		const firstXmlHit =
 			'<line refs="doc.id=transcript_7,u.who=spk_1" num="0"><kwic>Haus</kwic></line>';
 		const secondXmlHit =
@@ -498,14 +564,13 @@ describe("Corpus Handler", () => {
 			),
 		);
 
-		const response = await corpus.request("/search/2?word=Haus&refs=u.who");
+		const response = await corpus.request("/search/2/hits?word=Haus&refs=u.who");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
 		expect(body.matchesByTranscript).toEqual({
 			"7": {
-				transcript: { instance_id: 7 },
-				hitCount: 5,
 				lines: [
 					{ toknum: 1, Refs: ["transcript_7"] },
 					{ toknum: 2, Tbl_refs: ['<a href="#transcript_7">hit</a>'] },
@@ -530,8 +595,6 @@ describe("Corpus Handler", () => {
 				],
 			},
 			"8": {
-				transcript: null,
-				hitCount: 2,
 				lines: [{ toknum: 3, Refs: ["transcript_8"] }],
 				xmlHits: [
 					{
@@ -622,11 +685,11 @@ describe("Corpus Handler", () => {
 			locations: [{ id: 9, place_name: "Wien" }],
 		});
 
-		const response = await corpus.request(
-			"/search/2?lemma=gehen&projects=3&settings=7&locations=9&gender=m%C3%A4nnlich" +
-				"&age_lower=18&age_upper=35&dialect_competence=-1&standard_competence=0",
-		);
-		const cql = searchRequest.mock.calls[0]?.[0] as string;
+		const query =
+			"?lemma=gehen&projects=3&settings=7&locations=9&gender=m%C3%A4nnlich" +
+			"&age_lower=18&age_upper=35&dialect_competence=-1&standard_competence=0";
+		const response = await corpus.request(`/search/2${query}`);
+		const cql = requestTranscriptMatches.mock.calls[0]?.[0] as string;
 
 		expect(response.status).toBe(200);
 		expect(cql).toContain('subproject="PP01"');
@@ -637,6 +700,10 @@ describe("Corpus Handler", () => {
 		expect(cql).toContain('age_upper <= "35"');
 		expect(cql).toContain('dialect_competence="UNK"');
 		expect(cql).toContain('standard_competence="0"');
+
+		const hitsResponse = await corpus.request(`/search/2/hits${query}`);
+		expect(hitsResponse.status).toBe(200);
+		expect(searchRequest.mock.calls[0]?.[0]).toBe(cql);
 	});
 
 	it("scopes a child route to its PP project while root project 2 stays unscoped", async () => {
@@ -649,13 +716,13 @@ describe("Corpus Handler", () => {
 
 		const childResponse = await corpus.request("/search/3?word=Haus");
 		expect(childResponse.status).toBe(200);
-		expect(searchRequest.mock.calls[0]?.[0]).toContain('subproject="PP01"');
+		expect(requestTranscriptMatches.mock.calls[0]?.[0]).toContain('subproject="PP01"');
 
-		searchRequest.mockClear();
+		requestTranscriptMatches.mockClear();
 		getAllTranscripts.mockClear();
 		const rootResponse = await corpus.request("/search/2?word=Haus&projects=2");
 		expect(rootResponse.status).toBe(200);
-		expect(searchRequest.mock.calls[0]?.[0]).not.toContain("subproject");
+		expect(requestTranscriptMatches.mock.calls[0]?.[0]).not.toContain("subproject");
 		expect(getAllTranscripts).toHaveBeenCalledWith(2, {});
 	});
 
@@ -701,6 +768,7 @@ describe("Corpus Handler", () => {
 
 		expect(response.status).toBe(400);
 		expect(searchRequest).not.toHaveBeenCalled();
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
 		expect(getAllTranscripts).not.toHaveBeenCalled();
 	});
 
@@ -711,11 +779,12 @@ describe("Corpus Handler", () => {
 
 			expect(response.status).toBe(400);
 			expect(searchRequest).not.toHaveBeenCalled();
+			expect(requestTranscriptMatches).not.toHaveBeenCalled();
 			expect(getAllTranscripts).not.toHaveBeenCalled();
 		},
 	);
 
-	it("keeps XML when the JSON upstream fails", async () => {
+	it("keeps XML when the JSON upstream fails on /search/:id/hits", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			Promise.resolve(
 				format === "json"
@@ -724,7 +793,7 @@ describe("Corpus Handler", () => {
 			),
 		);
 
-		const response = await corpus.request("/search/2?word=Haus");
+		const response = await corpus.request("/search/2/hits?word=Haus");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
@@ -734,14 +803,14 @@ describe("Corpus Handler", () => {
 		expect(body.errors.xml).toBeNull();
 	});
 
-	it("keeps JSON when XML has a network failure", async () => {
+	it("keeps JSON when XML has a network failure on /search/:id/hits", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			format === "xml"
 				? Promise.reject(new Error("network down"))
 				: Promise.resolve(new Response(JSON.stringify({ Lines: [] }))),
 		);
 
-		const response = await corpus.request("/search/2?word=Haus");
+		const response = await corpus.request("/search/2/hits?word=Haus");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
@@ -750,7 +819,7 @@ describe("Corpus Handler", () => {
 		expect(body.errors.xml).toEqual({ status: null, message: "network down" });
 	});
 
-	it("keeps JSON when the XML upstream returns an HTTP error", async () => {
+	it("keeps JSON when the XML upstream returns an HTTP error on /search/:id/hits", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			Promise.resolve(
 				format === "xml"
@@ -759,7 +828,7 @@ describe("Corpus Handler", () => {
 			),
 		);
 
-		const response = await corpus.request("/search/2?word=Haus");
+		const response = await corpus.request("/search/2/hits?word=Haus");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
@@ -768,14 +837,14 @@ describe("Corpus Handler", () => {
 		expect(body.errors.xml).toEqual({ status: 502, message: "Bad Gateway" });
 	});
 
-	it("keeps XML when JSON has a network failure", async () => {
+	it("keeps XML when JSON has a network failure on /search/:id/hits", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			format === "json"
 				? Promise.reject(new Error("JSON network down"))
 				: Promise.resolve(new Response("<ok />")),
 		);
 
-		const response = await corpus.request("/search/2?word=Haus");
+		const response = await corpus.request("/search/2/hits?word=Haus");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
@@ -784,12 +853,12 @@ describe("Corpus Handler", () => {
 		expect(body.errors.kwic).toEqual({ status: null, message: "JSON network down" });
 	});
 
-	it("reports malformed JSON independently", async () => {
+	it("reports malformed JSON independently on /search/:id/hits", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			Promise.resolve(format === "json" ? new Response("not-json") : new Response("<ok />")),
 		);
 
-		const response = await corpus.request("/search/2?word=Haus");
+		const response = await corpus.request("/search/2/hits?word=Haus");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
@@ -798,27 +867,30 @@ describe("Corpus Handler", () => {
 		expect(body.errors.kwic.status).toBeNull();
 	});
 
-	it("reports malformed XML independently and keeps KWIC", async () => {
+	it("reports malformed XML independently and keeps KWIC on /search/:id/hits", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			Promise.resolve(
 				format === "xml"
 					? new Response("<export><concordance>")
-					: new Response(JSON.stringify({ Lines: [] })),
+					: new Response(JSON.stringify({ Lines: [{ Refs: ["transcript_7"] }] })),
 			),
 		);
 
-		const response = await corpus.request("/search/2?word=Haus");
+		const response = await corpus.request("/search/2/hits?word=Haus");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
-		expect(body.kwic).toEqual({ Lines: [] });
+		expect(body.kwic).toEqual({ Lines: [{ Refs: ["transcript_7"] }] });
 		expect(body.xml).toBeNull();
-		expect(body.matchesByTranscript["7"].hitCount).toBe(5);
+		expect(body.matchesByTranscript["7"]).toEqual({
+			lines: [{ Refs: ["transcript_7"] }],
+			xmlHits: [],
+		});
 		expect(body.errors.xml.status).toBeNull();
 		expect(body.errors.xml.message).toContain("Invalid NoSketch XML");
 	});
 
-	it("starts all NoSketch requests before fetching lexical-only transcripts", async () => {
+	it("requests transcript matches before fetching lexical-only transcripts on /search/:id", async () => {
 		let resolveMatches!: (value: TranscriptMatchesResult) => void;
 		requestTranscriptMatches.mockImplementationOnce(
 			() =>
@@ -827,8 +899,8 @@ describe("Corpus Handler", () => {
 				}),
 		);
 		const responsePromise = corpus.request("/search/2?word=Haus");
-		await vi.waitFor(() => expect(searchRequest).toHaveBeenCalledTimes(2));
-		expect(requestTranscriptMatches).toHaveBeenCalledTimes(1);
+		await vi.waitFor(() => expect(requestTranscriptMatches).toHaveBeenCalledTimes(1));
+		expect(searchRequest).not.toHaveBeenCalled();
 		expect(getAllTranscripts).not.toHaveBeenCalled();
 		resolveMatches({
 			data: new Map([
@@ -837,11 +909,13 @@ describe("Corpus Handler", () => {
 			]),
 			error: null,
 		});
-		expect((await responsePromise).status).toBe(200);
+		const response = await responsePromise;
+		expect(response.status).toBe(200);
+		expect((await response.json()).totalHits).toBe(7);
 		expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [7, 8] });
 	});
 
-	it("waits for database candidates and intersects their IDs with the transcript selection", async () => {
+	it("waits for database candidates and intersects their IDs with the transcript selection on /search/:id and /search/:id/hits", async () => {
 		let resolveTranscripts!: (value: Array<{ instance_id: number }>) => void;
 		getAllTranscripts.mockImplementationOnce(
 			() =>
@@ -861,51 +935,64 @@ describe("Corpus Handler", () => {
 		expect((await response.json()).transcripts).toEqual([{ instance_id: 7 }]);
 		const cql = requestTranscriptMatches.mock.calls[0]?.[0];
 		expect(cql).toContain('id="transcript_7|transcript_9"');
-		for (const call of searchRequest.mock.calls) expect(call[0]).toBe(cql);
 		expect(getAllTranscripts).toHaveBeenCalledTimes(1);
+
+		getAllTranscripts.mockResolvedValueOnce([
+			{ instance_id: 7 },
+			{ instance_id: 8 },
+			{ instance_id: 9 },
+		]);
+		const hitsResponse = await corpus.request(
+			"/search/2/hits?word=Haus&transcript_name=test&transcript_ids=7&transcript_ids=9",
+		);
+		expect(hitsResponse.status).toBe(200);
+		for (const call of searchRequest.mock.calls) {
+			expect(call[0]).toBe(cql);
+		}
 	});
 
-	it.each(["1", "2", "999"])(
-		"returns the full transcript set on concordance page %s",
-		async (page) => {
-			getAllTranscripts.mockResolvedValue([{ instance_id: 7 }, { instance_id: 8 }]);
-			requestTranscriptMatches.mockResolvedValue({
-				data: new Map([
-					[7, 16],
-					[8, 3],
-					[9, 1],
-				]),
-				error: null,
-			});
-			searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
-				Promise.resolve(
-					new Response(
-						format === "xml" ? "<export><concordance /></export>" : JSON.stringify({ Lines: [] }),
-					),
-				),
-			);
-			const response = await corpus.request(`/search/2?word=Haus&fromp=${page}&pagesize=1`);
-			const body = await response.json();
-			expect(body.transcripts).toEqual([{ instance_id: 7 }, { instance_id: 8 }]);
-			expect(body.matchesByTranscript).toEqual({
-				"7": { transcript: { instance_id: 7 }, hitCount: 16, lines: [], xmlHits: [] },
-				"8": { transcript: { instance_id: 8 }, hitCount: 3, lines: [], xmlHits: [] },
-				"9": { transcript: null, hitCount: 1, lines: [], xmlHits: [] },
-			});
-			expect(body.transcriptMatchesComplete).toBe(true);
-			expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [7, 8, 9] });
-		},
-	);
+	it("returns the full transcript set and totalHits on /search/:id", async () => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }, { instance_id: 8 }]);
+		requestTranscriptMatches.mockResolvedValue({
+			data: new Map([
+				[7, 16],
+				[8, 3],
+				[9, 1],
+			]),
+			error: null,
+		});
+		const response = await corpus.request("/search/2?word=Haus");
+		const body = await response.json();
+		expect(body.transcripts).toEqual([{ instance_id: 7 }, { instance_id: 8 }]);
+		expect(body.matchesByTranscript).toEqual({
+			"7": { transcript: { instance_id: 7 }, hitCount: 16 },
+			"8": { transcript: { instance_id: 8 }, hitCount: 3 },
+			"9": { transcript: null, hitCount: 1 },
+		});
+		expect(body.totalHits).toBe(20);
+		expect(body.transcriptMatchesComplete).toBe(true);
+		expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [7, 8, 9] });
+		expect(searchRequest).not.toHaveBeenCalled();
+	});
 
-	it("skips every NoSketch request when the database has no candidates", async () => {
-		const response = await corpus.request("/search/2?word=Haus&instance_id=17");
-		expect(await response.json()).toEqual({
+	it("skips every NoSketch request when the database has no candidates on /search/:id and /search/:id/hits", async () => {
+		const overviewResponse = await corpus.request("/search/2?word=Haus&instance_id=17");
+		expect(await overviewResponse.json()).toEqual({
 			transcripts: [],
+			matchesByTranscript: {},
+			totalHits: 0,
+			transcriptMatchesComplete: true,
+			errors: { transcriptMatches: null },
+		});
+		expect(searchRequest).not.toHaveBeenCalled();
+		expect(requestTranscriptMatches).not.toHaveBeenCalled();
+
+		const hitsResponse = await corpus.request("/search/2/hits?word=Haus&instance_id=17");
+		expect(await hitsResponse.json()).toEqual({
 			kwic: null,
 			xml: null,
 			matchesByTranscript: {},
-			transcriptMatchesComplete: true,
-			errors: { kwic: null, xml: null, transcriptMatches: null },
+			errors: { kwic: null, xml: null },
 		});
 		expect(searchRequest).not.toHaveBeenCalled();
 		expect(requestTranscriptMatches).not.toHaveBeenCalled();
@@ -917,34 +1004,31 @@ describe("Corpus Handler", () => {
 		const body = await response.json();
 		expect(body.transcripts).toEqual([]);
 		expect(body.matchesByTranscript).toEqual({});
+		expect(body.totalHits).toBe(0);
 		expect(body.transcriptMatchesComplete).toBe(true);
 		expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [] });
 	});
 
 	it.each(["", "&transcript_name=test"])(
-		"falls back to both page sources on frequency failure (%s)",
+		"returns empty transcripts and null totalHits on frequency failure (%s)",
 		async (filters) => {
 			const error = { status: 503, message: "Frequency unavailable" };
 			requestTranscriptMatches.mockResolvedValue({ data: null, error });
 			getAllTranscripts.mockResolvedValue([{ instance_id: 7 }, { instance_id: 8 }]);
-			searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
-				Promise.resolve(
-					new Response(
-						format === "xml"
-							? '<export><concordance><line refs="transcript_8"><kwic>Haus</kwic></line></concordance></export>'
-							: JSON.stringify({ Lines: [{ Refs: ["transcript_7"] }] }),
-					),
-				),
-			);
 			const response = await corpus.request(`/search/2?word=Haus${filters}`);
 			const body = await response.json();
 			expect(response.status).toBe(200);
-			expect(body.transcriptMatchesComplete).toBe(false);
-			expect(body.errors).toEqual({ kwic: null, xml: null, transcriptMatches: error });
-			expect(body.transcripts).toEqual([{ instance_id: 7 }, { instance_id: 8 }]);
-			expect(body.matchesByTranscript["7"].hitCount).toBeNull();
-			expect(body.matchesByTranscript["8"].hitCount).toBeNull();
-			if (!filters) expect(getAllTranscripts).toHaveBeenCalledWith(2, { transcripts: [7, 8] });
+			expect(body).toEqual({
+				transcripts: [],
+				matchesByTranscript: {},
+				totalHits: null,
+				transcriptMatchesComplete: false,
+				errors: { transcriptMatches: error },
+			});
+			expect(searchRequest).not.toHaveBeenCalled();
+			if (!filters) {
+				expect(getAllTranscripts).not.toHaveBeenCalled();
+			}
 		},
 	);
 
@@ -980,8 +1064,7 @@ describe("Corpus Handler", () => {
 		expect(response.status).toBe(500);
 	});
 
-	it("clears Left with opening tags and Right with closing tags when searching for XXX", async () => {
-		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+	it("clears Left with opening tags and Right with closing tags when searching for XXX on /search/:id/hits", async () => {
 		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
 			Promise.resolve(
 				format === "xml"
@@ -1020,7 +1103,7 @@ describe("Corpus Handler", () => {
 			),
 		);
 
-		const response = await corpus.request("/search/2?word=XXX");
+		const response = await corpus.request("/search/2/hits?word=XXX");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
@@ -1052,35 +1135,36 @@ describe("Corpus Handler", () => {
 		["<u>", "</u>", false],
 		["<document>", "</document>", false],
 		["<docx>", "</docx>", false],
-	])("handles XXX context tags %s and %s", async (opening, closing, clearsContext) => {
-		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
-		const rawLines = ["str", "strc"].map((field) => ({
-			Refs: ["transcript_7"],
-			Left: [{ [field]: opening }, { str: "before" }],
-			Kwic: [{ str: "XXX", coll: 1 }],
-			Right: [{ str: "after" }, { [field]: closing }],
-		}));
-		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
-			Promise.resolve(
-				format === "xml"
-					? new Response("<export><concordance /></export>")
-					: new Response(JSON.stringify({ Lines: rawLines })),
-			),
-		);
+	])(
+		"handles XXX context tags %s and %s on /search/:id/hits",
+		async (opening, closing, clearsContext) => {
+			const rawLines = ["str", "strc"].map((field) => ({
+				Refs: ["transcript_7"],
+				Left: [{ [field]: opening }, { str: "before" }],
+				Kwic: [{ str: "XXX", coll: 1 }],
+				Right: [{ str: "after" }, { [field]: closing }],
+			}));
+			searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+				Promise.resolve(
+					format === "xml"
+						? new Response("<export><concordance /></export>")
+						: new Response(JSON.stringify({ Lines: rawLines })),
+				),
+			);
 
-		const response = await corpus.request("/search/2?word=XXX");
-		const body = await response.json();
-		const expectedLines = clearsContext
-			? rawLines.map((line) => ({ ...line, Left: [], Right: [] }))
-			: rawLines;
+			const response = await corpus.request("/search/2/hits?word=XXX");
+			const body = await response.json();
+			const expectedLines = clearsContext
+				? rawLines.map((line) => ({ ...line, Left: [], Right: [] }))
+				: rawLines;
 
-		expect(response.status).toBe(200);
-		expect(body.kwic.Lines).toEqual(expectedLines);
-		expect(body.matchesByTranscript["7"].lines).toEqual(expectedLines);
-	});
+			expect(response.status).toBe(200);
+			expect(body.kwic.Lines).toEqual(expectedLines);
+			expect(body.matchesByTranscript["7"].lines).toEqual(expectedLines);
+		},
+	);
 
-	it("preserves Left and Right tags when searching for terms other than XXX", async () => {
-		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+	it("preserves Left and Right tags when searching for terms other than XXX on /search/:id/hits", async () => {
 		const rawLines = [
 			{
 				toknum: 1,
@@ -1098,7 +1182,7 @@ describe("Corpus Handler", () => {
 			),
 		);
 
-		const response = await corpus.request("/search/2?word=Nordwind");
+		const response = await corpus.request("/search/2/hits?word=Nordwind");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);
@@ -1106,12 +1190,7 @@ describe("Corpus Handler", () => {
 		expect(body.matchesByTranscript["7"].lines).toEqual(rawLines);
 	});
 
-	it("transforms NoSketch concordance XML lines into TEI resultLine format", async () => {
-		requestTranscriptMatches.mockResolvedValue({
-			data: new Map([[1, 1]]),
-			error: null,
-		});
-		getAllTranscripts.mockResolvedValue([{ instance_id: 1 }]);
+	it("transforms NoSketch concordance XML lines into TEI resultLine format on /search/:id/hits", async () => {
 		const sourceLine = [
 			'<line refs="doc.id=transcript_1,doc.title====NONE===,doc.erhebung=Interview_PP0308,doc.erhebungsart=Interview,doc.name=0030_NECK_alt_f_INT,file.id=1.xml,u.who=spk_11,u.sex=female,u.age=Alt (65+),u.name=Informant 0030,u.start=0:05:50.885000,u.end=0:05:51.672000,u.subproject=UNK,u.dialect_competence=UNK,u.standard_competence=UNK,u.location=Neckenmarkt, Bezirk Oberpullendorf, Burgenland, 7311, Österreich,u.lat=47.599776,u.lon=16.5483316" num="0" label="_">',
 			"    <left>. ich konnte nicht in die in mhm . Hauptschule</left>",
@@ -1182,7 +1261,7 @@ describe("Corpus Handler", () => {
 			),
 		);
 
-		const response = await corpus.request("/search/2?word=gehen");
+		const response = await corpus.request("/search/2/hits?word=gehen");
 		const body = await response.json();
 
 		expect(response.status).toBe(200);

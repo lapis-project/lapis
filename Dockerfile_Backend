@@ -4,16 +4,15 @@
 # @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
 
 # base setup
-FROM node:24.19-alpine AS base
+FROM node:26.12.1-alpine AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 # avoid any prompts
 ENV CI=true
 
-ENV COREPACK_INTEGRITY_KEYS='{"npm":[{"expires":"2025-01-29T00:00:00.000Z","keyid":"SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1Olb3zMAFFxXKHiIkQO5cJ3Yhl5i6UPp+IhuteBJbuHcA5UogKo0EWtlWwW6KSaKoTNEYL7JlCQiVnkhBktUgg=="},{"expires":null,"keyid":"SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U","keytype":"ecdsa-sha2-nistp256","scheme":"ecdsa-sha2-nistp256","key":"MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEY6Ya7W++7aUPzvMTrezH6Ycx3c+HOKYCcNGybJZSCJq/fd7Qa8uuAKtdIkUQtQiEKERhAmE5lMMJhP8OkDOa2g=="}]}'
-
-RUN corepack enable
+# Node 26 does not bundle Corepack; install the version pinned in package.json.
+RUN npm install --global pnpm@12.14.0
 
 # build
 FROM base AS build
@@ -27,7 +26,8 @@ RUN pnpm fetch
 
 COPY --chown=node:node ./apps/backend ./apps/backend
 WORKDIR /app/apps/backend
-RUN pnpm install --frozen-lockfile --offline
+# Use the Alpine image's Node binary instead of downloading another runtime.
+RUN pnpm install --frozen-lockfile --no-runtime --offline
 RUN pnpm run build
 
 # serve

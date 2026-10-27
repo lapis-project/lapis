@@ -6,9 +6,8 @@ For details on the project's architecture, see [Architecture](architecture.md).
 
 ## Requirements
 
-- `Node` >=24.19
-- `pnpm` >=11.25 (can be enabled through [corepack](https://pnpm.io/installation#using-corepack) via
-  `corepack enable pnpm`)
+- `Node` 26.12.1 (pinned in `.nvmrc` and `package.json`; CI uses `.nvmrc`)
+- `pnpm` 12.14.0 (pinned in `package.json`; install via `npm install --global pnpm@12.14.0`)
 - [docker](https://docs.docker.com/engine/install/ubuntu/) (for local development)
 - Optional: [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) for node
   version management
@@ -16,10 +15,17 @@ For details on the project's architecture, see [Architecture](architecture.md).
 ## Quick Start
 
 1. Clone the repository
-2. Install dependencies in the project root via `pnpm i`
-3. Build all shared nuxt layers via `Tasks: Run Task` > `Build Nuxt Layers`
-4. Setup a PostgreSQL container via `Tasks: Run Task` > `Start DB Container`
-5. Seed the DB via `Tasks: Run Task` > `Seed DB`
+2. Use Node 26.12.1 (`nvm install` and `nvm use` if using nvm) and install pnpm as above
+3. Install dependencies in the project root via `pnpm i`
+4. Build all shared nuxt layers via `Tasks: Run Task` > `Build Nuxt Layers`
+5. Setup a PostgreSQL container via `Tasks: Run Task` > `Start DB Container`
+6. Seed the DB via `Tasks: Run Task` > `Seed DB`
+
+Node 26 does not bundle Corepack. The Dockerfiles install pnpm explicitly and use `--no-runtime` to
+retain the Alpine image's pinned Node binary. Locally, `pnpm install` installs the Node runtime
+pinned in `package.json` for workspace scripts. After changing Node versions, run `pnpm install`
+followed by `pnpm rebuild better-sqlite3` to rebuild native SQLite bindings for the selected
+runtime.
 
 Hint: VSCode tasks can be run by opening the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P` on
 macOS).

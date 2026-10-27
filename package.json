@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@acdh-oeaw/commitlint-config": "^3.0.0",
 		"@commitlint/cli": "^21.2.2",
-		"@types/node": "^25.9.4",
+		"@types/node": "^26.6.5",
 		"lefthook": "catalog:",
 		"node-gyp": "^12.4.0",
 		"npm-run-all2": "^9.0.3",
@@ -68,14 +68,15 @@
 	"devEngines": {
 		"runtime": {
 			"name": "node",
-			"version": ">=24.19.0",
+			"version": "26.12.1",
 			"onFail": "download"
 		}
 	},
 	"engines": {
+		"node": "^26.12.1",
 		"runtime": {
 			"name": "node",
-			"version": "^24.19.0",
+			"version": "26.12.1",
 			"onFail": "download"
 		}
 	},

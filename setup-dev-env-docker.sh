@@ -7,7 +7,7 @@
 # Check if pnpm exists on the machine
 if ! [ -x "$(command -v pnpm)" ]; then
 		echo "pnpm could not be found, please install pnpm before running this script"
-		echo "for example with corepack enable or npm install -g pnpm"
+		echo "for example with npm install --global pnpm@12.14.0"
 		exit 1
 fi
 

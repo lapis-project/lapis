@@ -4,10 +4,10 @@
 # @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
 
 # ---- Build Stage ----
-FROM node:24.19-alpine AS build
+FROM node:26.12.1-alpine AS build
 
-# Enable pnpm via Corepack, Node's built-in package manager handler
-RUN corepack enable
+# Node 26 does not bundle Corepack; install the version pinned in package.json.
+RUN npm install --global pnpm@12.14.0
 
 # Create and set up a non-root user and working directory for security
 RUN mkdir /app && chown -R node:node /app
@@ -25,10 +25,10 @@ COPY --chown=node:node apps/lexat/package.json ./apps/lexat/
 COPY --chown=node:node apps/wboe/package.json ./apps/wboe/
 COPY --chown=node:node apps/ui/package.json ./apps/ui/
 
-# Install all dependencies for the entire workspace.
+# Install workspace dependencies using the Alpine image's pinned Node binary.
 # This is critical to ensure that layers (`ui`) and other dependencies are available when building the `lexat` app.
 # The --mount flag uses Docker's build cache to speed up subsequent builds, targeting the pnpm store location for the 'node' user.
-RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/home/node/.local/share/pnpm/store pnpm install --frozen-lockfile --no-runtime
 
 # Now, copy the rest of the source code
 COPY --chown=node:node . .
@@ -57,7 +57,7 @@ RUN echo "Cache Bust V1" && pnpm run -F wboe build
 
 # ---- Serve Stage ----
 # This is the final, minimal image that will run in production.
-FROM node:24.19-alpine AS serve
+FROM node:26.12.1-alpine AS serve
 
 # Create and set up the same non-root user and working directory
 RUN mkdir /app && chown -R node:node /app

@@ -171,6 +171,7 @@ describe("Corpus concordance transport", () => {
 				pagesize: "25",
 				viewmode: "kwic",
 				fromp: "3",
+				structs: "doc,doc.id",
 				refs: "doc.id,u.who",
 			});
 		},

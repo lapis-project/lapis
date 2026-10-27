@@ -9,6 +9,7 @@ import type { SurveyResponse } from "@/types/feature-collection";
 import {
 	countGroups,
 	countRegions,
+	countRegisters,
 	type DistributionMode,
 	locatePoint,
 	regionalCooccurrences,
@@ -79,6 +80,16 @@ const variantCount = computed(() => {
 		counts.set(answer.annotation, (counts.get(answer.annotation) ?? 0) + 1);
 	return [...counts].map(([label, abs]) => ({ label, abs }));
 });
+const registerCount = computed(() =>
+	Object.entries(countRegisters(answers.value))
+		.map(([register, abs]) => ({
+			id: register,
+			label: register || t("RegisterGroupingCard.unspecified"),
+			value: answers.value.length > 0 ? abs / answers.value.length : 0,
+			secondary: t("MapsPage.sidebar.answers", abs),
+		}))
+		.toSorted((a, b) => b.value - a.value),
+);
 
 const selectedGroupId = ref("");
 watch(
@@ -209,6 +220,7 @@ const tabItems = computed(() => [
 						:data="groupCount"
 						:variants="variantCount"
 					/>
+					<RegisterGroupingCard :data="registerCount" />
 				</div>
 			</template>
 			<template #region>

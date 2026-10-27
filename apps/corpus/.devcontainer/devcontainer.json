@@ -1,6 +1,12 @@
 {
 	"name": "Nuxt",
 	"image": "ghcr.io/acdh-oeaw/devcontainer-frontend:20",
+	"features": {
+		"ghcr.io/devcontainers/features/node:2": {
+			"version": "26.12.1",
+			"pnpmVersion": "12.14.0"
+		}
+	},
 	"customizations": {
 		"vscode": {
 			"extensions": [

@@ -10,5 +10,5 @@ export default defineConfig({
 	minify: false,
 	sourcemap: false,
 	treeshake: true,
-	target: "node20",
+	target: "node26",
 });

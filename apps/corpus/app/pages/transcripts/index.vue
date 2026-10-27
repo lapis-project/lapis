@@ -21,6 +21,8 @@ const router = useRouter();
 
 const filterOpen = ref(false);
 
+const currentSearchParams = ref<SearchParams | null>(null);
+
 const bookmarkedIds = ref<Array<string>>([]);
 
 const { response: searchResponse, search, status, isPending } = useSearch(2);
@@ -204,6 +206,7 @@ watch(
 
 		if (hasSearchFilters) {
 			await search(filters);
+			currentSearchParams.value = filters;
 		}
 	},
 	{
@@ -279,17 +282,17 @@ const kwicTranscriptResults = computed(() => {
 								>
 							</p>
 						</div>
-						<div
-							v-if="!isPending && transcripts != null && transcripts.length > 0 && !hasKwicSearch"
-							class="w-full"
-						>
-							<PlainTranscriptResults
+						<div v-if="!isPending && transcripts != null && transcripts.length > 0" class="w-full">
+							<TranscriptResults
 								:transcripts="displayTranscripts"
+								:transcript-hit-counts="matchesByTranscript ?? {}"
+								:has-kwic-search="hasKwicSearch"
+								:current-search-params="currentSearchParams"
 								@select="handleSelection"
 								@bookmark="handleBookmark"
 							/>
 						</div>
-						<div
+						<!-- <div
 							v-else-if="
 								!isPending && transcripts != null && transcripts.length > 0 && hasKwicSearch
 							"
@@ -302,45 +305,12 @@ const kwicTranscriptResults = computed(() => {
 								@select="handleSelection"
 								@bookmark="handleBookmark"
 							/>
-						</div>
+						</div> -->
 
 						<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
 							Keine Ergebnisse vorhanden.
 						</div>
 					</div>
-				</div>
-				<div
-					v-if="hasKwicSearch"
-					class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4"
-				>
-					<Pagination
-						v-model:page="currentPage"
-						:items-per-page="limit"
-						:total="kwic?.concsize"
-						:sibling-count="1"
-						:show-edges="true"
-						class="flex items-center gap-1"
-					>
-						<PaginationContent v-slot="{ items }">
-							<PaginationPrevious />
-
-							<template v-for="(item, i) in items" :key="i">
-								<PaginationEllipsis v-if="item.type === 'ellipsis'" />
-
-								<PaginationItem v-else-if="item.type === 'page'" :value="item.value" as-child>
-									<Button
-										class="size-9 p-0"
-										:variant="item.value === currentPage ? 'default' : 'outline'"
-										@click="currentPage = item.value"
-									>
-										{{ item.value }}
-									</Button>
-								</PaginationItem>
-							</template>
-
-							<PaginationNext />
-						</PaginationContent>
-					</Pagination>
 				</div>
 			</div>
 			<div

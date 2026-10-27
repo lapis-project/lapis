@@ -1,119 +1,95 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import bibliography from "@/handler/bibHandler.ts";
+const repo = vi.hoisted(() => ({
+	getPaginatedBibliography: vi.fn(),
+	getSingleBibliographyEntry: vi.fn(),
+}));
+vi.mock("@/db/bibRepository.ts", () => repo);
 
-import * as bibRepo from "../src/db/bibRepository.ts";
-import { db } from "../src/db/connect.ts";
+const { default: bibliography } = await import("@/handler/bibHandler.ts");
+const entry = {
+	id: 1,
+	name_bibliography: "TEST_BIB_1",
+	title: "Test book",
+	data: { itemType: "book" },
+};
 
-const MOCK_KEYS = ["TEST_BIB_1", "TEST_BIB_2", "TEST_BIB_3"];
-
-const mockEntries = [
-	{
-		name_bibliography: MOCK_KEYS[0],
-		title: "Test Book 1",
-		data: JSON.stringify({ itemType: "book" }),
-	},
-	{
-		name_bibliography: MOCK_KEYS[1],
-		title: "Test Article 2",
-		data: JSON.stringify({ itemType: "journalArticle" }),
-	},
-	{
-		name_bibliography: MOCK_KEYS[2],
-		title: "Test Thesis 3",
-		data: JSON.stringify({ itemType: "thesis" }),
-	},
-];
-
-describe("Bibliography Handler", () => {
-	// Setup: Insert mock data before running any tests in this block
-	beforeAll(async () => {
-		await db
-			.insertInto("bibliography")
-			.values(mockEntries)
-			.onConflict((oc) => oc.column("name_bibliography").doNothing())
-			.execute();
+describe("Bibliography handler", () => {
+	beforeEach(() => {
+		vi.resetAllMocks();
+		repo.getPaginatedBibliography.mockImplementation(async (page: number, pageSize: number) => ({
+			data: [entry],
+			totalResults: 3,
+			page,
+			pageSize,
+			totalPages: Math.ceil(3 / pageSize),
+		}));
+		repo.getSingleBibliographyEntry.mockResolvedValue([entry]);
 	});
 
-	// Teardown: Remove mock data after all tests have completed
-	afterAll(async () => {
-		await db.deleteFrom("bibliography").where("name_bibliography", "in", MOCK_KEYS).execute();
-	});
-
-	describe("GET /", () => {
-		it("should return paginated results with default parameters", async () => {
-			const res = await bibliography.request("/");
-			expect(res.status).toBe(200);
-
-			const body = await res.json();
-			expect(body).toHaveProperty("data");
-			expect(body.page).toBe(1);
-			expect(body.pageSize).toBe(50);
-			expect(body.currentUrl).toContain("page=1");
-			expect(body.prevUrl).toBeNull();
-		});
-
-		it("should respect custom page and pageSize parameters", async () => {
-			const res = await bibliography.request("/?page=2&pageSize=1");
-			expect(res.status).toBe(200);
-
-			const body = await res.json();
-			expect(body.page).toBe(2);
-			expect(body.pageSize).toBe(1);
-			expect(body.prevUrl).toContain("page=1");
-			expect(body.currentUrl).toContain("page=2");
-		});
-
-		it("should return page with empty prev and next parameters with page 1 and pageSize 300", async () => {
-			const res = await bibliography.request("/?page=1&pageSize=300");
-			expect(res.status).toBe(200);
-
-			const body = await res.json();
-			expect(body.page).toBe(1);
-			expect(body.pageSize).toBe(300);
-			expect(body.currentUrl).toContain("page=1");
-			expect(body.prevUrl).toBeNull();
-			expect(body.nextUrl).toBeNull();
-		});
-
-		it("should return 500 if the database query fails", async () => {
-			// Mock the repository to simulate a database failure for exactly one call
-			vi.spyOn(bibRepo, "getPaginatedBibliography").mockRejectedValueOnce(
-				new Error("Simulated DB failure"),
-			);
-
-			const res = await bibliography.request("/");
-			expect(res.status).toBe(500);
-
-			const body = await res.json();
-			expect(body.error).toBe("Failed to fetch bibliography");
+	it("returns results with default pagination", async () => {
+		const response = await bibliography.request("/");
+		expect(response.status).toBe(200);
+		expect(repo.getPaginatedBibliography).toHaveBeenCalledExactlyOnceWith(1, 50);
+		expect(await response.json()).toEqual({
+			data: [entry],
+			totalResults: 3,
+			page: 1,
+			pageSize: 50,
+			totalPages: 1,
+			currentUrl: "http://localhost/?page=1&pageSize=50",
+			prevUrl: null,
+			nextUrl: null,
 		});
 	});
 
-	describe("GET /single", () => {
-		it("should fetch a single entry by valid bib_id", async () => {
-			const res = await bibliography.request(`/single?bib_id=${String(MOCK_KEYS[0])}`);
-			expect(res.status).toBe(200);
+	it.each([
+		[1, null, "2"],
+		[2, "1", "3"],
+		[3, "2", null],
+	])("calculates pagination links for page %i", async (page, previousPage, nextPage) => {
+		const response = await bibliography.request(`/?page=${page}&pageSize=1`);
+		const body = await response.json();
+		expect(response.status).toBe(200);
+		expect(repo.getPaginatedBibliography).toHaveBeenCalledExactlyOnceWith(page, 1);
+		expect(body.prevUrl === null ? null : new URL(body.prevUrl).searchParams.get("page")).toBe(
+			previousPage,
+		);
+		expect(body.nextUrl === null ? null : new URL(body.nextUrl).searchParams.get("page")).toBe(
+			nextPage,
+		);
+		expect(new URL(body.currentUrl).searchParams.get("page")).toBe(String(page));
+	});
 
-			const body = await res.json();
-			expect(body).toBeDefined();
-		});
+	it("returns no adjacent pages when all entries fit on one page", async () => {
+		const response = await bibliography.request("/?page=1&pageSize=300");
+		expect(response.status).toBe(200);
+		expect(await response.json()).toMatchObject({ pageSize: 300, prevUrl: null, nextUrl: null });
+	});
 
-		it("should fail validation and return 400 if bib_id is omitted", async () => {
-			const res = await bibliography.request("/single");
-			expect(res.status).toBe(400);
-		});
+	it("reports a paginated repository failure", async () => {
+		repo.getPaginatedBibliography.mockRejectedValueOnce(new Error("Simulated DB failure"));
+		const response = await bibliography.request("/");
+		expect(response.status).toBe(500);
+		expect(await response.json()).toEqual({ error: "Failed to fetch bibliography" });
+	});
 
-		it("should return 500 if fetching a single entry fails", async () => {
-			vi.spyOn(bibRepo, "getSingleBibliographyEntry").mockRejectedValueOnce(
-				new Error("Simulated DB failure"),
-			);
+	it("fetches a single bibliography entry by key", async () => {
+		const response = await bibliography.request("/single?bib_id=TEST_BIB_1");
+		expect(response.status).toBe(200);
+		expect(await response.json()).toEqual([entry]);
+		expect(repo.getSingleBibliographyEntry).toHaveBeenCalledExactlyOnceWith("TEST_BIB_1");
+	});
 
-			const res = await bibliography.request(`/single?bib_id=${String(MOCK_KEYS[0])}`);
-			expect(res.status).toBe(500);
+	it("rejects a missing bibliography key before querying", async () => {
+		expect((await bibliography.request("/single")).status).toBe(400);
+		expect(repo.getSingleBibliographyEntry).not.toHaveBeenCalled();
+	});
 
-			const body = await res.json();
-			expect(body.error).toBe("Failed to fetch bibliography");
-		});
+	it("reports a single-entry repository failure", async () => {
+		repo.getSingleBibliographyEntry.mockRejectedValueOnce(new Error("Simulated DB failure"));
+		const response = await bibliography.request("/single?bib_id=TEST_BIB_1");
+		expect(response.status).toBe(500);
+		expect(await response.json()).toEqual({ error: "Failed to fetch bibliography" });
 	});
 });

@@ -1,26 +1,34 @@
-import { app } from "@/app";
+import { Hono } from "hono";
 
-export const apiHeaders = {
-	"Content-Type": "application/json",
-	Origin: "http://localhost:3000",
-	Host: "localhost:3000",
-	Cookie: "",
-};
+import type { AppEnv } from "@/lib/context.ts";
+import type { Userroles } from "@/types/db.ts";
 
-export async function loginUserAndReturnCookie(email: string, password: string) {
-	const response = await app.request("/auth/login", {
-		method: "POST",
-		body: JSON.stringify({ email, password }),
-		headers: apiHeaders,
+export const testUser = { id: 42, username: "test-editor" };
+
+// Supply authentication context while retaining the handlers' real authorization middleware.
+export function createTestApp(role: Userroles | null = "editor") {
+	return new Hono<AppEnv>().use("*", async (c, next) => {
+		c.set("role", role);
+		c.set("user", role === null ? null : testUser);
+		c.set(
+			"session",
+			role === null
+				? null
+				: {
+						id: "test-session",
+						userId: testUser.id,
+						expiresAt: new Date("2099-01-01"),
+						fresh: false,
+					},
+		);
+		await next();
 	});
-
-	return response.headers.get("Set-Cookie") ?? "";
 }
 
-export async function logoutUser(userHeader: HeadersInit) {
-	const response = await app.request("/auth/logout", {
-		method: "POST",
-		headers: userHeader,
-	});
-	return response;
+export function jsonRequest(method: "POST" | "PUT", body: unknown): RequestInit {
+	return {
+		method,
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body),
+	};
 }

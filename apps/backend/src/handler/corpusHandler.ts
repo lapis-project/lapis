@@ -4,9 +4,10 @@ import { join } from "node:path";
 import { vValidator } from "@hono/valibot-validator";
 import { XMLParser } from "fast-xml-parser";
 import { SyntaxValidator } from "fast-xml-validator";
-import { Hono } from "hono";
+import { type Context, Hono } from "hono";
 import {
 	array,
+	type InferOutput,
 	literal,
 	object,
 	optional,
@@ -216,10 +217,48 @@ const SearchQuerySchema = object({
 type RunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
 type KwicLine = NonNullable<RunCgiResponse["Lines"]>[number];
+type KwicContextItem = { str?: string; strc?: string };
 type Transcript = Awaited<ReturnType<typeof getAllTranscripts>>[number];
 type XmlHit = { refs: string; content: string };
 
 const DIOE_PROJECT_ID = 2;
+const OPENING_TAG_REGEX = /<doc(?=[\s>]|$)/;
+const CLOSING_TAG_REGEX = /<\/doc\s*>/;
+
+function hasOpeningTag(context: Array<KwicContextItem> | undefined): boolean {
+	return (
+		context?.some(
+			(item) =>
+				(typeof item.strc === "string" && OPENING_TAG_REGEX.test(item.strc)) ||
+				(typeof item.str === "string" && OPENING_TAG_REGEX.test(item.str)),
+		) ?? false
+	);
+}
+
+function hasClosingTag(context: Array<KwicContextItem> | undefined): boolean {
+	return (
+		context?.some(
+			(item) =>
+				(typeof item.strc === "string" && CLOSING_TAG_REGEX.test(item.strc)) ||
+				(typeof item.str === "string" && CLOSING_TAG_REGEX.test(item.str)),
+		) ?? false
+	);
+}
+
+function clearBoundaryContext(kwic: RunCgiResponse | null): RunCgiResponse | null {
+	if (!kwic?.Lines) {
+		return kwic;
+	}
+
+	return {
+		...kwic,
+		Lines: kwic.Lines.map((line) => ({
+			...line,
+			...(line.Left !== undefined && hasOpeningTag(line.Left) ? { Left: [] } : {}),
+			...(line.Right !== undefined && hasClosingTag(line.Right) ? { Right: [] } : {}),
+		})),
+	};
+}
 
 function omitNullQueryValues(values: Array<string> | undefined): Array<string> | undefined {
 	return values?.filter((value) => value !== "null");
@@ -304,7 +343,58 @@ function getTranscriptId(line: KwicLine): number | null {
 	return getTranscriptIdFromReferences([...(line.Refs ?? []), ...(line.Tbl_refs ?? [])]);
 }
 
-function parseXmlHits(content: string): Array<XmlHit> {
+const XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
+const REF_ATTRIBUTE_NAME_PATTERN = /^[A-Za-z_][\w.-]*$/;
+
+function parseRefAttributes(refs: string): Array<{ name: string; value: string }> {
+	const parsedAttributes: Array<{ name: string; value: string }> = [];
+	for (const part of refs.split(",")) {
+		const separatorIndex = part.indexOf("=");
+		const candidateName = separatorIndex === -1 ? "" : part.slice(0, separatorIndex);
+		if (separatorIndex !== -1 && REF_ATTRIBUTE_NAME_PATTERN.test(candidateName)) {
+			parsedAttributes.push({
+				name: candidateName,
+				value: part.slice(separatorIndex + 1),
+			});
+		} else {
+			const previousAttribute = parsedAttributes[parsedAttributes.length - 1];
+			if (previousAttribute !== undefined) {
+				previousAttribute.value += `,${part}`;
+			}
+		}
+	}
+	return parsedAttributes;
+}
+
+function formatLineDivAsTeiXml(refs: string, line: Record<PropertyKey, unknown>): string {
+	const attributes = [
+		'xmlns:lapis="lapis-online.at"',
+		'type="resultLine"',
+		...parseRefAttributes(refs).map(({ name, value }) => `lapis:${name}="${value}"`),
+	];
+
+	const divOpen = `<div ${attributes.join("\n     ")}>`;
+	const segments: Array<string> = [];
+
+	for (const segmentType of ["left", "kwic", "right"] as const) {
+		const rawSegment = line[segmentType];
+		if (typeof rawSegment !== "string") {
+			continue;
+		}
+		const tokens = rawSegment.trim().split(/\s+/).filter(Boolean);
+		if (tokens.length === 0) {
+			segments.push(`      <seg type="${segmentType}"/>`);
+		} else {
+			const words = tokens.map((token) => `         <w>${token}</w>`).join("\n");
+			segments.push(`      <seg type="${segmentType}">\n${words}\n      </seg>`);
+		}
+	}
+
+	const uBody = segments.length > 0 ? `\n${segments.join("\n")}\n   ` : "";
+	return `${divOpen}\n   <u>${uBody}</u>\n</div>`;
+}
+
+function parseXmlConcordance(content: string): { content: string; hits: Array<XmlHit> } {
 	try {
 		if (SyntaxValidator.validate(content) !== true) {
 			throw new Error("Invalid NoSketch XML");
@@ -314,7 +404,6 @@ function parseXmlHits(content: string): Array<XmlHit> {
 	}
 
 	const parser = new XMLParser({
-		captureMetaData: true,
 		ignoreAttributes: false,
 		maxNestedTags: 100,
 		parseAttributeValue: false,
@@ -327,10 +416,13 @@ function parseXmlHits(content: string): Array<XmlHit> {
 	};
 	const lines = parsed.export?.concordance?.line;
 	if (lines === undefined) {
-		return [];
+		return {
+			content: `${XML_DECLARATION}\n<concordance/>`,
+			hits: [],
+		};
 	}
 
-	const metadataKey = XMLParser.getMetaDataSymbol() as symbol;
+	const divBlocks: Array<string> = [];
 	const hits: Array<XmlHit> = [];
 	for (const value of Array.isArray(lines) ? lines : [lines]) {
 		if (typeof value !== "object" || value === null) {
@@ -339,40 +431,35 @@ function parseXmlHits(content: string): Array<XmlHit> {
 
 		const line = value as Record<PropertyKey, unknown>;
 		const refs = line["@_refs"];
-		const metadata = Reflect.get(line, metadataKey);
-		if (
-			typeof refs !== "string" ||
-			typeof metadata !== "object" ||
-			metadata === null ||
-			!("startIndex" in metadata) ||
-			!("endIndex" in metadata) ||
-			typeof metadata.startIndex !== "number" ||
-			typeof metadata.endIndex !== "number"
-		) {
+		if (typeof refs !== "string") {
 			continue;
 		}
 
+		const divXml = formatLineDivAsTeiXml(refs, line);
+		divBlocks.push(divXml);
 		hits.push({
 			refs,
-			content: content.slice(metadata.startIndex, metadata.endIndex),
+			content: `${XML_DECLARATION}\n${divXml}`,
 		});
 	}
 
-	return hits;
+	return {
+		content:
+			divBlocks.length === 0
+				? `${XML_DECLARATION}\n<concordance/>`
+				: `${XML_DECLARATION}\n<concordance>\n${divBlocks.join("\n")}\n</concordance>`,
+		hits,
+	};
 }
 
-function groupMatchesByTranscript(
+function groupTranscriptHitCounts(
 	transcripts: Array<Transcript>,
-	kwic: RunCgiResponse | null,
-	xmlHits: Array<XmlHit>,
 	frequencies: Map<number, number> | null,
 ): Record<
 	string,
 	{
 		transcript: Transcript | null;
 		hitCount: number | null;
-		lines: Array<KwicLine>;
-		xmlHits: Array<XmlHit>;
 	}
 > {
 	const transcriptById = new Map(
@@ -383,6 +470,32 @@ function groupMatchesByTranscript(
 		{
 			transcript: Transcript | null;
 			hitCount: number | null;
+		}
+	> = {};
+
+	for (const [id, hitCount] of frequencies?.entries() ?? []) {
+		matches[String(id)] = {
+			transcript: transcriptById.get(id) ?? null,
+			hitCount,
+		};
+	}
+
+	return matches;
+}
+
+function groupConcordanceHitsByTranscript(
+	kwic: RunCgiResponse | null,
+	xmlHits: Array<XmlHit>,
+): Record<
+	string,
+	{
+		lines: Array<KwicLine>;
+		xmlHits: Array<XmlHit>;
+	}
+> {
+	const matches: Record<
+		string,
+		{
 			lines: Array<KwicLine>;
 			xmlHits: Array<XmlHit>;
 		}
@@ -390,18 +503,12 @@ function groupMatchesByTranscript(
 	const getOrCreateMatch = (transcriptId: number) => {
 		const key = String(transcriptId);
 		const match = matches[key] ?? {
-			transcript: transcriptById.get(transcriptId) ?? null,
-			hitCount: frequencies?.get(transcriptId) ?? null,
 			lines: [],
 			xmlHits: [],
 		};
 		matches[key] = match;
 		return match;
 	};
-
-	for (const id of frequencies?.keys() ?? []) {
-		getOrCreateMatch(id);
-	}
 
 	for (const line of kwic?.Lines ?? []) {
 		const transcriptId = getTranscriptId(line);
@@ -509,8 +616,8 @@ async function requestXml(
 		}
 
 		try {
-			const content = await response.text();
-			const hits = parseXmlHits(content);
+			const rawContent = await response.text();
+			const { content, hits } = parseXmlConcordance(rawContent);
 			return {
 				data: {
 					content,
@@ -538,6 +645,367 @@ async function requestXml(
 				message: error instanceof Error ? error.message : "NoSketch Engine request failed",
 			},
 			hits: [],
+		};
+	}
+}
+
+type SearchErrorResponse = {
+	body: { error: string; details?: Array<string> };
+	status: 400 | 500;
+};
+
+type SearchContext = {
+	projectId: number;
+	rawQuery: Record<string, string>;
+	output: InferOutput<typeof SearchQuerySchema>;
+	projects: Array<number>;
+	settings: Array<number>;
+	locations: Array<number>;
+	transcriptIds: Array<number>;
+	routeProject: Awaited<ReturnType<typeof getCorpusSearchMetadata>>["projects"][number];
+	projectById: Map<number, Awaited<ReturnType<typeof getCorpusSearchMetadata>>["projects"][number]>;
+	settingById: Map<number, Awaited<ReturnType<typeof getCorpusSearchMetadata>>["settings"][number]>;
+	locationById: Map<
+		number,
+		Awaited<ReturnType<typeof getCorpusSearchMetadata>>["locations"][number]
+	>;
+	databaseFilters: NonNullable<Parameters<typeof getAllTranscripts>[1]>;
+	wordInput: string | undefined;
+	hasLexicalCriterion: boolean;
+};
+
+async function resolveSearchContext(
+	c: Context<AppEnv>,
+	options?: { requireLexicalCriterion?: boolean },
+): Promise<
+	| { errorResponse: SearchErrorResponse; context: null }
+	| { errorResponse: null; context: SearchContext }
+> {
+	const id = c.req.param("id");
+	if (!id || !/^\d+$/.test(id) || !Number.isSafeInteger(Number(id))) {
+		return {
+			errorResponse: { body: { error: "Invalid project id" }, status: 400 },
+			context: null,
+		};
+	}
+	const projectId = Number(id);
+	const rawQuery = c.req.query();
+	const projectValues = omitNullQueryValues(c.req.queries("projects"));
+	const settingValues = omitNullQueryValues(c.req.queries("settings"));
+	const locationValues = omitNullQueryValues(c.req.queries("locations"));
+	const transcriptIdValues = omitNullQueryValues(c.req.queries("transcript_ids"));
+	const result = safeParse(SearchQuerySchema, {
+		...rawQuery,
+		transcripts: transcriptIdValues,
+		projects: undefined,
+		settings: undefined,
+		locations: undefined,
+		first_languages: c.req.queries("first_languages"),
+		mode: rawQuery.mode ?? "simple",
+	});
+
+	if (!result.success) {
+		return {
+			errorResponse: {
+				body: {
+					error: "Validation failed",
+					details: result.issues.map((issue) => issue.message),
+				},
+				status: 400,
+			},
+			context: null,
+		};
+	}
+
+	const projects = parseIdArray(projectValues);
+	const settings = parseIdArray(settingValues);
+	const locations = parseIdArray(locationValues);
+	const transcriptIds = parseIdArray(transcriptIdValues);
+	if (projects === null || settings === null || locations === null || transcriptIds === null) {
+		return {
+			errorResponse: { body: { error: "Invalid numeric filter id" }, status: 400 },
+			context: null,
+		};
+	}
+
+	if (rawQuery.gender && rawQuery.gender !== "männlich" && rawQuery.gender !== "weiblich") {
+		return {
+			errorResponse: { body: { error: "Invalid gender parameter" }, status: 400 },
+			context: null,
+		};
+	}
+
+	let instanceId: number | undefined;
+	if (rawQuery.instance_id !== undefined) {
+		if (!/^\d+$/.test(rawQuery.instance_id)) {
+			return {
+				errorResponse: { body: { error: "Invalid instance_id parameter" }, status: 400 },
+				context: null,
+			};
+		}
+		instanceId = Number(rawQuery.instance_id);
+		if (!Number.isSafeInteger(instanceId)) {
+			return {
+				errorResponse: { body: { error: "Invalid instance_id parameter" }, status: 400 },
+				context: null,
+			};
+		}
+	}
+
+	const wordInput = result.output.word ?? result.output.query;
+	const hasLexicalCriterion = Boolean(
+		wordInput || result.output.lemma || result.output.pos || result.output.feats,
+	);
+	if (options?.requireLexicalCriterion && !hasLexicalCriterion) {
+		return {
+			errorResponse: {
+				body: {
+					error: "At least one search parameter (word, lemma, pos, feats) is required",
+				},
+				status: 400,
+			},
+			context: null,
+		};
+	}
+
+	const projectIds = [...new Set([projectId, ...projects])];
+	let metadata: Awaited<ReturnType<typeof getCorpusSearchMetadata>>;
+	try {
+		metadata = await getCorpusSearchMetadata(projectIds, settings, locations);
+	} catch (error) {
+		console.error(error);
+		return {
+			errorResponse: { body: { error: "Internal Server Error" }, status: 500 },
+			context: null,
+		};
+	}
+
+	const projectById = new Map(metadata.projects.map((project) => [project.id, project]));
+	const routeProject = projectById.get(projectId);
+	if (
+		!routeProject ||
+		(projectId !== DIOE_PROJECT_ID && routeProject.main_project_id !== DIOE_PROJECT_ID)
+	) {
+		return {
+			errorResponse: {
+				body: { error: "Project is not part of the DiÖ hierarchy" },
+				status: 400,
+			},
+			context: null,
+		};
+	}
+
+	for (const selectedId of projects) {
+		const selectedProject = projectById.get(selectedId);
+		if (
+			!selectedProject ||
+			(selectedId !== DIOE_PROJECT_ID && selectedProject.main_project_id !== DIOE_PROJECT_ID)
+		) {
+			return {
+				errorResponse: {
+					body: { error: `Unknown or invalid project id: ${String(selectedId)}` },
+					status: 400,
+				},
+				context: null,
+			};
+		}
+		if (projectId !== DIOE_PROJECT_ID && selectedId !== projectId) {
+			return {
+				errorResponse: {
+					body: { error: "Selected project is outside the route project scope" },
+					status: 400,
+				},
+				context: null,
+			};
+		}
+	}
+
+	const settingById = new Map(metadata.settings.map((setting) => [setting.id, setting]));
+	const locationById = new Map(metadata.locations.map((location) => [location.id, location]));
+	for (const settingId of settings) {
+		if (!settingById.get(settingId)?.survey_type_name) {
+			return {
+				errorResponse: {
+					body: { error: `Unknown setting id: ${String(settingId)}` },
+					status: 400,
+				},
+				context: null,
+			};
+		}
+	}
+	for (const locationId of locations) {
+		if (!locationById.get(locationId)?.place_name) {
+			return {
+				errorResponse: {
+					body: { error: `Unknown location id: ${String(locationId)}` },
+					status: 400,
+				},
+				context: null,
+			};
+		}
+	}
+
+	const databaseFilters: NonNullable<Parameters<typeof getAllTranscripts>[1]> = {};
+	if (result.output.age_lower !== undefined) {
+		databaseFilters.age_lower = result.output.age_lower;
+	}
+	if (result.output.age_upper !== undefined) {
+		databaseFilters.age_upper = result.output.age_upper;
+	}
+	if (locations.length) {
+		databaseFilters.locations = locations;
+	}
+	if (result.output.state !== undefined) {
+		databaseFilters.postal_code_ranges = austrianStatePostalCodeRanges[result.output.state];
+	}
+	if (result.output.dialect_competence !== undefined) {
+		databaseFilters.dialect_competence = result.output.dialect_competence;
+	}
+	if (result.output.standard_competence !== undefined) {
+		databaseFilters.standard_competence = result.output.standard_competence;
+	}
+	if (rawQuery.gender) {
+		databaseFilters.gender = rawQuery.gender;
+	}
+
+	if (result.output.has_bkms !== undefined) {
+		databaseFilters.has_bkms = result.output.has_bkms;
+	}
+	if (rawQuery.comment_search) {
+		databaseFilters.comment_search = rawQuery.comment_search;
+		databaseFilters.comment_search_mode =
+			rawQuery.comment_search_mode === "regex" ? "regex" : "simple";
+	}
+	if (rawQuery.transcript_name) {
+		databaseFilters.transcript_name = rawQuery.transcript_name;
+	}
+	if (instanceId !== undefined) {
+		databaseFilters.instance_id = instanceId;
+	}
+	if (settings.length) {
+		databaseFilters.settings = settings;
+	}
+	if (projects.length && !projects.includes(DIOE_PROJECT_ID)) {
+		databaseFilters.projects = projects;
+	}
+	if (result.output.transcripts?.length) {
+		databaseFilters.transcripts = result.output.transcripts;
+	}
+
+	return {
+		errorResponse: null,
+		context: {
+			projectId,
+			rawQuery,
+			output: result.output,
+			projects,
+			settings,
+			locations,
+			transcriptIds,
+			routeProject,
+			projectById,
+			settingById,
+			locationById,
+			databaseFilters,
+			wordInput,
+			hasLexicalCriterion,
+		},
+	};
+}
+
+async function resolveLexicalSearchCql(ctx: SearchContext): Promise<
+	| { errorResponse: SearchErrorResponse; empty: false }
+	| { errorResponse: null; empty: true }
+	| {
+			errorResponse: null;
+			empty: false;
+			cql: string;
+			refs: string;
+			candidates: Array<Transcript> | null;
+			candidateIds: Array<number> | undefined;
+	  }
+> {
+	let projectNames: Array<string> = [];
+	if (ctx.projectId !== DIOE_PROJECT_ID) {
+		if (!ctx.routeProject.project_name || !/^PP\d{2}$/.test(ctx.routeProject.project_name)) {
+			return {
+				errorResponse: {
+					body: { error: "Child project has no valid project name" },
+					status: 400,
+				},
+				empty: false,
+			};
+		}
+		projectNames = [ctx.routeProject.project_name];
+	} else if (ctx.projects.length && !ctx.projects.includes(DIOE_PROJECT_ID)) {
+		projectNames = ctx.projects.map((selectedId) => ctx.projectById.get(selectedId)!.project_name!);
+		if (projectNames.some((name) => !/^PP\d{2}$/.test(name))) {
+			return {
+				errorResponse: {
+					body: { error: "Selected project has no valid project name" },
+					status: 400,
+				},
+				empty: false,
+			};
+		}
+	}
+
+	try {
+		const databaseFirst = Object.keys(ctx.databaseFilters).length > 0 || ctx.projects.length > 0;
+		const candidates = databaseFirst
+			? await getAllTranscripts(ctx.projectId, ctx.databaseFilters)
+			: null;
+		const candidateIds = candidates
+			?.map((transcript) => transcript.instance_id)
+			.filter(
+				(id): id is number =>
+					id !== null && (!ctx.transcriptIds.length || ctx.transcriptIds.includes(id)),
+			);
+		if (candidateIds?.length === 0) {
+			return { errorResponse: null, empty: true };
+		}
+
+		const cql = buildCql(
+			{
+				word: ctx.wordInput,
+				lemma: ctx.output.lemma,
+				pos: ctx.output.pos,
+				feats: ctx.output.feats,
+				transcripts: candidateIds,
+				projects: projectNames,
+				settings: ctx.settings.map(
+					(settingId) => ctx.settingById.get(settingId)!.survey_type_name!,
+				),
+				age_lower: ctx.output.age_lower,
+				age_upper: ctx.output.age_upper,
+				locations: ctx.locations.map((locationId) => ctx.locationById.get(locationId)!.place_name!),
+				first_languages: ctx.output.first_languages,
+				dialect_competence: ctx.output.dialect_competence,
+				standard_competence: ctx.output.standard_competence,
+				gender:
+					ctx.rawQuery.gender === "männlich"
+						? "male"
+						: ctx.rawQuery.gender === "weiblich"
+							? "female"
+							: undefined,
+			},
+			ctx.output.mode,
+		);
+		const refs = ensureTranscriptReference(ctx.output.refs);
+
+		return {
+			errorResponse: null,
+			empty: false,
+			cql,
+			refs,
+			candidates,
+			candidateIds,
+		};
+	} catch (error) {
+		console.error(error);
+		return {
+			errorResponse: { body: { error: "Internal Server Error" }, status: 500 },
+			empty: false,
 		};
 	}
 }
@@ -633,166 +1101,25 @@ const corpus = new Hono<AppEnv>()
 		}
 	})
 	.get("/search/:id", async (c) => {
-		const id = c.req.param("id");
-		if (!/^\d+$/.test(id) || !Number.isSafeInteger(Number(id))) {
-			return c.json({ error: "Invalid project id" }, 400);
-		}
-		const projectId = Number(id);
-		const rawQuery = c.req.query();
-		const projectValues = omitNullQueryValues(c.req.queries("projects"));
-		const settingValues = omitNullQueryValues(c.req.queries("settings"));
-		const locationValues = omitNullQueryValues(c.req.queries("locations"));
-		const transcriptIdValues = omitNullQueryValues(c.req.queries("transcript_ids"));
-		const result = safeParse(SearchQuerySchema, {
-			...rawQuery,
-			transcripts: transcriptIdValues,
-			projects: undefined,
-			settings: undefined,
-			locations: undefined,
-			first_languages: c.req.queries("first_languages"),
-			mode: rawQuery.mode ?? "simple",
-		});
-
-		if (!result.success) {
+		const searchContextResult = await resolveSearchContext(c);
+		if (searchContextResult.errorResponse) {
 			return c.json(
-				{
-					error: "Validation failed",
-					details: result.issues.map((issue) => issue.message),
-				},
-				400,
+				searchContextResult.errorResponse.body,
+				searchContextResult.errorResponse.status,
 			);
 		}
+		const ctx = searchContextResult.context;
 
-		const projects = parseIdArray(projectValues);
-		const settings = parseIdArray(settingValues);
-		const locations = parseIdArray(locationValues);
-		const transcriptIds = parseIdArray(transcriptIdValues);
-		if (projects === null || settings === null || locations === null || transcriptIds === null) {
-			return c.json({ error: "Invalid numeric filter id" }, 400);
-		}
-
-		if (rawQuery.gender && rawQuery.gender !== "männlich" && rawQuery.gender !== "weiblich") {
-			return c.json({ error: "Invalid gender parameter" }, 400);
-		}
-
-		let instanceId: number | undefined;
-		if (rawQuery.instance_id !== undefined) {
-			if (!/^\d+$/.test(rawQuery.instance_id)) {
-				return c.json({ error: "Invalid instance_id parameter" }, 400);
-			}
-			instanceId = Number(rawQuery.instance_id);
-			if (!Number.isSafeInteger(instanceId)) {
-				return c.json({ error: "Invalid instance_id parameter" }, 400);
-			}
-		}
-
-		const projectIds = [...new Set([projectId, ...projects])];
-		let metadata: Awaited<ReturnType<typeof getCorpusSearchMetadata>>;
-		try {
-			metadata = await getCorpusSearchMetadata(projectIds, settings, locations);
-		} catch (error) {
-			console.error(error);
-			return c.json({ error: "Internal Server Error" }, 500);
-		}
-
-		const projectById = new Map(metadata.projects.map((project) => [project.id, project]));
-		const routeProject = projectById.get(projectId);
-		if (
-			!routeProject ||
-			(projectId !== DIOE_PROJECT_ID && routeProject.main_project_id !== DIOE_PROJECT_ID)
-		) {
-			return c.json({ error: "Project is not part of the DiÖ hierarchy" }, 400);
-		}
-
-		for (const selectedId of projects) {
-			const selectedProject = projectById.get(selectedId);
-			if (
-				!selectedProject ||
-				(selectedId !== DIOE_PROJECT_ID && selectedProject.main_project_id !== DIOE_PROJECT_ID)
-			) {
-				return c.json({ error: `Unknown or invalid project id: ${String(selectedId)}` }, 400);
-			}
-			if (projectId !== DIOE_PROJECT_ID && selectedId !== projectId) {
-				return c.json({ error: "Selected project is outside the route project scope" }, 400);
-			}
-		}
-
-		const settingById = new Map(metadata.settings.map((setting) => [setting.id, setting]));
-		const locationById = new Map(metadata.locations.map((location) => [location.id, location]));
-		for (const settingId of settings) {
-			if (!settingById.get(settingId)?.survey_type_name) {
-				return c.json({ error: `Unknown setting id: ${String(settingId)}` }, 400);
-			}
-		}
-		for (const locationId of locations) {
-			if (!locationById.get(locationId)?.place_name) {
-				return c.json({ error: `Unknown location id: ${String(locationId)}` }, 400);
-			}
-		}
-
-		const databaseFilters: NonNullable<Parameters<typeof getAllTranscripts>[1]> = {};
-		if (result.output.age_lower !== undefined) {
-			databaseFilters.age_lower = result.output.age_lower;
-		}
-		if (result.output.age_upper !== undefined) {
-			databaseFilters.age_upper = result.output.age_upper;
-		}
-		if (locations.length) {
-			databaseFilters.locations = locations;
-		}
-		if (result.output.state !== undefined) {
-			databaseFilters.postal_code_ranges = austrianStatePostalCodeRanges[result.output.state];
-		}
-		if (result.output.dialect_competence !== undefined) {
-			databaseFilters.dialect_competence = result.output.dialect_competence;
-		}
-		if (result.output.standard_competence !== undefined) {
-			databaseFilters.standard_competence = result.output.standard_competence;
-		}
-		if (rawQuery.gender) {
-			databaseFilters.gender = rawQuery.gender;
-		}
-
-		if (result.output.has_bkms !== undefined) {
-			databaseFilters.has_bkms = result.output.has_bkms;
-		}
-		if (rawQuery.comment_search) {
-			databaseFilters.comment_search = rawQuery.comment_search;
-			databaseFilters.comment_search_mode =
-				rawQuery.comment_search_mode === "regex" ? "regex" : "simple";
-		}
-		if (rawQuery.transcript_name) {
-			databaseFilters.transcript_name = rawQuery.transcript_name;
-		}
-		if (instanceId !== undefined) {
-			databaseFilters.instance_id = instanceId;
-		}
-		if (settings.length) {
-			databaseFilters.settings = settings;
-		}
-		if (projects.length && !projects.includes(DIOE_PROJECT_ID)) {
-			databaseFilters.projects = projects;
-		}
-		if (result.output.transcripts?.length) {
-			databaseFilters.transcripts = result.output.transcripts;
-		}
-
-		const wordInput = result.output.word ?? result.output.query;
-		const hasLexicalCriterion = Boolean(
-			wordInput || result.output.lemma || result.output.pos || result.output.feats,
-		);
-
-		if (!hasLexicalCriterion) {
+		if (!ctx.hasLexicalCriterion) {
 			try {
-				const transcripts = await getAllTranscripts(projectId, databaseFilters);
+				const transcripts = await getAllTranscripts(ctx.projectId, ctx.databaseFilters);
 				return c.json(
 					{
 						transcripts,
-						kwic: null,
 						matchesByTranscript: {},
-						xml: null,
+						totalHits: 0,
 						transcriptMatchesComplete: true,
-						errors: { kwic: null, xml: null, transcriptMatches: null },
+						errors: { transcriptMatches: null },
 					},
 					200,
 				);
@@ -802,99 +1129,122 @@ const corpus = new Hono<AppEnv>()
 			}
 		}
 
-		let projectNames: Array<string> = [];
-		if (projectId !== DIOE_PROJECT_ID) {
-			if (!routeProject.project_name || !/^PP\d{2}$/.test(routeProject.project_name)) {
-				return c.json({ error: "Child project has no valid project name" }, 400);
-			}
-			projectNames = [routeProject.project_name];
-		} else if (projects.length && !projects.includes(DIOE_PROJECT_ID)) {
-			projectNames = projects.map((selectedId) => projectById.get(selectedId)!.project_name!);
-			if (projectNames.some((name) => !/^PP\d{2}$/.test(name))) {
-				return c.json({ error: "Selected project has no valid project name" }, 400);
-			}
+		const lexicalResult = await resolveLexicalSearchCql(ctx);
+		if (lexicalResult.errorResponse) {
+			return c.json(lexicalResult.errorResponse.body, lexicalResult.errorResponse.status);
 		}
-		try {
-			const databaseFirst = Object.keys(databaseFilters).length > 0 || projects.length > 0;
-			const candidates = databaseFirst ? await getAllTranscripts(projectId, databaseFilters) : null;
-			const candidateIds = candidates
-				?.map((transcript) => transcript.instance_id)
-				.filter(
-					(id): id is number =>
-						id !== null && (!transcriptIds.length || transcriptIds.includes(id)),
-				);
-			if (candidateIds?.length === 0) {
-				return c.json({
-					transcripts: [],
-					kwic: null,
-					xml: null,
-					matchesByTranscript: {},
-					transcriptMatchesComplete: true,
-					errors: { kwic: null, xml: null, transcriptMatches: null },
-				});
-			}
-			const cql = buildCql(
+		if (lexicalResult.empty) {
+			return c.json(
 				{
-					word: wordInput,
-					lemma: result.output.lemma,
-					pos: result.output.pos,
-					feats: result.output.feats,
-					transcripts: candidateIds,
-					projects: projectNames,
-					settings: settings.map((settingId) => settingById.get(settingId)!.survey_type_name!),
-					age_lower: result.output.age_lower,
-					age_upper: result.output.age_upper,
-					locations: locations.map((locationId) => locationById.get(locationId)!.place_name!),
-					first_languages: result.output.first_languages,
-					dialect_competence: result.output.dialect_competence,
-					standard_competence: result.output.standard_competence,
-					gender:
-						rawQuery.gender === "männlich"
-							? "male"
-							: rawQuery.gender === "weiblich"
-								? "female"
-								: undefined,
+					transcripts: [],
+					matchesByTranscript: {},
+					totalHits: 0,
+					transcriptMatchesComplete: true,
+					errors: { transcriptMatches: null },
 				},
-				result.output.mode,
+				200,
 			);
-			const refs = ensureTranscriptReference(result.output.refs);
-			const [frequencyResult, kwicResult, xmlResult] = await Promise.all([
-				requestTranscriptMatches(cql),
-				requestKwic(cql, result.output.fromp, refs, result.output.pagesize),
-				requestXml(cql, result.output.fromp, refs, result.output.pagesize),
-			]);
-			// Failed frequency lookups resolve only IDs from the successful current-page sources.
-			const matchedIds = frequencyResult.data
-				? [...frequencyResult.data.keys()]
-				: Object.keys(groupMatchesByTranscript([], kwicResult.data, xmlResult.hits, null)).map(
-						Number,
-					);
+		}
+
+		try {
+			const frequencyResult = await requestTranscriptMatches(lexicalResult.cql);
+			if (!frequencyResult.data) {
+				return c.json(
+					{
+						transcripts: [],
+						matchesByTranscript: {},
+						totalHits: null,
+						transcriptMatchesComplete: false,
+						errors: {
+							transcriptMatches: frequencyResult.error,
+						},
+					},
+					200,
+				);
+			}
+
+			const matchedIds = [...frequencyResult.data.keys()];
 			const matchingIds = new Set(matchedIds);
-			const transcripts = candidates
-				? candidates.filter(
+			const transcripts = lexicalResult.candidates
+				? lexicalResult.candidates.filter(
 						(transcript) =>
 							transcript.instance_id !== null &&
 							matchingIds.has(transcript.instance_id) &&
-							candidateIds!.includes(transcript.instance_id),
+							lexicalResult.candidateIds!.includes(transcript.instance_id),
 					)
-				: await getAllTranscripts(projectId, { ...databaseFilters, transcripts: matchedIds });
+				: await getAllTranscripts(ctx.projectId, {
+						...ctx.databaseFilters,
+						transcripts: matchedIds,
+					});
+
+			let totalHits = 0;
+			for (const count of frequencyResult.data.values()) {
+				totalHits += count;
+			}
 
 			return c.json(
 				{
 					transcripts,
-					kwic: kwicResult.data,
-					matchesByTranscript: groupMatchesByTranscript(
-						transcripts,
-						kwicResult.data,
-						xmlResult.hits,
-						frequencyResult.data,
-					),
-					xml: xmlResult.data,
+					matchesByTranscript: groupTranscriptHitCounts(transcripts, frequencyResult.data),
+					totalHits,
 					transcriptMatchesComplete: frequencyResult.error === null,
+					errors: {
+						transcriptMatches: frequencyResult.error,
+					},
+				},
+				200,
+			);
+		} catch (error) {
+			console.error(error);
+			return c.json({ error: "Internal Server Error" }, 500);
+		}
+	})
+	.get("/search/:id/hits", async (c) => {
+		const searchContextResult = await resolveSearchContext(c, { requireLexicalCriterion: true });
+		if (searchContextResult.errorResponse) {
+			return c.json(
+				searchContextResult.errorResponse.body,
+				searchContextResult.errorResponse.status,
+			);
+		}
+		const ctx = searchContextResult.context;
+
+		const lexicalResult = await resolveLexicalSearchCql(ctx);
+		if (lexicalResult.errorResponse) {
+			return c.json(lexicalResult.errorResponse.body, lexicalResult.errorResponse.status);
+		}
+		if (lexicalResult.empty) {
+			return c.json(
+				{
+					kwic: null,
+					xml: null,
+					matchesByTranscript: {},
+					errors: { kwic: null, xml: null },
+				},
+				200,
+			);
+		}
+
+		try {
+			const [kwicResult, xmlResult] = await Promise.all([
+				requestKwic(lexicalResult.cql, ctx.output.fromp, lexicalResult.refs, ctx.output.pagesize),
+				requestXml(lexicalResult.cql, ctx.output.fromp, lexicalResult.refs, ctx.output.pagesize),
+			]);
+			const isBoundaryMarkerSearch =
+				ctx.wordInput?.trim().toUpperCase() === "XXX" ||
+				ctx.output.lemma?.trim().toUpperCase() === "XXX";
+			const kwicData = isBoundaryMarkerSearch
+				? clearBoundaryContext(kwicResult.data)
+				: kwicResult.data;
+
+			return c.json(
+				{
+					kwic: kwicData,
+					xml: xmlResult.data,
+					matchesByTranscript: groupConcordanceHitsByTranscript(kwicData, xmlResult.hits),
 					errors: {
 						kwic: kwicResult.error,
 						xml: xmlResult.error,
-						transcriptMatches: frequencyResult.error,
 					},
 				},
 				200,

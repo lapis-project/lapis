@@ -1,210 +1,160 @@
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { app } from "@/app.ts";
-import { db } from "@/db/connect.ts";
+const repo = vi.hoisted(() => ({
+	getAllArticlesByProject: vi.fn(),
+	getArticleByAlias: vi.fn(),
+	getSitemapArticlesByProject: vi.fn(),
+}));
+const generateSignedImageUrl = vi.hoisted(() => vi.fn());
 
-import { apiHeaders, loginUserAndReturnCookie, logoutUser } from "./testutils.ts";
+vi.mock("@/db/articleRepository.ts", () => repo);
+vi.mock("@/service/imageService.ts", () => ({ generateSignedImageUrl }));
 
-describe("test endpoint GET /articles/articles/:project", () => {
-	const loginHeaders = structuredClone(apiHeaders);
-	const categories: Array<string> = ["commentary", "methodology", "project_description"];
-	const articleIds: Array<number> = [];
+const { default: articles } = await import("@/handler/articleHandler.ts");
 
-	beforeAll(async () => {
-		// Login as editor
-		const sessionCookie = await loginUserAndReturnCookie(
-			"max.mustermann@oeaw.ac.at",
-			"mmustermann",
+const article = {
+	post_id: 7,
+	title: "Test article",
+	alias: "test-article",
+	cover: "https://example.com/cover.webp",
+	authors: [{ firstname: "Test", lastname: "Author" }],
+};
+
+describe("Article handler", () => {
+	beforeEach(() => {
+		vi.resetAllMocks();
+		repo.getAllArticlesByProject.mockResolvedValue([{ total: 25, articles: [article] }]);
+		repo.getArticleByAlias.mockResolvedValue(article);
+		repo.getSitemapArticlesByProject.mockResolvedValue([{ alias: article.alias }]);
+		generateSignedImageUrl.mockReturnValue("https://images.example.com/signed.webp");
+	});
+
+	it("returns published articles with default pagination and authors", async () => {
+		const response = await articles.request("/articles/1");
+		expect(response.status).toBe(200);
+		expect(repo.getAllArticlesByProject).toHaveBeenCalledExactlyOnceWith(
+			1,
+			20,
+			0,
+			"",
+			"",
+			"Published",
+			"",
+			undefined,
 		);
-		loginHeaders.Cookie = sessionCookie;
-
-		// Create dummy articles that will be removed when the test is finished
-		// Create 30 new articles
-		for (let i = 0; i < 30; i++) {
-			const response = await app.request("/cms/articles/create", {
-				method: "POST",
-				body: JSON.stringify({
-					title: `Test Article ${String(i)}`,
-					alias: `test-article ${String(i)}`,
-					abstract: "test-abstract",
-					content: "test-content",
-					category: categories[i % 3],
-					status: i < 10 ? "Draft" : "Published",
-					lang: "en",
-					projectId: [1],
-					authors: [391, 392],
-				}),
-				headers: loginHeaders,
-			});
-			expect(response.status).toBe(201);
-
-			const body = await response.json();
-
-			articleIds.push(Number(body.articleId.id));
-		}
-	});
-
-	afterAll(async () => {
-		await db.deleteFrom("post").where("title", "ilike", "Test Article%").execute();
-		await logoutUser(loginHeaders);
-	});
-
-	test("Provide project id 1 with pagesize of 30 and leave other fields empty, should return 20 articles on one page with status published, expect fields prev and next to be null, should contain both authors which were provided when the post was created", async () => {
-		const response = await app.request("/articles/articles/1?pageSize=30", {
-			headers: loginHeaders,
+		expect(await response.json()).toEqual({
+			articles: [article],
+			totalResults: 25,
+			currentPage: "http://localhost/articles/1?page=1&pageSize=20",
+			prev: null,
+			next: "http://localhost/articles/1?page=2&pageSize=20",
 		});
+	});
 
+	it("forwards filters and calculates the page offset", async () => {
+		const response = await articles.request(
+			"/articles/2?page=2&pageSize=5&offset=3&searchTerm=Test&category=commentary&lang=de&sort=variable",
+		);
+		const body = await response.json();
 		expect(response.status).toBe(200);
-
-		const body = await response.json();
-		expect(body).toHaveProperty("articles");
-
-		expect(body.articles.length).toBe(27);
-
-		const singleArticle = body.articles[0];
-		expect(singleArticle).toHaveProperty("authors");
-		expect(singleArticle.authors.length).toBe(2);
-		expect(singleArticle.authors[0].firstname).not.toBeNull();
-		expect(singleArticle.authors[0].lastname).not.toBeNull();
-		expect(singleArticle.authors[1].firstname).not.toBeNull();
-		expect(singleArticle.authors[1].lastname).not.toBeNull();
+		expect(repo.getAllArticlesByProject).toHaveBeenCalledExactlyOnceWith(
+			2,
+			5,
+			8,
+			"Test",
+			"commentary",
+			"Published",
+			"variable",
+			"de",
+		);
+		expect(new URL(body.prev).searchParams.get("page")).toBe("1");
+		expect(new URL(body.next).searchParams.get("page")).toBe("3");
+		expect(new URL(body.next).searchParams.get("searchTerm")).toBe("Test");
 	});
 
-	test("Provide project id 2 without any other options, should return empty articles array with prev and next null", async () => {
-		const response = await app.request("/articles/articles/2", {
-			headers: loginHeaders,
-		});
-
+	it.each([
+		["?pageSize=30", 25, null, null],
+		["?page=3&pageSize=10", 25, "2", null],
+		["?page=10&pageSize=10", 25, null, null],
+		["?page=1&pageSize=10", 0, null, null],
+	])("calculates pagination for %s", async (query, total, previousPage, nextPage) => {
+		repo.getAllArticlesByProject.mockResolvedValue([{ total, articles: [] }]);
+		const response = await articles.request(`/articles/1${query}`);
+		const body = await response.json();
 		expect(response.status).toBe(200);
-
-		const body = await response.json();
-		expect(body).toHaveProperty("articles");
-
-		expect(body.articles.length).toBe(0);
+		expect(body.articles).toEqual([]);
+		expect(body.prev === null ? null : new URL(body.prev).searchParams.get("page")).toBe(
+			previousPage,
+		);
+		expect(body.next === null ? null : new URL(body.next).searchParams.get("page")).toBe(nextPage);
 	});
 
-	test("Provide project id 1 with pagesize of 10 on page 1, should return 10 articles with status published, prev should be null, next should not be null", async () => {
-		const response = await app.request("/articles/articles/1?pageSize=10&page=1", {
-			headers: loginHeaders,
-		});
+	it.each([
+		"/articles/invalid",
+		"/articles/1?page=invalid",
+		"/articles/1?pageSize=invalid",
+		"/articles/1?offset=invalid",
+		"/articles/1?sort=invalid",
+	])("rejects invalid input at %s before querying", async (path) => {
+		expect((await articles.request(path)).status).toBe(400);
+		expect(repo.getAllArticlesByProject).not.toHaveBeenCalled();
+	});
 
+	it.each(["type", "published_date", "variable"])("accepts sorting by %s", async (sort) => {
+		expect((await articles.request(`/articles/1?sort=${sort}`)).status).toBe(200);
+		expect(repo.getAllArticlesByProject.mock.calls[0]?.[6]).toBe(sort);
+	});
+
+	it("signs S3 article covers at teaser width", async () => {
+		repo.getAllArticlesByProject.mockResolvedValue([
+			{ total: 1, articles: [{ ...article, cover: "s3://bucket/cover.webp" }] },
+		]);
+		const response = await articles.request("/articles/1");
+		expect((await response.json()).articles[0].cover).toBe(
+			"https://images.example.com/signed.webp",
+		);
+		expect(generateSignedImageUrl).toHaveBeenCalledExactlyOnceWith("s3://bucket/cover.webp", 640);
+	});
+
+	it("fetches article details by alias without signing an ordinary URL", async () => {
+		const response = await articles.request("/detail/test-article");
 		expect(response.status).toBe(200);
-
-		const body = await response.json();
-		expect(body).toHaveProperty("articles");
-
-		expect(body.articles.length).toBe(10);
-		expect(body.prev).toBeNull();
-		expect(body.next).not.toBeNull();
+		expect(await response.json()).toEqual({ article });
+		expect(repo.getArticleByAlias).toHaveBeenCalledExactlyOnceWith("test-article");
+		expect(generateSignedImageUrl).not.toHaveBeenCalled();
 	});
 
-	test("Provide project id 1 with pagesize of 10 on page 10, should return 0 articles with status published, prev should be null, next should be null", async () => {
-		const response = await app.request("/articles/articles/1?pageSize=10&page=10", {
-			headers: loginHeaders,
-		});
+	it("signs S3 covers in article details", async () => {
+		repo.getArticleByAlias.mockResolvedValue({ ...article, cover: "s3://bucket/cover.webp" });
+		const response = await articles.request("/detail/test-article");
+		expect((await response.json()).article.cover).toBe("https://images.example.com/signed.webp");
+		expect(generateSignedImageUrl).toHaveBeenCalledExactlyOnceWith("s3://bucket/cover.webp");
+	});
 
+	it("rejects a short alias before querying", async () => {
+		expect((await articles.request("/detail/abcd")).status).toBe(400);
+		expect(repo.getArticleByAlias).not.toHaveBeenCalled();
+	});
+
+	it("returns an empty result when an alias does not exist", async () => {
+		repo.getArticleByAlias.mockResolvedValue(undefined);
+		const response = await articles.request("/detail/missing-article");
 		expect(response.status).toBe(200);
-
-		const body = await response.json();
-		expect(body).toHaveProperty("articles");
-
-		expect(body.articles.length).toBe(0);
-
-		for (const article of body.articles) {
-			expect(article.status).toBe("Published");
-		}
-
-		expect(body.prev).toBeNull();
-		expect(body.next).toBeNull();
+		expect(await response.json()).toEqual({});
 	});
 
-	test("Provide project id 1 with pagesize of 5 on page 2, should return 5 articles with status published, prev should not be null, next should not be null", async () => {
-		const response = await app.request("/articles/articles/1?pageSize=5&page=2", {
-			headers: loginHeaders,
-		});
-
+	it("returns the project's sitemap entries", async () => {
+		const response = await articles.request("/sitemap/2");
 		expect(response.status).toBe(200);
-
-		const body = await response.json();
-		expect(body).toHaveProperty("articles");
-
-		expect(body.articles.length).toBe(5);
-
-		expect(body.prev).not.toBeNull();
-		expect(body.next).not.toBeNull();
+		expect(await response.json()).toEqual([{ alias: article.alias }]);
+		expect(repo.getSitemapArticlesByProject).toHaveBeenCalledExactlyOnceWith(2);
 	});
 
-	test("Provide no project id, should return status code 400 with error message Provided id is not a number", async () => {
-		const response = await app.request(`/articles/articles/all`, { headers: loginHeaders });
-		expect(response.status).toBe(400);
-
-		const body = await response.json();
-		expect(body).toBe("Provided projectId is not a number");
-	});
-});
-
-describe("test endpoint GET /articles/detail/:alias", () => {
-	let articleId = 0;
-	const loginHeaders = structuredClone(apiHeaders);
-	beforeAll(async () => {
-		const sessionCookie = await loginUserAndReturnCookie("admin@oeaw.ac.at", "adminadmin");
-		loginHeaders.Cookie = sessionCookie;
-
-		const response = await app.request("/cms/articles/create", {
-			method: "POST",
-			body: JSON.stringify({
-				title: "Test Article",
-				alias: "test-article",
-				abstract: "test-abstract",
-				cover: "test-cover",
-				cover_alt: "test-cover-alt",
-				content: "test-content",
-				category: "commentary",
-				status: "Draft",
-				lang: "en",
-				projectId: [1],
-				authors: [391, 392],
-				bibliography: ["TestBibliography1"],
-				phenomenonId: 2,
-				citation: "test-citation",
-			}),
-			headers: loginHeaders,
-		});
-
-		expect(response.status).toBe(201);
-
-		const body = await response.json();
-
-		articleId = body.articleId.id;
-	});
-
-	afterAll(async () => {
-		//await db.deleteFrom("post").where("title", "=", "Test Article").execute();
-		await logoutUser(loginHeaders);
-	});
-
-	test.skip("fetch article with alias, should return 201 and article with all parameters which were provided by the post request without emails usernames and userids", async () => {
-		const response = await app.request("/articles/detail/test-article", { headers: loginHeaders });
-		expect(response.status).toBe(200);
-		const body = await response.json();
-		expect(body).toHaveProperty("article");
-
-		expect(body.article.title).toBe("Test Article");
-		expect(body.article.alias).toBe("test-article");
-		expect(body.article.post_id).toBe(articleId);
-		expect(body.article.phenomenon[0].phenomenon_id).toBe(2);
-		expect(body.article.phenomenon[0].name).not.toBeNull();
-
-		expect(body.article.bibliography[0].name).toBe("TestBibliography1");
-
-		expect(body.article.authors[0].firstname).not.toBeNull();
-		expect(body.article.authors[0].lastname).not.toBeNull();
-	});
-
-	test("provide no alias, should return status code 400 with error message provided alias is not a string", async () => {
-		const response = await app.request("/articles/detail/{}", { headers: loginHeaders });
-		expect(response.status).toBe(400);
-		const body = await response.json();
-		expect(body).toBe("Provided alias is not a string");
-	});
+	it.each(["0", "-1", "1.5", "invalid", "9007199254740992"])(
+		"rejects invalid sitemap project %s",
+		async (id) => {
+			expect((await articles.request(`/sitemap/${id}`)).status).toBe(400);
+			expect(repo.getSitemapArticlesByProject).not.toHaveBeenCalled();
+		},
+	);
 });

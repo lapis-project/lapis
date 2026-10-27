@@ -68,7 +68,7 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 			:key="transcript.instance_id!"
 			class="mx-2 rounded bg-gray-100 font-medium text-gray-700 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 shadow-sm"
 		>
-			<Collapsible>
+			<Collapsible v-slot="{ open }">
 				<div class="flex items-center justify-between gap-3 px-3 py-2">
 					<NuxtLinkLocale
 						class="text-black underline decoration-dotted transition hover:no-underline focus-visible:no-underline hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -81,7 +81,7 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 
 					<div class="flex items-center gap-2">
 						<div v-if="props.hasKwicSearch">
-							<span class="text-xs text-muted-foreground font-normal">
+							<span class="text-xs text-accent-foreground font-normal">
 								{{ props.transcriptHitCounts?.[String(transcript.instance_id)]?.hitCount }}
 								Treffer
 							</span>
@@ -98,7 +98,7 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 										)
 									"
 								>
-									{{ "Mehr" }}
+									{{ open ? "Weniger" : "Mehr" }}
 								</Button>
 							</CollapsibleTrigger>
 						</div>

@@ -277,8 +277,14 @@ const kwicTranscriptResults = computed(() => {
 							<p class="text-lg">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground"
-									>({{ searchResponse?.transcripts.length ?? 0 }})</span
-								>
+									>({{ searchResponse?.transcripts.length ?? 0 }})
+								</span>
+							</p>
+							<p v-if="hasKwicSearch && !isPending" class="ml-auto">
+								KWIC Treffer
+								<span class="text-sm text-accent-foreground"
+									>({{ searchResponse?.totalHits ?? 0 }})
+								</span>
 							</p>
 						</div>
 

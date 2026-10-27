@@ -268,46 +268,38 @@ const kwicTranscriptResults = computed(() => {
 				/>
 			</div>
 
-			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
+			<div
+				class="p-4 w-full h-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden"
+			>
 				<div class="flex flex-col flex-grow min-h-0 overflow-hidden">
-					<div v-if="isPending" class="justify-center flex m-auto">
-						<Spinner />
-					</div>
 					<div class="w-full flex flex-col flex-grow min-h-0 overflow-y-auto">
 						<div class="grid grid-cols-[auto_1fr] mt-2 mb-5 pb-5 items-center mx-2 border-b">
 							<p class="text-lg">
 								Ergebnisse
 								<span class="text-sm text-muted-foreground"
-									>({{ searchResponse?.transcripts.length }})</span
+									>({{ searchResponse?.transcripts.length ?? 0 }})</span
 								>
 							</p>
+						</div>
+
+						<div v-if="isPending" class="justify-center flex m-auto">
+							<Spinner />
 						</div>
 						<div v-if="!isPending && transcripts != null && transcripts.length > 0" class="w-full">
 							<TranscriptResults
 								:transcripts="displayTranscripts"
 								:transcript-hit-counts="matchesByTranscript ?? {}"
 								:has-kwic-search="hasKwicSearch"
-								:current-search-params="currentSearchParams"
+								:current-search-params="currentSearchParams ?? null"
 								@select="handleSelection"
 								@bookmark="handleBookmark"
 							/>
 						</div>
-						<!-- <div
-							v-else-if="
-								!isPending && transcripts != null && transcripts.length > 0 && hasKwicSearch
-							"
-							class="w-full"
-						>
-							<KwicTranscriptResults
-								:kwic="kwic ?? {}"
-								:transcripts="matchesByTranscript ?? {}"
-								:bookmarked-ids="bookmarkedIds"
-								@select="handleSelection"
-								@bookmark="handleBookmark"
-							/>
-						</div> -->
 
-						<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
+						<div
+							v-if="!isPending && (!transcripts || transcripts.length === 0)"
+							class="text-md text-muted-foreground justify-center flex m-auto"
+						>
 							Keine Ergebnisse vorhanden.
 						</div>
 					</div>

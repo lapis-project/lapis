@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { BookmarkIcon, CopyIcon, DownloadIcon } from "@lucide/vue";
+import { AccordionContent, AccordionItem, AccordionRoot, AccordionTrigger } from "reka-ui";
 import { toast } from "vue-sonner";
 
 import type { APITranscriptsWithBookmark, KwicLine, SearchParams } from "@/types/api";
@@ -7,7 +8,7 @@ import type { APITranscriptsWithBookmark, KwicLine, SearchParams } from "@/types
 const props = defineProps<{
 	transcripts: APITranscriptsWithBookmark;
 	transcriptHitCounts?: Record<string, { hitCount?: number | null }>;
-	currentSearchParams: SearchParams;
+	currentSearchParams: SearchParams | null;
 	hasKwicSearch: boolean;
 }>();
 
@@ -15,11 +16,7 @@ const emit = defineEmits<{
 	bookmark: [transcript: APITranscriptsWithBookmark[number]];
 }>();
 
-const { response, isPending, toggleTranscriptHits } = useHitsPerTranscript(2);
-
-function getKwicLineId(line: any) {
-	return line?.Tbl_refs?.[0] ?? line?.Refs?.[0] ?? `kwic-${line?.toknum ?? "unknown"}`;
-}
+const { response, isPending, fetchTranscriptHits, generateCacheKey } = useHitsPerTranscript(2);
 
 function getKwicTextTokenValue(token: { str?: string; strc?: string } | undefined) {
 	return token?.str ?? token?.strc ?? "";
@@ -58,6 +55,10 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 	};
 	emit("bookmark", item as APITranscriptsWithBookmark[number]);
 }
+
+async function toggleTranscriptHits(id: number, params: SearchParams) {
+	await fetchTranscriptHits(id, params);
+}
 </script>
 
 <template>
@@ -67,7 +68,7 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 			:key="transcript.instance_id!"
 			class="mx-2 rounded bg-gray-100 font-medium text-gray-700 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 shadow-sm"
 		>
-			<Collapsible :open="false">
+			<Collapsible>
 				<div class="flex items-center justify-between gap-3 px-3 py-2">
 					<NuxtLinkLocale
 						class="text-black underline decoration-dotted transition hover:no-underline focus-visible:no-underline hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -81,7 +82,8 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 					<div class="flex items-center gap-2">
 						<div v-if="props.hasKwicSearch">
 							<span class="text-xs text-muted-foreground font-normal">
-								{{ props.transcriptHitCounts?.[String(transcript.instance_id)]?.hitCount }} Treffer
+								{{ props.transcriptHitCounts?.[String(transcript.instance_id)]?.hitCount }}
+								Treffer
 							</span>
 
 							<CollapsibleTrigger as-child>
@@ -89,7 +91,12 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 									variant="ghost"
 									size="sm"
 									class="h-7 px-2 text-xs font-medium"
-									@click="toggleTranscriptHits(transcript.instance_id, props.currentSearchParams)"
+									@click="
+										toggleTranscriptHits(
+											transcript.instance_id ?? 0,
+											props.currentSearchParams ?? { has_bkms: false },
+										)
+									"
 								>
 									{{ "Mehr" }}
 								</Button>
@@ -108,9 +115,7 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 					</div>
 				</div>
 
-				<CollapsibleContent
-					class="overflow-hidden border-t bg-white data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-				>
+				<CollapsibleContent class="border-t bg-white">
 					<div class="px-3 py-3">
 						<div class="flex flex-col gap-2">
 							<div
@@ -127,10 +132,22 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 								<span class="sr-only">Aktionen</span>
 							</div>
 
-							<div v-if="isPending" class="text-muted-foreground">Lade Treffer...</div>
-							<div v-else-if="response.lines.length" class="flex flex-col gap-1">
+							<div
+								v-if="isPending(transcript.instance_id!, props.currentSearchParams!)"
+								class="justify-center flex m-auto p-4"
+							>
+								<Spinner />
+							</div>
+							<div
+								v-else-if="
+									response[generateCacheKey(transcript.instance_id!, props.currentSearchParams!)]
+								"
+								class="flex flex-col gap-1"
+							>
 								<div
-									v-for="(line, index) in response.lines"
+									v-for="(line, index) in response[
+										generateCacheKey(transcript.instance_id!, props.currentSearchParams!)
+									].kwic.Lines"
 									:key="line.toknum"
 									class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"
 								>
@@ -200,7 +217,14 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 												Plain Text
 											</DropdownMenuItem>
 											<DropdownMenuItem
-												@click="copyKwicLine(response.xmlHits[index]?.content ?? '', 'xml')"
+												@click="
+													copyKwicLine(
+														response[
+															generateCacheKey(transcript.instance_id!, props.currentSearchParams!)
+														].matchesByTranscript['1'].xmlHits[index].content ?? '',
+														'xml',
+													)
+												"
 											>
 												XML
 											</DropdownMenuItem>
@@ -208,14 +232,19 @@ function handleBookmark(transcript: APITranscriptsWithBookmark[number]) {
 									</DropdownMenu>
 								</div>
 							</div>
-							<div v-else class="text-muted-foreground">Keine Treffer für dieses Transcript.</div>
+							<div
+								v-else-if="
+									!isPending(transcript.instance_id!, props.currentSearchParams!) &&
+									!response[generateCacheKey(transcript.instance_id!, props.currentSearchParams!)]
+								"
+								class="text-muted-foreground text-sm justify-center m-auto p-4"
+							>
+								Keine Treffer für dieses Transkript.
+							</div>
 						</div>
 					</div>
 				</CollapsibleContent>
 			</Collapsible>
 		</div>
-	</div>
-	<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
-		Keine Ergebnisse vorhanden.
 	</div>
 </template>

@@ -1,54 +1,58 @@
 import type { SearchParams } from "@/types/api";
 
+function generateCacheKey(transcriptId: number, params: SearchParams) {
+	return `${transcriptId}:${JSON.stringify(
+		Object.entries(params).toSorted(([a], [b]) => a.localeCompare(b)),
+	)}`;
+}
+
 export function useHitsPerTranscript(projectId: number) {
 	const env = useRuntimeConfig();
 
 	const response = ref<Record<string, any>>({});
-	const status = ref<"idle" | "pending" | "success" | "error">("idle");
-	const error = ref<string | null>(null);
+	const status = ref<Record<string, "idle" | "pending" | "success" | "error">>({});
+	const error = ref<Record<string, string | null>>({});
 
-	const toggleTranscriptHits = async (
-		transcriptId: number | string | null | undefined,
-		params: SearchParams,
-	) => {
-		if (transcriptId == null) return;
+	const fetchTranscriptHits = async (transcriptId: number, params: SearchParams) => {
+		const key = generateCacheKey(transcriptId, params);
 
-		const key = String(transcriptId);
+		if (response.value[key] !== undefined) return;
+		if (status.value[key] === "pending") return;
+
+		status.value[key] = "pending";
+		error.value[key] = null;
 
 		try {
 			const { data, error: fetchError } = await useFetch(`/corpus/search/${projectId}/hits`, {
 				baseURL: env.public.apiBaseUrl,
 				method: "GET",
-				query: { ...params, instance_id: key },
+				query: { ...params, instance_id: String(transcriptId) },
 				credentials: "include",
 			});
 
 			if (fetchError.value) {
-				status.value = "error";
-				error.value = fetchError.value.message;
-				console.error("Error loading KWIC results:", fetchError.value);
+				status.value[key] = "error";
+				error.value[key] = fetchError.value.message;
 				return;
 			}
 
-			response.value = data.value;
-
-			status.value = "success";
-		} catch (err) {
-			console.error(err);
-			error.value = "Unexpected error";
-			status.value = "error";
+			response.value[key] = data.value;
+			status.value[key] = "success";
+		} catch {
+			status.value[key] = "error";
+			error.value[key] = "Unexpected error";
 		}
 	};
-
-	const isPending = computed(() => status.value === "pending");
-	const hasError = computed(() => status.value === "error");
 
 	return {
 		response,
 		status,
 		error,
-		hasError,
-		isPending,
-		toggleTranscriptHits,
+		fetchTranscriptHits,
+		isPending: (id: number, params: SearchParams) =>
+			status.value[generateCacheKey(id, params)] === "pending",
+		hasError: (id: number, params: SearchParams) =>
+			status.value[generateCacheKey(id, params)] === "error",
+		generateCacheKey,
 	};
 }

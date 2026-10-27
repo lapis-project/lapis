@@ -12,6 +12,7 @@ import {
 import {
 	countGroups,
 	countRegions,
+	countRegisters,
 	locatePoint,
 	regionalCooccurrences,
 	regionalDistributions,
@@ -59,6 +60,61 @@ test("counts answers rather than locations or informants, including repeated ans
 		),
 		{ B: 1 },
 	);
+});
+
+test("counts register answers across locations and informants, including custom and missing registers", () => {
+	const points = [
+		{
+			lon: 11,
+			lat: 47,
+			informants: [
+				{
+					answers: [
+						{ annotation: "A", response: "a", variety: "Dialekt (Mundart)" },
+						{ annotation: "A", response: "a2", variety: "Dialekt (Mundart)" },
+						{ annotation: "A", response: "a", variety: "Ihr Hochdeutsch" },
+					],
+				},
+				{
+					answers: [
+						{ annotation: "B", response: "b", variety: "Dialekt (Mundart)" },
+						{ annotation: "B", response: "b2", variety: "Custom register" },
+					],
+				},
+			],
+		},
+		{
+			lon: 16,
+			lat: 48,
+			informants: [
+				{
+					answers: [
+						{ annotation: "B", response: "b", variety: "Ihr Hochdeutsch" },
+						{ annotation: "A", response: "a", variety: "" },
+						{ annotation: "B", response: "b2", variety: "  " },
+					],
+				},
+			],
+		},
+	];
+	const entries = surveyAnswers(points, () => ({}));
+	const counts = countRegisters(entries);
+	assert.deepEqual(counts, {
+		"Dialekt (Mundart)": 3,
+		"Ihr Hochdeutsch": 2,
+		"Custom register": 1,
+		"": 2,
+	});
+	assert.equal(
+		Object.values(counts).reduce((sum, count) => sum + count, 0),
+		entries.length,
+	);
+	assert.deepEqual(countRegisters(entries.filter((entry) => entry.annotation === "A")), {
+		"Dialekt (Mundart)": 2,
+		"Ihr Hochdeutsch": 1,
+		"": 1,
+	});
+	assert.deepEqual(countRegisters([]), {});
 });
 
 test("cooccurrences use the selected geography and exclude unknown regions and selected variants", () => {

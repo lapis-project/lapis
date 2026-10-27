@@ -101,6 +101,7 @@ export default class MaplibreExportControl implements IControl {
 		this.exportButton.classList.add(`${this.MAPLIB_CSS_PREFIX}-ctrl-icon`);
 		this.exportButton.classList.add(`${this.MAPLIB_CSS_PREFIX}-export-control`);
 		this.exportButton.type = "button";
+		this.exportButton.title = "Export map";
 		this.exportButton.addEventListener("click", () => {
 			this.exportButton.style.display = "none";
 			this.exportContainer.style.display = "block";

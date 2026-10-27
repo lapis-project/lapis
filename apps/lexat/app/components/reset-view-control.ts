@@ -2,7 +2,7 @@ import type { Map as MaplibreMap } from "maplibre-gl";
 
 export class ResetViewControl {
 	protected container: HTMLElement | undefined;
-	protected exportButton: HTMLButtonElement | undefined;
+	protected resetButton: HTMLButtonElement | undefined;
 	protected map?: MaplibreMap;
 	private initialCenter: [number, number];
 	private initialZoom: number;
@@ -17,11 +17,11 @@ export class ResetViewControl {
 		this.container = document.createElement("div");
 		this.container.classList.add("maplibregl-ctrl");
 		this.container.classList.add("maplibregl-ctrl-group");
-		this.exportButton = document.createElement("button");
-		this.exportButton.className = "maplibregl-ctrl-icon maplibregl-ctrl-reset";
-		this.exportButton.type = "button";
-		this.exportButton.title = "Reset view";
-		this.exportButton.addEventListener("click", () => {
+		this.resetButton = document.createElement("button");
+		this.resetButton.className = "maplibregl-ctrl-icon maplibregl-ctrl-reset";
+		this.resetButton.type = "button";
+		this.resetButton.title = "Reset view";
+		this.resetButton.addEventListener("click", () => {
 			this.map?.jumpTo({
 				center: this.initialCenter,
 				zoom: this.initialZoom,
@@ -30,7 +30,7 @@ export class ResetViewControl {
 			});
 		});
 
-		this.container.appendChild(this.exportButton);
+		this.container.appendChild(this.resetButton);
 		return this.container;
 	}
 

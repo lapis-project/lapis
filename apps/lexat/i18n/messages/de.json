@@ -722,6 +722,10 @@
 	"RegionDistributionCard": {
 		"title": "Verteilung aller Varianten"
 	},
+	"RegisterGroupingCard": {
+		"title": "Register-Übersicht",
+		"unspecified": "Keine Angabe"
+	},
 	"SelectedPhenomenonCard": {
 		"title": "Ausgewähltes Phänomen",
 		"forms": "Bögen",

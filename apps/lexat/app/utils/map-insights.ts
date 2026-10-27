@@ -9,6 +9,7 @@ export type DistributionMode = "region" | "bundesland";
 export interface InsightAnswer {
 	annotation: string;
 	response: string;
+	variety: string;
 	region?: string;
 	bundesland?: string;
 }
@@ -33,6 +34,7 @@ export function surveyAnswers(
 			informant.answers.map((answer) => ({
 				annotation: answer.annotation,
 				response: answer.response,
+				variety: answer.variety,
 				...location,
 			})),
 		);
@@ -45,6 +47,15 @@ export function countGroups(answers: Array<InsightAnswer>, groups: Array<Variant
 	for (const answer of answers) {
 		const id = ids.get(answer.annotation);
 		if (id !== undefined) counts.set(id, (counts.get(id) ?? 0) + 1);
+	}
+	return Object.fromEntries(counts);
+}
+
+export function countRegisters(answers: Array<InsightAnswer>) {
+	const counts = new Map<string, number>();
+	for (const answer of answers) {
+		const register = answer.variety.trim();
+		counts.set(register, (counts.get(register) ?? 0) + 1);
 	}
 	return Object.fromEntries(counts);
 }

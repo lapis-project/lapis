@@ -722,6 +722,10 @@
 	"RegionDistributionCard": {
 		"title": "Distribution of all variants"
 	},
+	"RegisterGroupingCard": {
+		"title": "Register overview",
+		"unspecified": "Not specified"
+	},
 	"SelectedPhenomenonCard": {
 		"title": "Selected phenomenon",
 		"forms": "Forms",

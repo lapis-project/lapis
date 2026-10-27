@@ -56,6 +56,8 @@ jobs:
             echo "environment_short=prod-backend" >> $GITHUB_OUTPUT
           else
             echo "environment=dev-backend"
+            ENV_NAME="dev-backend"
+            ENV_SHORT="dev-backend"
             echo "environment=dev-backend" >> $GITHUB_OUTPUT
             echo "environment_short=dev-backend" >> $GITHUB_OUTPUT
           fi

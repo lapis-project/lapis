@@ -11,19 +11,15 @@ on:
           - backend
           - lexat
           - corpus
-      branch:
-        description: "Branch to deploy (EITHER this or Tag)"
-        required: false
-      tag:
-        description: "Tag to deploy (EITHER this or Branch)"
-        required: false
+          - lexvad
+          - lioe
 
 jobs:
   call_build_workflow:
     uses: ./.github/workflows/build-and-push-app.yml
     with:
       app_name: ${{ github.event.inputs.app_name }}
-      git_ref: ${{ github.event.inputs.tag || github.event.inputs.branch }}
+      git_ref: ${{ github.ref }}
       # Pass public config from GitHub Variables (vars) into the action's inputs
       # ADD HERE IF THERE ARE NEW BUILD ARGS
       NUXT_PUBLIC_ZOTERO_BASE_URL: ${{ vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}

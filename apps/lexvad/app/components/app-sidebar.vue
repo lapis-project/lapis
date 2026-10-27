@@ -51,10 +51,9 @@ const groups = computed({
 	},
 });
 
-const answerCount = computed(() => filterDataByQuestionAndVariant(props.activeQuestion).length);
-
 const groupCount = computed(() => {
 	const counts = countAnswersForGroups(props.activeQuestion, groups.value);
+	const total = Object.values(counts).reduce((prev, curr) => prev + curr, 0);
 	return groups.value
 		.map((group) => {
 			const abs = counts[group.id] ?? 0;
@@ -62,7 +61,7 @@ const groupCount = computed(() => {
 				id: group.id,
 				label: groupDisplayLabel(group),
 				abs,
-				value: answerCount.value > 0 ? abs / answerCount.value : 0,
+				value: total > 0 ? abs / total : 0,
 				secondary: `${t("MapsPage.sidebar.places", abs)}`,
 			};
 		})

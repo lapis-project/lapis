@@ -22,15 +22,19 @@ function getKwicTextTokenValue(token: { str?: string; strc?: string } | undefine
 	return token?.str ?? token?.strc ?? "";
 }
 
+function getFullKwicLineText(line: KwicLine) {
+	const left = line.Left?.map((token) => getKwicTextTokenValue(token)).join(" ") ?? "";
+	const kwic = line.Kwic?.map((token) => token.str ?? "").join(" ") ?? "";
+	const right = line.Right?.map((token) => getKwicTextTokenValue(token)).join(" ") ?? "";
+
+	return [left, kwic, right].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+}
+
 function copyKwicLine(line: KwicLine | string, category: string) {
 	let text = "";
 	let output = "";
 	if (category === "kwic" && typeof line !== "string") {
-		const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";
-		const kwic = line.Kwic?.map((t: any) => t.str).join(" ") ?? "";
-		const right = line.Right?.map((t: any) => t.str).join(" ") ?? "";
-
-		text = `${left} ${kwic} ${right}`.replace(/\s+/g, " ").trim();
+		text = getFullKwicLineText(line);
 		output = "Zeile";
 	} else if (category === "xml" && typeof line === "string") {
 		text = line;
@@ -79,9 +83,9 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 						{{ transcript.transcript_name ?? `Transcript ${transcript.instance_id}` }}
 					</NuxtLinkLocale>
 
-					<div class="flex items-center gap-2">
+					<div class="flex flex-row items-center gap-2">
 						<div v-if="props.hasKwicSearch">
-							<span class="text-xs text-accent-foreground font-normal">
+							<span class="text-xs text-accent-foreground font-normal mr-2">
 								{{ props.transcriptHitCounts?.[String(transcript.instance_id)]?.hitCount }}
 								Treffer
 							</span>
@@ -115,7 +119,7 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 					</div>
 				</div>
 
-				<CollapsibleContent class="border-t bg-white">
+				<CollapsibleContent class="border-t bg-white border-10 border-gray-100 rounded-lg">
 					<div class="px-3 py-3">
 						<div class="flex flex-col gap-2">
 							<div
@@ -149,56 +153,53 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 										generateCacheKey(transcript.instance_id!, props.currentSearchParams!)
 									].kwic.Lines"
 									:key="line.toknum"
-									class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2"
+									class="relative grid w-full min-w-0 max-w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 overflow-hidden"
 								>
 									<span class="pt-3 text-xs text-muted-foreground">
 										{{ line.toknum }}
 									</span>
 
-									<button
-										type="button"
-										class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
+									<div
+										class="min-w-0 max-w-full rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
 									>
 										<div
-											class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+											class="flex min-w-0 max-w-full items-center gap-2 overflow-hidden whitespace-nowrap px-3 py-2 text-sm transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80"
 										>
 											<div
-												class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+												class="min-w-0 flex-1 overflow-hidden rounded border border-foreground/20 bg-white p-2 text-right text-sm"
 											>
 												<span
-													v-for="(token, tokenIndex) in line.Left"
-													:key="tokenIndex"
-													class="mr-1"
+													class="block min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
 												>
-													{{ getKwicTextTokenValue(token) }}
+													{{
+														line.Left?.map((token) => getKwicTextTokenValue(token)).join(" ") || ""
+													}}
 												</span>
 											</div>
 
 											<div
-												class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
+												class="shrink-0 max-w-[12rem] overflow-hidden rounded-sm bg-accent-foreground/20 px-2.5 py-2 text-center font-semibold text-accent-foreground"
 											>
 												<span
-													v-for="(token, tokenIndex) in line.Kwic"
-													:key="tokenIndex"
-													class="mr-1"
+													class="block min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
 												>
-													{{ token.str }}
+													{{ line.Kwic?.map((token) => token.str ?? "").join(" ") || "" }}
 												</span>
 											</div>
 
 											<div
-												class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-left transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
+												class="min-w-0 flex-1 overflow-hidden rounded border border-foreground/20 bg-white p-2 text-left text-sm"
 											>
 												<span
-													v-for="(token, tokenIndex) in line.Right"
-													:key="tokenIndex"
-													class="mr-1"
+													class="block min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
 												>
-													{{ getKwicTextTokenValue(token) }}
+													{{
+														line.Right?.map((token) => getKwicTextTokenValue(token)).join(" ") || ""
+													}}
 												</span>
 											</div>
 										</div>
-									</button>
+									</div>
 
 									<DropdownMenu>
 										<DropdownMenuTrigger as-child>

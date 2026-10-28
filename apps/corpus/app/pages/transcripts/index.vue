@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { StringifyOptions } from "node:querystring";
 
-import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "@lucide/vue";
+import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download, X } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
@@ -11,6 +11,8 @@ import type {
 	KwicLine,
 	SearchParams,
 } from "@/types/api";
+
+import { austrianStates } from "../../../../backend/src/lib/austrianPostalCodes.ts";
 
 definePageMeta({
 	layout: "tool",
@@ -26,6 +28,8 @@ const currentSearchParams = ref<SearchParams | null>(null);
 const bookmarkedIds = ref<Array<string>>([]);
 
 const { response: searchResponse, search, status, isPending } = useSearch(2);
+const { response: filter, isPending: isLoadingFilter } = useSettingsProjectsFilter();
+const { response: places, isPending: isLoadingPlaces } = usePlaces(2);
 
 const transcripts = computed(() => {
 	if (route.query.gender === "divers") return null;
@@ -220,18 +224,18 @@ const hasKwicSearch = computed(() => {
 	return Boolean(q.word || q.query || q.lemma || q.pos || q.feats || q.comment_search || q.mode);
 });
 
-const kwicTranscriptResults = computed(() => {
-	if (!kwic.value || !transcripts.value) return [];
-	return transcripts.value.filter(
-		(result) =>
-			result.instance_id != null &&
-			(kwic.value?.Lines ?? []).some((line) => {
-				const transcriptId =
-					getTranscriptIdFromRefs(line.Tbl_refs) ?? getTranscriptIdFromRefs(line.Refs) ?? null;
-				return transcriptId != null && Number(result.instance_id) === transcriptId;
-			}),
-	);
-});
+const normalizeQueryValue = (
+	value: string | number | string[] | null | undefined,
+): string | string[] | null | undefined => {
+	if (value == null || value === "") return undefined;
+	if (Array.isArray(value)) {
+		return value.filter((entry) => entry != null && entry !== "").map(String);
+	}
+	return String(value);
+};
+
+const { activeFilterTagEntries, activeFilterCount, removeFilterTag, clearAllFilterTags } =
+	useActiveFilterTags();
 </script>
 
 <template>
@@ -274,18 +278,47 @@ const kwicTranscriptResults = computed(() => {
 				<div class="flex flex-col flex-grow min-h-0 overflow-hidden">
 					<div class="w-full flex flex-col flex-grow min-h-0 overflow-y-auto">
 						<div class="grid grid-cols-[auto_1fr] mt-2 mb-5 pb-5 items-center mx-2 border-b">
-							<p class="text-lg">
-								Ergebnisse
-								<span class="text-sm text-muted-foreground"
-									>({{ searchResponse?.transcripts.length ?? 0 }})
-								</span>
-							</p>
-							<p v-if="hasKwicSearch && !isPending" class="ml-auto">
-								KWIC Treffer
-								<span class="text-sm text-accent-foreground"
-									>({{ searchResponse?.totalHits ?? 0 }})
-								</span>
-							</p>
+							<div class="flex flex-col gap-2">
+								<p class="text-lg">
+									Ergebnisse
+									<span class="text-sm text-muted-foreground"
+										>({{ searchResponse?.transcripts.length ?? 0 }})
+									</span>
+								</p>
+								<p v-if="hasKwicSearch && !isPending" class="text-right">
+									KWIC Treffer
+									<span class="text-sm text-accent-foreground"
+										>({{ searchResponse?.transcripts.length ?? 0 }})
+									</span>
+								</p>
+							</div>
+							<div class="ml-auto flex flex-wrap items-center justify-end gap-2">
+								<div v-if="activeFilterCount > 0" class="flex flex-wrap items-center gap-2">
+									<div
+										v-for="tag in activeFilterTagEntries"
+										:key="`${tag.key}-${tag.value}`"
+										class="inline-flex items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
+									>
+										<span>{{ tag.label }}</span>
+										<button
+											type="button"
+											class="inline-flex size-4 items-center justify-center rounded-full hover:bg-foreground/10"
+											:aria-label="`Filter ${tag.label} entfernen`"
+											@click="removeFilterTag(tag.key, tag.value)"
+										>
+											<X class="size-3" />
+										</button>
+									</div>
+									<Button
+										variant="outline"
+										size="sm"
+										class="h-7 px-2 text-xs"
+										@click="clearAllFilterTags"
+									>
+										Alle löschen
+									</Button>
+								</div>
+							</div>
 						</div>
 
 						<div v-if="isPending" class="justify-center flex m-auto">

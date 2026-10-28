@@ -15,8 +15,8 @@ const filterTagLabels: Record<string, string> = {
 	state: "Bundesland",
 	dialect_competence: "Dialektkompetenz",
 	standard_competence: "Standardkompetenz",
-	age_lower: "Alter von",
-	age_upper: "Alter bis",
+	age_lower: "Altersgruppe",
+	age_upper: "Altersgruppe",
 	has_bkms: "BKMS",
 };
 
@@ -28,27 +28,45 @@ export function useActiveFilterTags() {
 	const route = useRoute();
 	const router = useRouter();
 
-	const activeFilterTagEntries = computed(() =>
-		Object.entries(filterTagLabels).flatMap(([key, label]) => {
-			const raw = route.query[key];
+	const activeFilterTagEntries = computed(() => {
+		const entries: Array<{ key: string; label: string; value: string }> = [];
+		const hasAgeFilter = route.query.age_lower != null || route.query.age_upper != null;
 
-			if (raw == null || raw === "") return [];
+		if (hasAgeFilter) {
+			entries.push({ key: "age_group", label: "Altersgruppe", value: "age_group" });
+		}
+
+		for (const [key, label] of Object.entries(filterTagLabels)) {
+			if (key === "age_lower" || key === "age_upper") continue;
+
+			const raw = route.query[key];
+			if (raw == null || raw === "") continue;
 
 			const values = (Array.isArray(raw) ? raw : [raw]).filter(
 				(value): value is string => typeof value === "string" && value !== "",
 			);
 
-			return values
-				.filter((value) => key !== "has_bkms" || value === "true")
-				.map((value) => ({ key, label, value }));
-		}),
-	);
+			for (const value of values) {
+				if (key !== "has_bkms" || value === "true") {
+					entries.push({ key, label, value });
+				}
+			}
+		}
+
+		return entries;
+	});
 
 	const activeFilterCount = computed(() => activeFilterTagEntries.value.length);
 
 	function removeFilterTag(key: string, value?: string) {
 		const nextQuery = { ...route.query };
 		const current = nextQuery[key];
+
+		if (key === "age_group" || key === "age_lower" || key === "age_upper") {
+			delete nextQuery.age_lower;
+			delete nextQuery.age_upper;
+			return router.replace({ query: nextQuery });
+		}
 
 		if (Array.isArray(current) && value !== undefined) {
 			const remaining = current.filter((item) => item !== value);
@@ -60,12 +78,6 @@ export function useActiveFilterTags() {
 			}
 		} else {
 			delete nextQuery[key];
-		}
-
-		// Age bounds form one logical filter.
-		if (key === "age_lower" || key === "age_upper") {
-			delete nextQuery.age_lower;
-			delete nextQuery.age_upper;
 		}
 
 		// Reset mode and page when no search terms remain.

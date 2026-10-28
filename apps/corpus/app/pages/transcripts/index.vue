@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import type { StringifyOptions } from "node:querystring";
-
-import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download, X } from "@lucide/vue";
+import { DownloadIcon, ChevronLeft, ChevronRight, X } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
@@ -11,8 +9,6 @@ import type {
 	KwicLine,
 	SearchParams,
 } from "@/types/api";
-
-import { austrianStates } from "../../../../backend/src/lib/austrianPostalCodes.ts";
 
 definePageMeta({
 	layout: "tool",
@@ -28,8 +24,6 @@ const currentSearchParams = ref<SearchParams | null>(null);
 const bookmarkedIds = ref<Array<string>>([]);
 
 const { response: searchResponse, search, status, isPending } = useSearch(2);
-const { response: filter, isPending: isLoadingFilter } = useSettingsProjectsFilter();
-const { response: places, isPending: isLoadingPlaces } = usePlaces(2);
 
 const transcripts = computed(() => {
 	if (route.query.gender === "divers") return null;
@@ -224,16 +218,6 @@ const hasKwicSearch = computed(() => {
 	return Boolean(q.word || q.query || q.lemma || q.pos || q.feats || q.comment_search || q.mode);
 });
 
-const normalizeQueryValue = (
-	value: string | number | string[] | null | undefined,
-): string | string[] | null | undefined => {
-	if (value == null || value === "") return undefined;
-	if (Array.isArray(value)) {
-		return value.filter((entry) => entry != null && entry !== "").map(String);
-	}
-	return String(value);
-};
-
 const { activeFilterTagEntries, activeFilterCount, removeFilterTag, clearAllFilterTags } =
 	useActiveFilterTags();
 </script>
@@ -277,27 +261,28 @@ const { activeFilterTagEntries, activeFilterCount, removeFilterTag, clearAllFilt
 			>
 				<div class="flex flex-col flex-grow min-h-0 overflow-hidden">
 					<div class="w-full flex flex-col flex-grow min-h-0 overflow-y-auto">
-						<div class="grid grid-cols-[auto_1fr] mt-2 mb-5 pb-5 items-center mx-2 border-b">
-							<div class="flex flex-col gap-2">
+						<div class="grid grid-cols-[auto_1fr] mt-2 mb-5 pb-5 items-center mx-2 border-b gap-5">
+							<div v-if="!isPending" class="flex flex-col gap-2">
 								<p class="text-lg">
-									Ergebnisse
-									<span class="text-sm text-muted-foreground"
-										>({{ searchResponse?.transcripts.length ?? 0 }})
-									</span>
+									<span class="font-bold">{{ searchResponse?.transcripts.length ?? 0 }}</span>
+									Transkripte gefunden
 								</p>
-								<p v-if="hasKwicSearch && !isPending" class="text-right">
+								<p v-if="hasKwicSearch && !isPending">
 									KWIC Treffer
 									<span class="text-sm text-accent-foreground"
-										>({{ searchResponse?.transcripts.length ?? 0 }})
+										>({{ searchResponse?.totalHits ?? 0 }})
 									</span>
 								</p>
+							</div>
+							<div v-else>
+								<Spinner />
 							</div>
 							<div class="ml-auto flex flex-wrap items-center justify-end gap-2">
 								<div v-if="activeFilterCount > 0" class="flex flex-wrap items-center gap-2">
 									<div
 										v-for="tag in activeFilterTagEntries"
 										:key="`${tag.key}-${tag.value}`"
-										class="inline-flex items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
+										class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
 									>
 										<span>{{ tag.label }}</span>
 										<button
@@ -317,7 +302,11 @@ const { activeFilterTagEntries, activeFilterCount, removeFilterTag, clearAllFilt
 									>
 										Alle löschen
 									</Button>
+									<span class="text-foreground/10">|</span>
 								</div>
+								<Button variant="ghost" size="sm" class="h-7 px-2 text-xs gap-2">
+									<DownloadIcon class="size-4" />
+								</Button>
 							</div>
 						</div>
 

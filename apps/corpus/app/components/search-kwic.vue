@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { Undo2 } from "@lucide/vue";
-import { reactive, ref, computed } from "vue";
+import { Undo2, CircleQuestionMarkIcon } from "@lucide/vue";
 
 const mode = ref<"simple" | "regex">("simple");
 
@@ -116,7 +115,17 @@ watch(
 				</div>
 
 				<div class="flex flex-col gap-1">
-					<Label>POS</Label>
+					<div class="flex flex-row gap-2">
+						<Label>POS</Label>
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger as-child>
+									<CircleQuestionMarkIcon :size="16" class="text-gray-400 hover:text-gray-500" />
+								</TooltipTrigger>
+								<TooltipContent> Part-of-speech </TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					</div>
 					<div class="flex gap-2">
 						<Input v-model="form.pos" placeholder="zB. VERB" />
 						<Button type="button" size="icon" variant="outline" @click="clearField('pos')">

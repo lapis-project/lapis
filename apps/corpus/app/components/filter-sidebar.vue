@@ -526,7 +526,7 @@ function clearAllFilters() {
 
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
-							<span class="flex-row flex gap-1">
+							<span class="flex-row flex gap-2">
 								<Checkbox
 									type="checkbox"
 									id="competence-enabled"
@@ -571,7 +571,7 @@ function clearAllFilters() {
 
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
-							<span class="flex-row flex gap-1">
+							<span class="flex-row flex gap-2">
 								<Checkbox
 									type="checkbox"
 									id="dialect-competence-enabled"
@@ -616,7 +616,7 @@ function clearAllFilters() {
 
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
-							<span class="flex-row flex gap-1">
+							<span class="flex-row flex gap-2">
 								<Checkbox type="checkbox" id="bkms-enabled" v-model="bkmsEnabled" />
 								<Label class="tracking-wide pl-1" for="nos">BKMS</Label>
 							</span>

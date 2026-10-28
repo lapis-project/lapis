@@ -24,6 +24,12 @@
 		"empty": "No {placeholder} found",
 		"search": "Search {placeholder}..."
 	},
+	"Comparison": {
+		"comparison-view": "Comparison view",
+		"match-by-informant": "Match by id",
+		"match-by-location": "Match by location",
+		"variant-flow": "Variant flow"
+	},
 	"DatasetList": {
 		"title": "Stored datasets",
 		"description": "The datasets you uploaded in this browser.",

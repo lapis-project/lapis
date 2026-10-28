@@ -11,6 +11,11 @@ import {
 	serializeMapQuery,
 } from "@/utils/map-query";
 import { PILOT_DATASET_ID } from "@/utils/pilot-data";
+import {
+	type ComparisonMatchMode,
+	locationMatchRadius,
+	usePhenomenonComparison,
+} from "~/composables/use-phenomenon-comparison";
 
 interface SidebarState {
 	open: boolean;
@@ -198,6 +203,55 @@ onMounted(() => {
 		{ immediate: true },
 	);
 });
+
+function allVariants(position: MapPosition) {
+	return [...new Set(questions[position].getValuesForQuestion(sidebars.value[position].question))];
+}
+
+const activeVariants = computed(
+	() =>
+		Object.fromEntries(
+			positions.map((position) => {
+				const { selectedVariants } = sidebars.value[position];
+				return [position, selectedVariants.length > 0 ? selectedVariants : allVariants(position)];
+			}),
+		) as Record<MapPosition, Array<string>>,
+);
+
+const { byVariant, normaliseGroups } = useVariantGroups();
+
+function comparisonSide(position: MapPosition) {
+	return () => {
+		const { question } = sidebars.value[position];
+		const datasetId = datasetStore.datasetForMap(position);
+		// Colours are resolved on the unscoped groups so they match the map,
+		// even when only part of a group is selected.
+		const colors = byVariant(
+			normaliseGroups(storedGroups[position].value, allVariants(position)),
+			(group) => colorStore.getColorForGroup(datasetId, question, group),
+		);
+		return {
+			question,
+			groups: normaliseGroups(storedGroups[position].value, activeVariants.value[position]),
+			colors,
+			datasetId,
+		};
+	};
+}
+
+const comparisonMatchMode = ref<ComparisonMatchMode>("location");
+const comparisonMatchRadius = ref<number>(locationMatchRadius.default);
+const comparisonMatchItems = computed(() => [
+	{ label: t("Comparison.match-by-informant"), value: "iddoc" },
+	{ label: t("Comparison.match-by-location"), value: "location" },
+]);
+
+const { variantFlowData } = usePhenomenonComparison(
+	comparisonSide("left"),
+	comparisonSide("right"),
+	comparisonMatchMode,
+	comparisonMatchRadius,
+);
 </script>
 
 <template>
@@ -247,6 +301,38 @@ onMounted(() => {
 						<span class="sr-only">{{ t("MapsPage.controls.close-split-view") }}</span>
 					</UButton>
 				</template>
+			</div>
+			<div class="min-w-0 rounded-lg border p-5 mt-5" v-if="splitMode">
+				<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
+					{{ t("Comparison.comparison-view") }}
+					<template v-if="comparisonMatchMode === 'location'">
+						<span class="ml-auto uppercase text-xs">Radius</span>
+						<USlider
+							v-model="comparisonMatchRadius"
+							class="w-36"
+							color="neutral"
+							:max="locationMatchRadius.max"
+							:min="locationMatchRadius.min"
+							size="xs"
+							:step="locationMatchRadius.step"
+						/>
+						<span class="mr-2 font-normal text-sm"
+							>{{ (comparisonMatchRadius / 1000).toFixed(1) }} km</span
+						>
+					</template>
+					<USelect
+						v-model="comparisonMatchMode"
+						:class="{ 'ml-auto': comparisonMatchMode !== 'location' }"
+						:items="comparisonMatchItems"
+						size="sm"
+						variant="outline"
+					/>
+				</div>
+				<VariantFlowCard
+					:data="variantFlowData"
+					:left="sidebars.left.question"
+					:right="sidebars.right.question"
+				></VariantFlowCard>
 			</div>
 		</div>
 

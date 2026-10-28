@@ -24,6 +24,12 @@
 		"empty": "Keine {placeholder} gefunden",
 		"search": "{placeholder} suchen..."
 	},
+	"Comparison": {
+		"comparison-view": "Vergleichsansicht",
+		"match-by-informant": "Nach ID abgleichen",
+		"match-by-location": "Nach Ort abgleichen",
+		"variant-flow": "Variantenfluss"
+	},
 	"DatasetList": {
 		"title": "Gespeicherte Datensätze",
 		"description": "Ihre hochgeladenen Datensätze in diesem Browser.",

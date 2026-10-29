@@ -181,6 +181,8 @@
 				"palette": "Colour palette",
 				"count": "{n} colour | {n} colours",
 				"reset": "Reset colours",
+				"match": "Match other map",
+				"match-description": "Give variants the colours of matching variants on the other map, including similar spellings such as Augen(g)lid and Augenlid",
 				"choose": "Choose colour for {label}"
 			}
 		},

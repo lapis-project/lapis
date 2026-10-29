@@ -181,6 +181,8 @@
 				"palette": "Farbpalette",
 				"count": "{n} Farbe | {n} Farben",
 				"reset": "Farben zurücksetzen",
+				"match": "An andere Karte angleichen",
+				"match-description": "Varianten die Farben übereinstimmender Varianten der anderen Karte geben, auch bei ähnlicher Schreibung wie Augen(g)lid und Augenlid",
 				"choose": "Farbe für {label} wählen"
 			}
 		},

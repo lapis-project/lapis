@@ -12,6 +12,7 @@ import {
 } from "@/utils/map-query";
 import { PILOT_DATASET_ID } from "@/utils/pilot-data";
 import { type ComparisonMatchMode, locationMatchRadius } from "@/utils/variant-flow";
+import { matchVariantColors } from "@/utils/variant-matching";
 import { usePhenomenonComparison } from "~/composables/use-phenomenon-comparison";
 
 interface SidebarState {
@@ -217,15 +218,34 @@ const activeVariants = computed(
 
 const { byVariant, normaliseGroups } = useVariantGroups();
 
+function allGroups(position: MapPosition) {
+	return normaliseGroups(storedGroups[position].value, allVariants(position));
+}
+
+function matchColors(position: MapPosition) {
+	const other = position === "left" ? "right" : "left";
+	const otherDataset = datasetStore.datasetForMap(other);
+	const otherQuestion = sidebars.value[other].question;
+	colorStore.setCustomColors(
+		datasetStore.datasetForMap(position),
+		sidebars.value[position].question,
+		matchVariantColors(
+			allGroups(position),
+			allGroups(other),
+			(group) => colorStore.getColorForGroup(otherDataset, otherQuestion, group),
+			colorStore.palette,
+		),
+	);
+}
+
 function comparisonSide(position: MapPosition) {
 	return () => {
 		const { question } = sidebars.value[position];
 		const datasetId = datasetStore.datasetForMap(position);
 		// Colours are resolved on the unscoped groups so they match the map,
 		// even when only part of a group is selected.
-		const colors = byVariant(
-			normaliseGroups(storedGroups[position].value, allVariants(position)),
-			(group) => colorStore.getColorForGroup(datasetId, question, group),
+		const colors = byVariant(allGroups(position), (group) =>
+			colorStore.getColorForGroup(datasetId, question, group),
 		);
 		return {
 			question,
@@ -267,6 +287,7 @@ const { variantFlowData } = usePhenomenonComparison(
 				<SingleMapView
 					class="min-w-0 flex-1"
 					:split-mode="splitMode"
+					@match-colors="matchColors('left')"
 					@toggle-compare-mode="splitMode = true"
 					@toggle-sidebar="(question, variant) => updateSidebar('left', question, variant)"
 					v-model:question="sidebars.left.question"
@@ -281,6 +302,7 @@ const { variantFlowData } = usePhenomenonComparison(
 					<SingleMapView
 						class="min-w-0 flex-1"
 						:split-mode="splitMode"
+						@match-colors="matchColors('right')"
 						@toggle-sidebar="(question, variant) => updateSidebar('right', question, variant)"
 						v-model:question="sidebars.right.question"
 						v-model:variants="sidebars.right.selectedVariants"
@@ -301,7 +323,7 @@ const { variantFlowData } = usePhenomenonComparison(
 			</div>
 			<div class="min-w-0 rounded-lg border p-5 mt-5" v-if="splitMode">
 				<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
-					{{ t("Comparison.comparison-view") }}
+					{{ t("Comparison.variant-flow") }}
 					<template v-if="comparisonMatchMode === 'location'">
 						<span class="ml-auto uppercase text-xs">Radius</span>
 						<USlider

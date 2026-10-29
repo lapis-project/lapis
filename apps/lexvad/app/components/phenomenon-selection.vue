@@ -16,6 +16,7 @@ const datasetStore = useDatasetStore();
 const emit = defineEmits<{
 	"toggle-compare-mode": [];
 	"toggle-sidebar": [question: string | null, variant: string | undefined];
+	"match-colors": [];
 }>();
 const datasetId = useMapDataset(props.mapId);
 const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
@@ -134,10 +135,12 @@ const settingsOpen = ref(false);
 			<template #content>
 				<MapSettings
 					:active-variants="activeVariants"
+					:can-match-colors="splitMode"
 					class="mt-5"
 					:dataset-id="datasetId"
 					:groups="variantGroups"
 					:question="activeQuestion"
+					@match-colors="emit('match-colors')"
 					@reset-colors="resetColors()"
 				/>
 			</template>

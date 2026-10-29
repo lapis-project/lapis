@@ -171,6 +171,7 @@ export const useColorStore = defineStore("colors", () => {
 	return {
 		hasQuestion,
 		activePaletteId,
+		palette,
 		setPalette,
 		getColorForVariant,
 		getColorForGroup,

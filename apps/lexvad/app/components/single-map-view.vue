@@ -18,6 +18,7 @@ const props = withDefaults(
 const emit = defineEmits<{
 	"toggle-compare-mode": [];
 	"toggle-sidebar": [question: string | null, variant: string | undefined];
+	"match-colors": [];
 }>();
 
 const datasetId = useMapDataset(props.mapId);
@@ -44,6 +45,7 @@ const { data, uniqueVariants, variantColors, variantGroups } = useMapData(
 			:embed-query="embedQuery"
 			v-model:question="activeQuestion"
 			v-model:variants="activeVariants"
+			@match-colors="emit('match-colors')"
 			@toggle-compare-mode="emit('toggle-compare-mode')"
 			@toggle-sidebar="(question, variants) => emit('toggle-sidebar', question, variants)"
 		></PhenomenonSelection>

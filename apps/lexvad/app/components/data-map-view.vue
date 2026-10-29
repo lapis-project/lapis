@@ -11,11 +11,8 @@ import {
 	serializeMapQuery,
 } from "@/utils/map-query";
 import { PILOT_DATASET_ID } from "@/utils/pilot-data";
-import {
-	type ComparisonMatchMode,
-	locationMatchRadius,
-	usePhenomenonComparison,
-} from "~/composables/use-phenomenon-comparison";
+import { type ComparisonMatchMode, locationMatchRadius } from "@/utils/variant-flow";
+import { usePhenomenonComparison } from "~/composables/use-phenomenon-comparison";
 
 interface SidebarState {
 	open: boolean;

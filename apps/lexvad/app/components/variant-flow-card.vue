@@ -47,7 +47,8 @@ const chartData = computed(() => {
 		sourceLabel: link.source.label,
 		targetLabel: link.target.label,
 	}));
-	return { nodes: [...nodes.values()], links };
+	const total = links.reduce((sum, link) => sum + link.value, 0);
+	return { nodes: [...nodes.values()], links, total };
 });
 
 const dimensions = { LEFT: 120, RIGHT: 120, TOP: 50, BOTTOM: 20, NODE_WIDTH: 20 };
@@ -77,6 +78,11 @@ onMounted(() => {
 });
 onBeforeUnmount(() => ro?.disconnect());
 
+function percentage(value: number) {
+	const { total } = chartData.value;
+	return `${(total > 0 ? (value / total) * 100 : 0).toFixed(1)}%`;
+}
+
 const option = computed(() => {
 	const columnPositions = [
 		{ x: dimensions.LEFT - LABEL_GAP, textAlign: "right", width: labelWidth("left") },
@@ -100,8 +106,8 @@ const option = computed(() => {
 				value: number;
 			}) =>
 				dataType === "edge"
-					? `${data.sourceLabel} → ${data.targetLabel}: ${value}`
-					: `${data.text}: ${value}`,
+					? `${data.sourceLabel} → ${data.targetLabel}: ${percentage(value)}`
+					: `${data.text}: ${percentage(value)}`,
 		},
 		graphic: columnLabels.value.map((text, d) => ({
 			type: "text",

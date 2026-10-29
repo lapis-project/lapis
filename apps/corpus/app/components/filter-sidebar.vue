@@ -1,3 +1,4 @@
+```vue
 <script setup lang="ts">
 import {
 	BookmarkIcon,
@@ -12,71 +13,223 @@ import { TreeItem, TreeRoot } from "reka-ui";
 import { usePlaces } from "#imports";
 import TreeModeSwitcher from "@/components/tree-mode-switcher.vue";
 import { useSettingsProjectsFilter } from "@/composables/use-settings-projects";
-import type { Transcript } from "@/pages/transcripts/[id].vue";
 
 import { austrianStates } from "../../../backend/src/lib/austrianPostalCodes.ts";
+
+type FilterSidebarTranscript = {
+	id?: number | string;
+	name?: string;
+	setting?: number;
+	location?: number;
+	icon?: string;
+	bookmarked?: boolean;
+};
 
 const router = useRouter();
 const route = useRoute();
 
 const props = defineProps<{
-	transcripts: Array<Transcript>;
+	transcripts: Array<FilterSidebarTranscript>;
 }>();
-
-const { response: filter, isPending: isLoading } = useSettingsProjectsFilter();
-const { response: places, isPending, hasError } = usePlaces(2);
 
 const emit = defineEmits(["closeFilterSidebar", "handleBookmark", "handleSelection"]);
 
-const activeContext = ref<number | null>(null);
-const activeAgeGroup = ref<string | null>(null);
-const activeGender = ref<string | null>(null);
-const activeSetting = ref<number | null>(null);
-const activeLocation = ref<number | null>(null);
-const activeState = ref<number | null>(null);
+const { response: filter } = useSettingsProjectsFilter();
+const { response: places } = usePlaces(2);
+
+function queryValue(key: string): string | undefined {
+	const value = route.query[key];
+	const first = Array.isArray(value) ? value[0] : value;
+
+	return first == null || first === "" ? undefined : String(first);
+}
+
+function setQueryValue(key: string, value: string | undefined) {
+	const query = { ...route.query };
+
+	if (value == null || value === "") {
+		delete query[key];
+	} else {
+		query[key] = value;
+	}
+
+	return router.replace({ query });
+}
+
+const activeContext = computed<string | undefined>({
+	get: () => queryValue("projects"),
+	set: (value) => {
+		void setQueryValue("projects", value);
+	},
+});
+
+const activeSetting = computed<string | undefined>({
+	get: () => queryValue("settings"),
+	set: (value) => {
+		void setQueryValue("settings", value);
+	},
+});
+
+const activeLocation = computed<string | undefined>({
+	get: () => queryValue("locations"),
+	set: (value) => {
+		void setQueryValue("locations", value);
+	},
+});
+
+const activeState = computed<string | undefined>({
+	get: () => queryValue("state"),
+	set: (value) => {
+		void setQueryValue("state", value);
+	},
+});
+
+const activeGender = computed<string | undefined>({
+	get: () => queryValue("gender"),
+	set: (value) => {
+		void setQueryValue("gender", value);
+	},
+});
+
+const activeAgeGroup = computed<string | undefined>({
+	get: () => {
+		const lower = queryValue("age_lower");
+		const upper = queryValue("age_upper");
+
+		if (lower == null && upper == null) return undefined;
+
+		return `${lower ?? "18"}-${upper ?? "999"}`;
+	},
+	set: (value) => {
+		const query = { ...route.query };
+
+		if (!value) {
+			delete query.age_lower;
+			delete query.age_upper;
+		} else {
+			const [lower, upper] = value.split("-");
+			query.age_lower = lower;
+			query.age_upper = upper;
+		}
+
+		void router.replace({ query });
+	},
+});
+
+const searchName = computed<string>({
+	get: () => queryValue("transcript_name") ?? "",
+	set: (value) => {
+		void setQueryValue("transcript_name", value || undefined);
+	},
+});
+
+const searchId = computed<string>({
+	get: () => queryValue("instance_id") ?? "",
+	set: (value) => {
+		void setQueryValue("instance_id", value || undefined);
+	},
+});
+
+const bkmsEnabled = computed<boolean>({
+	get: () => queryValue("has_bkms") === "true",
+	set: (value) => {
+		void setQueryValue("has_bkms", value ? "true" : undefined);
+	},
+});
+
+const standardCompetenceEnabled = computed<boolean>({
+	get: () => queryValue("standard_competence") != null,
+	set: (enabled) => {
+		void setQueryValue(
+			"standard_competence",
+			enabled ? (queryValue("standard_competence") ?? "1") : undefined,
+		);
+	},
+});
+
+const standardCompetenceValue = computed<number[] | null>({
+	get: () => {
+		const value = queryValue("standard_competence");
+
+		if (value == null) return null;
+
+		const number = Number(value);
+		return Number.isFinite(number) ? [number] : null;
+	},
+	set: (value) => {
+		void setQueryValue("standard_competence", value?.[0] == null ? undefined : String(value[0]));
+	},
+});
+
+const dialectCompetenceEnabled = computed<boolean>({
+	get: () => queryValue("dialect_competence") != null,
+	set: (enabled) => {
+		void setQueryValue(
+			"dialect_competence",
+			enabled ? (queryValue("dialect_competence") ?? "1") : undefined,
+		);
+	},
+});
+
+const dialectCompetenceValue = computed<number[] | null>({
+	get: () => {
+		const value = queryValue("dialect_competence");
+
+		if (value == null) return null;
+
+		const number = Number(value);
+		return Number.isFinite(number) ? [number] : null;
+	},
+	set: (value) => {
+		void setQueryValue("dialect_competence", value?.[0] == null ? undefined : String(value[0]));
+	},
+});
 
 const activeFilterCount = computed(() => {
-	return [
-		activeContext.value,
-		activeSetting.value,
-		activeAgeGroup.value,
-		activeLocation.value,
-		activeState.value,
-		activeGender.value,
-		standardCompetenceEnabled.value,
-		dialectCompetenceEnabled.value,
-		bkmsEnabled.value,
-	].filter(Boolean).length;
+	const filters = [
+		queryValue("projects"),
+		queryValue("settings"),
+		queryValue("locations"),
+		queryValue("state"),
+		queryValue("gender"),
+		queryValue("standard_competence"),
+		queryValue("dialect_competence"),
+		queryValue("transcript_name"),
+		queryValue("instance_id"),
+	];
+
+	let count = filters.filter(Boolean).length;
+
+	if (queryValue("age_lower") != null || queryValue("age_upper") != null) {
+		count++;
+	}
+
+	if (queryValue("has_bkms") === "true") {
+		count++;
+	}
+
+	return count;
 });
 
-const ageRange = computed(() => {
-	if (!activeAgeGroup.value) return null;
+const hasActiveFilters = computed(() => activeFilterCount.value > 0);
 
-	const [lower, upper] = activeAgeGroup.value.split("-");
-
-	return {
-		lower,
-		upper,
-	};
-});
-
-const projectOptions = computed<Array<{ label: string; value: number }>>(() => {
+const projectOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (filter.value?.projects ?? [])
 		.filter((project) => project.name != null)
 		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
 		.map((project) => ({
 			label: project.name!,
-			value: project.id,
+			value: String(project.id),
 		}));
 });
 
-const settingOptions = computed<Array<{ label: string; value: number }>>(() => {
+const settingOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (filter.value?.settings ?? [])
 		.filter((setting) => setting.name != null)
 		.toSorted((a, b) => a.name!.localeCompare(b.name!, "de"))
 		.map((setting) => ({
 			label: setting.name!,
-			value: setting.id,
+			value: String(setting.id),
 		}));
 });
 
@@ -91,139 +244,61 @@ const genderOptions = ref<Array<{ label: string; value: string }>>([
 	{ label: "Divers", value: "divers" },
 ]);
 
-const locationOptions = computed<Array<{ label: string; value: number }>>(() => {
+const locationOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (places.value ?? [])
 		.filter((place) => place.place_name != null)
 		.toSorted((a, b) => a.place_name!.localeCompare(b.place_name!, "de"))
 		.map((place) => ({
 			label: place.place_name!,
-			value: place.id,
+			value: String(place.id),
 		}));
 });
 
-const stateOptions = computed<Array<{ label: string; value: number }>>(() => {
+const stateOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return austrianStates.map((state) => ({
 		label: state.name,
-		value: state.id,
+		value: String(state.id),
 	}));
 });
-
-const bkmsEnabled = ref(false);
-
-const dialectCompetenceEnabled = ref(false);
-const dialectCompetenceValue = ref<number[] | null>(null);
-
-const standardCompetenceEnabled = ref(false);
-const standardCompetenceValue = ref<number[] | null>(null);
-
-onMounted(async () => {
-	const query = route.query;
-	const locationQuery = route.query.locations;
-	const settingQuery = route.query.settings;
-	const projectQuery = route.query.projects;
-
-	if (projectQuery) {
-		activeContext.value = Number(Array.isArray(projectQuery) ? projectQuery[0] : projectQuery);
-	}
-
-	if (settingQuery) {
-		activeSetting.value = Number(Array.isArray(settingQuery) ? settingQuery[0] : settingQuery);
-	}
-
-	if (locationQuery) {
-		activeLocation.value = Number(Array.isArray(locationQuery) ? locationQuery[0] : locationQuery);
-	}
-
-	activeGender.value = query.gender
-		? String(Array.isArray(query.gender) ? query.gender[0] : query.gender)
-		: null;
-
-	if (query.age_lower || query.age_upper) {
-		activeAgeGroup.value = `${query.age_lower ?? 18}-${query.age_upper ?? 999}`;
-	}
-
-	if (query.standard_competence) {
-		standardCompetenceEnabled.value = true;
-		await nextTick();
-		standardCompetenceValue.value = [Number(query.standard_competence)];
-	}
-
-	if (query.dialect_competence) {
-		dialectCompetenceEnabled.value = true;
-		await nextTick();
-		dialectCompetenceValue.value = [Number(query.dialect_competence)];
-	}
-
-	if (query.has_bkms !== undefined) {
-		bkmsEnabled.value = query.has_bkms === "true";
-	}
-
-	if (query.state) {
-		activeState.value = Number(query.state);
-	}
-});
-
-watch(
-	() => {
-		return dialectCompetenceEnabled.value;
-	},
-	() => {
-		if (dialectCompetenceEnabled.value) {
-			dialectCompetenceValue.value = [1];
-		} else {
-			dialectCompetenceValue.value = null;
-		}
-	},
-	{ immediate: true },
-);
-
-watch(
-	() => {
-		return standardCompetenceEnabled.value;
-	},
-	() => {
-		if (standardCompetenceEnabled.value) {
-			standardCompetenceValue.value = [1];
-		} else {
-			standardCompetenceValue.value = null;
-		}
-	},
-	{ immediate: true },
-);
 
 const treeMode = ref<"Setting" | "Ort" | "Informant">("Setting");
 
 const filteredTranscripts = computed(() => {
 	return props.transcripts.filter((transcript) => {
-		if (activeSetting.value && transcript.setting !== activeSetting.value) return false;
-		if (activeLocation.value && transcript.location !== activeLocation.value) return false;
-		// add other filters here
+		if (activeSetting.value && transcript.setting !== Number(activeSetting.value)) {
+			return false;
+		}
+
+		if (activeLocation.value && transcript.location !== Number(activeLocation.value)) {
+			return false;
+		}
+
 		return true;
 	});
 });
 
 const bookmarkedTranscripts = computed(() => {
-	return props.transcripts.filter((entry) => {
-		if (entry.bookmarked) {
-			return entry;
-		}
-		return null;
-	});
+	return props.transcripts.filter((entry) => entry.bookmarked);
 });
 
 const treeItems = computed(() => {
-	const groups = filteredTranscripts.value?.reduce(
+	const groups = filteredTranscripts.value.reduce(
 		(acc, transcript) => {
-			if (!acc[transcript.setting]) acc[transcript.setting] = [];
+			if (transcript.setting == null) return acc;
+
+			if (!acc[transcript.setting]) {
+				acc[transcript.setting] = [];
+			}
 
 			acc[transcript.setting]?.push({
-				id: transcript.id as unknown as string,
+				id: String(transcript.id),
 				title: transcript.name,
 				icon: transcript.icon,
 			});
+
 			return acc;
 		},
-		{} as Record<string, Array<{ id: string; title: string; icon: string }>>,
+		{} as Record<number, Array<{ id: string; title?: string; icon?: string }>>,
 	);
 
 	return Object.entries(groups).map(([setting, transcripts]) => ({
@@ -234,7 +309,7 @@ const treeItems = computed(() => {
 	}));
 });
 
-function handleBookmark(transcript: Transcript) {
+function handleBookmark(transcript: FilterSidebarTranscript) {
 	emit("handleBookmark", transcript);
 }
 
@@ -242,67 +317,37 @@ function handleSelection(id: string) {
 	emit("handleSelection", id);
 }
 
-watch(
-	[
-		activeContext,
-		activeSetting,
-		activeAgeGroup,
-		activeLocation,
-		activeState,
-		activeGender,
-		dialectCompetenceValue,
-		standardCompetenceValue,
-		bkmsEnabled,
-	],
-	() => {
-		router.replace({
-			query: {
-				...route.query,
+function clearAllFilters() {
+	const query = { ...route.query };
 
-				projects: activeContext.value ? [activeContext.value] : undefined,
+	for (const key of [
+		"projects",
+		"settings",
+		"locations",
+		"state",
+		"gender",
+		"age_lower",
+		"age_upper",
+		"standard_competence",
+		"dialect_competence",
+		"has_bkms",
+		"transcript_name",
+		"instance_id",
+	]) {
+		delete query[key];
+	}
 
-				settings: activeSetting.value ? [activeSetting.value] : undefined,
-
-				locations: activeLocation.value ? [activeLocation.value] : undefined,
-
-				state: activeState.value ? activeState.value : undefined,
-
-				gender: activeGender.value || undefined,
-
-				dialect_competence:
-					dialectCompetenceValue.value?.[0] != null
-						? String(dialectCompetenceValue.value[0])
-						: undefined,
-
-				standard_competence:
-					standardCompetenceValue.value?.[0] != null
-						? String(standardCompetenceValue.value[0])
-						: undefined,
-
-				has_bkms: bkmsEnabled.value === true ? "true" : undefined,
-
-				age_lower: ageRange.value?.lower,
-				age_upper: ageRange.value?.upper,
-			},
-		});
-	},
-	{ deep: true },
-);
+	return router.replace({ query });
+}
 </script>
 
 <template>
 	<div class="flex h-full min-h-0 flex-col">
 		<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="filter">
 			<TabsList class="w-full flex-shrink-0">
-				<TabsTrigger value="tree"> Tree </TabsTrigger>
+				<TabsTrigger value="tree">Tree</TabsTrigger>
 				<TabsTrigger class="inline-flex items-center gap-2" value="filter">
 					<span>Filter</span>
-					<span
-						v-if="activeFilterCount > 0"
-						class="flex size-5 items-center justify-center rounded-full bg-black text-xs font-medium text-white"
-					>
-						<span class="mr-0.5">{{ activeFilterCount }}</span>
-					</span>
 				</TabsTrigger>
 				<TabsTrigger value="bookmark">
 					Bibliothek
@@ -314,6 +359,7 @@ watch(
 					</span>
 				</TabsTrigger>
 			</TabsList>
+
 			<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="tree">
 				<TreeRoot
 					v-slot="{ flattenItems }"
@@ -324,8 +370,9 @@ watch(
 				>
 					<div class="flex items-center justify-between">
 						<h2 class="font-semibold text-sm text-stone-400 px-2 pt-1 pb-3">Transkriptionen</h2>
-						<TreeModeSwitcher v-model="treeMode"></TreeModeSwitcher>
+						<TreeModeSwitcher v-model="treeMode" />
 					</div>
+
 					<TreeItem
 						v-for="item in flattenItems"
 						:key="item._id"
@@ -339,6 +386,7 @@ watch(
 							<FolderOpen v-else class="size-4" />
 							<span class="pl-2">{{ item.value.title }}</span>
 						</template>
+
 						<template v-else>
 							<FileText class="size-4" />
 							<Button
@@ -353,107 +401,138 @@ watch(
 					</TreeItem>
 				</TreeRoot>
 			</TabsContent>
+
 			<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="filter">
 				<div class="flex flex-col gap-4">
+					<div class="grid w-full gap-1.5 border-b pb-4">
+						<div class="grid w-full gap-1.5 pb-4">
+							<Label class="tracking-wide pl-1" for="name-input"> Transkriptname </Label>
+							<div class="flex gap-2">
+								<Input id="name-input" v-model="searchName" placeholder="Transkriptname eingeben" />
+								<Button size="icon" variant="outline" @click="searchName = ''">
+									<Undo2 class="size-4" />
+								</Button>
+							</div>
+						</div>
+
+						<div class="grid w-full gap-1.5">
+							<Label class="tracking-wide pl-1" for="id-input"> Transkript ID </Label>
+							<div class="flex gap-2">
+								<Input id="id-input" v-model="searchId" placeholder="Transkript ID eingeben" />
+								<Button size="icon" variant="outline" @click="searchId = ''">
+									<Undo2 class="size-4" />
+								</Button>
+							</div>
+						</div>
+					</div>
+
 					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="context">Projektkontext</Label>
+						<Label class="tracking-wide pl-1" for="context"> Projektkontext </Label>
 						<div class="flex gap-2">
 							<BaseSelect
 								id="context"
 								v-model="activeContext"
 								:options="projectOptions"
 								placeholder="Projektkontext wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeContext = null"
-								><Undo2 class="size-4"
-							/></Button>
+							/>
+							<Button size="icon" variant="outline" @click="activeContext = undefined">
+								<Undo2 class="size-4" />
+							</Button>
 						</div>
 					</div>
+
 					<div class="grid w-full gap-1.5 pb-4 border-b">
-						<Label class="tracking-wide pl-1" for="setting">Setting</Label>
+						<Label class="tracking-wide pl-1" for="setting"> Setting </Label>
 						<div class="flex gap-2">
 							<BaseSelect
 								id="setting"
 								v-model="activeSetting"
 								:options="settingOptions"
 								placeholder="Setting wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeSetting = null"
-								><Undo2 class="size-4"
-							/></Button>
+							/>
+							<Button size="icon" variant="outline" @click="activeSetting = undefined">
+								<Undo2 class="size-4" />
+							</Button>
 						</div>
 					</div>
+
 					<div class="text-lg mb-1">Raum</div>
+
 					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="location">Ort</Label>
+						<Label class="tracking-wide pl-1" for="location"> Ort </Label>
 						<div class="flex gap-2">
 							<BaseSelect
 								id="location"
 								v-model="activeLocation"
 								:options="locationOptions"
 								placeholder="Ort wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeLocation = null"
-								><Undo2 class="size-4"
-							/></Button>
+							/>
+							<Button size="icon" variant="outline" @click="activeLocation = undefined">
+								<Undo2 class="size-4" />
+							</Button>
 						</div>
 					</div>
+
 					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="location">Bundesland</Label>
+						<Label class="tracking-wide pl-1" for="state"> Bundesland </Label>
 						<div class="flex gap-2">
 							<BaseSelect
-								id="location"
+								id="state"
 								v-model="activeState"
 								:options="stateOptions"
 								placeholder="Bundesland wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeState = null"
-								><Undo2 class="size-4"
-							/></Button>
+							/>
+							<Button size="icon" variant="outline" @click="activeState = undefined">
+								<Undo2 class="size-4" />
+							</Button>
 						</div>
 					</div>
+
 					<div class="grid w-full gap-1.5 border-b"></div>
 					<div class="text-lg mb-1">Sprecher:innen</div>
+
 					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="age">Altersgruppe</Label>
+						<Label class="tracking-wide pl-1" for="age"> Altersgruppe </Label>
 						<div class="flex gap-2">
 							<BaseSelect
 								id="age"
 								v-model="activeAgeGroup"
 								:options="ageGroupOptions"
-								placeholder="Altersklasse wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeAgeGroup = null"
-								><Undo2 class="size-4"
-							/></Button>
+								placeholder="Altersgruppe wählen..."
+							/>
+							<Button size="icon" variant="outline" @click="activeAgeGroup = undefined">
+								<Undo2 class="size-4" />
+							</Button>
 						</div>
 					</div>
+
 					<div class="grid w-full gap-1.5">
-						<Label class="tracking-wide pl-1" for="gender">Geschlecht</Label>
+						<Label class="tracking-wide pl-1" for="gender"> Geschlecht </Label>
 						<div class="flex gap-2">
 							<BaseSelect
 								id="gender"
 								v-model="activeGender"
 								:options="genderOptions"
 								placeholder="Geschlecht wählen..."
-							></BaseSelect>
-							<Button size="icon" variant="outline" @click="activeGender = null"
-								><Undo2 class="size-4"
-							/></Button>
+							/>
+							<Button size="icon" variant="outline" @click="activeGender = undefined">
+								<Undo2 class="size-4" />
+							</Button>
 						</div>
 					</div>
+
 					<div class="grid w-full gap-1.5 border-b"></div>
 					<div class="text-lg mb-1">Sprachrepertoires</div>
 
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
-							<span class="flex-row flex gap-1">
+							<span class="flex-row flex gap-2">
 								<Checkbox
 									type="checkbox"
 									id="competence-enabled"
 									v-model="standardCompetenceEnabled"
 								/>
-								<Label class="tracking-wide pl-1" for="nos">Standardsprachkompetenz </Label>
+								<Label class="tracking-wide pl-1" for="nos"> Standardsprachkompetenz </Label>
 								<TooltipProvider>
 									<Tooltip>
 										<TooltipTrigger as-child>
@@ -468,6 +547,7 @@ watch(
 									</Tooltip>
 								</TooltipProvider>
 							</span>
+
 							<span
 								v-if="standardCompetenceEnabled && standardCompetenceValue"
 								class="text-xs text-muted-foreground"
@@ -475,9 +555,8 @@ watch(
 								{{ standardCompetenceValue[0] }}
 							</span>
 						</div>
-						<div class="grid w-full">
-							<div class="flex items-center gap-2"></div>
 
+						<div class="grid w-full">
 							<Collapsible :open="standardCompetenceEnabled">
 								<CollapsibleContent
 									class="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:mt-3"
@@ -489,15 +568,16 @@ watch(
 							</Collapsible>
 						</div>
 					</div>
+
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
-							<span class="flex-row flex gap-1">
+							<span class="flex-row flex gap-2">
 								<Checkbox
 									type="checkbox"
 									id="dialect-competence-enabled"
 									v-model="dialectCompetenceEnabled"
 								/>
-								<Label class="tracking-wide pl-1" for="nos">Dialektkompetenz</Label>
+								<Label class="tracking-wide pl-1" for="nos"> Dialektkompetenz </Label>
 								<TooltipProvider>
 									<Tooltip>
 										<TooltipTrigger as-child>
@@ -507,11 +587,12 @@ watch(
 											/>
 										</TooltipTrigger>
 										<TooltipContent>
-											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)</TooltipContent
-										>
+											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)
+										</TooltipContent>
 									</Tooltip>
 								</TooltipProvider>
 							</span>
+
 							<span
 								v-if="dialectCompetenceEnabled && dialectCompetenceValue"
 								class="text-xs text-muted-foreground"
@@ -521,8 +602,6 @@ watch(
 						</div>
 
 						<div class="grid w-full">
-							<div class="flex items-center gap-2"></div>
-
 							<Collapsible :open="dialectCompetenceEnabled">
 								<CollapsibleContent
 									class="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:mt-3"
@@ -534,9 +613,10 @@ watch(
 							</Collapsible>
 						</div>
 					</div>
+
 					<div class="grid my-2">
 						<div class="flex w-full justify-between">
-							<span class="flex-row flex gap-1">
+							<span class="flex-row flex gap-2">
 								<Checkbox type="checkbox" id="bkms-enabled" v-model="bkmsEnabled" />
 								<Label class="tracking-wide pl-1" for="nos">BKMS</Label>
 							</span>
@@ -544,6 +624,7 @@ watch(
 					</div>
 				</div>
 			</TabsContent>
+
 			<TabsContent class="mt-5 flex-grow overflow-y-auto min-h-0" value="bookmark">
 				<div v-if="bookmarkedTranscripts.length <= 0" class="text-sm text-muted-foreground">
 					Es befinden sich derzeit keine gespeicherten Transkripte in Ihrer Bibliothek.
@@ -556,13 +637,13 @@ watch(
 						>
 							<Button
 								class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
-								hover:no-underline
 								variant="transparent"
 								@click="handleSelection(String(result.id))"
 							>
-								<span class="sr-only"> Open Sidebar Demo </span>
+								<span class="sr-only">Open Sidebar Demo</span>
 								{{ result.name }}
 							</Button>
+
 							<div class="w-full flex justify-end">
 								<Button
 									class="p-0 w-fit self-end"
@@ -579,3 +660,4 @@ watch(
 		</Tabs>
 	</div>
 </template>
+```

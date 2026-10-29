@@ -1,7 +1,5 @@
 <script lang="ts" setup>
-import type { StringifyOptions } from "node:querystring";
-
-import { BookmarkIcon, ChevronLeft, ChevronRight, CopyIcon, Download } from "@lucide/vue";
+import { DownloadIcon, ChevronLeft, ChevronRight, X } from "@lucide/vue";
 import { toast } from "vue-sonner";
 
 import initialData from "@/assets/data/transcripts-demo.json";
@@ -21,7 +19,8 @@ const router = useRouter();
 
 const filterOpen = ref(false);
 
-const activeTab = ref<"plain" | "kwic" | "xml">("plain");
+const currentSearchParams = ref<SearchParams | null>(null);
+
 const bookmarkedIds = ref<Array<string>>([]);
 
 const { response: searchResponse, search, status, isPending } = useSearch(2);
@@ -31,7 +30,51 @@ const transcripts = computed(() => {
 	return searchResponse.value?.transcripts;
 });
 
-const transcriptMatches = computed(() => {
+function getTranscriptIdFromRefs(references: Array<string> | undefined) {
+	for (const reference of references ?? []) {
+		const match = /(?:^|\W)transcript_(\d+)(?:\W|$)/i.exec(reference);
+		if (!match?.[1]) continue;
+		const id = Number(match[1]);
+		if (Number.isSafeInteger(id)) return id;
+	}
+	return null;
+}
+
+const currentPageKwicByTranscript = computed(() => {
+	const grouped: Record<string, Array<KwicLine>> = {};
+	for (const line of kwic.value?.Lines ?? []) {
+		const transcriptId =
+			getTranscriptIdFromRefs(line.Tbl_refs) ?? getTranscriptIdFromRefs(line.Refs) ?? null;
+		if (transcriptId == null) continue;
+		const key = String(transcriptId);
+		grouped[key] = [...(grouped[key] ?? []), line];
+	}
+	return grouped;
+});
+
+const currentPageTranscriptIds = computed(() => {
+	return new Set(
+		Object.keys(currentPageKwicByTranscript.value)
+			.map((key) => Number(key))
+			.filter(Number.isSafeInteger),
+	);
+});
+
+const displayTranscripts = computed(() => {
+	const currentPageIds = currentPageTranscriptIds.value;
+	const hasCurrentKwicPage = kwic.value?.Lines != null && kwic.value.Lines.length > 0;
+	const filtered = (transcripts.value ?? []).filter((result) => {
+		if (!hasCurrentKwicPage) return true;
+		return result.instance_id != null && currentPageIds.has(Number(result.instance_id));
+	});
+
+	return filtered.map((result) => ({
+		...result,
+		bookmarked: bookmarkedIds.value.includes(String(result.instance_id)),
+	})) as APITranscriptsWithBookmark;
+});
+
+const matchesByTranscript = computed(() => {
 	return searchResponse.value?.matchesByTranscript;
 });
 
@@ -41,20 +84,18 @@ const kwic = computed(() => {
 
 const limit = 50;
 const totalPages = computed(() => {
-	return kwic.value?.concsize ? Math.ceil(kwic.value?.concsize / limit) : 0;
-});
-const pages = computed(() => {
-	return Array.from({ length: totalPages.value }, (_, i) => i + 1);
+	return kwic.value?.concsize ? Math.ceil(kwic.value.concsize / limit) : 0;
 });
 
 const currentPage = computed({
 	get: () => Number(route.query.page ?? 1),
 	set: (page: number) => {
+		const safePage = Math.min(Math.max(page, 1), totalPages.value || 1);
 		router.push({
 			query: {
 				...route.query,
-				page: String(page),
-				fromp: String(page),
+				page: String(safePage),
+				fromp: String(safePage),
 			},
 		});
 	},
@@ -72,28 +113,16 @@ const toggleThirdColumn = () => {
 	showThirdColumn.value = !showThirdColumn.value;
 };
 
-const gridColumns = computed(() => {
-	if (currentId.value == null) {
-		return [showFirstColumn.value ? "340px" : "0px", "1fr"].join(" ");
-	} else {
-		return [
-			showFirstColumn.value ? "340px" : "0px",
-			"1fr",
-			showThirdColumn.value ? "500px" : "0px",
-		].join(" ");
-	}
-});
+const gridColumns = computed(() =>
+	[
+		showFirstColumn.value ? "340px" : "0px",
+		"minmax(0, 1fr)",
+		showThirdColumn.value ? "340px" : "0px",
+	].join(" "),
+);
 
 const currentId = computed(() => {
 	return route.query.selection;
-});
-
-const currentSelectionArray = computed(() => {
-	return Array.isArray(route.query.selection)
-		? (route.query.selection as Array<string>)
-		: route.query.selection
-			? [route.query.selection as string]
-			: [];
 });
 
 function handleSelection(id: string) {
@@ -141,8 +170,6 @@ watch(
 watch(
 	() => route.query,
 	async (q) => {
-		const category = q.category as string;
-
 		const filters: SearchParams = {
 			word: q.word as string,
 			query: q.query as string,
@@ -161,10 +188,8 @@ watch(
 			age_upper: q.age_upper ? Number(q.age_upper) : undefined,
 			projects: q.projects ? [Number(q.projects)] : undefined,
 			settings: q.settings ? [Number(q.settings)] : undefined,
-			transcript_name:
-				category != null && category === "transcript_name" ? (q.search as string) : undefined,
-			transcript_ids:
-				category != null && category === "instance_id" ? [Number(q.search)] : undefined,
+			transcript_name: q.transcript_name ? String(q.transcript_name) : undefined,
+			transcript_ids: q.instance_id ? [Number(q.instance_id)] : undefined,
 			has_bkms: q.has_bkms === "true",
 		};
 		const hasSearchFilters = Object.values(filters).some((value) => {
@@ -179,6 +204,7 @@ watch(
 
 		if (hasSearchFilters) {
 			await search(filters);
+			currentSearchParams.value = filters;
 		}
 	},
 	{
@@ -187,30 +213,13 @@ watch(
 	},
 );
 
-function asArray(v: unknown): string[] | undefined {
-	if (v == null) return undefined;
-	return Array.isArray(v) ? v.map(String) : [String(v)];
-}
+const hasKwicSearch = computed(() => {
+	const q = route.query;
+	return Boolean(q.word || q.query || q.lemma || q.pos || q.feats || q.comment_search || q.mode);
+});
 
-function copyKwicLine(line: KwicLine | string, category: string) {
-	let text = "";
-	let output = "";
-	if (category === "kwic" && typeof line !== "string") {
-		const left = line.Left?.map((t: any) => t.str).join(" ") ?? "";
-		const kwic = line.Kwic?.map((t: any) => t.str).join(" ") ?? "";
-		const right = line.Right?.map((t: any) => t.str).join(" ") ?? "";
-
-		text = `${left} ${kwic} ${right}`.replace(/\s+/g, " ").trim();
-		output = "Zeile";
-	} else if (category === "xml" && typeof line === "string") {
-		text = line;
-		output = "XML";
-	} else return;
-
-	navigator.clipboard.writeText(text).then(() => {
-		toast.success(`${output} wurde in die Zwischenablage kopiert!`);
-	});
-}
+const { activeFilterTagEntries, activeFilterCount, removeFilterTag, clearAllFilterTags } =
+	useActiveFilterTags();
 </script>
 
 <template>
@@ -224,16 +233,15 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 			<ChevronRight class="size-4" :class="{ 'rotate-180': showFirstColumn }" />
 		</Button>
 		<Button
-			v-if="currentId"
 			class="fixed z-10 flex items-center border rounded-none rounded-bl-md rounded-tl-md border-foreground/20 justify-center py-0 px-1 transition-all shadow-md duration-250 delay-150"
-			:class="showThirdColumn ? 'right-[531px]' : 'right-0'"
+			:class="showThirdColumn ? 'right-[371px]' : 'right-0'"
 			variant="ghost"
 			@click="toggleThirdColumn"
 		>
 			<ChevronLeft class="size-4" :class="{ 'rotate-180': showThirdColumn }" />
 		</Button>
 		<div
-			class="relative gap-8 flex-grow grid h-full min-h-0 duration-250 items-stretch delay-150 transition-[grid-template-columns] ease-in-out"
+			class="relative gap-10 flex-grow grid grid-cols-1 h-full min-h-0 duration-250 items-stretch delay-150 transition-[grid-template-columns] ease-in-out"
 			:data-selection="currentId != null ? 'true' : undefined"
 			:style="{ gridTemplateColumns: gridColumns }"
 		>
@@ -248,229 +256,105 @@ function copyKwicLine(line: KwicLine | string, category: string) {
 				/>
 			</div>
 
-			<div class="p-4 w-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden">
-				<div
-					class="flex pb-5 items-center mb-4 border-b gap-4 overflow-x-auto overflow-y-hidden flex-shrink-0"
-				>
-					<SearchBar search-type="default" />
-					<Separator orientation="vertical" />
-					<Sheet v-model:open="filterOpen">
-						<SheetTrigger><Button variant="outline"> Erweiterte Suche </Button></SheetTrigger>
-						<SheetContent class="h-[50vh] scroll-y-auto max-h-full" side="bottom">
-							<Tabs
-								class="w-full flex flex-col flex-grow min-h-0 overflow-hidden"
-								default-value="plain"
-							>
-								<div class="flex gap-4 mx-10 mt-2 items-center flex-shrink-0">
-									<TabsList class="w-full">
-										<TabsTrigger value="tags"> Tags </TabsTrigger>
-										<TabsTrigger value="word"> Word / Lemma / POS </TabsTrigger>
-										<TabsTrigger value="cql"> CQL </TabsTrigger>
-									</TabsList>
-								</div>
-								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
-									<TagBuilderGroup @search="filterOpen = false" />
-								</TabsContent>
-								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
-									<SearchKwic @search="filterOpen = false" />
-								</TabsContent>
-								<TabsContent class="flex-grow overflow-y-auto min-h-0" value="cql">
-									Sample content
-								</TabsContent>
-							</Tabs>
-						</SheetContent>
-					</Sheet>
-				</div>
-				<Tabs class="w-full flex flex-col flex-grow min-h-0 overflow-hidden" v-model="activeTab">
-					<div class="flex gap-4 items-center flex-shrink-0">
-						<TabsList class="w-full">
-							<TabsTrigger value="plain">
-								<div class="flex flex-row gap-1 items-center">
-									<span>Plain</span>
-									<span class="text-xs text-gray-500"
-										>({{ transcripts?.length ? transcripts?.length : 0 }})
+			<div
+				class="p-4 w-full h-full border border-foreground/20 rounded-lg flex flex-col overflow-hidden"
+			>
+				<div class="flex flex-col flex-grow min-h-0 overflow-hidden">
+					<div class="w-full flex flex-col flex-grow min-h-0 overflow-y-auto">
+						<div class="grid grid-cols-[auto_1fr] mt-2 mb-5 pb-5 items-center mx-2 border-b gap-5">
+							<div v-if="!isPending" class="flex flex-col gap-2">
+								<p class="text-lg">
+									<span class="font-bold">{{ searchResponse?.transcripts.length ?? 0 }}</span>
+									Transkripte gefunden
+								</p>
+								<p v-if="hasKwicSearch && !isPending">
+									KWIC Treffer
+									<span class="text-sm text-accent-foreground"
+										>({{ searchResponse?.totalHits ?? 0 }})
 									</span>
+								</p>
+							</div>
+							<div v-else>
+								<Spinner />
+							</div>
+							<div class="ml-auto flex flex-wrap items-center justify-end gap-2">
+								<div v-if="activeFilterCount > 0" class="flex flex-wrap items-center gap-2">
+									<div
+										v-for="tag in activeFilterTagEntries"
+										:key="`${tag.key}-${tag.value}`"
+										class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
+									>
+										<span>{{ tag.label }}</span>
+										<button
+											type="button"
+											class="inline-flex size-4 items-center justify-center rounded-full hover:bg-foreground/10"
+											:aria-label="`Filter ${tag.label} entfernen`"
+											@click="removeFilterTag(tag.key, tag.value)"
+										>
+											<X class="size-3" />
+										</button>
+									</div>
+									<Button
+										variant="outline"
+										size="sm"
+										class="h-7 px-2 text-xs"
+										@click="clearAllFilterTags"
+									>
+										Alle löschen
+									</Button>
+									<span class="text-foreground/10">|</span>
 								</div>
-							</TabsTrigger>
-							<TabsTrigger value="kwic">
-								<div class="flex flex-row gap-1 items-center">
-									<span>KWIC</span>
-									<span class="text-xs text-gray-500"
-										>({{ kwic?.concsize ? kwic?.concsize : 0 }})
-									</span>
-								</div>
-							</TabsTrigger>
-						</TabsList>
-						<Button class="shrink-0" size="icon" variant="ghost"
-							><Download class="size-4"
-						/></Button>
-					</div>
-					<TabsContent class="flex flex-grow overflow-y-auto h-full min-h-0" value="plain">
+								<Button variant="ghost" size="sm" class="h-7 px-2 text-xs gap-2">
+									<DownloadIcon class="size-4" />
+								</Button>
+							</div>
+						</div>
+
 						<div v-if="isPending" class="justify-center flex m-auto">
 							<Spinner />
 						</div>
-						<div
-							v-else-if="!isPending && transcripts != null && transcripts.length > 0"
-							class="w-full"
-						>
-							<p class="text-lg mb-3 flex-shrink-0 mx-2">
-								Ergebnisse
-								<span class="text-sm text-muted-foreground">({{ transcripts?.length }})</span>
-							</p>
-							<div v-for="result in transcripts" :key="result.instance_id">
-								<div
-									class="mx-2 px-4 py-2 mb-2 rounded bg-gray-100 font-semibold text-gray-700 grid grid-cols-[auto_1fr] items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80"
-								>
-									<Button
-										class="underline text-md text-black decoration-dotted transition hover:no-underline focus-visible:no-underline p-0"
-										hover:no-underline
-										variant="transparent"
-										@click="handleSelection(String(result.instance_id))"
-									>
-										<span class="sr-only"> Open Sidebar Demo </span>
-										{{ result.transcript_name }}
-									</Button>
-									<div class="w-full flex justify-end">
-										<Button
-											class="p-0 w-fit self-end"
-											variant="transparent"
-											@click="handleBookmark(result)"
-										>
-											<BookmarkIcon :fill="result.bookmarked ? 'black' : 'none'" />
-										</Button>
-									</div>
-								</div>
-							</div>
+						<div v-if="!isPending && transcripts != null && transcripts.length > 0" class="w-full">
+							<TranscriptResults
+								:transcripts="displayTranscripts"
+								:transcript-hit-counts="matchesByTranscript ?? {}"
+								:has-kwic-search="hasKwicSearch"
+								:current-search-params="currentSearchParams ?? null"
+								@select="handleSelection"
+								@bookmark="handleBookmark"
+							/>
 						</div>
-						<div v-else class="text-md text-muted-foreground justify-center flex m-auto">
+
+						<div
+							v-if="!isPending && (!transcripts || transcripts.length === 0)"
+							class="text-md text-muted-foreground justify-center flex m-auto"
+						>
 							Keine Ergebnisse vorhanden.
 						</div>
-					</TabsContent>
-					<TabsContent class="flex flex-col flex-grow min-h-0" value="kwic">
-						<div v-if="status === 'pending'" class="flex justify-center my-auto py-6">
-							<Spinner />
-						</div>
-
-						<div v-else-if="kwic?.Lines?.length" class="flex flex-col flex-grow min-h-0 gap-2">
-							<p class="text-lg flex-shrink-0">
-								Ergebnisse
-								<span class="text-sm text-muted-foreground">({{ kwic?.concsize }})</span>
-							</p>
-							<div
-								class="py-2 text-sm grid grid-cols-[auto_1fr] gap-3 items-center text-muted-foreground"
-							>
-								<span>Line ID</span>
-								<div class="flex justify-center mr-27">
-									<span class="text-right">Rechter Kontext</span>
-									<span class="px-5">KWIC</span>
-									<span class="text-left">Linker Kontext</span>
-								</div>
-							</div>
-							<div class="flex-1 min-h-0 overflow-y-auto [scrollbar-gutter:stable]">
-								<div
-									v-for="obj in transcriptMatches"
-									:key="obj!.transcript!.instance_id"
-									class="flex flex-col"
-								>
-									<div
-										v-for="(line, index) in obj.lines"
-										:key="line.toknum"
-										class="grid grid-cols-[auto_1fr_auto] gap-2 items-center"
-									>
-										<span class="text-xs text-muted-foreground">{{ line.toknum }}</span>
-										<button
-											class="rounded hover:text-accent-foreground focus-visible:outline-hidden focus-visible:ring-2 disabled:pointer-events-none focus-visible:ring-offset-2 disabled:opacity-50"
-											@click="
-												line.Tbl_refs ? handleSelection(line.Tbl_refs[0]?.slice(18, 25) ?? '') : ''
-											"
-										>
-											<span class="sr-only">
-												Detailview Preview zu Transkript
-												{{ line.Tbl_refs ? line.Tbl_refs[0]?.slice(18, 25) : "existiert nicht" }}
-											</span>
-
-											<div
-												class="px-3 py-2 text-sm grid grid-cols-[1fr_auto_1fr] gap-2 items-center transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
-											>
-												<div
-													class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 text-right transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 whitespace-nowrap"
-												>
-													<span class="pl-2" v-for="token in line.Left">{{ token.str }}</span>
-												</div>
-
-												<span
-													class="h-full flex font-semibold text-accent-foreground bg-accent-foreground/20 rounded-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-110 hover:border-background/10 p-2.5 text-center whitespace-nowrap"
-												>
-													{{ line.Kwic ? line.Kwic[0]?.str : "" }}
-												</span>
-
-												<div
-													class="h-full p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-101 hover:border-foreground/80 text-center whitespace-nowrap text-left"
-												>
-													<span class="pl-2" v-for="token in line.Right">{{ token.str }}</span>
-												</div>
-											</div>
-										</button>
-										<DropdownMenu>
-											<DropdownMenuTrigger>
-												<Button variant="ghost"> <CopyIcon :size="16" /></Button
-											></DropdownMenuTrigger>
-											<DropdownMenuContent>
-												<DropdownMenuItem @click="copyKwicLine(line, 'kwic')"
-													>Plain Text</DropdownMenuItem
-												>
-												<DropdownMenuItem
-													@click="copyKwicLine(obj?.xmlHits[index]?.content ?? '', 'xml')"
-													>XML</DropdownMenuItem
-												>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-								</div>
-							</div>
-							<div class="shrink-0 sticky bottom-0 bg-white border-t flex justify-center py-4">
-								<Pagination
-									v-model:page="currentPage"
-									:items-per-page="limit"
-									:total="kwic?.concsize"
-									:sibling-count="1"
-									:show-edges="true"
-									class="flex items-center gap-1"
-								>
-									<PaginationContent v-slot="{ items }">
-										<PaginationPrevious />
-
-										<template v-for="(item, i) in items" :key="i">
-											<PaginationEllipsis v-if="item.type === 'ellipsis'" />
-
-											<PaginationItem v-else-if="item.type === 'page'" :value="item.value" as-child>
-												<Button
-													class="size-9 p-0"
-													:variant="item.value === currentPage ? 'default' : 'outline'"
-													@click="currentPage = item.value"
-												>
-													{{ item.value }}
-												</Button>
-											</PaginationItem>
-										</template>
-
-										<PaginationNext />
-									</PaginationContent>
-								</Pagination>
-							</div>
-						</div>
-						<div v-else class="justify-center flex my-auto">
-							<div class="text-md text-muted-foreground">Keine Ergebnisse vorhanden.</div>
-						</div>
-					</TabsContent>
-				</Tabs>
+					</div>
+				</div>
 			</div>
 			<div
-				v-if="currentId != null"
 				class="transition p-4 border border-foreground/20 rounded-b-lg rounded-tr-lg flex flex-col overflow-hidden"
 				:class="{ 'opacity-0 pointer-events-none transition-all': !showThirdColumn }"
 			>
-				<TranscriptDemoSidebar :transcripts="transcripts ?? []" />
+				<Tabs class="w-full flex flex-col flex-grow min-h-0" default-value="word">
+					<div class="flex gap-4 items-center flex-shrink-0">
+						<TabsList class="w-full">
+							<TabsTrigger value="tags"> Tags </TabsTrigger>
+							<TabsTrigger value="word"> Word / Lemma / POS </TabsTrigger>
+							<TabsTrigger value="cql"> CQL </TabsTrigger>
+						</TabsList>
+					</div>
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="tags">
+						<TagBuilderGroup @search="filterOpen = false" />
+					</TabsContent>
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="word">
+						<SearchKwic @search="filterOpen = false" />
+					</TabsContent>
+					<TabsContent class="flex-grow overflow-y-auto min-h-0" value="cql">
+						Sample content
+					</TabsContent>
+				</Tabs>
 			</div>
 		</div>
 	</main>

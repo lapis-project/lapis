@@ -158,11 +158,11 @@ function handleRemove(node: TagNode) {
 </script>
 
 <template>
-	<div class="flex relative items-center">
-		<div class="flex-row flex items-center px-4 py-8">
-			<div>
+	<div class="flex relative w-full flex-col gap-3">
+		<div class="flex flex-col gap-3 px-4 py-8">
+			<div class="w-full">
 				<Label class="text-sm text-muted-foreground" for="context">Tag Ebene</Label>
-				<div class="grid grid-cols-[auto_1fr] items-center gap-2">
+				<div class="flex flex-col gap-2">
 					<BaseSelect
 						id="context"
 						v-model="activeParentLayerOption"
@@ -171,50 +171,21 @@ function handleRemove(node: TagNode) {
 						placeholder="Tagebene wählen"
 					></BaseSelect>
 
-					<div>
-						<div class="flex relative group">
-							<PlusCircleIcon
-								v-if="activeParentLayerOption"
-								class="text-accent-foreground mr-2"
-								:size="18"
-							/>
-
-							<!--other option: this needs review-->
-
-							<!-- <Button
-								v-if="activeParentLayerOption"
-								class="p-2 h-8 m-0"
-								variant="ghost"
-								@click="setNextLayer(1)"
-							>
-								<PlusCircleIcon :size="18" />
-							</Button> -->
-
-							<!-- <Button
-								v-else-if="activeParentLayerOption && tagLayerOneActive"
-								class="p-2 h-8 m-0 relative"
-								variant="ghost"
-								@click="collapseLayer(1)"
-							>
-								<PlusCircleIcon
-									class="transition-opacity duration-200 group-hover:opacity-0 text-accent-foreground"
-									:size="18"
-								/>
-								<MinusCircleIcon
-									class="absolute justify-self-start transition-opacity duration-200 opacity-0 group-hover:opacity-100"
-									:size="18"
-								/>
-							</Button> -->
-						</div>
+					<div class="flex items-center">
+						<PlusCircleIcon
+							v-if="activeParentLayerOption"
+							class="text-accent-foreground mr-2"
+							:size="18"
+						/>
 					</div>
 				</div>
 			</div>
-			<div v-if="activeParentLayerOption">
+			<div v-if="activeParentLayerOption" class="w-full">
 				<div>
 					<Label class="text-sm text-muted-foreground" for="tags">Annotation</Label>
 					<TagDropZone
 						v-model="model"
-						class="border border-muted-foreground rounded p-2 w-full min-w-40"
+						class="border border-muted-foreground rounded p-2 w-full min-w-0"
 						group-name="tags-root"
 						:has-children="hasChildren"
 						:is-root="true"

@@ -1,5 +1,10 @@
 name: Deploy to Dev Workflow
 
+concurrency:
+  group:
+    "${{ github.workflow }}-${{ inputs.git_ref || github.ref }}-${{ inputs.app_name }}-build-deploy"
+  cancel-in-progress: true
+
 on:
   workflow_call:
     inputs:
@@ -7,8 +12,9 @@ on:
         required: true
         type: string
       git_ref:
-        required: true
+        required: false
         type: string
+        default: ""
       # --- Public Build Arguments as Inputs ---
       # ADD NEW BUILD_ARGS HERE (Also look further down in the file!!!)
       NUXT_PUBLIC_ZOTERO_BASE_URL:
@@ -26,34 +32,41 @@ on:
       NUXT_PUBLIC_APP_BASE_URL:
         required: false
         type: string
-    # secrets:
-    # Example: if there was a secret API key
-    # LEXAT_API_KEY:
-    #   required: false
 
 jobs:
+  validate:
+    name: Validate (${{ inputs.app_name }})
+    uses: ./.github/workflows/validate.yml
+    with:
+      backend_only: ${{ inputs.app_name == 'backend' }}
+    secrets: inherit
+
   setup_workflow_env:
     environment: dev-${{ inputs.app_name }}
     runs-on: ubuntu-latest
     outputs:
+      environment: "${{ steps.set_outputs.outputs.environment }}"
+      environment_short: "${{ steps.set_outputs.outputs.environment_short }}"
       image_name: ""
       registry_root: "ghcr.io/${{ github.repository }}"
       default_port: "3000"
       fetch-depth: 10
       submodules: "true"
-      PUBLIC_URL: "${{ vars.PUBLIC_URL }}"
+      PUBLIC_URL: "${{ vars.PUBLIC_URL || vars.PUBLIC_URL_BACKEND || vars.PUBLIC_URL_FRONTEND }}"
       APP_NAME: ${{ inputs.app_name }}
       APP_ROOT: /
     steps:
       - name: Set Workflow outputs
         id: set_outputs
         run: |
-          echo "environment=dev-${{ inputs.app_name }}" >> $GITHUB_OUTPUT
-          echo "All outputs are set directly in the job's 'outputs' context."
+          echo "environment=dev-${{ inputs.app_name }}" >> "$GITHUB_OUTPUT"
+          echo "environment_short=dev-${{ inputs.app_name }}" >> "$GITHUB_OUTPUT"
+
   generate_workflow_vars:
     needs:
       - setup_workflow_env
-    environment: dev-${{ inputs.app_name }}
+    environment:
+      name: "${{ needs.setup_workflow_env.outputs.environment }}"
     runs-on: ubuntu-latest
     steps:
       - name: Generate PUBLIC_URL if not set
@@ -70,30 +83,29 @@ jobs:
 
           fi
 
-          echo "public_url=$public_url" >> $GITHUB_OUTPUT
+          echo "public_url=$public_url" >> "$GITHUB_OUTPUT"
       - name: Generate APP_ROOT
         id: generate_app_root
         run: |
-          echo "app_root=${{ vars.APP_ROOT }}" >> $GITHUB_OUTPUT
-      - name: Export KUBE_NAMESPACE
-        id: generate_kube_namespace
+          app_root="${{ vars.APP_ROOT || vars.APP_ROOT_FRONTEND || needs.setup_workflow_env.outputs.APP_ROOT }}"
+          echo "app_root=${app_root:-/}" >> "$GITHUB_OUTPUT"
+      - name: Export SERVICE_ID
+        id: generate_service_id
         run: |
-          echo "kube_namespace=${{ vars.KUBE_NAMESPACE }}" >> $GITHUB_OUTPUT
-      - name: Export KUBE_INGRESS_BASE_DOMAIN
-        id: generate_kube_ingress
-        run: |
-          echo "kube_ingress_base_domain=${{ vars.KUBE_INGRESS_BASE_DOMAIN }}" >> $GITHUB_OUTPUT
+          echo "service_id=${{ vars.SERVICE_ID || vars.SERVICE_ID_BACKEND || vars.SERVICE_ID_FRONTEND }}" >> "$GITHUB_OUTPUT"
     outputs:
       PUBLIC_URL: "${{ steps.generate_public_url.outputs.public_url }}"
       APP_ROOT: "${{ steps.generate_app_root.outputs.app_root }}"
-      KUBE_NAMESPACE: "${{ steps.generate_kube_namespace.outputs.kube_namespace }}"
-      KUBE_INGRESS_BASE_DOMAIN:
-        "${{ steps.generate_kube_ingress.outputs.kube_ingress_base_domain }}"
+      SERVICE_ID: "${{ steps.generate_service_id.outputs.service_id }}"
+
   build_and_deploy:
+    name: Build and push docker image
     needs:
+      - validate
       - setup_workflow_env
       - generate_workflow_vars
-    environment: dev-${{ inputs.app_name }}
+    environment:
+      name: "${{ needs.setup_workflow_env.outputs.environment }}"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -102,57 +114,89 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.git_ref }}
+          ref: ${{ inputs.git_ref || github.ref }}
 
       - name: Set App-Specific Configuration
         id: config
         shell: bash
         env:
-          # Make the public inputs available to the script as environment variables
+          # Prefer explicit workflow inputs, falling back to environment/repository vars
           # ADD NEW BUILD_ARGS HERE
-          NUXT_PUBLIC_ZOTERO_BASE_URL: ${{ inputs.NUXT_PUBLIC_ZOTERO_BASE_URL }}
-          NUXT_PUBLIC_REDMINE_ID: ${{ inputs.NUXT_PUBLIC_REDMINE_ID }}
-          NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT: ${{ inputs.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT }}
-          NUXT_PUBLIC_MAP_BASELAYER_URL_DARK: ${{ inputs.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK }}
-          NUXT_PUBLIC_APP_BASE_URL: ${{ inputs.NUXT_PUBLIC_APP_BASE_URL }}
+          NUXT_PUBLIC_ZOTERO_BASE_URL:
+            ${{ inputs.NUXT_PUBLIC_ZOTERO_BASE_URL || vars.NUXT_PUBLIC_ZOTERO_BASE_URL }}
+          NUXT_PUBLIC_REDMINE_ID:
+            ${{ inputs.NUXT_PUBLIC_REDMINE_ID || vars.NUXT_PUBLIC_REDMINE_ID || vars.SERVICE_ID }}
+          NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT:
+            ${{ inputs.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT ||
+            vars.NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT }}
+          NUXT_PUBLIC_MAP_BASELAYER_URL_DARK:
+            ${{ inputs.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK || vars.NUXT_PUBLIC_MAP_BASELAYER_URL_DARK
+            }}
+          NUXT_PUBLIC_APP_BASE_URL:
+            ${{ inputs.NUXT_PUBLIC_APP_BASE_URL || needs.generate_workflow_vars.outputs.PUBLIC_URL
+            }}
+          STUDIO_GITHUB_CLIENT_ID: ${{ vars.K8S_SECRET_STUDIO_GITHUB_CLIENT_ID }}
         run: |
           APP_NAME="${{ inputs.app_name }}"
-          case $APP_NAME in
+          case "$APP_NAME" in
             backend)
-              echo "dockerfile=Dockerfile_Backend" >> $GITHUB_OUTPUT
-              echo "build_args=" >> $GITHUB_OUTPUT
+              echo "dockerfile=Dockerfile_Backend" >> "$GITHUB_OUTPUT"
+              echo "build_args=" >> "$GITHUB_OUTPUT"
               ;;
             lexat)
-              echo "dockerfile=Dockerfile_Lexat" >> $GITHUB_OUTPUT
-
-              # Use printf to safely create the multi-line string for build args
+              echo "dockerfile=Dockerfile_Lexat" >> "$GITHUB_OUTPUT"
               BUILD_ARGS=$(printf "%s\n" \
                 "NUXT_PUBLIC_ZOTERO_BASE_URL=${NUXT_PUBLIC_ZOTERO_BASE_URL}" \
                 "NUXT_PUBLIC_REDMINE_ID=${NUXT_PUBLIC_REDMINE_ID}" \
                 "NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT=${NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT}" \
                 "NUXT_PUBLIC_MAP_BASELAYER_URL_DARK=${NUXT_PUBLIC_MAP_BASELAYER_URL_DARK}" \
                 "NUXT_PUBLIC_APP_BASE_URL=${NUXT_PUBLIC_APP_BASE_URL}")
-
-              # Use the official syntax to set the multi-line output variable
-              echo "build_args<<EOF" >> $GITHUB_OUTPUT
-              echo "$BUILD_ARGS" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
+              {
+                echo "build_args<<EOF"
+                echo "$BUILD_ARGS"
+                echo "EOF"
+              } >> "$GITHUB_OUTPUT"
               ;;
             corpus)
-              echo "dockerfile=Dockerfile_Corpus" >> $GITHUB_OUTPUT
-
-                            # Use printf to safely create the multi-line string for build args
+              echo "dockerfile=Dockerfile_Corpus" >> "$GITHUB_OUTPUT"
               BUILD_ARGS=$(printf "%s\n" \
                 "NUXT_PUBLIC_ZOTERO_BASE_URL=${NUXT_PUBLIC_ZOTERO_BASE_URL}" \
                 "NUXT_PUBLIC_REDMINE_ID=${NUXT_PUBLIC_REDMINE_ID}" \
                 "NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT=${NUXT_PUBLIC_MAP_BASELAYER_URL_LIGHT}" \
                 "NUXT_PUBLIC_MAP_BASELAYER_URL_DARK=${NUXT_PUBLIC_MAP_BASELAYER_URL_DARK}" \
                 "NUXT_PUBLIC_APP_BASE_URL=${NUXT_PUBLIC_APP_BASE_URL}")
-
-              # Use the official syntax to set the multi-line output variable
-              echo "build_args<<EOF" >> $GITHUB_OUTPUT
-              echo "$BUILD_ARGS" >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
+              {
+                echo "build_args<<EOF"
+                echo "$BUILD_ARGS"
+                echo "EOF"
+              } >> "$GITHUB_OUTPUT"
+              ;;
+            lexvad)
+              echo "dockerfile=Dockerfile_Lexvad" >> "$GITHUB_OUTPUT"
+              BUILD_ARGS=$(printf "%s\n" \
+                "NUXT_PUBLIC_REDMINE_ID=${NUXT_PUBLIC_REDMINE_ID}" \
+                "NUXT_PUBLIC_APP_BASE_URL=${NUXT_PUBLIC_APP_BASE_URL}")
+              {
+                echo "build_args<<EOF"
+                echo "$BUILD_ARGS"
+                echo "EOF"
+              } >> "$GITHUB_OUTPUT"
+              ;;
+            lioe)
+              echo "dockerfile=Dockerfile_Lioe" >> "$GITHUB_OUTPUT"
+              BUILD_ARGS=$(printf "%s\n" \
+                "NUXT_PUBLIC_REDMINE_ID=${NUXT_PUBLIC_REDMINE_ID}" \
+                "NUXT_PUBLIC_APP_BASE_URL=${NUXT_PUBLIC_APP_BASE_URL}" \
+                "STUDIO_GITHUB_CLIENT_ID=${STUDIO_GITHUB_CLIENT_ID}")
+              {
+                echo "build_args<<EOF"
+                echo "$BUILD_ARGS"
+                echo "EOF"
+              } >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unsupported app_name: $APP_NAME" >&2
+              exit 1
               ;;
           esac
       - name: Set up Docker Buildx
@@ -175,17 +219,17 @@ jobs:
             type=raw,value={{sha}}
             type=ref,event=branch
       - name: Build and push Docker image
-        # This step remains the same as before
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: ${{ steps.config.outputs.dockerfile }}
+          file: ./${{ steps.config.outputs.dockerfile }}
           build-args: ${{ steps.config.outputs.build_args }}
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: "${{ steps.meta.outputs.tags }}"
           labels: "${{ steps.meta.outputs.labels }}"
           cache-from: type=gha
           cache-to: "type=gha,mode=max"
+
   deploy:
     permissions:
       contents: read
@@ -203,11 +247,10 @@ jobs:
       DOCKER_TAG: ${{ needs.setup_workflow_env.outputs.registry_root }}-${{ inputs.app_name }}-dev
       APP_NAME: lapis-${{ needs.setup_workflow_env.outputs.APP_NAME }}-dev
       APP_ROOT: "${{ needs.generate_workflow_vars.outputs.APP_ROOT }}"
-      SERVICE_ID: "${{ vars.SERVICE_ID }}"
+      SERVICE_ID: "${{ needs.generate_workflow_vars.outputs.SERVICE_ID }}"
       PUBLIC_URL: "${{ needs.generate_workflow_vars.outputs.PUBLIC_URL }}"
-      default_port: "${{ needs.setup_workflow_env.outputs.default_port}}"
-      KUBE_NAMESPACE: ${{ needs.generate_workflow_vars.outputs.KUBE_NAMESPACE }}
-      KUBE_INGRESS_BASE_DOMAIN: ${{ needs.generate_workflow_vars.outputs.KUBE_INGRESS_BASE_DOMAIN }}
+      default_port: "${{ needs.setup_workflow_env.outputs.default_port }}"
+
   clean_up_cache:
     permissions:
       actions: write
@@ -220,8 +263,9 @@ jobs:
     steps:
       - name: Purge Cache for current branch
         run: |
-          echo "Finding caches for branch: ${{ github.ref }}"
+          TARGET_REF="${{ inputs.git_ref || github.ref }}"
+          echo "Finding caches for branch: $TARGET_REF"
           # Fetch cache ids for current branch and delete them
-          gh cache list --ref ${{ github.ref }} --json id --jq '.[].id' | xargs -I {} gh cache delete {} || echo "No caches found or failed to delete."
+          gh cache list --ref "$TARGET_REF" --json id --jq '.[].id' | xargs -I {} gh cache delete {} || echo "No caches found or failed to delete."
 
           echo "Cache purge complete."

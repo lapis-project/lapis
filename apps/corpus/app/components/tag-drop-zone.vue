@@ -47,7 +47,7 @@ function loadCurrentChildren(node: TagNode) {
 
 <template>
 	<Draggable
-		class="flex flex-row gap-2 items-start transition-all duration-300 border rounded border-black h-full"
+		class="flex flex-col gap-2 items-stretch transition-all duration-300 border rounded border-black h-full min-h-10"
 		:group="{
 			name: props.groupName,
 			pull: false,

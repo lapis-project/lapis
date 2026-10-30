@@ -27,9 +27,9 @@ const random = createRandom(20260827);
 export const pilotEntries = (pilotVariables as Array<DataEntry>)
 	.flatMap((entry) => [
 		entry,
-		...Array.from({ length: 15 }, () =>
+		...Array.from({ length: 0 }, () =>
 			shiftEntry(entry, 0.5 * (random() - 0.5), 0.5 * (random() - 0.5)),
 		),
 	])
-	.map((entry) => locateEntry(entry))
+	.map((entry) => locateEntry({ ...entry, Id: String(entry.iddoc) }))
 	.filter((entry) => entry.region !== undefined);

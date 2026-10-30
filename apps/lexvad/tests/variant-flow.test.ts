@@ -47,8 +47,12 @@ const placeA = "47.000,15.000";
 const placeB = "47.010,15.000";
 
 describe("matchKey", () => {
-	it("uses the document id when matching by informant", () => {
-		expect(matchKey(locatedEntry({ iddoc: 42 }), "iddoc")).toBe("42");
+	it("uses the informant id when matching by id", () => {
+		expect(matchKey(locatedEntry({ iddoc: 1, Id: "42" }), "id")).toBe("42");
+	});
+
+	it("leaves entries without an informant id unmatched", () => {
+		expect(matchKey(locatedEntry({ iddoc: 42 }), "id")).toBeUndefined();
 	});
 
 	it("rounds coordinates so slightly differing places share a key", () => {
@@ -74,7 +78,7 @@ describe("countVariantFlow", () => {
 			...entries("2", ["Oma", "Omi"]),
 			...entries("4", ["Omi"]),
 		];
-		expect(sorted(countVariantFlow(left, right, "iddoc"))).toEqual([
+		expect(sorted(countVariantFlow(left, right, "id"))).toEqual([
 			{ source: "Oma", target: "Oma", value: 1 },
 			{ source: "Omi", target: "Oma", value: 0.5 },
 			{ source: "Omi", target: "Omi", value: 0.5 },
@@ -126,10 +130,10 @@ describe("countVariantFlow", () => {
 		]);
 	});
 
-	it("ignores the radius when matching by informant", () => {
+	it("ignores the radius when matching by id", () => {
 		const left = entries("1", ["Oma"]);
 		const right = entries("2", ["Omi"]);
-		expect(countVariantFlow(left, right, "iddoc", 20000)).toEqual([]);
+		expect(countVariantFlow(left, right, "id", 20000)).toEqual([]);
 	});
 
 	it("counts each group of an answer with several groups towards the shares", () => {

@@ -29,7 +29,7 @@ export interface VariantFlowLink {
 export function usePhenomenonComparison(
 	left: MaybeRefOrGetter<ComparisonSide>,
 	right: MaybeRefOrGetter<ComparisonSide>,
-	matchBy: MaybeRefOrGetter<ComparisonMatchMode> = "iddoc",
+	matchBy: MaybeRefOrGetter<ComparisonMatchMode> = "id",
 	/** Only used when matching by location. */
 	matchRadius: MaybeRefOrGetter<number> = locationMatchRadius.default,
 ) {
@@ -50,10 +50,11 @@ export function usePhenomenonComparison(
 		return filter(
 			side.question,
 			side.groups.flatMap((group) => group.variants),
-		).map((entry) => ({
-			key: matchKey(entry, mode),
-			groups: new Set(entry.variants.map((variant) => ids[variant] ?? variant)),
-		}));
+		).flatMap((entry) => {
+			const key = matchKey(entry, mode);
+			if (key === undefined) return [];
+			return [{ key, groups: new Set(entry.variants.map((variant) => ids[variant] ?? variant)) }];
+		});
 	}
 
 	function flowNodes(side: ComparisonSide): Record<string, VariantFlowNode> {

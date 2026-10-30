@@ -26,7 +26,8 @@
 	},
 	"Comparison": {
 		"comparison-view": "Vergleichsansicht",
-		"match-by-informant": "Nach ID abgleichen",
+		"match-by-id": "Nach ID abgleichen",
+		"match-by-id-unavailable": "Nach ID abgleichen (keine ID-Spalte im Datensatz)",
 		"match-by-location": "Nach Ort abgleichen",
 		"variant-flow": "Variantenfluss"
 	},
@@ -73,6 +74,7 @@
 			"skipped-variable": "{count} Zeilen ohne Variable übersprungen.",
 			"skipped-variant": "{count} Zeilen ohne Variante übersprungen.",
 			"outside-regions": "{count} Orte liegen außerhalb der Dialektregionen und fehlen in den Raumbildern.",
+			"missing-ids": "{count} Zeilen haben keine ID und fehlen beim Abgleich nach ID.",
 			"truncated": "{count} Zeilen wurden wegen des Zeilenlimits nicht übernommen."
 		},
 		"errors": {
@@ -90,7 +92,8 @@
 			"Variante": "Dialektform",
 			"Kreis": "Kreis",
 			"Land": "Land",
-			"PLZ": "PLZ"
+			"PLZ": "PLZ",
+			"Id": "ID"
 		}
 	},
 	"DefaultLayout": {

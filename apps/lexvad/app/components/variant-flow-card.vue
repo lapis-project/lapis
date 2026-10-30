@@ -85,10 +85,16 @@ function percentage(value: number) {
 
 const option = computed(() => {
 	const columnPositions = [
-		{ x: dimensions.LEFT - LABEL_GAP, textAlign: "right", width: labelWidth("left") },
 		{
-			x: width.value - dimensions.RIGHT + LABEL_GAP,
+			x: LABEL_GAP,
 			textAlign: "left",
+			textAnchor: "start",
+			width: labelWidth("left"),
+		},
+		{
+			x: width.value - LABEL_GAP,
+			textAlign: "right",
+			textAnchor: "end",
 			width: labelWidth("right"),
 		},
 	];
@@ -116,6 +122,7 @@ const option = computed(() => {
 			style: {
 				text,
 				textAlign: columnPositions[d]?.textAlign,
+				textAnchor: columnPositions[d]?.textAnchor,
 				verticalAlign: "bottom",
 				width: columnPositions[d]?.width,
 				overflow: "break",

@@ -5,6 +5,7 @@ import regions from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimize
 
 export interface DataEntry {
 	iddoc: number | string;
+	Id?: string;
 	PLZ?: number | string;
 	Ort: string;
 	Kreis?: string;

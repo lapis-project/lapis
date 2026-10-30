@@ -258,10 +258,24 @@ function comparisonSide(position: MapPosition) {
 
 const comparisonMatchMode = ref<ComparisonMatchMode>("location");
 const comparisonMatchRadius = ref<number>(locationMatchRadius.default);
+const idsAvailable = computed(() =>
+	positions.every(
+		(position) => datasetStore.datasetInfo(datasetStore.datasetForMap(position)).hasIds,
+	),
+);
 const comparisonMatchItems = computed(() => [
-	{ label: t("Comparison.match-by-informant"), value: "iddoc" },
+	{
+		label: idsAvailable.value
+			? t("Comparison.match-by-id")
+			: t("Comparison.match-by-id-unavailable"),
+		value: "id",
+		disabled: !idsAvailable.value,
+	},
 	{ label: t("Comparison.match-by-location"), value: "location" },
 ]);
+watch(idsAvailable, (available) => {
+	if (!available && comparisonMatchMode.value === "id") comparisonMatchMode.value = "location";
+});
 
 const { variantFlowData } = usePhenomenonComparison(
 	comparisonSide("left"),

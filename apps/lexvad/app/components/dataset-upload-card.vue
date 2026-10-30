@@ -52,6 +52,7 @@ const warnings = computed(() => {
 			{ key: "skipped-variable", count: report.skippedVariable },
 			{ key: "skipped-variant", count: report.skippedVariant },
 			{ key: "outside-regions", count: report.outsideRegions },
+			{ key: "missing-ids", count: report.missingIds },
 			{ key: "truncated", count: report.truncated },
 		] as const
 	).filter((warning) => warning.count > 0);

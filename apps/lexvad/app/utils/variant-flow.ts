@@ -2,8 +2,8 @@ import { distance } from "@turf/turf";
 
 import type { LocatedEntry } from "@/utils/dataset";
 
-/** How answers on both sides are paired: by document id or by place. */
-export type ComparisonMatchMode = "iddoc" | "location";
+/** How answers on both sides are paired: by id or by place. */
+export type ComparisonMatchMode = "id" | "location";
 
 export type MatchKey = string;
 
@@ -20,8 +20,8 @@ export interface VariantFlowCount {
 
 const LOCATION_PRECISION = 3;
 
-export function matchKey(entry: LocatedEntry, mode: ComparisonMatchMode): MatchKey {
-	if (mode === "iddoc") return String(entry.iddoc);
+export function matchKey(entry: LocatedEntry, mode: ComparisonMatchMode): MatchKey | undefined {
+	if (mode === "id") return entry.Id;
 	return [entry.Latitude, entry.Longitude]
 		.map((value) => Number(value).toFixed(LOCATION_PRECISION))
 		.join(",");
@@ -42,7 +42,7 @@ function createNeighbours(
 	radius: number,
 	rightKeys: Array<MatchKey>,
 ): (key: MatchKey) => Array<MatchKey> {
-	if (mode === "iddoc" || radius <= 0) return (key) => [key];
+	if (mode === "id" || radius <= 0) return (key) => [key];
 	const places = rightKeys.map((key) => ({ key, coordinates: coordinates(key) }));
 	const cache = new Map<MatchKey, Array<MatchKey>>();
 	return (key) => {

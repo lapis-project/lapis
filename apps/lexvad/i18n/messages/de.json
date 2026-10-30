@@ -1,7 +1,10 @@
 {
 	"AppHeader": {
 		"links": {
-			"home": "Startseite"
+			"about": "Über das Projekt",
+			"compare": "Vergleichsansicht",
+			"home": "Startseite",
+			"map": "Kartierung"
 		},
 		"navigation-main": "Hauptnavigation"
 	},

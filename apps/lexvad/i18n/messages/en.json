@@ -1,7 +1,10 @@
 {
 	"AppHeader": {
 		"links": {
-			"home": "Home"
+			"about": "About the project",
+			"compare": "Comparison",
+			"home": "Home",
+			"map": "Map"
 		},
 		"navigation-main": "Main"
 	},

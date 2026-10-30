@@ -27,7 +27,7 @@ const random = createRandom(20260827);
 export const pilotEntries = (pilotVariables as Array<DataEntry>)
 	.flatMap((entry) => [
 		entry,
-		...Array.from({ length: 0 }, () =>
+		...Array.from({ length: 15 }, () =>
 			shiftEntry(entry, 0.5 * (random() - 0.5), 0.5 * (random() - 0.5)),
 		),
 	])

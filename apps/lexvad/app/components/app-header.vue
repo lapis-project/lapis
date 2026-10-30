@@ -2,11 +2,11 @@
 const t = useTranslations();
 
 const links = computed(() => {
-	// TODO add i18n messages when navigation is fixated
 	return [
 		{ to: "/", label: t("AppHeader.links.home"), class: "lg:hidden uppercase text-foreground" },
-		{ to: "/about", label: "Über das Projekt", class: "uppercase text-foreground" },
-		{ to: "/map", label: "Kartierung", class: "uppercase text-foreground" },
+		{ to: "/about", label: t("AppHeader.links.about"), class: "uppercase text-foreground" },
+		{ to: "/map", label: t("AppHeader.links.map"), class: "uppercase text-foreground" },
+		{ to: "/compare", label: t("AppHeader.links.compare"), class: "uppercase text-foreground" },
 		{
 			to: "/custom-data",
 			label: t("ExperimentalPage.title"),

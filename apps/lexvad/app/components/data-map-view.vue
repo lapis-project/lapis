@@ -11,9 +11,8 @@ import {
 	serializeMapQuery,
 } from "@/utils/map-query";
 import { PILOT_DATASET_ID } from "@/utils/pilot-data";
-import { type ComparisonMatchMode, locationMatchRadius } from "@/utils/variant-flow";
 import { matchVariantColors } from "@/utils/variant-matching";
-import { usePhenomenonComparison } from "~/composables/use-phenomenon-comparison";
+import type { StoredSelection } from "~/composables/use-phenomenon-selection";
 
 interface SidebarState {
 	open: boolean;
@@ -28,6 +27,7 @@ const t = useTranslations();
 const datasetStore = useDatasetStore();
 const colorStore = useColorStore();
 const { groupsForMap } = useVariantGroupStore();
+const { getSelection, setSelection } = usePhenomenonSelection();
 const route = useRoute();
 const router = useRouter();
 
@@ -64,18 +64,30 @@ function restoreUrlState(position: MapPosition, state: MapQueryState, question: 
 	);
 }
 
+function restoreStoredVariants(position: MapPosition, question: string, stored?: StoredSelection) {
+	if (stored?.question !== question) return [];
+	const known = questions[position].getValuesForQuestion(question);
+	return stored.variants.filter((variant) => known.includes(variant));
+}
+
 function createSidebarState(position: MapPosition, previous?: SidebarState): SidebarState {
 	const allQuestions = questions[position].allQuestions.value;
 	const urlState = takeUrlState(position);
+	const stored = urlState
+		? undefined
+		: getSelection(position, datasetStore.datasetForMap(position));
+	const requested = urlState?.question ?? stored?.question;
 	const question =
-		urlState?.question !== undefined && allQuestions.includes(urlState.question)
-			? urlState.question
+		requested !== undefined && allQuestions.includes(requested)
+			? requested
 			: (allQuestions[0] ?? "");
 	return {
 		open: false,
 		question,
 		variant: defaultVariant(position, question),
-		selectedVariants: urlState ? restoreUrlState(position, urlState, question) : [],
+		selectedVariants: urlState
+			? restoreUrlState(position, urlState, question)
+			: restoreStoredVariants(position, question, stored),
 		mode: urlState?.mode ?? previous?.mode ?? DEFAULT_MAP_MODE,
 		radius: urlState?.radius ?? previous?.radius ?? hexagonRadius.default,
 	};
@@ -132,6 +144,17 @@ positions.forEach((position) => {
 			sidebar.variant = defaultVariant(position, question);
 			sidebar.selectedVariants = sidebar.selectedVariants.filter((v) => known.includes(v));
 		},
+	);
+
+	watch(
+		() => [sidebars.value[position].question, sidebars.value[position].selectedVariants] as const,
+		([question, variants]) => {
+			setSelection(position, datasetStore.datasetForMap(position), {
+				question,
+				variants,
+			});
+		},
+		{ deep: true, immediate: true },
 	);
 });
 
@@ -206,17 +229,7 @@ function allVariants(position: MapPosition) {
 	return [...new Set(questions[position].getValuesForQuestion(sidebars.value[position].question))];
 }
 
-const activeVariants = computed(
-	() =>
-		Object.fromEntries(
-			positions.map((position) => {
-				const { selectedVariants } = sidebars.value[position];
-				return [position, selectedVariants.length > 0 ? selectedVariants : allVariants(position)];
-			}),
-		) as Record<MapPosition, Array<string>>,
-);
-
-const { byVariant, normaliseGroups } = useVariantGroups();
+const { normaliseGroups } = useVariantGroups();
 
 function allGroups(position: MapPosition) {
 	return normaliseGroups(storedGroups[position].value, allVariants(position));
@@ -237,52 +250,6 @@ function matchColors(position: MapPosition) {
 		),
 	);
 }
-
-function comparisonSide(position: MapPosition) {
-	return () => {
-		const { question } = sidebars.value[position];
-		const datasetId = datasetStore.datasetForMap(position);
-		// Colours are resolved on the unscoped groups so they match the map,
-		// even when only part of a group is selected.
-		const colors = byVariant(allGroups(position), (group) =>
-			colorStore.getColorForGroup(datasetId, question, group),
-		);
-		return {
-			question,
-			groups: normaliseGroups(storedGroups[position].value, activeVariants.value[position]),
-			colors,
-			datasetId,
-		};
-	};
-}
-
-const comparisonMatchMode = ref<ComparisonMatchMode>("location");
-const comparisonMatchRadius = ref<number>(locationMatchRadius.default);
-const idsAvailable = computed(() =>
-	positions.every(
-		(position) => datasetStore.datasetInfo(datasetStore.datasetForMap(position)).hasIds,
-	),
-);
-const comparisonMatchItems = computed(() => [
-	{
-		label: idsAvailable.value
-			? t("Comparison.match-by-id")
-			: t("Comparison.match-by-id-unavailable"),
-		value: "id",
-		disabled: !idsAvailable.value,
-	},
-	{ label: t("Comparison.match-by-location"), value: "location" },
-]);
-watch(idsAvailable, (available) => {
-	if (!available && comparisonMatchMode.value === "id") comparisonMatchMode.value = "location";
-});
-
-const { variantFlowData } = usePhenomenonComparison(
-	comparisonSide("left"),
-	comparisonSide("right"),
-	comparisonMatchMode,
-	comparisonMatchRadius,
-);
 </script>
 
 <template>
@@ -334,38 +301,6 @@ const { variantFlowData } = usePhenomenonComparison(
 						<span class="sr-only">{{ t("MapsPage.controls.close-split-view") }}</span>
 					</UButton>
 				</template>
-			</div>
-			<div class="min-w-0 rounded-lg border p-5 mt-5" v-if="splitMode">
-				<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
-					{{ t("Comparison.variant-flow") }}
-					<template v-if="comparisonMatchMode === 'location'">
-						<span class="ml-auto uppercase text-xs">Radius</span>
-						<USlider
-							v-model="comparisonMatchRadius"
-							class="w-36"
-							color="neutral"
-							:max="locationMatchRadius.max"
-							:min="locationMatchRadius.min"
-							size="xs"
-							:step="locationMatchRadius.step"
-						/>
-						<span class="mr-2 font-normal text-sm"
-							>{{ (comparisonMatchRadius / 1000).toFixed(1) }} km</span
-						>
-					</template>
-					<USelect
-						v-model="comparisonMatchMode"
-						:class="{ 'ml-auto': comparisonMatchMode !== 'location' }"
-						:items="comparisonMatchItems"
-						size="sm"
-						variant="outline"
-					/>
-				</div>
-				<VariantFlowCard
-					:data="variantFlowData"
-					:left="sidebars.left.question"
-					:right="sidebars.right.question"
-				></VariantFlowCard>
 			</div>
 		</div>
 

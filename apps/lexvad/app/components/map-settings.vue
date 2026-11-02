@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import { CheckIcon, PaletteIcon, RotateCcwIcon } from "@lucide/vue";
+import { CheckIcon, LinkIcon, PaletteIcon, RotateCcwIcon } from "@lucide/vue";
 
 import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import { type ColorPaletteId, colorPalettes } from "@/stores/use-color-store";
 
-const props = defineProps<{
-	datasetId: string;
-	question: string;
-	activeVariants: Array<string>;
-	groups: Array<VariantGroup>;
-}>();
+const props = withDefaults(
+	defineProps<{
+		datasetId: string;
+		question: string;
+		activeVariants: Array<string>;
+		groups: Array<VariantGroup>;
+		canMatchColors?: boolean;
+	}>(),
+	{ canMatchColors: false },
+);
 
 const emit = defineEmits<{
 	"reset-colors": [];
+	"match-colors": [];
 }>();
 
 const t = useTranslations();
@@ -101,6 +106,19 @@ function updateColor(group: VariantGroup, newColor: string) {
 						</span>
 					</template>
 				</USelect>
+				<UButton
+					v-if="canMatchColors"
+					class="-my-1 shrink-0 gap-1.5"
+					color="neutral"
+					data-testid="match-colors"
+					size="xs"
+					:title="t('MapsPage.settings.colors.match-description')"
+					variant="ghost"
+					@click="emit('match-colors')"
+				>
+					<LinkIcon class="size-3.5" />
+					<span class="sr-only @sm:not-sr-only">{{ t("MapsPage.settings.colors.match") }}</span>
+				</UButton>
 				<UButton
 					class="-my-1 shrink-0 gap-1.5"
 					color="neutral"

@@ -25,7 +25,10 @@ const title = computed(() => t("MapsPage.settings.colors.choose", { label: props
 
 		<template #content>
 			<div class="flex flex-col gap-2 p-2">
-				<UColorPicker :model-value="color" @update:model-value="emit('update', $event)" />
+				<UColorPicker
+					:model-value="color"
+					@update:model-value="if ($event) emit('update', $event);"
+				/>
 				<span class="text-center text-xs uppercase text-muted-foreground">{{ color }}</span>
 			</div>
 		</template>

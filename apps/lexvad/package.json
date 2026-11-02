@@ -19,6 +19,7 @@
 		"postinstall": "nuxt prepare",
 		"preinstall": "npx only-allow pnpm",
 		"start": "nuxt preview --dotenv ./.env.dev.local",
+		"test": "vitest run",
 		"types:check": "pnpm --filter @lapis/backend build && nuxt typecheck",
 		"validate": "run-p format:check lint:check types:check"
 	},
@@ -40,6 +41,7 @@
 		"@vue/devtools-api": "^8.2.1",
 		"@vueuse/core": "^14.4.0",
 		"@vueuse/nuxt": "^14.4.0",
+		"echarts": "^6.1.0",
 		"hono": "^4.13.7",
 		"maplibre-gl": "^6.9.0",
 		"nuxt": "catalog:",
@@ -48,6 +50,7 @@
 		"reka-ui": "^2.10.4",
 		"tailwindcss-animate": "^1.0.7",
 		"vue": "catalog:",
+		"vue-echarts": "^8.3.2",
 		"vue-i18n": "catalog:",
 		"vue-i18n-routing": "^1.2.0",
 		"vue-router": "catalog:"
@@ -67,6 +70,7 @@
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:",
+		"vitest": "^5.0.0",
 		"vue-tsc": "^3.3.11"
 	},
 	"browserslist": {

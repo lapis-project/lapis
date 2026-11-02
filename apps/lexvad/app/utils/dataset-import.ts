@@ -10,6 +10,7 @@ export const datasetFields = [
 	"Kreis",
 	"Land",
 	"PLZ",
+	"Id",
 ] as const;
 
 export type DatasetField = (typeof datasetFields)[number];
@@ -58,6 +59,7 @@ const fieldAliases: Record<DatasetField, Array<string>> = {
 	Kreis: ["kreis", "bezirk", "district", "county"],
 	Land: ["land", "country", "staat", "state"],
 	PLZ: ["plz", "postleitzahl", "zip", "zipcode", "postcode", "postalcode"],
+	Id: ["id", "iddoc", "informant", "informantid", "sprecher", "speaker", "gewahrsperson"],
 };
 
 function normalise(value: string) {
@@ -85,8 +87,11 @@ export function detectFieldMapping(columns: Array<string>): FieldMapping {
 
 	for (const field of datasetFields) claim(field, (key) => key === normalise(field));
 	for (const field of datasetFields) claim(field, (key) => fieldAliases[field].includes(key));
+	// Very short aliases would match inside unrelated names, e.g. "id" in "Augenlid".
 	for (const field of datasetFields)
-		claim(field, (key) => fieldAliases[field].some((alias) => key.includes(alias)));
+		claim(field, (key) =>
+			fieldAliases[field].some((alias) => alias.length > 2 && key.includes(alias)),
+		);
 
 	return mapping;
 }
@@ -106,6 +111,7 @@ export interface ImportReport {
 	skippedVariable: number;
 	skippedVariant: number;
 	outsideRegions: number;
+	missingIds: number;
 	variables: Array<string>;
 	variants: number;
 }
@@ -133,6 +139,7 @@ export function buildDatasetEntries(
 		skippedVariable: 0,
 		skippedVariant: 0,
 		outsideRegions: 0,
+		missingIds: 0,
 		variables: [],
 		variants: 0,
 	};
@@ -165,8 +172,11 @@ export function buildDatasetEntries(
 		}
 
 		const place = cell(row, "Ort");
+		const id = cell(row, "Id");
+		if (mapping.Id && id === "") report.missingIds++;
 		const entry: DataEntry = {
 			iddoc: entries.length + 1,
+			Id: id || undefined,
 			Ort: place === "" ? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}` : place,
 			Latitude: String(latitude),
 			Longitude: String(longitude),

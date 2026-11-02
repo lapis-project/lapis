@@ -30,12 +30,24 @@ interface MapDataType {
 	color: string;
 	name: string;
 	variants: Array<string>;
+	outlineColor?: string;
+	fillId?: string;
+	outlineId?: string;
+	entries?: Array<LocatedEntry>;
 }
 
 interface MapProps {
 	data: Array<MapDataType>;
 	colors: Record<string, string>;
 	controls?: boolean;
+	highlight?:
+		| {
+				fill: Set<string>;
+				outline: Set<string>;
+				fillColor: string | undefined;
+				outlineColor: string | undefined;
+		  }
+		| undefined;
 }
 
 const props = withDefaults(defineProps<MapProps>(), { controls: true, fit: false });
@@ -63,6 +75,7 @@ interface TooltipState {
 	name?: string;
 	variants?: Array<string>;
 	entry?: LocatedEntry;
+	entries?: Array<LocatedEntry>;
 }
 const tooltip = ref<TooltipState | null>(null);
 
@@ -91,15 +104,49 @@ function fittedViewState() {
 
 const { getRegionColor, DEFAULT_REGION_COLOR } = useColorStore();
 
+const FADED_ALPHA = 20;
+
+function highlightColor(
+	color: string,
+	id: string,
+	ids: Set<string> | undefined,
+	focusColor: string | undefined,
+) {
+	if (!ids) return hexToRgb(color, 220);
+	return ids.has(id) ? hexToRgb(focusColor ?? color, 220) : hexToRgb(color, FADED_ALPHA);
+}
+
 function createScatterplotLayer(minimal = false) {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: `ScatterplotLayer${minimal ? "minimal" : ""}`,
 		data: points.value,
-		getFillColor: (d) => (minimal ? [255, 255, 255] : hexToRgb(d.properties?.color, 220)),
-		getLineColor: [255, 255, 255, 200],
+		getFillColor: (d) => {
+			if (minimal) return [255, 255, 255];
+			if (!d.properties?.color) return [0, 0, 0, 0];
+			return highlightColor(
+				d.properties.color,
+				d.properties.fillId,
+				props.highlight?.fill,
+				props.highlight?.fillColor,
+			);
+		},
+		getLineColor: (d) =>
+			d.properties?.outlineColor
+				? highlightColor(
+						d.properties.outlineColor,
+						d.properties.outlineId,
+						props.highlight?.outline,
+						props.highlight?.outlineColor,
+					)
+				: [255, 255, 255, props.highlight ? FADED_ALPHA : 200],
+		getLineWidth: (d) => (d.properties?.outlineColor ? 2 : 1),
+		updateTriggers: {
+			getFillColor: props.highlight,
+			getLineColor: props.highlight,
+		},
 		getPosition: (d) => d.geometry.coordinates as [number, number],
 		getRadius: minimal ? 100 : 2000,
-		lineWidthMinPixels: 1,
+		lineWidthUnits: "pixels",
 		pickable: !minimal,
 		radiusMaxPixels: Math.max(8, (3 * points.value.length) / 1000),
 		radiusMinPixels: minimal ? 0 : Math.max(3, points.value.length / 1000),
@@ -300,6 +347,7 @@ onMounted(() => {
 					x,
 					y,
 					entry: object.properties,
+					entries: object.properties.entries,
 				};
 			}
 		},
@@ -317,7 +365,7 @@ onMounted(() => {
 });
 
 watch(
-	() => [props.data, radius.value, activeLayer.value, mapMode.value],
+	() => [props.data, props.highlight, radius.value, activeLayer.value, mapMode.value],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},
@@ -439,6 +487,7 @@ const layerItems = computed(() =>
 		<MapTooltip
 			v-if="tooltip"
 			class="absolute z-30 pointer-events-none max-w-xs -translate-x-1/2 -translate-y-[calc(100%+12px)]"
+			:entries="tooltip.entries"
 			:entry="tooltip.entry"
 			:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
 		/>

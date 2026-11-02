@@ -17,6 +17,7 @@ export interface DatasetInfo {
 	createdAt?: string;
 	size: number;
 	custom: boolean;
+	hasIds: boolean;
 }
 
 const STORAGE_KEY = "lexvad.custom-datasets";
@@ -49,13 +50,14 @@ export const useDatasetStore = defineStore("datasets", () => {
 	const restored = ref(false);
 
 	const datasets = computed<Array<DatasetInfo>>(() => [
-		{ id: PILOT_DATASET_ID, size: pilotEntries.length, custom: false },
+		{ id: PILOT_DATASET_ID, size: pilotEntries.length, custom: false, hasIds: true },
 		...customDatasets.value.map((dataset) => ({
 			id: dataset.id,
 			name: dataset.name,
 			createdAt: dataset.createdAt,
 			size: dataset.entries.length,
 			custom: true,
+			hasIds: dataset.entries.some((entry) => entry.Id !== undefined),
 		})),
 	]);
 

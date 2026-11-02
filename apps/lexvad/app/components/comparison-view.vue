@@ -106,6 +106,13 @@ const comparisonStats = computed(() => {
 		},
 	];
 });
+
+function swapQuestions() {
+	sidebars.value = {
+		left: sidebars.value.right,
+		right: sidebars.value.left,
+	};
+}
 </script>
 
 <template>
@@ -119,7 +126,7 @@ const comparisonStats = computed(() => {
 		></AppSidebar>
 
 		<div class="container mx-auto min-w-0 flex flex-col flex-1 px-4 gap-5">
-			<div class="flex gap-10 justify-center relative">
+			<div class="flex gap-5 justify-center relative">
 				<div class="relative flex flex-1 flex-col gap-5">
 					<PhenomenonSelection
 						map-id="left"
@@ -129,6 +136,9 @@ const comparisonStats = computed(() => {
 						@match-colors="matchColors('left')"
 						@toggle-sidebar="(question, variant) => updateSidebar('left', question, variant)"
 					></PhenomenonSelection>
+				</div>
+				<div class="my-auto">
+					<UButton icon="i-lucide-arrow-left-right" size="sm" @click="swapQuestions"></UButton>
 				</div>
 				<div class="relative flex flex-1 flex-col gap-5">
 					<PhenomenonSelection

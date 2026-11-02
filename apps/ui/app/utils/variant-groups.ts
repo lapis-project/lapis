@@ -8,6 +8,43 @@ export function groupDisplayLabel(group: VariantGroup) {
 	return group.label ?? group.variants.join(" / ");
 }
 
+/** Filter the displayed members while retaining the identity of their stored groups. */
+export function filterGroups(
+	groups: Array<VariantGroup>,
+	variants: Array<string>,
+): Array<VariantGroup> {
+	const visible = new Set(variants);
+	return groups
+		.map((group) => ({
+			...group,
+			variants: group.variants.filter((variant) => visible.has(variant)),
+		}))
+		.filter((group) => group.variants.length > 0);
+}
+
+/** Apply an edit to the displayed members without removing members hidden by filters. */
+export function updateGroupVariants(
+	groups: Array<VariantGroup>,
+	group: VariantGroup,
+	variants: Array<string>,
+): Array<VariantGroup> {
+	const displayed = new Set(group.variants);
+	const claimed = new Set(variants);
+	return groups.map((stored) => {
+		if (stored.id !== group.id) {
+			return { ...stored, variants: stored.variants.filter((variant) => !claimed.has(variant)) };
+		}
+
+		const retained = stored.variants.filter(
+			(variant) => !displayed.has(variant) || claimed.has(variant),
+		);
+		return {
+			...stored,
+			variants: [...retained, ...variants.filter((variant) => !retained.includes(variant))],
+		};
+	});
+}
+
 export function normaliseGroups(
 	groups: Array<Omit<VariantGroup, "id">>,
 	variants: Array<string>,

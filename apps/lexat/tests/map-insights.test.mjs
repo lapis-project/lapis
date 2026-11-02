@@ -6,8 +6,10 @@ import {
 	byGroup,
 	byVariant,
 	countEntriesByGroup,
+	filterGroups,
 	groupDisplayLabel,
 	normaliseGroups,
+	updateGroupVariants,
 } from "../../ui/app/utils/variant-groups.ts";
 import {
 	countGroups,
@@ -152,6 +154,55 @@ test("normalises groups after filtering, ungrouping, and changing phenomena with
 		normaliseGroups(input, ["New"]).map((group) => group.variants),
 		[["New"]],
 	);
+});
+
+test("shows only visible variants while preserving group identities and stored membership", () => {
+	const stored = normaliseGroups(
+		[{ label: "Together", variants: ["A", "B", "C"] }],
+		["A", "B", "C", "D"],
+	);
+	const original = structuredClone(stored);
+	const shown = filterGroups(stored, ["A", "C"]);
+	assert.deepEqual(shown, [{ id: "A,B,C", label: "Together", variants: ["A", "C"] }]);
+	assert.deepEqual(stored, original);
+	assert.deepEqual(filterGroups(stored, []), []);
+	assert.deepEqual(filterGroups(stored, ["A", "B", "C", "D"]), stored);
+});
+
+test("dragging visible variants preserves hidden members regardless of update order", () => {
+	const stored = normaliseGroups(
+		[{ variants: ["A", "B", "C"] }, { variants: ["D", "E"] }],
+		["A", "B", "C", "D", "E"],
+	);
+	const [source, target] = filterGroups(stored, ["A", "C", "D"]);
+	for (const targetFirst of [false, true]) {
+		const next = targetFirst
+			? updateGroupVariants(updateGroupVariants(stored, target, ["D", "C"]), source, ["A"])
+			: updateGroupVariants(updateGroupVariants(stored, source, ["A"]), target, ["D", "C"]);
+		assert.deepEqual(
+			next.map((group) => group.variants),
+			[
+				["A", "B"],
+				["D", "E", "C"],
+			],
+		);
+	}
+	assert.deepEqual(stored[0].variants, ["A", "B", "C"]);
+	assert.deepEqual(stored[1].variants, ["D", "E"]);
+});
+
+test("ungrouping visible variants retains hidden members and restores visible singletons", () => {
+	const stored = normaliseGroups(
+		[{ label: "Together", variants: ["A", "B", "C", "D"] }],
+		["A", "B", "C", "D"],
+	);
+	const [shown] = filterGroups(stored, ["A", "C"]);
+	const next = normaliseGroups(updateGroupVariants(stored, shown, []), ["A", "B", "C", "D"]);
+	assert.deepEqual(
+		next.map((group) => group.variants),
+		[["B", "D"], ["A"], ["C"]],
+	);
+	assert.equal(next[0].label, "Together");
 });
 
 test("locates real Austrian points in both boundary datasets and leaves foreign points unassigned", () => {

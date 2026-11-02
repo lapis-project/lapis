@@ -8,6 +8,7 @@ export type ComparisonMatchMode = "id" | "location";
 export type MatchKey = string;
 
 export interface MatchedEntry {
+	id: string;
 	key: MatchKey;
 	groups: Set<string>;
 }
@@ -77,6 +78,54 @@ function sharesByKey(entries: Array<MatchedEntry>): Map<MatchKey, Map<string, nu
 	return counts;
 }
 
+function matchedPairs(
+	leftKeys: Array<MatchKey>,
+	rightKeys: Array<MatchKey>,
+	mode: ComparisonMatchMode,
+	radius: number,
+): Array<[MatchKey, MatchKey]> {
+	const known = new Set(rightKeys);
+	const neighbours = createNeighbours(mode, radius, rightKeys);
+	return leftKeys.flatMap((key) =>
+		neighbours(key)
+			.filter((neighbour) => known.has(neighbour))
+			.map((neighbour): [MatchKey, MatchKey] => [key, neighbour]),
+	);
+}
+
+function pairWeights(
+	left: Array<MatchedEntry>,
+	right: Array<MatchedEntry>,
+	pairs: Array<[MatchKey, MatchKey]>,
+): Array<number> {
+	const pairsByEntry = new Map<string, Set<number>>();
+	function collect(entries: Array<MatchedEntry>, side: 0 | 1) {
+		const pairsByKey = new Map<MatchKey, Array<number>>();
+		pairs.forEach((pair, index) => {
+			const indices = pairsByKey.get(pair[side]) ?? [];
+			indices.push(index);
+			pairsByKey.set(pair[side], indices);
+		});
+		entries.forEach((entry) => {
+			const indices = pairsByKey.get(entry.key);
+			if (!indices) return;
+			const entryPairs = pairsByEntry.get(entry.id) ?? new Set<number>();
+			indices.forEach((index) => entryPairs.add(index));
+			pairsByEntry.set(entry.id, entryPairs);
+		});
+	}
+	collect(left, 0);
+	collect(right, 1);
+
+	const weights = pairs.map(() => 0);
+	pairsByEntry.forEach((entryPairs) => {
+		entryPairs.forEach((index) => {
+			weights[index]! += 1 / entryPairs.size;
+		});
+	});
+	return weights;
+}
+
 export function countVariantFlow(
 	left: Array<MatchedEntry>,
 	right: Array<MatchedEntry>,
@@ -85,17 +134,19 @@ export function countVariantFlow(
 ): Array<VariantFlowCount> {
 	const leftShares = sharesByKey(left);
 	const rightShares = sharesByKey(right);
-	const neighbours = createNeighbours(mode, radius, [...rightShares.keys()]);
+	const pairs = matchedPairs([...leftShares.keys()], [...rightShares.keys()], mode, radius);
+	const entryWeights = pairWeights(left, right, pairs);
 
 	const weights = new Map<string, Map<string, number>>();
-	leftShares.forEach((sources, key) => {
-		neighbours(key).forEach((neighbour) => {
-			rightShares.get(neighbour)?.forEach((targetShare, target) => {
-				sources.forEach((sourceShare, source) => {
-					const targets = weights.get(source) ?? new Map<string, number>();
-					targets.set(target, (targets.get(target) ?? 0) + sourceShare * targetShare);
-					weights.set(source, targets);
-				});
+	pairs.forEach(([leftKey, rightKey], index) => {
+		rightShares.get(rightKey)?.forEach((targetShare, target) => {
+			leftShares.get(leftKey)?.forEach((sourceShare, source) => {
+				const targets = weights.get(source) ?? new Map<string, number>();
+				targets.set(
+					target,
+					(targets.get(target) ?? 0) + entryWeights[index]! * sourceShare * targetShare,
+				);
+				weights.set(source, targets);
 			});
 		});
 	});
@@ -103,4 +154,74 @@ export function countVariantFlow(
 	return [...weights.entries()].flatMap(([source, targets]) =>
 		[...targets.entries()].map(([target, value]) => ({ source, target, value })),
 	);
+}
+
+interface Overlap {
+	common: number;
+	onlyLeft: number;
+	onlyRight: number;
+}
+
+export function countEntryOverlap(
+	left: Array<MatchedEntry>,
+	right: Array<MatchedEntry>,
+	mode: ComparisonMatchMode,
+	radius: number = locationMatchRadius.default,
+): Overlap {
+	const pairs = matchedPairs(
+		[...new Set(left.map((entry) => entry.key))],
+		[...new Set(right.map((entry) => entry.key))],
+		mode,
+		radius,
+	);
+	const matchedLeft = new Set(pairs.map(([key]) => key));
+	const matchedRight = new Set(pairs.map(([, key]) => key));
+
+	const commonIds = new Set([
+		...left.filter((entry) => matchedLeft.has(entry.key)).map((entry) => entry.id),
+		...right.filter((entry) => matchedRight.has(entry.key)).map((entry) => entry.id),
+	]);
+	const countOnly = (entries: Array<MatchedEntry>) =>
+		new Set(entries.map((entry) => entry.id).filter((id) => !commonIds.has(id))).size;
+
+	return { common: commonIds.size, onlyLeft: countOnly(left), onlyRight: countOnly(right) };
+}
+
+export interface Association {
+	/** Undefined unless both sides have at least two groups. */
+	cramersV: number | undefined;
+	rows: number;
+	columns: number;
+}
+
+/** Cramér's V: https://en.wikipedia.org/wiki/Cram%C3%A9r%27s_V */
+export function variantFlowAssociation(flows: Array<VariantFlowCount>): Association {
+	const rowTotals = new Map<string, number>();
+	const columnTotals = new Map<string, number>();
+	flows.forEach(({ source, target, value }) => {
+		rowTotals.set(source, (rowTotals.get(source) ?? 0) + value);
+		columnTotals.set(target, (columnTotals.get(target) ?? 0) + value);
+	});
+
+	const rows = rowTotals.size;
+	const columns = columnTotals.size;
+	const degrees = Math.min(rows, columns) - 1;
+	if (degrees < 1) return { cramersV: undefined, rows, columns };
+
+	const total = [...rowTotals.values()].reduce((sum, value) => sum + value, 0);
+	const phiSquared =
+		flows.reduce(
+			(sum, { source, target, value }) =>
+				sum + (value * value) / (rowTotals.get(source)! * columnTotals.get(target)!),
+			0,
+		) - 1;
+	const cramersV =
+		total > 0 ? Math.min(1, Math.sqrt(Math.max(0, phiSquared) / degrees)) : undefined;
+	return { cramersV, rows, columns };
+}
+
+/** Cohen's conventional thresholds, which strictly apply to tables with one degree of freedom. */
+export function associationStrength(cramersV: number): "weak" | "medium" | "strong" {
+	if (cramersV < 0.3) return "weak";
+	return cramersV < 0.5 ? "medium" : "strong";
 }

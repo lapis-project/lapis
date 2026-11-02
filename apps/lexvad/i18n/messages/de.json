@@ -32,7 +32,17 @@
 		"match-by-id": "Nach ID abgleichen",
 		"match-by-id-unavailable": "Nach ID abgleichen (keine ID-Spalte im Datensatz)",
 		"match-by-location": "Nach Ort abgleichen",
-		"variant-flow": "Variantenfluss"
+		"variant-flow": "Variantenfluss",
+		"common-entries": "Gemeinsame Einträge",
+		"cramers-v": "Cramérs V",
+		"cramers-v-tooltip": "Zeigt, wie eng die Varianten der beiden Phänomene in den gemeinsamen Einträgen zusammenhängen. Der Wert reicht von 0 (kein Zusammenhang) bis 1 (vollständiger Zusammenhang): unter 0,3 schwach, ab 0,3 mittel, ab 0,5 stark.",
+		"variants": "Varianten",
+		"only-left-right": "{left} nur {leftPhenomenon} · {right} nur {rightPhenomenon}",
+		"in-common-entries": "in gemeinsamen Einträgen",
+		"association-weak": "schwach",
+		"association-medium": "mittel",
+		"association-strong": "stark",
+		"cramers-v-unavailable": "Benötigt mindestens zwei Varianten je Seite"
 	},
 	"DatasetList": {
 		"title": "Gespeicherte Datensätze",

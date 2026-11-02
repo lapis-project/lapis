@@ -1,10 +1,12 @@
 import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
 import {
 	type ComparisonMatchMode,
+	countEntryOverlap,
 	countVariantFlow,
 	locationMatchRadius,
 	type MatchedEntry,
 	matchKey,
+	variantFlowAssociation,
 } from "@/utils/variant-flow";
 
 interface ComparisonSide {
@@ -53,7 +55,13 @@ export function usePhenomenonComparison(
 		).flatMap((entry) => {
 			const key = matchKey(entry, mode);
 			if (key === undefined) return [];
-			return [{ key, groups: new Set(entry.variants.map((variant) => ids[variant] ?? variant)) }];
+			return [
+				{
+					id: entry.Id ?? `${side.datasetId}:${String(entry.iddoc)}`,
+					key,
+					groups: new Set(entry.variants.map((variant) => ids[variant] ?? variant)),
+				},
+			];
 		});
 	}
 
@@ -65,26 +73,36 @@ export function usePhenomenonComparison(
 		}));
 	}
 
+	const leftEntries = computed(() => groupedEntries(toValue(left), filterLeft, toValue(matchBy)));
+	const rightEntries = computed(() =>
+		groupedEntries(toValue(right), filterRight, toValue(matchBy)),
+	);
+
+	const flowCounts = computed(() =>
+		countVariantFlow(leftEntries.value, rightEntries.value, toValue(matchBy), toValue(matchRadius)),
+	);
+
 	const variantFlowData = computed<Array<VariantFlowLink>>(() => {
-		const l = toValue(left);
-		const r = toValue(right);
-		if (!l.question || !r.question) return [];
-		const mode = toValue(matchBy);
+		const leftNodes = flowNodes(toValue(left));
+		const rightNodes = flowNodes(toValue(right));
 
-		const leftNodes = flowNodes(l);
-		const rightNodes = flowNodes(r);
-
-		return countVariantFlow(
-			groupedEntries(l, filterLeft, mode),
-			groupedEntries(r, filterRight, mode),
-			mode,
-			toValue(matchRadius),
-		).map(({ source, target, value }) => ({
+		return flowCounts.value.map(({ source, target, value }) => ({
 			source: leftNodes[source] ?? { id: source, label: source },
 			target: rightNodes[target] ?? { id: target, label: target },
 			value,
 		}));
 	});
 
-	return { variantFlowData };
+	const entryOverlap = computed(() =>
+		countEntryOverlap(
+			leftEntries.value,
+			rightEntries.value,
+			toValue(matchBy),
+			toValue(matchRadius),
+		),
+	);
+
+	const association = computed(() => variantFlowAssociation(flowCounts.value));
+
+	return { association, entryOverlap, variantFlowData };
 }

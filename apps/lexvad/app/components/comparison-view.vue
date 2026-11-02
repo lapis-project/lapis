@@ -1,9 +1,15 @@
 <script lang="ts" setup>
+import { InfoIcon } from "@lucide/vue";
+
 import {
 	type MapQueryPosition as MapPosition,
 	mapQueryPositions as positions,
 } from "@/utils/map-query";
-import { type ComparisonMatchMode, locationMatchRadius } from "@/utils/variant-flow";
+import {
+	associationStrength,
+	type ComparisonMatchMode,
+	locationMatchRadius,
+} from "@/utils/variant-flow";
 
 const t = useTranslations();
 const datasetStore = useDatasetStore();
@@ -57,12 +63,49 @@ watch(idsAvailable, (available) => {
 	if (!available && comparisonMatchMode.value === "id") comparisonMatchMode.value = "location";
 });
 
-const { variantFlowData } = usePhenomenonComparison(
+const { association, entryOverlap, variantFlowData } = usePhenomenonComparison(
 	comparisonSide("left"),
 	comparisonSide("right"),
 	comparisonMatchMode,
 	comparisonMatchRadius,
 );
+
+const { locale } = useI18n();
+
+const comparisonStats = computed(() => {
+	const { common, onlyLeft, onlyRight } = entryOverlap.value;
+	const { cramersV, rows, columns } = association.value;
+	return [
+		{
+			label: t("Comparison.common-entries"),
+			value: common,
+			detail: t("Comparison.only-left-right", {
+				left: onlyLeft,
+				leftPhenomenon: sidebars.value.left.question,
+				right: onlyRight,
+				rightPhenomenon: sidebars.value.right.question,
+			}),
+		},
+		{
+			label: t("Comparison.cramers-v"),
+			tooltip: t("Comparison.cramers-v-tooltip"),
+			value:
+				cramersV?.toLocaleString(locale.value, {
+					minimumFractionDigits: 2,
+					maximumFractionDigits: 2,
+				}) ?? "–",
+			detail:
+				cramersV === undefined
+					? t("Comparison.cramers-v-unavailable")
+					: t(`Comparison.association-${associationStrength(cramersV)}`),
+		},
+		{
+			label: t("Comparison.variants"),
+			value: `${String(rows)} → ${String(columns)}`,
+			detail: t("Comparison.in-common-entries"),
+		},
+	];
+});
 </script>
 
 <template>
@@ -75,7 +118,7 @@ const { variantFlowData } = usePhenomenonComparison(
 			map-id="left"
 		></AppSidebar>
 
-		<div class="container mx-auto min-w-0 flex-1 px-4">
+		<div class="container mx-auto min-w-0 flex flex-col flex-1 px-4 gap-5">
 			<div class="flex gap-10 justify-center relative">
 				<div class="relative flex flex-1 flex-col gap-5">
 					<PhenomenonSelection
@@ -98,7 +141,30 @@ const { variantFlowData } = usePhenomenonComparison(
 					></PhenomenonSelection>
 				</div>
 			</div>
-			<div class="min-w-0 rounded-lg border p-5 mt-5">
+			<div class="flex justify-between relative gap-5">
+				<div
+					v-for="stat in comparisonStats"
+					:key="stat.label"
+					class="rounded-lg bg-card p-3.5 border flex-1"
+				>
+					<div
+						class="flex items-center gap-1 uppercase font-semibold text-muted-foreground text-xs"
+					>
+						{{ stat.label }}
+						<UTooltip
+							v-if="stat.tooltip"
+							:content="{ side: 'top' }"
+							:ui="{ content: 'h-auto max-w-72 py-1.5' }"
+						>
+							<InfoIcon :aria-label="stat.tooltip" class="size-4" tabindex="0"></InfoIcon>
+							<template #content>{{ stat.tooltip }}</template>
+						</UTooltip>
+					</div>
+					<div class="uppercase font-bold text-lg">{{ stat.value }}</div>
+					<div class="text-xs text-muted-foreground">{{ stat.detail }}</div>
+				</div>
+			</div>
+			<div class="min-w-0 rounded-lg border p-5">
 				<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
 					{{ t("Comparison.variant-flow") }}
 					<template v-if="comparisonMatchMode === 'location'">

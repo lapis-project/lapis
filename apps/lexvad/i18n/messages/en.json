@@ -32,7 +32,17 @@
 		"match-by-id": "Match by id",
 		"match-by-id-unavailable": "Match by id (no id column in the dataset)",
 		"match-by-location": "Match by location",
-		"variant-flow": "Variant flow"
+		"variant-flow": "Variant flow",
+		"common-entries": "Common entries",
+		"cramers-v": "Cramér's V",
+		"cramers-v-tooltip": "Shows how closely the variants of the two phenomena are related in the common entries. It ranges from 0 (no association) to 1 (complete association): below 0.3 is weak, from 0.3 medium, from 0.5 strong.",
+		"variants": "Variants",
+		"only-left-right": "{left} only {leftPhenomenon} · {right} only {rightPhenomenon}",
+		"in-common-entries": "in common entries",
+		"association-weak": "weak",
+		"association-medium": "medium",
+		"association-strong": "strong",
+		"cramers-v-unavailable": "Needs at least two variants per side"
 	},
 	"DatasetList": {
 		"title": "Stored datasets",

@@ -2,14 +2,21 @@ import { describe, expect, it } from "vitest";
 
 import type { LocatedEntry } from "@/utils/dataset";
 import {
+	associationStrength,
+	countEntryOverlap,
 	countVariantFlow,
 	type MatchedEntry,
 	matchKey,
+	variantFlowAssociation,
 	type VariantFlowCount,
 } from "@/utils/variant-flow";
 
 function entries(key: string, ...answers: Array<Array<string>>): Array<MatchedEntry> {
-	return answers.map((groups) => ({ key, groups: new Set(groups) }));
+	return answers.map((groups, index) => ({
+		id: `${key}#${String(index)}`,
+		key,
+		groups: new Set(groups),
+	}));
 }
 
 function repeat(key: string, group: string, count: number): Array<MatchedEntry> {
@@ -86,23 +93,53 @@ describe("countVariantFlow", () => {
 	});
 
 	it("splits a matched place by the shares of its groups on both sides", () => {
-		const left = [...repeat(placeA, "Oma", 3), ...repeat(placeA, "Omi", 1)];
-		const right = [...repeat(placeA, "Oma", 2), ...repeat(placeA, "Omi", 2)];
+		const answers = (...groups: Array<string>) =>
+			groups.map((group, index) => ({
+				id: String(index),
+				key: placeA,
+				groups: new Set([group]),
+			}));
+		const left = answers("Oma", "Oma", "Oma", "Omi");
+		const right = answers("Oma", "Oma", "Omi", "Omi");
 		expect(sorted(countVariantFlow(left, right, "location"))).toEqual([
-			{ source: "Oma", target: "Oma", value: 0.375 },
-			{ source: "Oma", target: "Omi", value: 0.375 },
-			{ source: "Omi", target: "Oma", value: 0.125 },
-			{ source: "Omi", target: "Omi", value: 0.125 },
+			{ source: "Oma", target: "Oma", value: 1.5 },
+			{ source: "Oma", target: "Omi", value: 1.5 },
+			{ source: "Omi", target: "Oma", value: 0.5 },
+			{ source: "Omi", target: "Omi", value: 0.5 },
 		]);
 	});
 
-	it("is not inflated by the number of informants per place", () => {
+	it("weights a place by its number of entries", () => {
 		const left = [...repeat(placeA, "Oma", 10), ...repeat(placeB, "Omi", 1)];
 		const right = [...repeat(placeA, "Oma", 10), ...repeat(placeB, "Omi", 1)];
 		expect(sorted(countVariantFlow(left, right, "location"))).toEqual([
-			{ source: "Oma", target: "Oma", value: 1 },
+			{ source: "Oma", target: "Oma", value: 10 },
 			{ source: "Omi", target: "Omi", value: 1 },
 		]);
+	});
+
+	it("splits an entry across its partners within the radius", () => {
+		const left = [{ id: "1", key: placeA, groups: new Set(["Oma"]) }];
+		const right = [
+			{ id: "2", key: placeA, groups: new Set(["Omi"]) },
+			{ id: "3", key: placeB, groups: new Set(["Oida"]) },
+		];
+		expect(sorted(countVariantFlow(left, right, "location", 1500))).toEqual([
+			{ source: "Oma", target: "Oida", value: 1.5 },
+			{ source: "Oma", target: "Omi", value: 1.5 },
+		]);
+	});
+
+	it("adds up to the number of common entries", () => {
+		const left = [...repeat(placeA, "Oma", 3), ...repeat(placeB, "Omi", 2)];
+		const right = [...repeat(placeA, "Oma", 1), ...repeat(placeB, "Oma", 4)];
+		for (const radius of [0, 2000]) {
+			const total = countVariantFlow(left, right, "location", radius).reduce(
+				(sum, { value }) => sum + value,
+				0,
+			);
+			expect(total).toBeCloseTo(countEntryOverlap(left, right, "location", radius).common);
+		}
 	});
 
 	it("is symmetric when the sides are swapped", () => {
@@ -126,7 +163,7 @@ describe("countVariantFlow", () => {
 		expect(countVariantFlow(left, right, "location", 0)).toEqual([]);
 		expect(countVariantFlow(left, right, "location", 1000)).toEqual([]);
 		expect(countVariantFlow(left, right, "location", 1500)).toEqual([
-			{ source: "Oma", target: "Omi", value: 1 },
+			{ source: "Oma", target: "Omi", value: 5 },
 		]);
 	});
 
@@ -141,9 +178,155 @@ describe("countVariantFlow", () => {
 		const right = entries(placeA, ["Oma"], ["Oma", "Omi"]);
 		expect(rounded(sorted(countVariantFlow(left, right, "location")))).toEqual(
 			rounded([
-				{ source: "Oma", target: "Oma", value: 2 / 3 },
-				{ source: "Oma", target: "Omi", value: 1 / 3 },
+				{ source: "Oma", target: "Oma", value: 4 / 3 },
+				{ source: "Oma", target: "Omi", value: 2 / 3 },
 			]),
 		);
+	});
+});
+
+describe("countEntryOverlap", () => {
+	it("counts shared and one-sided ids", () => {
+		const left = [...entries("1", ["Oma"]), ...entries("2", ["Omi"]), ...entries("3", ["Oma"])];
+		const right = [...entries("1", ["Oma"]), ...entries("4", ["Omi"])];
+		expect(countEntryOverlap(left, right, "id")).toEqual({
+			common: 1,
+			onlyLeft: 2,
+			onlyRight: 1,
+		});
+	});
+
+	it("counts entries at the same place separately", () => {
+		const left = [
+			{ id: "1", key: placeA, groups: new Set(["Oma"]) },
+			{ id: "2", key: placeA, groups: new Set(["Oma"]) },
+		];
+		const right = [
+			{ id: "1", key: placeA, groups: new Set(["Omi"]) },
+			{ id: "2", key: placeA, groups: new Set(["Omi"]) },
+		];
+		expect(countEntryOverlap(left, right, "location")).toEqual({
+			common: 2,
+			onlyLeft: 0,
+			onlyRight: 0,
+		});
+	});
+
+	it("counts entries with different ids at a matched place on both sides", () => {
+		const left = [{ id: "1", key: placeA, groups: new Set(["Oma"]) }];
+		const right = [
+			{ id: "2", key: placeA, groups: new Set(["Omi"]) },
+			{ id: "3", key: placeA, groups: new Set(["Omi"]) },
+		];
+		expect(countEntryOverlap(left, right, "location")).toEqual({
+			common: 3,
+			onlyLeft: 0,
+			onlyRight: 0,
+		});
+	});
+
+	it("counts answers of the same id once", () => {
+		const left = [
+			{ id: "1", key: placeA, groups: new Set(["Oma"]) },
+			{ id: "1", key: placeA, groups: new Set(["Omi"]) },
+		];
+		const right = [{ id: "1", key: placeA, groups: new Set(["Oma"]) }];
+		expect(countEntryOverlap(left, right, "location")).toEqual({
+			common: 1,
+			onlyLeft: 0,
+			onlyRight: 0,
+		});
+	});
+
+	it("counts unmatched entries by id", () => {
+		const left = [
+			{ id: "1", key: placeA, groups: new Set(["Oma"]) },
+			{ id: "2", key: placeA, groups: new Set(["Oma"]) },
+		];
+		const right = [{ id: "3", key: placeB, groups: new Set(["Omi"]) }];
+		expect(countEntryOverlap(left, right, "location")).toEqual({
+			common: 0,
+			onlyLeft: 2,
+			onlyRight: 1,
+		});
+	});
+
+	it("counts an entry once however many partners it has within the radius", () => {
+		const left = [{ id: "1", key: placeA, groups: new Set(["Oma"]) }];
+		const right = [
+			{ id: "1", key: placeA, groups: new Set(["Omi"]) },
+			{ id: "2", key: placeB, groups: new Set(["Omi"]) },
+		];
+		expect(countEntryOverlap(left, right, "location", 1500)).toEqual({
+			common: 2,
+			onlyLeft: 0,
+			onlyRight: 0,
+		});
+	});
+
+	it("bridges places within the radius", () => {
+		const left = repeat(placeA, "Oma", 1);
+		const right = repeat(placeB, "Omi", 1);
+		expect(countEntryOverlap(left, right, "location", 0)).toEqual({
+			common: 0,
+			onlyLeft: 1,
+			onlyRight: 1,
+		});
+		expect(countEntryOverlap(left, right, "location", 1500)).toEqual({
+			common: 2,
+			onlyLeft: 0,
+			onlyRight: 0,
+		});
+	});
+});
+
+describe("variantFlowAssociation", () => {
+	it("is 1 for a perfect association", () => {
+		expect(
+			variantFlowAssociation([
+				{ source: "a", target: "x", value: 5 },
+				{ source: "b", target: "y", value: 3 },
+			]),
+		).toEqual({ cramersV: 1, rows: 2, columns: 2 });
+	});
+
+	it("is 0 for independent sides", () => {
+		const { cramersV } = variantFlowAssociation([
+			{ source: "a", target: "x", value: 2 },
+			{ source: "a", target: "y", value: 2 },
+			{ source: "b", target: "x", value: 1 },
+			{ source: "b", target: "y", value: 1 },
+		]);
+		expect(cramersV).toBeCloseTo(0);
+	});
+
+	it("matches a hand-computed table", () => {
+		// chi² = 16.67 with n = 100 for [[30, 20], [10, 40]] gives V = sqrt(16.67 / 100).
+		const { cramersV } = variantFlowAssociation([
+			{ source: "a", target: "x", value: 30 },
+			{ source: "a", target: "y", value: 20 },
+			{ source: "b", target: "x", value: 10 },
+			{ source: "b", target: "y", value: 40 },
+		]);
+		expect(cramersV).toBeCloseTo(Math.sqrt(16.6667 / 100), 3);
+	});
+
+	it("is undefined with fewer than two groups on a side", () => {
+		expect(
+			variantFlowAssociation([
+				{ source: "a", target: "x", value: 2 },
+				{ source: "a", target: "y", value: 2 },
+			]),
+		).toEqual({ cramersV: undefined, rows: 1, columns: 2 });
+		expect(variantFlowAssociation([]).cramersV).toBeUndefined();
+	});
+});
+
+describe("associationStrength", () => {
+	it("classifies around the thresholds", () => {
+		expect(associationStrength(0.29)).toBe("weak");
+		expect(associationStrength(0.3)).toBe("medium");
+		expect(associationStrength(0.34)).toBe("medium");
+		expect(associationStrength(0.5)).toBe("strong");
 	});
 });

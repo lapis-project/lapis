@@ -211,8 +211,6 @@ const activeFilterCount = computed(() => {
 	return count;
 });
 
-const hasActiveFilters = computed(() => activeFilterCount.value > 0);
-
 const projectOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (filter.value?.projects ?? [])
 		.filter((project) => project.name != null)
@@ -315,29 +313,6 @@ function handleBookmark(transcript: FilterSidebarTranscript) {
 
 function handleSelection(id: string) {
 	emit("handleSelection", id);
-}
-
-function clearAllFilters() {
-	const query = { ...route.query };
-
-	for (const key of [
-		"projects",
-		"settings",
-		"locations",
-		"state",
-		"gender",
-		"age_lower",
-		"age_upper",
-		"standard_competence",
-		"dialect_competence",
-		"has_bkms",
-		"transcript_name",
-		"instance_id",
-	]) {
-		delete query[key];
-	}
-
-	return router.replace({ query });
 }
 </script>
 

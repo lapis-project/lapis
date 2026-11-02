@@ -3,18 +3,67 @@ import type { Event, TimestampEvent } from "@/types/api";
 
 const props = defineProps<{
 	block: TimestampEvent | undefined;
+	rowIndex: number;
 	speakers: number[];
 	hiddenSpeakers: Set<number>;
 	showLu: boolean;
 	showPhon: boolean;
 	maxEventsPerRow: number;
+	highlightTargetIndex: (
+		rowIndex: number,
+		speakerId: number,
+		eventIndex: number,
+		field: "ortho",
+		tokenIndex: number,
+	) => number;
 }>();
+
+const route = useRoute();
+
+const highlightTerms = computed(() => {
+	const query = route.query;
+	const rawTerms: Array<string> = [];
+
+	for (const key of ["word", "lemma", "query", "pos", "feats"]) {
+		const value = query[key];
+		const entries = Array.isArray(value) ? value : value != null ? [value] : [];
+		for (const entry of entries) {
+			if (typeof entry === "string" && entry.trim().length > 0) {
+				rawTerms.push(entry.trim());
+			}
+		}
+	}
+
+	return rawTerms.map((term) => term.toLowerCase());
+});
+
+function tokenMatchesHighlights(
+	token:
+		| {
+				text?: string | null;
+				text_in_ortho?: string | null;
+				phon?: string | null;
+				sppos?: string | null;
+				splemma?: string | null;
+		  }
+		| undefined,
+) {
+	if (highlightTerms.value.length === 0 || !token) return false;
+
+	const searchText = [token.text, token.text_in_ortho, token.phon, token.sppos, token.splemma]
+		.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+		.join(" ")
+		.toLowerCase();
+
+	return highlightTerms.value.some((term) => searchText.includes(term.toLowerCase()));
+}
 </script>
 
 <template>
 	<div
 		v-if="block != null"
 		class="grid w-full"
+		:data-row-index="rowIndex"
 		:style="{
 			gridTemplateColumns: `160px repeat(${maxEventsPerRow}, max-content)`,
 			gridTemplateRows: `auto repeat(${speakers.length}, minmax(64px, auto))`,
@@ -83,22 +132,30 @@ const props = defineProps<{
 							>
 								<div
 									class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
-									:class="token.hasTags ? 'text-accent-foreground font-semibold' : ''"
+									:data-highlight-target="
+										highlightTargetIndex(rowIndex, speaker, idx, 'ortho', index)
+									"
+									:data-highlighted-token="tokenMatchesHighlights(token) ? 'true' : 'false'"
+									:data-current-highlighted-token="false"
+									:class="[
+										token.hasTags ? 'text-accent-foreground font-semibold' : '',
+										tokenMatchesHighlights(token)
+											? 'rounded bg-highlight/30 text-accent-foreground font-bold ring-1 ring-accent-foreground/40'
+											: '',
+									]"
 								>
 									{{ token.text }}
 								</div>
 								<div
 									v-if="showLu"
 									class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
-									:class="e.lu[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''"
 								>
 									{{ e.lu[index]?.text }}
 								</div>
 
 								<div
 									v-if="showPhon"
-									class="px-0.5 m-0 whitespace-nowrappy-0.5 text-start text-gray-500 text-sm"
-									:class="e.phon[index]?.hasTags ? 'text-accent-foreground  font-semibold' : ''"
+									class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-500 text-sm"
 								>
 									{{ e.phon[index]?.text }}
 								</div>

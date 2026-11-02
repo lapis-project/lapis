@@ -1,14 +1,40 @@
 <!-- eslint-disable vuejs-accessibility/media-has-caption -->
 <script setup lang="ts">
-import { ChevronRight, DownloadIcon, FileText, PauseIcon, PlayIcon, SquareIcon } from "@lucide/vue";
+import {
+	ChevronRight,
+	ChevronLeft,
+	DownloadIcon,
+	FileText,
+	PauseIcon,
+	PlayIcon,
+	SquareIcon,
+	X,
+} from "@lucide/vue";
 
 import { useAudioStream } from "@/composables/use-audio-controller";
+import { useActiveFilterTags } from "@/composables/use-filter-tags";
+import { useHitsPerTranscript } from "@/composables/use-hits-per-transcript";
+import type { SearchParams } from "@/types/api";
 
 definePageMeta({
 	layout: "tool",
 });
 
 const route = useRoute();
+const {
+	filterParams,
+	activeFilterTagEntries,
+	activeFilterCount,
+	hasKwicSearch,
+	removeFilterTag,
+	clearAllFilterTags,
+} = useActiveFilterTags();
+const {
+	response: hitsResponse,
+	isPending,
+	fetchTranscriptHits,
+	generateCacheKey,
+} = useHitsPerTranscript(2);
 
 const currentId = computed<number | null>(() => {
 	const value = route.params.id;
@@ -16,7 +42,8 @@ const currentId = computed<number | null>(() => {
 	return Number.isNaN(selection) ? null : selection;
 });
 
-// const { response, isPending, refreshTranscripts } = useTranscript(currentId, "json");
+const transcriptViewer = useTemplateRef("transcriptViewer");
+const currentHighlightIndex = ref(0);
 
 const {
 	response: previewResponse,
@@ -70,14 +97,14 @@ const waveformFailed = ref(false);
 const searchInput = ref("");
 
 const isScrubbing = ref(false);
-const scrub = ref(0); // slider’s own value
+const scrub = ref(0);
 const isReady = ref(false);
 
 function updateMetadata() {
 	if (!audioRef.value) return;
 	duration.value = Number.isFinite(audioRef.value.duration) ? audioRef.value.duration : 0;
 	currentTime.value = audioRef.value.currentTime || 0;
-	scrub.value = currentTime.value; // keep slider in sync initially
+	scrub.value = currentTime.value;
 	isReady.value = duration.value > 0;
 }
 
@@ -104,8 +131,6 @@ function togglePlayback() {
 	if (!audioRef.value) return;
 
 	if (!waveformReady.value && !waveformFailed.value) {
-		// oxlint-disable-next-line eslint/no-console -- Useful development output
-		console.log("loading...");
 		isLoading.value = true;
 		return;
 	}
@@ -179,6 +204,48 @@ watch(currentId, () => {
 	currentTime.value = 0;
 	scrub.value = 0;
 });
+
+const currentTranscriptHits = computed(() => {
+	if (currentId.value == null) return null;
+	const key = generateCacheKey(currentId.value, filterParams.value);
+	return hitsResponse.value[key] ?? null;
+});
+
+watch(
+	currentId,
+	async (id) => {
+		if (id == null) return;
+		await fetchTranscriptHits(id, filterParams.value);
+	},
+	{ immediate: true },
+);
+
+watch(
+	filterParams,
+	async (params) => {
+		if (currentId.value == null) return;
+		await fetchTranscriptHits(currentId.value, params);
+	},
+	{ deep: true },
+);
+
+const hits = computed(() => {
+	return Number(
+		(currentTranscriptHits.value as { kwic?: { concsize?: number | null } } | null)?.kwic
+			?.concsize ?? 0,
+	);
+});
+
+watch(
+	[hasKwicSearch, transcriptFileData],
+	async ([hasSearch, fileData]) => {
+		if (!hasSearch || !fileData) return;
+
+		await nextTick();
+		transcriptViewer.value?.jumpToNextHighlight();
+	},
+	{ immediate: true },
+);
 </script>
 
 <template>
@@ -206,12 +273,10 @@ watch(currentId, () => {
 					:class="{ 'opacity-0 pointer-events-none transition-all': !showFirstColumn }"
 				>
 					<div class="p-3">
-						<div class="text-normal text-sm items-center mb-1 inline-flex gap-2">
-							<FileText class="size-4" />
-							Transkript
-						</div>
-						<h1 class="text-lg font-bold">Transkript {{ transcriptMetadata?.transcript_id }}</h1>
-						<div class="flex flex-wrap py-2">
+						<h1 class="text-lg font-bold pt-3">
+							{{ transcriptMetadata?.transcript_name }}
+						</h1>
+						<div class="flex flex-wrap pt-2 pb-4">
 							<TooltipProvider>
 								<Tooltip>
 									<TooltipTrigger>
@@ -269,6 +334,76 @@ watch(currentId, () => {
 								</div>
 							</TabsContent>
 							<TabsContent class="flex-grow overflow-y-auto min-h-0 p-2" value="filter">
+								<div v-if="activeFilterCount > 0" class="mb-4">
+									<p class="text-xs text-gray-500 pb-2">Aktive Filter:</p>
+									<div class="flex flex-wrap gap-2">
+										<div
+											v-for="tag in activeFilterTagEntries"
+											:key="`${tag.key}-${tag.value}`"
+											class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
+										>
+											<span>{{ tag.label }}</span>
+											<button
+												type="button"
+												class="inline-flex size-4 items-center justify-center rounded-full hover:bg-foreground/10"
+												:aria-label="`Filter ${tag.label} entfernen`"
+												@click="removeFilterTag(tag.key, tag.value)"
+											>
+												<X class="size-3" />
+											</button>
+										</div>
+										<Button
+											v-if="activeFilterCount > 0"
+											variant="outline"
+											size="sm"
+											class="h-7 px-2 text-xs"
+											@click="clearAllFilterTags"
+										>
+											Alle löschen
+										</Button>
+									</div>
+								</div>
+								<div
+									v-if="hasKwicSearch"
+									class="mb-3 rounded border border-foreground/10 bg-muted/40 p-2"
+								>
+									<p class="text-[10px] uppercase tracking-wide text-gray-500">KWIC-Treffer</p>
+									<div v--if="!isPending" class="mt-1 flex items-baseline justify-between gap-2">
+										<span class="text-lg font-semibold text-accent-foreground">{{ hits }}</span>
+
+										<div class="flex items-center gap-1">
+											<Button
+												variant="ghost"
+												size="icon"
+												class="size-7"
+												:disabled="!hits"
+												@click="transcriptViewer?.jumpToPreviousHighlight()"
+											>
+												<ChevronLeft class="size-4" />
+											</Button>
+
+											<span class="text-xs text-muted-foreground mr-1">
+												{{ currentHighlightIndex || 0 }}/{{ hits }}
+											</span>
+
+											<Button
+												variant="ghost"
+												size="icon"
+												class="size-7"
+												:disabled="!hits"
+												@click="transcriptViewer?.jumpToNextHighlight()"
+											>
+												<ChevronRight class="size-4" />
+											</Button>
+										</div>
+									</div>
+								</div>
+
+								<div class="mb-4 rounded border border-foreground/10 bg-muted/30 p-2">
+									<p class="mb-2 text-xs text-gray-500">Word / Lemma / POS</p>
+									<SearchKwic />
+								</div>
+
 								<div class="flex flex-col gap-2 text-sm">
 									<p class="text-xs text-gray-500">Spuren:</p>
 									<label class="flex items-center gap-2">
@@ -293,8 +428,9 @@ watch(currentId, () => {
 											type="checkbox"
 											:value="speaker"
 											@change="
-												(e) => {
-													if (e.target?.checked) hiddenSpeakers.add(speaker);
+												(event: Event) => {
+													const target = event.target as HTMLInputElement | null;
+													if (target?.checked) hiddenSpeakers.add(speaker);
 													else hiddenSpeakers.delete(speaker);
 												}
 											"
@@ -325,12 +461,14 @@ watch(currentId, () => {
 				</div>
 				<div id="transcriptContainer" class="min-h-0 h-full grid grid-rows-[1fr_auto]">
 					<TranscriptViewer
+						ref="transcriptViewer"
 						id="transcriptViewer"
 						:file-data="transcriptFileData"
 						:speaker-ids="speakerIds"
 						:hidden-speakers="hiddenSpeakers"
 						:show-lu="showLu"
 						:showPhon="showPhon"
+						@update:current-highlight-index="currentHighlightIndex = $event"
 					/>
 					<section
 						id="audioPlayer"

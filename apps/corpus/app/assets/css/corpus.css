@@ -17,6 +17,7 @@
 	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted: var(--muted);
 	--color-muted-foreground: var(--muted-foreground);
+	--color-highlight: var(--highlight);
 	--color-accent: var(--accent);
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
@@ -54,7 +55,8 @@
 	--primary-foreground: oklch(98.5% 0 0deg);
 	--secondary: oklch(97% 0 0deg);
 	--secondary-foreground: oklch(20.5% 0 0deg);
-	--accent: oklch(74.11% 0.1422 288.39deg); /* From #a89bff */
+	--highlight: oklch(74.11% 0.1422 288.39deg); /* From #a89bff */
+	--accent: oklch(96.35% 0.011 257.6deg); /* From hsl(210 40% 96.1%) */
 	--accent-foreground: oklch(63.61% 0.2043 285.4deg); /* From hsl(248,100%,72%) */
 	--destructive: oklch(57.7% 0.245 27.325deg);
 	--destructive-foreground: oklch(57.7% 0.245 27.325deg);
@@ -78,7 +80,8 @@
 	--secondary: oklch(26.9% 0 0deg);
 	--secondary-foreground: oklch(98.5% 0 0deg);
 	--accent: oklch(31.07% 0.03 258.4deg); /* From hsl(217.2 32.6% 17.5%) */
-	--accent-foreground: oklch(98.11% 0.006 257.8deg); /* From hsl(210 40% 98%) */
+	--highlight: oklch(74.11% 0.1422 288.39deg); /* From #a89bff */
+	--accent-foreground: oklch(63.61% 0.2043 285.4deg); /* From hsl(248,100%,72%) */
 	--destructive: oklch(39.6% 0.141 25.723deg);
 	--destructive-foreground: oklch(63.7% 0.237 25.331deg);
 	--ring: oklch(43.9% 0 0deg);
@@ -92,4 +95,8 @@
 	body {
 		@apply bg-background text-foreground text-lg sm:text-base;
 	}
+}
+
+[data-current-highlighted-token="true"] {
+	@apply rounded-lg bg-violet-200/90 text-violet-950 font-extrabold ring-2 ring-violet-500/80 shadow-[0_0_0_2px_rgba(124,93,255,0.45)];
 }

@@ -1,29 +1,38 @@
 <script setup lang="ts">
-import { ArrowUpIcon, ArrowDownIcon } from "@lucide/vue";
+import { ArrowUpIcon, ArrowDownIcon, ChevronUp, ChevronDown } from "@lucide/vue";
 import { useVirtualizer } from "@tanstack/vue-virtual";
+import { useRoute } from "vue-router";
 
 import type { APITranscriptData, Event, TimestampEvent } from "@/types/api";
 
 const props = defineProps<{
-	fileData: APITranscriptData;
+	fileData?: APITranscriptData;
 	speakerIds: Array<number>;
 	hiddenSpeakers: Set<number>;
 	showLu: boolean;
 	showPhon: boolean;
 }>();
 
+const emit = defineEmits<{
+	"update:current-highlight-index": [current: number];
+}>();
+
+defineExpose({
+	jumpToNextHighlight: () => jumpToHighlightedToken("next"),
+	jumpToPreviousHighlight: () => jumpToHighlightedToken("prev"),
+});
+
 const eventContainer = ref<HTMLElement | null>(null);
 const containerElementWidth = ref(0);
 
 const SPEAKER_COL_WIDTH = 160;
-const GRID_COL_GAP = 8; // .grid without an explicit gap`
-const SAFETY_PADDING = 2; // for sub-pixel rounding / scroll-bars
+const GRID_COL_GAP = 8;
+const SAFETY_PADDING = 2;
 const ROW_HEIGHT = 230;
-
 const EVENTS_PER_CHUNK = 20;
+const eventMinWidth = 200;
 
 const windowWidth = ref(0);
-const eventMinWidth = 200;
 
 const maxEventsPerRow = computed(() => {
 	if (containerElementWidth.value <= 0) return 0;
@@ -32,14 +41,197 @@ const maxEventsPerRow = computed(() => {
 	return Math.max(1, Math.floor((availableWidth + GRID_COL_GAP) / slotWidth));
 });
 
+const route = useRoute();
+
+const highlightTerms = computed(() => {
+	const query = route.query;
+	const rawTerms: string[] = [];
+
+	for (const key of ["word", "lemma", "query", "pos", "feats"]) {
+		const value = query[key];
+		const entries = Array.isArray(value) ? value : value != null ? [value] : [];
+		for (const entry of entries) {
+			if (typeof entry === "string" && entry.trim().length > 0) {
+				rawTerms.push(entry.trim());
+			}
+		}
+	}
+
+	return rawTerms.map((term) => term.toLowerCase());
+});
+
+const currentHighlightIndex = ref<number | null>(null);
+
+function tokenMatchesCurrentHighlight(
+	token:
+		| {
+				text?: string | null;
+				text_in_ortho?: string | null;
+				phon?: string | null;
+				sppos?: string | null;
+				splemma?: string | null;
+		  }
+		| undefined,
+) {
+	if (highlightTerms.value.length === 0 || !token) return false;
+
+	const searchText = [token.text, token.text_in_ortho, token.phon, token.sppos, token.splemma]
+		.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+		.join(" ")
+		.toLowerCase();
+
+	return highlightTerms.value.some((term) => searchText.includes(term.toLowerCase()));
+}
+
+type HighlightTarget = {
+	rowIndex: number;
+	speakerId: number;
+	eventIndex: number;
+	field: "ortho";
+	tokenIndex: number;
+};
+
+const highlightTargets = computed<HighlightTarget[]>(() => {
+	const targets: HighlightTarget[] = [];
+
+	chunkedSpeakerEvents.value.forEach((block, rowIndex) => {
+		props.speakerIds
+			.filter((speakerId) => !props.hiddenSpeakers.has(speakerId))
+			.forEach((speakerId) => {
+				const events = block.speakerEvents[speakerId] ?? [];
+
+				events.forEach((event, eventIndex) => {
+					event.ortho?.forEach((token, tokenIndex) => {
+						if (tokenMatchesCurrentHighlight(token)) {
+							targets.push({
+								rowIndex,
+								speakerId,
+								eventIndex,
+								field: "ortho",
+								tokenIndex,
+							});
+						}
+					});
+				});
+			});
+	});
+
+	return targets;
+});
+
+const currentHighlightedRowIndex = ref<number | null>(null);
+const currentHighlightedToken = ref<HTMLElement | null>(null);
+
+function resetCurrentSelection() {
+	currentHighlightedRowIndex.value = null;
+	currentHighlightedToken.value = null;
+	for (const element of document.querySelectorAll<HTMLElement>(
+		'[data-current-highlighted-token="true"]',
+	)) {
+		element.dataset.currentHighlightedToken = "false";
+	}
+}
+
+function isTarget(
+	rowIndex: number,
+	speakerId: number,
+	eventIndex: number,
+	field: "ortho",
+	tokenIndex: number,
+) {
+	return highlightTargets.value.findIndex(
+		(target) =>
+			target.rowIndex === rowIndex &&
+			target.speakerId === speakerId &&
+			target.eventIndex === eventIndex &&
+			target.field === field &&
+			target.tokenIndex === tokenIndex,
+	);
+}
+
+function setCurrentSelection(element: HTMLElement | null) {
+	if (!element) {
+		resetCurrentSelection();
+		return;
+	}
+
+	for (const current of document.querySelectorAll<HTMLElement>(
+		'[data-current-highlighted-token="true"]',
+	)) {
+		current.dataset.currentHighlightedToken = "false";
+	}
+
+	element.dataset.currentHighlightedToken = "true";
+	currentHighlightedToken.value = element;
+	const rowElement = element.closest<HTMLElement>("[data-row-index]");
+	currentHighlightedRowIndex.value = rowElement ? Number(rowElement.dataset.rowIndex) : null;
+}
+
+async function jumpToHighlightedToken(direction: "next" | "prev") {
+	const targets = highlightTargets.value;
+	if (!targets.length) return;
+
+	const current = currentHighlightIndex.value;
+
+	const nextIndex =
+		current == null
+			? direction === "next"
+				? 0
+				: targets.length - 1
+			: direction === "next"
+				? (current + 1) % targets.length
+				: (current - 1 + targets.length) % targets.length;
+
+	const target = targets[nextIndex];
+	if (!target) return;
+
+	// Scroll the virtual row into view first.
+	rowVirtualizer.value.scrollToIndex(target.rowIndex, {
+		align: "center",
+		behavior: "auto",
+	});
+
+	// Wait for the virtual row to be rendered.
+	await nextTick();
+
+	await new Promise<void>((resolve) => {
+		if (import.meta.client) {
+			requestAnimationFrame(() => resolve());
+		} else {
+			resolve();
+		}
+	});
+
+	const element = eventContainer.value?.querySelector<HTMLElement>(
+		`[data-highlight-target="${nextIndex}"]`,
+	);
+
+	if (!element) {
+		console.warn("Could not find highlighted token", target);
+		return;
+	}
+
+	// Only update the index after successfully finding the element.
+	currentHighlightIndex.value = nextIndex;
+	emit("update:current-highlight-index", nextIndex + 1);
+
+	setCurrentSelection(element);
+
+	element.scrollIntoView({
+		behavior: "smooth",
+		block: "center",
+		inline: "nearest",
+	});
+}
 const chunkedSpeakerEvents = computed(() => {
-	if (!props.fileData || !props.speakerIds.length) return [];
+	const fileData = props.fileData;
+	if (!fileData || !props.speakerIds.length) return [];
 
 	const perRow = maxEventsPerRow.value || EVENTS_PER_CHUNK;
 
 	const timestampSet = new Set<string>();
-	for (const infId in props.fileData.events) {
-		props.fileData.events[infId]?.map((ev) => {
+	for (const infId in fileData.events) {
+		fileData.events[infId]?.map((ev) => {
 			return timestampSet.add(ev.start_time + "-" + ev.end_time);
 		});
 	}
@@ -57,7 +249,7 @@ const chunkedSpeakerEvents = computed(() => {
 			phon: [],
 		}));
 
-		const tokens = props.fileData.events[speaker] ?? [];
+		const tokens = fileData.events[speaker] ?? [];
 		const eventsByTimestamp = new Map<string, Event>();
 
 		for (const token of tokens) {
@@ -82,8 +274,8 @@ const chunkedSpeakerEvents = computed(() => {
 		}
 
 		speakerMap[speaker] = timestamps.map(
-			(ts) =>
-				eventsByTimestamp.get(ts) || {
+			(speakerMapTS) =>
+				eventsByTimestamp.get(speakerMapTS) || {
 					start: "",
 					end: "",
 					ortho: [],
@@ -173,6 +365,23 @@ watch(
 	},
 	{ immediate: true },
 );
+
+watch(
+	highlightTargets,
+	async (targets) => {
+		if (!targets.length) {
+			currentHighlightIndex.value = null;
+			emit("update:current-highlight-index", 0);
+			return;
+		}
+
+		currentHighlightIndex.value = null;
+
+		await nextTick();
+		await jumpToHighlightedToken("next");
+	},
+	{ immediate: true },
+);
 </script>
 
 <template>
@@ -181,7 +390,7 @@ watch(
 			<Button
 				variant="default"
 				size="icon"
-				class="shadow-lg bg-accent-foreground hover:bg-accent"
+				class="shadow-lg bg-accent-foreground hover:!bg-highlight"
 				title="Zum Anfang springen"
 				@click="scrollToTop"
 			>
@@ -191,7 +400,7 @@ watch(
 			<Button
 				variant="default"
 				size="icon"
-				class="shadow-lg mt-auto bg-accent-foreground hover:bg-accent"
+				class="shadow-lg mt-auto bg-accent-foreground hover:!bg-highlight"
 				title="Zum Ende springen"
 				@click="scrollToBottom"
 			>
@@ -207,7 +416,6 @@ watch(
 			ref="eventContainer"
 			class="overflow-y-auto flex flex-col min-h-0 gap-4 border border-foreground/20 rounded-lg bg-muted h-full"
 		>
-			>
 			<div
 				:style="{
 					height: `${rowVirtualizer.getTotalSize()}px`,
@@ -221,6 +429,7 @@ watch(
 					class="py-2"
 					v-for="virtualRow in rowVirtualizer.getVirtualItems()"
 					:key="virtualRow.index"
+					:row-index="virtualRow.index"
 					:block="chunkedSpeakerEvents[virtualRow.index]"
 					:speakers="speakerIds"
 					:hidden-speakers="hiddenSpeakers"
@@ -235,6 +444,7 @@ watch(
 						left: 0,
 					}"
 					:max-events-per-row="maxEventsPerRow"
+					:highlight-target-index="isTarget"
 				/>
 			</div>
 		</div>

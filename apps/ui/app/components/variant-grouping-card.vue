@@ -2,7 +2,12 @@
 import { useI18n } from "vue-i18n";
 import Draggable from "vuedraggable";
 
-import { groupDisplayLabel, type VariantGroup } from "../utils/variant-groups";
+import {
+	filterGroups,
+	groupDisplayLabel,
+	updateGroupVariants,
+	type VariantGroup,
+} from "../utils/variant-groups";
 
 const props = defineProps<{
 	data: Array<{ id: string; label: string; value: number; secondary?: string }>;
@@ -40,9 +45,10 @@ function commit(next: Array<VariantGroup>) {
 }
 
 const shownGroups = computed(() =>
-	current.value.toSorted(
-		(a, b) => (entryById.value[b.id]?.value ?? 0) - (entryById.value[a.id]?.value ?? 0),
-	),
+	filterGroups(
+		current.value,
+		props.variants.filter((variant) => variant.abs > 0).map((variant) => variant.label),
+	).toSorted((a, b) => (entryById.value[b.id]?.value ?? 0) - (entryById.value[a.id]?.value ?? 0)),
 );
 
 function entryFor(group: VariantGroup) {
@@ -50,18 +56,11 @@ function entryFor(group: VariantGroup) {
 }
 
 function setVariants(group: VariantGroup, variants: Array<string>) {
-	const claimed = new Set(variants);
-	commit(
-		current.value.map((g) =>
-			g.id === group.id
-				? { ...g, variants }
-				: { ...g, variants: g.variants.filter((v) => !claimed.has(v)) },
-		),
-	);
+	commit(updateGroupVariants(current.value, group, variants));
 }
 
 function ungroup(group: VariantGroup) {
-	commit(current.value.filter((g) => g.id !== group.id));
+	setVariants(group, []);
 	clearDropTarget();
 }
 

@@ -54,15 +54,27 @@ const settingsOpen = ref(false);
 						<InfoIcon class="size-4"></InfoIcon>
 					</UTooltip>
 				</div>
-				<ComboboxBase
+				<USelectMenu
 					v-if="mappedQuestions?.length"
 					v-model="activeQuestion"
+					class="w-full"
 					data-testid="questions"
-					has-search
-					:options="mappedQuestions"
-					:placeholder="t('MapsPage.selection.variable.placeholder')"
-					width="w-full"
-				/>
+					:items="mappedQuestions"
+					:placeholder="
+						t('Combobox.button', { placeholder: t('MapsPage.selection.variable.placeholder') })
+					"
+					:search-input="{
+						placeholder: t('Combobox.search', {
+							placeholder: t('MapsPage.selection.variable.placeholder'),
+						}),
+					}"
+					value-key="value"
+					variant="outline"
+				>
+					<template #empty>
+						{{ t("Combobox.empty", { placeholder: t("MapsPage.selection.variable.placeholder") }) }}
+					</template>
+				</USelectMenu>
 			</div>
 			<div id="variant" class="min-w-48 flex-1">
 				<div class="mb-1 ml-1 flex gap-1 text-sm font-semibold text-muted-foreground">
@@ -71,13 +83,19 @@ const settingsOpen = ref(false);
 						<InfoIcon class="size-4"></InfoIcon>
 					</UTooltip>
 				</div>
-				<MultiSelect
+				<USelectMenu
 					v-model="activeVariants"
+					class="w-full"
 					data-testid="variants"
-					:options="uniqueVariants"
-					:placeholder="t('MapsPage.selection.variants.placeholder')"
-					single-level
-					width="w-full"
+					:items="uniqueVariants"
+					multiple
+					:placeholder="
+						t('Combobox.button', { placeholder: t('MapsPage.selection.variants.placeholder') })
+					"
+					:search-input="false"
+					value-key="value"
+					variant="outline"
+					clear
 				/>
 			</div>
 			<div

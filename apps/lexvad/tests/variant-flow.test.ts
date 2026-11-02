@@ -7,6 +7,7 @@ import {
 	countVariantFlow,
 	type MatchedEntry,
 	matchKey,
+	pairEntries,
 	variantFlowAssociation,
 	type VariantFlowCount,
 } from "@/utils/variant-flow";
@@ -319,6 +320,38 @@ describe("variantFlowAssociation", () => {
 			]),
 		).toEqual({ cramersV: undefined, rows: 1, columns: 2 });
 		expect(variantFlowAssociation([]).cramersV).toBeUndefined();
+	});
+});
+
+function key(entry: string) {
+	return entry.split("#")[0];
+}
+
+describe("pairEntries", () => {
+	it("pairs entries with the same key", () => {
+		expect(pairEntries(["a#1"], ["a#2"], key)).toEqual([{ left: "a#1", right: "a#2" }]);
+	});
+
+	it("pairs several entries at a key in order and keeps the rest on their own", () => {
+		expect(pairEntries(["a#1", "a#2"], ["a#3", "a#4", "a#5"], key)).toEqual([
+			{ left: "a#1", right: "a#3" },
+			{ left: "a#2", right: "a#4" },
+			{ left: undefined, right: "a#5" },
+		]);
+	});
+
+	it("keeps entries without a partner", () => {
+		expect(pairEntries(["a#1"], ["b#1"], key)).toEqual([
+			{ left: "a#1", right: undefined },
+			{ left: undefined, right: "b#1" },
+		]);
+	});
+
+	it("never pairs entries without a key", () => {
+		expect(pairEntries(["x"], ["y"], () => undefined)).toEqual([
+			{ left: "x", right: undefined },
+			{ left: undefined, right: "y" },
+		]);
 	});
 });
 

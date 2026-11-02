@@ -9,6 +9,8 @@ import {
 	associationStrength,
 	type ComparisonMatchMode,
 	locationMatchRadius,
+	matchKey,
+	pairEntries,
 } from "@/utils/variant-flow";
 
 const t = useTranslations();
@@ -68,6 +70,29 @@ const { association, entryOverlap, variantFlowData } = usePhenomenonComparison(
 	comparisonSide("right"),
 	comparisonMatchMode,
 	comparisonMatchRadius,
+);
+
+function mapDataFor(position: MapPosition) {
+	return useMapData(
+		position,
+		() => datasetStore.datasetForMap(position),
+		() => sidebars.value[position].question,
+		() => sidebars.value[position].selectedVariants,
+	);
+}
+
+const leftMap = mapDataFor("left");
+const rightMap = mapDataFor("right");
+
+const jointMapData = computed(() =>
+	pairEntries(leftMap.data.value, rightMap.data.value, (entry) =>
+		matchKey(entry, comparisonMatchMode.value),
+	).map(({ left, right }) => ({
+		...(left ?? right)!,
+		color: left?.color ?? "",
+		outlineColor: right?.color,
+		entries: [left, right].filter((entry) => entry !== undefined),
+	})),
 );
 
 const { locale } = useI18n();
@@ -174,37 +199,61 @@ function swapQuestions() {
 					<div class="text-xs text-muted-foreground">{{ stat.detail }}</div>
 				</div>
 			</div>
-			<div class="min-w-0 rounded-lg border p-5">
-				<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
-					{{ t("Comparison.variant-flow") }}
-					<template v-if="comparisonMatchMode === 'location'">
-						<span class="ml-auto uppercase text-xs">Radius</span>
-						<USlider
-							v-model="comparisonMatchRadius"
-							class="w-36"
-							color="neutral"
-							:max="locationMatchRadius.max"
-							:min="locationMatchRadius.min"
-							size="xs"
-							:step="locationMatchRadius.step"
+			<div class="flex gap-5">
+				<div class="min-w-0 rounded-lg border p-5 w-full">
+					<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
+						{{ t("Comparison.variant-flow") }}
+						<template v-if="comparisonMatchMode === 'location'">
+							<span class="ml-auto uppercase text-xs">Radius</span>
+							<USlider
+								v-model="comparisonMatchRadius"
+								class="w-36"
+								color="neutral"
+								:max="locationMatchRadius.max"
+								:min="locationMatchRadius.min"
+								size="xs"
+								:step="locationMatchRadius.step"
+							/>
+							<span class="mr-2 font-normal text-sm"
+								>{{ (comparisonMatchRadius / 1000).toFixed(1) }} km</span
+							>
+						</template>
+						<USelect
+							v-model="comparisonMatchMode"
+							:class="{ 'ml-auto': comparisonMatchMode !== 'location' }"
+							:items="comparisonMatchItems"
+							size="sm"
+							variant="outline"
 						/>
-						<span class="mr-2 font-normal text-sm"
-							>{{ (comparisonMatchRadius / 1000).toFixed(1) }} km</span
-						>
-					</template>
-					<USelect
-						v-model="comparisonMatchMode"
-						:class="{ 'ml-auto': comparisonMatchMode !== 'location' }"
-						:items="comparisonMatchItems"
-						size="sm"
-						variant="outline"
-					/>
+					</div>
+					<VariantFlowCard
+						:data="variantFlowData"
+						:left="sidebars.left.question"
+						:right="sidebars.right.question"
+					></VariantFlowCard>
 				</div>
-				<VariantFlowCard
-					:data="variantFlowData"
-					:left="sidebars.left.question"
-					:right="sidebars.right.question"
-				></VariantFlowCard>
+				<div class="flex min-w-0 w-full flex-col rounded-lg border p-5">
+					<div class="mb-3 text-muted-foreground flex justify-between">
+						<span class="text-sm font-semibold">{{ t("Comparison.joint-map") }}</span>
+						<span class="text-xs"
+							>{{ t("Comparison.fill", { phenomenon: sidebars.left.question }) }} ·
+							{{ t("Comparison.outline", { phenomenon: sidebars.right.question }) }}</span
+						>
+					</div>
+					<VisualisationContainer
+						v-slot="{ height, width }"
+						class="border min-h-0 flex-1"
+						:fullscreen="false"
+					>
+						<div v-if="height && width" class="w-full h-full">
+							<GeoMap
+								:colors="leftMap.variantColors.value"
+								:controls="false"
+								:data="jointMapData"
+							></GeoMap>
+						</div>
+					</VisualisationContainer>
+				</div>
 			</div>
 		</div>
 

@@ -30,6 +30,8 @@ interface MapDataType {
 	color: string;
 	name: string;
 	variants: Array<string>;
+	outlineColor?: string;
+	entries?: Array<LocatedEntry>;
 }
 
 interface MapProps {
@@ -63,6 +65,7 @@ interface TooltipState {
 	name?: string;
 	variants?: Array<string>;
 	entry?: LocatedEntry;
+	entries?: Array<LocatedEntry>;
 }
 const tooltip = ref<TooltipState | null>(null);
 
@@ -95,11 +98,16 @@ function createScatterplotLayer(minimal = false) {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: `ScatterplotLayer${minimal ? "minimal" : ""}`,
 		data: points.value,
-		getFillColor: (d) => (minimal ? [255, 255, 255] : hexToRgb(d.properties?.color, 220)),
-		getLineColor: [255, 255, 255, 200],
+		getFillColor: (d) => {
+			if (minimal) return [255, 255, 255];
+			return d.properties?.color ? hexToRgb(d.properties.color, 220) : [0, 0, 0, 0];
+		},
+		getLineColor: (d) =>
+			d.properties?.outlineColor ? hexToRgb(d.properties.outlineColor, 220) : [255, 255, 255, 200],
+		getLineWidth: (d) => (d.properties?.outlineColor ? 2 : 1),
 		getPosition: (d) => d.geometry.coordinates as [number, number],
 		getRadius: minimal ? 100 : 2000,
-		lineWidthMinPixels: 1,
+		lineWidthUnits: "pixels",
 		pickable: !minimal,
 		radiusMaxPixels: Math.max(8, (3 * points.value.length) / 1000),
 		radiusMinPixels: minimal ? 0 : Math.max(3, points.value.length / 1000),
@@ -300,6 +308,7 @@ onMounted(() => {
 					x,
 					y,
 					entry: object.properties,
+					entries: object.properties.entries,
 				};
 			}
 		},
@@ -439,6 +448,7 @@ const layerItems = computed(() =>
 		<MapTooltip
 			v-if="tooltip"
 			class="absolute z-30 pointer-events-none max-w-xs -translate-x-1/2 -translate-y-[calc(100%+12px)]"
+			:entries="tooltip.entries"
 			:entry="tooltip.entry"
 			:style="{ left: `${tooltip.x}px`, top: `${tooltip.y}px` }"
 		/>

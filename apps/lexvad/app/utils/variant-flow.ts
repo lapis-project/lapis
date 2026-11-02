@@ -156,6 +156,30 @@ export function countVariantFlow(
 	);
 }
 
+export function pairEntries<T>(
+	left: Array<T>,
+	right: Array<T>,
+	keyOf: (entry: T) => MatchKey | undefined,
+): Array<{ left: T | undefined; right: T | undefined }> {
+	const candidates = new Map<MatchKey, Array<T>>();
+	right.forEach((entry) => {
+		const key = keyOf(entry);
+		if (key !== undefined) candidates.set(key, [...(candidates.get(key) ?? []), entry]);
+	});
+
+	const pairs = left.map((entry) => {
+		const key = keyOf(entry);
+		return { left: entry, right: key === undefined ? undefined : candidates.get(key)?.shift() };
+	});
+	const paired = new Set(pairs.map((pair) => pair.right));
+	return [
+		...pairs,
+		...right
+			.filter((entry) => !paired.has(entry))
+			.map((entry) => ({ left: undefined, right: entry })),
+	];
+}
+
 interface Overlap {
 	common: number;
 	onlyLeft: number;

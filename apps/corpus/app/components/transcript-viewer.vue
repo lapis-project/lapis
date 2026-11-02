@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ArrowUpIcon, ArrowDownIcon } from "@lucide/vue";
 import { useVirtualizer } from "@tanstack/vue-virtual";
 
 import type { APITranscriptData, Event, TimestampEvent } from "@/types/api";
@@ -125,8 +126,23 @@ const rowVirtualizer = useVirtualizer({
 	count: rowCount.value,
 	getScrollElement: () => eventContainer.value,
 	estimateSize: () => 230,
+	overscan: 5,
 });
 
+function scrollToTop() {
+	rowVirtualizer.value.scrollToOffset(0, {
+		behavior: "instant",
+	});
+}
+
+function scrollToBottom() {
+	if (rowCount.value === 0) return;
+
+	rowVirtualizer.value.scrollToIndex(rowCount.value - 1, {
+		align: "end",
+		behavior: "instant",
+	});
+}
 function handleResize() {
 	if (eventContainer.value != null) {
 		containerElementWidth.value = eventContainer.value.getBoundingClientRect().width;
@@ -160,6 +176,27 @@ watch(
 
 <template>
 	<div class="relative overflow-auto min-h-0 max-h-full h-full">
+		<div class="absolute h-full right-6 py-4 z-50 flex flex-col gap-2">
+			<Button
+				variant="default"
+				size="icon"
+				class="shadow-lg bg-accent-foreground hover:bg-accent"
+				title="Zum Anfang springen"
+				@click="scrollToTop"
+			>
+				<ArrowUpIcon class="size-4" />
+			</Button>
+
+			<Button
+				variant="default"
+				size="icon"
+				class="shadow-lg mt-auto bg-accent-foreground hover:bg-accent"
+				title="Zum Ende springen"
+				@click="scrollToBottom"
+			>
+				<ArrowDownIcon class="size-4" />
+			</Button>
+		</div>
 		<div v-if="!chunkedSpeakerEvents.length" class="h-fit item-center m-auto">
 			<Spinner />
 		</div>

@@ -8,6 +8,7 @@ import {
 import {
 	associationStrength,
 	type ComparisonMatchMode,
+	entryId,
 	locationMatchRadius,
 	matchKey,
 	pairEntries,
@@ -65,7 +66,7 @@ watch(idsAvailable, (available) => {
 	if (!available && comparisonMatchMode.value === "id") comparisonMatchMode.value = "location";
 });
 
-const { association, entryOverlap, variantFlowData } = usePhenomenonComparison(
+const { association, entryOverlap, flowHighlight, variantFlowData } = usePhenomenonComparison(
 	comparisonSide("left"),
 	comparisonSide("right"),
 	comparisonMatchMode,
@@ -91,8 +92,15 @@ const jointMapData = computed(() =>
 		...(left ?? right)!,
 		color: left?.color ?? "",
 		outlineColor: right?.color,
+		fillId: left && entryId(left, datasetStore.datasetForMap("left")),
+		outlineId: right && entryId(right, datasetStore.datasetForMap("right")),
 		entries: [left, right].filter((entry) => entry !== undefined),
 	})),
+);
+
+const hoveredFlow = ref<{ source: string | undefined; target: string | undefined } | null>(null);
+const mapHighlight = computed(() =>
+	hoveredFlow.value ? flowHighlight(hoveredFlow.value.source, hoveredFlow.value.target) : undefined,
 );
 
 const { locale } = useI18n();
@@ -230,12 +238,13 @@ function swapQuestions() {
 						:data="variantFlowData"
 						:left="sidebars.left.question"
 						:right="sidebars.right.question"
+						@hover-flow="hoveredFlow = $event"
 					></VariantFlowCard>
 				</div>
 				<div class="flex min-w-0 w-full flex-col rounded-lg border p-5">
 					<div class="mb-3 text-muted-foreground flex justify-between">
 						<span class="text-sm font-semibold">{{ t("Comparison.joint-map") }}</span>
-						<span class="text-xs"
+						<span class="text-xs self-center"
 							>{{ t("Comparison.fill", { phenomenon: sidebars.left.question }) }} ·
 							{{ t("Comparison.outline", { phenomenon: sidebars.right.question }) }}</span
 						>
@@ -250,6 +259,7 @@ function swapQuestions() {
 								:colors="leftMap.variantColors.value"
 								:controls="false"
 								:data="jointMapData"
+								:highlight="mapHighlight"
 							></GeoMap>
 						</div>
 					</VisualisationContainer>

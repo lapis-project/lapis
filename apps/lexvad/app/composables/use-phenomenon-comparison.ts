@@ -3,6 +3,8 @@ import {
 	type ComparisonMatchMode,
 	countEntryOverlap,
 	countVariantFlow,
+	entriesInFlow,
+	entryId,
 	locationMatchRadius,
 	type MatchedEntry,
 	matchKey,
@@ -57,7 +59,7 @@ export function usePhenomenonComparison(
 			if (key === undefined) return [];
 			return [
 				{
-					id: entry.Id ?? `${side.datasetId}:${String(entry.iddoc)}`,
+					id: entryId(entry, side.datasetId),
 					key,
 					groups: new Set(entry.variants.map((variant) => ids[variant] ?? variant)),
 				},
@@ -104,5 +106,22 @@ export function usePhenomenonComparison(
 
 	const association = computed(() => variantFlowAssociation(flowCounts.value));
 
-	return { association, entryOverlap, variantFlowData };
+	function flowHighlight(source: string | undefined, target: string | undefined) {
+		const { left: fill, right: outline } = entriesInFlow(
+			leftEntries.value,
+			rightEntries.value,
+			source,
+			target,
+			toValue(matchBy),
+			toValue(matchRadius),
+		);
+		return {
+			fill,
+			outline,
+			fillColor: source === undefined ? undefined : flowNodes(toValue(left))[source]?.color,
+			outlineColor: target === undefined ? undefined : flowNodes(toValue(right))[target]?.color,
+		};
+	}
+
+	return { association, entryOverlap, flowHighlight, variantFlowData };
 }

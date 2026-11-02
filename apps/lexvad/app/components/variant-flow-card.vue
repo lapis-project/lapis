@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { SankeyChart } from "echarts/charts";
 import { TooltipComponent, GraphicComponent } from "echarts/components";
-import { use } from "echarts/core";
+import { type ECElementEvent, use } from "echarts/core";
 import { SVGRenderer } from "echarts/renderers";
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import VChart from "vue-echarts";
@@ -16,6 +16,16 @@ const props = defineProps<{
 	data: Array<VariantFlowLink>;
 }>();
 
+const emit = defineEmits<{
+	"hover-flow": [flow: { source: string | undefined; target: string | undefined } | null];
+}>();
+
+function onMouseOver({ dataType, data }: ECElementEvent) {
+	if (dataType !== "edge" && dataType !== "node") return;
+	const { sourceId, targetId } = data as { sourceId?: string; targetId?: string };
+	emit("hover-flow", { source: sourceId, target: targetId });
+}
+
 const columnLabels = computed(() => [props.left, props.right]);
 
 const chartData = computed(() => {
@@ -24,6 +34,8 @@ const chartData = computed(() => {
 		{
 			name: string;
 			text: string;
+			sourceId: string | undefined;
+			targetId: string | undefined;
 			depth: number;
 			itemStyle: { color?: string };
 			label: { position: "left" | "right"; width: number };
@@ -34,6 +46,8 @@ const chartData = computed(() => {
 		nodes.set(name, {
 			name,
 			text: label,
+			sourceId: side === "left" ? id : undefined,
+			targetId: side === "right" ? id : undefined,
 			depth: side === "left" ? 0 : 1,
 			itemStyle: { color },
 			label: { position: side, width: labelWidth(side) },
@@ -44,6 +58,8 @@ const chartData = computed(() => {
 		source: node("left", link.source),
 		target: node("right", link.target),
 		value: link.value,
+		sourceId: link.source.id,
+		targetId: link.target.id,
 		sourceLabel: link.source.label,
 		targetLabel: link.target.label,
 	}));
@@ -158,6 +174,12 @@ const option = computed(() => {
 
 <template>
 	<div ref="container" :style="{ height: '400px', width: '100%' }">
-		<VChart v-if="width" :option="option" autoresize />
+		<VChart
+			v-if="width"
+			:option="option"
+			autoresize
+			@mouseout="emit('hover-flow', null)"
+			@mouseover="onMouseOver"
+		/>
 	</div>
 </template>

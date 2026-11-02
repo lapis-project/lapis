@@ -28,6 +28,10 @@ export function matchKey(entry: LocatedEntry, mode: ComparisonMatchMode): MatchK
 		.join(",");
 }
 
+export function entryId(entry: LocatedEntry, datasetId: string) {
+	return entry.Id ?? `${datasetId}:${String(entry.iddoc)}`;
+}
+
 // in metres
 export const locationMatchRadius = { default: 0, min: 0, max: 20000, step: 500 } as const;
 
@@ -178,6 +182,34 @@ export function pairEntries<T>(
 			.filter((entry) => !paired.has(entry))
 			.map((entry) => ({ left: undefined, right: entry })),
 	];
+}
+
+export function entriesInFlow(
+	left: Array<MatchedEntry>,
+	right: Array<MatchedEntry>,
+	source: string | undefined,
+	target: string | undefined,
+	mode: ComparisonMatchMode,
+	radius: number = locationMatchRadius.default,
+): { left: Set<string>; right: Set<string> } {
+	const sources = left.filter((entry) => source === undefined || entry.groups.has(source));
+	const targets = right.filter((entry) => target === undefined || entry.groups.has(target));
+	const pairs = matchedPairs(
+		[...new Set(sources.map((entry) => entry.key))],
+		[...new Set(targets.map((entry) => entry.key))],
+		mode,
+		radius,
+	);
+	const matchedSources = new Set(pairs.map(([key]) => key));
+	const matchedTargets = new Set(pairs.map(([, key]) => key));
+	return {
+		left: new Set(
+			sources.filter((entry) => matchedSources.has(entry.key)).map((entry) => entry.id),
+		),
+		right: new Set(
+			targets.filter((entry) => matchedTargets.has(entry.key)).map((entry) => entry.id),
+		),
+	};
 }
 
 interface Overlap {

@@ -31,6 +31,8 @@ interface MapDataType {
 	name: string;
 	variants: Array<string>;
 	outlineColor?: string;
+	fillId?: string;
+	outlineId?: string;
 	entries?: Array<LocatedEntry>;
 }
 
@@ -38,6 +40,14 @@ interface MapProps {
 	data: Array<MapDataType>;
 	colors: Record<string, string>;
 	controls?: boolean;
+	highlight?:
+		| {
+				fill: Set<string>;
+				outline: Set<string>;
+				fillColor: string | undefined;
+				outlineColor: string | undefined;
+		  }
+		| undefined;
 }
 
 const props = withDefaults(defineProps<MapProps>(), { controls: true, fit: false });
@@ -94,17 +104,46 @@ function fittedViewState() {
 
 const { getRegionColor, DEFAULT_REGION_COLOR } = useColorStore();
 
+const FADED_ALPHA = 20;
+
+function highlightColor(
+	color: string,
+	id: string,
+	ids: Set<string> | undefined,
+	focusColor: string | undefined,
+) {
+	if (!ids) return hexToRgb(color, 220);
+	return ids.has(id) ? hexToRgb(focusColor ?? color, 220) : hexToRgb(color, FADED_ALPHA);
+}
+
 function createScatterplotLayer(minimal = false) {
 	return new ScatterplotLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: `ScatterplotLayer${minimal ? "minimal" : ""}`,
 		data: points.value,
 		getFillColor: (d) => {
 			if (minimal) return [255, 255, 255];
-			return d.properties?.color ? hexToRgb(d.properties.color, 220) : [0, 0, 0, 0];
+			if (!d.properties?.color) return [0, 0, 0, 0];
+			return highlightColor(
+				d.properties.color,
+				d.properties.fillId,
+				props.highlight?.fill,
+				props.highlight?.fillColor,
+			);
 		},
 		getLineColor: (d) =>
-			d.properties?.outlineColor ? hexToRgb(d.properties.outlineColor, 220) : [255, 255, 255, 200],
+			d.properties?.outlineColor
+				? highlightColor(
+						d.properties.outlineColor,
+						d.properties.outlineId,
+						props.highlight?.outline,
+						props.highlight?.outlineColor,
+					)
+				: [255, 255, 255, props.highlight ? FADED_ALPHA : 200],
 		getLineWidth: (d) => (d.properties?.outlineColor ? 2 : 1),
+		updateTriggers: {
+			getFillColor: props.highlight,
+			getLineColor: props.highlight,
+		},
 		getPosition: (d) => d.geometry.coordinates as [number, number],
 		getRadius: minimal ? 100 : 2000,
 		lineWidthUnits: "pixels",
@@ -326,7 +365,7 @@ onMounted(() => {
 });
 
 watch(
-	() => [props.data, radius.value, activeLayer.value, mapMode.value],
+	() => [props.data, props.highlight, radius.value, activeLayer.value, mapMode.value],
 	() => {
 		deck?.setProps({ layers: createLayers() });
 	},

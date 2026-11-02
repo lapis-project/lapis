@@ -5,6 +5,7 @@ import {
 	associationStrength,
 	countEntryOverlap,
 	countVariantFlow,
+	entriesInFlow,
 	type MatchedEntry,
 	matchKey,
 	pairEntries,
@@ -320,6 +321,52 @@ describe("variantFlowAssociation", () => {
 			]),
 		).toEqual({ cramersV: undefined, rows: 1, columns: 2 });
 		expect(variantFlowAssociation([]).cramersV).toBeUndefined();
+	});
+});
+
+describe("entriesInFlow", () => {
+	const place = "48.000,16.000";
+	const nearby = "48.010,16.000";
+
+	it("finds the entries of one flow at a shared place", () => {
+		const left = entries(place, ["a"], ["x"]);
+		const right = entries(place, ["b"], ["y"]);
+		expect(entriesInFlow(left, right, "a", "y", "location")).toEqual({
+			left: new Set([`${place}#0`]),
+			right: new Set([`${place}#1`]),
+		});
+	});
+
+	it("skips entries whose place has no partner", () => {
+		const left = [...entries(place, ["a"]), ...entries(nearby, ["a"])];
+		const right = entries(place, ["b"]);
+		expect(entriesInFlow(left, right, "a", "b", "location")).toEqual({
+			left: new Set([`${place}#0`]),
+			right: new Set([`${place}#0`]),
+		});
+	});
+
+	it("covers all flows of a variant when the other side is left out", () => {
+		const left = [...entries(place, ["a"], ["x"]), ...entries(nearby, ["x"])];
+		const right = [...entries(place, ["b"], ["y"]), ...entries(nearby, ["b"])];
+		expect(entriesInFlow(left, right, "a", undefined, "location")).toEqual({
+			left: new Set([`${place}#0`]),
+			right: new Set([`${place}#0`, `${place}#1`]),
+		});
+		expect(entriesInFlow(left, right, undefined, "y", "location")).toEqual({
+			left: new Set([`${place}#0`, `${place}#1`]),
+			right: new Set([`${place}#1`]),
+		});
+	});
+
+	it("follows the radius", () => {
+		const left = entries(place, ["a"]);
+		const right = entries(nearby, ["b"]);
+		expect(entriesInFlow(left, right, "a", "b", "location").left.size).toBe(0);
+		expect(entriesInFlow(left, right, "a", "b", "location", 2000)).toEqual({
+			left: new Set([`${place}#0`]),
+			right: new Set([`${nearby}#0`]),
+		});
 	});
 });
 

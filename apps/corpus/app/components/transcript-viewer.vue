@@ -18,6 +18,7 @@ const containerElementWidth = ref(0);
 const SPEAKER_COL_WIDTH = 160;
 const GRID_COL_GAP = 8; // .grid without an explicit gap`
 const SAFETY_PADDING = 2; // for sub-pixel rounding / scroll-bars
+const ROW_HEIGHT = 230;
 
 const EVENTS_PER_CHUNK = 20;
 
@@ -122,13 +123,14 @@ const maxEventsInBlock = (block: Record<number, Event[]>) => {
 
 const rowCount = computed(() => chunkedSpeakerEvents.value.length);
 
-const rowVirtualizer = useVirtualizer({
-	count: rowCount.value,
-	getScrollElement: () => eventContainer.value,
-	estimateSize: () => 230,
-	overscan: 5,
-});
-
+const rowVirtualizer = useVirtualizer(
+	computed(() => ({
+		count: rowCount.value,
+		getScrollElement: () => eventContainer.value,
+		estimateSize: () => ROW_HEIGHT,
+		overscan: 5,
+	})),
+);
 function scrollToTop() {
 	rowVirtualizer.value.scrollToOffset(0, {
 		behavior: "instant",
@@ -136,13 +138,12 @@ function scrollToTop() {
 }
 
 function scrollToBottom() {
-	if (rowCount.value === 0) return;
+	const element = eventContainer.value;
+	if (!element) return;
 
-	rowVirtualizer.value.scrollToIndex(rowCount.value - 1, {
-		align: "end",
-		behavior: "instant",
-	});
+	element.scrollTop = rowVirtualizer.value.getTotalSize();
 }
+
 function handleResize() {
 	if (eventContainer.value != null) {
 		containerElementWidth.value = eventContainer.value.getBoundingClientRect().width;
@@ -175,7 +176,7 @@ watch(
 </script>
 
 <template>
-	<div class="relative overflow-auto min-h-0 max-h-full h-full">
+	<div class="relative min-h-0 max-h-full h-full overflow-hidden">
 		<div class="absolute h-full right-6 py-4 z-50 flex flex-col gap-2">
 			<Button
 				variant="default"
@@ -206,11 +207,13 @@ watch(
 			ref="eventContainer"
 			class="overflow-y-auto flex flex-col min-h-0 gap-4 border border-foreground/20 rounded-lg bg-muted h-full"
 		>
+			>
 			<div
 				:style="{
 					height: `${rowVirtualizer.getTotalSize()}px`,
 					width: '100%',
 					position: 'relative',
+					flex: 'none',
 				}"
 			>
 				<VirtualRow
@@ -227,7 +230,7 @@ watch(
 						position: 'absolute',
 						width: '100%',
 						transform: `translateY(${virtualRow.start}px)`,
-						height: `${virtualRow.size}px`,
+						height: `${ROW_HEIGHT}px`,
 						top: 0,
 						left: 0,
 					}"

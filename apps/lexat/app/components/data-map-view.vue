@@ -423,6 +423,17 @@ const groupedPoints = computed(() =>
 	})),
 );
 
+const legendEntries = computed(() =>
+	filteredUniqueVariants.value.map((variant) => ({
+		id: variant.anno,
+		label: groupLabels.value[variant.anno] ?? variant.anno,
+		color: groupedColors.value[variant.anno],
+		count: variant.count,
+		percentage: variant.percentage,
+		italic: !Object.keys(specialOrder).includes(variant.anno),
+	})),
+);
+
 const uniqueVariantsOptions = computed<Array<{ label: string; value: string }>>(() => {
 	const variantOptions = uniqueVariants.value
 		.map((variant) => ({
@@ -1344,45 +1355,15 @@ watch(
 				:class="{ 'h-[600px]': !mapExpanded }"
 				:fullscreen="mapExpanded"
 			>
-				<div
-					v-if="filteredUniqueVariants.length"
+				<MapLegend
+					v-if="legendEntries.length"
 					id="variantLegend"
 					class="absolute bottom-12 right-0 z-10 mr-2"
-					data-testid="variantLegend"
-				>
-					<!-- Real borders are captured by html2canvas; Nuxt UI's box-shadow rings are not. -->
-					<UCard
-						variant="outline"
-						class="text-sm shadow-md"
-						:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
-					>
-						<ul class="space-y-0.5">
-							<li
-								v-for="variant in filteredUniqueVariants"
-								:key="variant.anno"
-								class="flex items-center gap-1"
-							>
-								<svg class="inline align-baseline" height="12" width="12">
-									<circle
-										cx="6"
-										cy="6"
-										:fill="groupedColors[variant.anno]"
-										r="5"
-										:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
-										stroke-align="inner"
-										stroke-width="1"
-									/>
-								</svg>
-								<span
-									:class="{
-										italic: !Object.keys(specialOrder).includes(variant.anno),
-									}"
-									>{{ groupLabels[variant.anno] ?? variant.anno }}</span
-								>({{ showVariantPercentages ? `${variant.percentage}%` : variant.count }})
-							</li>
-						</ul>
-					</UCard>
-				</div>
+					:data="legendEntries"
+					:show-counts="false"
+					:show-percentages="showVariantPercentages"
+					:title="t('MapsPage.selection.legend')"
+				/>
 				<div
 					v-if="features.length"
 					id="regionLegend"

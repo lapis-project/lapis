@@ -22,6 +22,7 @@ const emit = defineEmits<{
 }>();
 
 const datasetId = useMapDataset(props.mapId);
+const t = useTranslations();
 
 const activeQuestion = defineModel<string>("question", { default: "Gießkanne" });
 
@@ -29,7 +30,7 @@ const activeVariants = defineModel<Array<string>>("variants", { default: () => [
 const mapMode = defineModel<MapMode>("mode", { default: "point" });
 const radius = defineModel<number>("radius", { default: hexagonRadius.default });
 
-const { data, uniqueVariants, variantColors, variantGroups } = useMapData(
+const { data, legendEntries, uniqueVariants, variantColors } = useMapData(
 	props.mapId,
 	datasetId,
 	activeQuestion,
@@ -53,11 +54,10 @@ const { data, uniqueVariants, variantColors, variantGroups } = useMapData(
 			<MapLegend
 				v-if="uniqueVariants.length"
 				id="variantLegend"
-				:active-variants="activeVariants"
 				class="absolute bottom-4 right-0 z-10 mr-4 max-h-[70%] overflow-y-auto"
-				:dataset-id="datasetId"
-				:groups="variantGroups"
-				:question="activeQuestion"
+				:data="legendEntries"
+				:format-count="(count) => t('MapsPage.sidebar.places', count)"
+				:title="t('MapsPage.legend.title')"
 			/>
 			<div v-if="height && width" class="w-full h-full">
 				<GeoMap v-model:mode="mapMode" v-model:radius="radius" :colors="variantColors" :data="data">

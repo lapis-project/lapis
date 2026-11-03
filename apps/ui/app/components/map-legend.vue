@@ -15,10 +15,12 @@ withDefaults(
 		formatCount?: (count: number) => string;
 		showCounts?: boolean;
 		showPercentages?: boolean;
+		truncateLabels?: boolean;
 	}>(),
 	{
 		showCounts: true,
 		showPercentages: true,
+		truncateLabels: true,
 	},
 );
 </script>
@@ -47,8 +49,8 @@ withDefaults(
 						/>
 					</svg>
 					<span
-						class="truncate font-normal max-w-24"
-						:class="{ italic: entry.italic }"
+						class="font-normal"
+						:class="{ italic: entry.italic, 'truncate max-w-24': truncateLabels }"
 						:title="entry.label"
 					>
 						{{ entry.label }}

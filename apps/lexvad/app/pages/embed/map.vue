@@ -36,7 +36,7 @@ const selectedVariants =
 			)
 		: [];
 
-const { data, variantColors, variantGroups } = useMapData(
+const { data, legendEntries, variantColors } = useMapData(
 	EMBED_MAP_ID,
 	PILOT_DATASET_ID,
 	question,
@@ -78,11 +78,10 @@ useSeoMeta({
 					/>
 				</ClientOnly>
 				<MapLegend
-					:active-variants="selectedVariants"
 					class="absolute bottom-4 left-4 z-10 max-h-[70%] overflow-y-auto"
-					:dataset-id="PILOT_DATASET_ID"
-					:groups="variantGroups"
-					:question="question"
+					:data="legendEntries"
+					:format-count="(count) => t('MapsPage.sidebar.places', count)"
+					:title="t('MapsPage.legend.title')"
 				/>
 			</div>
 		</template>

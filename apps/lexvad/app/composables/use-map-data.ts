@@ -8,10 +8,14 @@ export function useMapData(
 ) {
 	const { setDefaultColorsForQuestion, resetColorsForQuestion, hasQuestion, getColorForGroup } =
 		useColorStore();
-	const { byVariant, normaliseGroups } = useVariantGroups();
+	const { byVariant, groupDisplayLabel, normaliseGroups } = useVariantGroups();
 	const { groupsForMap } = useVariantGroupStore();
-	const { allQuestions, countAnswersForQuestion, filterDataByQuestionAndVariant } =
-		useQuestions(datasetId);
+	const {
+		allQuestions,
+		countAnswersForGroups,
+		countAnswersForQuestion,
+		filterDataByQuestionAndVariant,
+	} = useQuestions(datasetId);
 
 	const uniqueVariants = computed(() =>
 		countAnswersForQuestion(toValue(question))
@@ -37,6 +41,28 @@ export function useMapData(
 			getColorForGroup(toValue(datasetId), toValue(question), group),
 		),
 	);
+
+	const legendEntries = computed(() => {
+		const counts = countAnswersForGroups(toValue(question), variantGroups.value);
+		const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+		const selected = toValue(activeVariants);
+		return variantGroups.value
+			.filter(
+				(group) =>
+					selected.length === 0 || group.variants.some((variant) => selected.includes(variant)),
+			)
+			.map((group) => {
+				const count = counts[group.id] ?? 0;
+				return {
+					id: group.id,
+					label: groupDisplayLabel(group),
+					color: getColorForGroup(toValue(datasetId), toValue(question), group),
+					count,
+					percentage: total > 0 ? ((100 * count) / total).toFixed(0) : "0",
+				};
+			})
+			.toSorted((a, b) => b.count - a.count);
+	});
 
 	function resetColors() {
 		resetColorsForQuestion(
@@ -74,6 +100,7 @@ export function useMapData(
 	return {
 		allQuestions,
 		data,
+		legendEntries,
 		resetColors,
 		uniqueVariants,
 		variantColors,

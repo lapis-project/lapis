@@ -240,32 +240,7 @@ watch(
 								<Spinner />
 							</div>
 							<div class="ml-auto flex flex-wrap items-center justify-end gap-2">
-								<div v-if="activeFilterCount > 0" class="flex flex-wrap items-center gap-2">
-									<div
-										v-for="tag in activeFilterTagEntries"
-										:key="`${tag.key}-${tag.value}`"
-										class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
-									>
-										<span>{{ tag.label }}</span>
-										<button
-											type="button"
-											class="inline-flex size-4 items-center justify-center rounded-full hover:bg-foreground/10"
-											:aria-label="`Filter ${tag.label} entfernen`"
-											@click="removeFilterTag(tag.key, tag.value)"
-										>
-											<X class="size-3" />
-										</button>
-									</div>
-									<Button
-										variant="outline"
-										size="sm"
-										class="h-7 px-2 text-xs"
-										@click="clearAllFilterTags"
-									>
-										Alle löschen
-									</Button>
-									<span class="text-foreground/10">|</span>
-								</div>
+								<FilterBadgeList />
 								<Button variant="ghost" size="sm" class="h-7 px-2 text-xs gap-2">
 									<DownloadIcon class="size-4" />
 								</Button>

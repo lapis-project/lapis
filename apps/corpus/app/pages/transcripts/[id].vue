@@ -21,14 +21,7 @@ definePageMeta({
 });
 
 const route = useRoute();
-const {
-	filterParams,
-	activeFilterTagEntries,
-	activeFilterCount,
-	hasKwicSearch,
-	removeFilterTag,
-	clearAllFilterTags,
-} = useActiveFilterTags();
+const { filterParams, hasKwicSearch } = useActiveFilterTags();
 const {
 	response: hitsResponse,
 	isPending,
@@ -211,6 +204,17 @@ const currentTranscriptHits = computed(() => {
 	return hitsResponse.value[key] ?? null;
 });
 
+const kwicTokens = computed(() => {
+	return (
+		currentTranscriptHits.value?.kwic?.Lines?.flatMap((line) =>
+			(line.Kwic ?? []).map((token) => ({
+				toknum: line.toknum,
+				text: token.str,
+			})),
+		) ?? []
+	);
+});
+
 watch(
 	currentId,
 	async (id) => {
@@ -334,35 +338,7 @@ watch(
 								</div>
 							</TabsContent>
 							<TabsContent class="flex-grow overflow-y-auto min-h-0 p-2" value="filter">
-								<div v-if="activeFilterCount > 0" class="mb-4">
-									<p class="text-xs text-gray-500 pb-2">Aktive Filter:</p>
-									<div class="flex flex-wrap gap-2">
-										<div
-											v-for="tag in activeFilterTagEntries"
-											:key="`${tag.key}-${tag.value}`"
-											class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
-										>
-											<span>{{ tag.label }}</span>
-											<button
-												type="button"
-												class="inline-flex size-4 items-center justify-center rounded-full hover:bg-foreground/10"
-												:aria-label="`Filter ${tag.label} entfernen`"
-												@click="removeFilterTag(tag.key, tag.value)"
-											>
-												<X class="size-3" />
-											</button>
-										</div>
-										<Button
-											v-if="activeFilterCount > 0"
-											variant="outline"
-											size="sm"
-											class="h-7 px-2 text-xs"
-											@click="clearAllFilterTags"
-										>
-											Alle löschen
-										</Button>
-									</div>
-								</div>
+								<FilterBadgeList />
 								<div
 									v-if="hasKwicSearch"
 									class="mb-3 rounded border border-foreground/10 bg-muted/40 p-2"
@@ -405,38 +381,41 @@ watch(
 								</div>
 
 								<div class="flex flex-col gap-2 text-sm">
-									<p class="text-xs text-gray-500">Spuren:</p>
-									<label class="flex items-center gap-2">
-										<input v-model="showLu" type="checkbox" />
-										Lautorientierte Transkription (lu)
-									</label>
-									<label class="flex items-center gap-2">
-										<input v-model="showPhon" type="checkbox" />
-										Phonetische Transkription (phon)
-									</label>
+									<p class="text-xs text-gray-500">Spuren</p>
+
+									<div class="flex items-center gap-2 py-1">
+										<Checkbox id="show-lu" v-model="showLu" />
+										<Label for="show-lu">Lautorientierte Transkription (lu)</Label>
+									</div>
+
+									<div class="flex items-center gap-2 py-1">
+										<Checkbox id="show-phon" v-model="showPhon" />
+										<Label for="show-phon">Phonetische Transkription (phon)</Label>
+									</div>
 								</div>
 								<hr class="my-2 border-foreground/10" />
-								<p class="text-xs text-gray-500 pb-2">Sprecher ausblenden:</p>
-								<div class="flex flex-col gap-1 pl-1">
-									<label
+								<p class="text-xs text-gray-500 pb-3">Sprecher:innen</p>
+
+								<div class="flex flex-col gap-3 pl-1">
+									<div
 										v-for="(speaker, index) in speakerIds"
 										:key="index"
 										class="flex items-center gap-2"
 									>
-										<input
-											:checked="hiddenSpeakers.has(speaker)"
-											type="checkbox"
-											:value="speaker"
-											@change="
-												(event: Event) => {
-													const target = event.target as HTMLInputElement | null;
-													if (target?.checked) hiddenSpeakers.add(speaker);
-													else hiddenSpeakers.delete(speaker);
+										<Checkbox
+											:id="`speaker-${speaker}`"
+											:model-value="!hiddenSpeakers.has(speaker)"
+											@update:model-value="
+												(value: boolean | 'indeterminate') => {
+													if (value === true) hiddenSpeakers.delete(speaker);
+													else hiddenSpeakers.add(speaker);
 												}
 											"
 										/>
-										{{ speaker }}
-									</label>
+										<Label :for="`speaker-${speaker}`">
+											{{ speaker }}
+										</Label>
+									</div>
 								</div>
 							</TabsContent>
 							<TabsContent class="flex-grow overflow-y-auto min-h-0" value="search">
@@ -468,6 +447,7 @@ watch(
 						:hidden-speakers="hiddenSpeakers"
 						:show-lu="showLu"
 						:showPhon="showPhon"
+						:kwic-tokens="kwicTokens"
 						@update:current-highlight-index="currentHighlightIndex = $event"
 					/>
 					<section

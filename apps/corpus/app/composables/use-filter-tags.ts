@@ -22,8 +22,6 @@ const filterTagLabels: Record<string, string> = {
 	has_bkms: "BKMS",
 };
 
-const filterKeys = Object.keys(filterTagLabels);
-
 export function useActiveFilterTags() {
 	const route = useRoute();
 	const router = useRouter();
@@ -51,6 +49,7 @@ export function useActiveFilterTags() {
 			projects: q.projects != null ? [Number(q.projects)] : undefined,
 			settings: q.settings != null ? [Number(q.settings)] : undefined,
 			transcript_name: q.transcript_name ? String(q.transcript_name) : undefined,
+			instance_id: q.instance_id ? String(q.instance_id) : undefined,
 			has_bkms: q.has_bkms === "true",
 		};
 	});
@@ -121,19 +120,13 @@ export function useActiveFilterTags() {
 	}
 
 	function clearAllFilterTags() {
-		const nextQuery = { ...route.query };
-
-		for (const key of filterKeys) {
-			delete nextQuery[key];
-		}
-
-		return router.replace({ query: nextQuery });
+		return router.replace({ query: {} });
 	}
 
 	const hasKwicSearch = computed(() => {
 		const q = route.query;
 
-		return Boolean(q.word || q.query || q.lemma || q.pos || q.feats || q.comment_search || q.mode);
+		return Boolean(q.word || q.query || q.lemma || q.pos || q.feats || q.mode);
 	});
 
 	return {

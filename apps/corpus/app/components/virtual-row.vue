@@ -82,33 +82,33 @@ function tokenMatchesHighlights(
 		<!-- Speakers -->
 		<template v-for="speaker in speakers.filter((s) => !hiddenSpeakers.has(s))" :key="speaker">
 			<div class="text-sm font-semibold p-2 bg-gray-200 border border-foreground/20 min-h-[64px]">
-				<div class="flex flex-row justify-between">
-					{{ speaker }}
-					<div class="text-sm font-normal text-right pr-3 text-gray-500 h-full">
+				<div class="flex flex-col h-full justify-between">
+					<div class="text-sm font-normal text-right pr-3 text-gray-500">
 						<TooltipProvider>
 							<Tooltip>
-								<TooltipTrigger> o </TooltipTrigger>
+								<TooltipTrigger>o</TooltipTrigger>
 								<TooltipContent>Standardorthografische Transkription</TooltipContent>
 							</Tooltip>
 						</TooltipProvider>
 					</div>
-				</div>
 
-				<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger> lu </TooltipTrigger>
-							<TooltipContent>Lautorientierte Transkription</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
-				</div>
-				<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger> phon </TooltipTrigger>
-							<TooltipContent>Phonetische Transkription</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
+					<div v-if="showLu" class="text-sm font-normal text-right pr-3 text-gray-500">
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger>lu</TooltipTrigger>
+								<TooltipContent>Lautorientierte Transkription</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					</div>
+
+					<div v-if="showPhon" class="text-sm font-normal text-right pr-3 text-gray-500">
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger>phon</TooltipTrigger>
+								<TooltipContent>Phonetische Transkription</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					</div>
 				</div>
 			</div>
 
@@ -128,41 +128,42 @@ function tokenMatchesHighlights(
 							<div
 								v-for="(token, index) in e.ortho"
 								:key="'token-group-' + index"
-								class="grid grid-rows-[auto_1fr] items-end group hover:cursor-pointer h-full hover:bg-gray-100"
+								class="flex flex-col justify-between h-full group hover:cursor-pointer hover:bg-gray-100"
 							>
 								<div
-									class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-sm"
+									class="px-0.5 whitespace-nowrap text-start text-sm"
 									:data-highlight-target="
 										highlightTargetIndex(rowIndex, speaker, idx, 'ortho', index)
 									"
-									:data-highlighted-token="tokenMatchesHighlights(token) ? 'true' : 'false'"
+									:data-highlighted-token="token.isKwic ? 'true' : 'false'"
 									:data-current-highlighted-token="false"
 									:class="[
 										token.hasTags ? 'text-accent-foreground font-semibold' : '',
-										tokenMatchesHighlights(token)
+										token.isKwic
 											? 'rounded bg-highlight/30 text-accent-foreground font-bold ring-1 ring-accent-foreground/40'
 											: '',
 									]"
 								>
 									{{ token.text }}
 								</div>
+
 								<div
 									v-if="showLu"
-									class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-600 text-sm"
+									class="px-0.5 whitespace-nowrap text-start text-gray-600 text-sm"
+									:class="{ invisible: !e.lu[index]?.text }"
 								>
-									{{ e.lu[index]?.text }}
+									{{ e.lu[index]?.text || "\u00A0" }}
 								</div>
 
 								<div
 									v-if="showPhon"
-									class="px-0.5 m-0 whitespace-nowrap py-0.5 text-start text-gray-500 text-sm"
+									class="px-0.5 whitespace-nowrap text-start text-gray-500 text-sm"
+									:class="{ invisible: !e.phon[index]?.text }"
 								>
-									{{ e.phon[index]?.text }}
+									{{ e.phon[index]?.text || "\u00A0" }}
 								</div>
 
-								<div
-									class="h-1 flex w-full relative py-0.5 rounded bg-gray-300 transition-colors duration-200 group-hover:bg-accent-foreground group-hover:cursor-pointer"
-								></div>
+								<div class="h-1 w-full rounded bg-gray-300 group-hover:bg-accent-foreground"></div>
 							</div>
 						</div>
 					</DialogTrigger>

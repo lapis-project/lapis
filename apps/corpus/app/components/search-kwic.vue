@@ -95,7 +95,7 @@ watch(
 		>
 			<div class="grid grid-rows-3 gap-4">
 				<div class="flex flex-col gap-1">
-					<Label>Wordform</Label>
+					<Label>Wortform</Label>
 					<div class="flex gap-2">
 						<Input v-model="form.word" placeholder="zB. gehen" />
 						<Button type="button" size="icon" variant="outline" @click="clearField('word')">

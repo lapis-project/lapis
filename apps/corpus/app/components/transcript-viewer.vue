@@ -11,6 +11,7 @@ const props = defineProps<{
 	hiddenSpeakers: Set<number>;
 	showLu: boolean;
 	showPhon: boolean;
+	kwicTokens: Array<{ toknum: number; text: string }>;
 }>();
 
 const emit = defineEmits<{
@@ -43,45 +44,7 @@ const maxEventsPerRow = computed(() => {
 
 const route = useRoute();
 
-const highlightTerms = computed(() => {
-	const query = route.query;
-	const rawTerms: string[] = [];
-
-	for (const key of ["word", "lemma", "query", "pos", "feats"]) {
-		const value = query[key];
-		const entries = Array.isArray(value) ? value : value != null ? [value] : [];
-		for (const entry of entries) {
-			if (typeof entry === "string" && entry.trim().length > 0) {
-				rawTerms.push(entry.trim());
-			}
-		}
-	}
-
-	return rawTerms.map((term) => term.toLowerCase());
-});
-
 const currentHighlightIndex = ref<number | null>(null);
-
-function tokenMatchesCurrentHighlight(
-	token:
-		| {
-				text?: string | null;
-				text_in_ortho?: string | null;
-				phon?: string | null;
-				sppos?: string | null;
-				splemma?: string | null;
-		  }
-		| undefined,
-) {
-	if (highlightTerms.value.length === 0 || !token) return false;
-
-	const searchText = [token.text, token.text_in_ortho, token.phon, token.sppos, token.splemma]
-		.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
-		.join(" ")
-		.toLowerCase();
-
-	return highlightTerms.value.some((term) => searchText.includes(term.toLowerCase()));
-}
 
 type HighlightTarget = {
 	rowIndex: number;
@@ -102,7 +65,7 @@ const highlightTargets = computed<HighlightTarget[]>(() => {
 
 				events.forEach((event, eventIndex) => {
 					event.ortho?.forEach((token, tokenIndex) => {
-						if (tokenMatchesCurrentHighlight(token)) {
+						if (token.isKwic) {
 							targets.push({
 								rowIndex,
 								speakerId,
@@ -223,6 +186,24 @@ async function jumpToHighlightedToken(direction: "next" | "prev") {
 		inline: "nearest",
 	});
 }
+
+const isKwicToken = (text: string | null | undefined) =>
+	props.kwicTokens.some((kwicToken) => kwicToken.text?.trim() === text?.trim());
+
+const kwicTokenPositions = computed(() => {
+	const positions = new Set<string>();
+
+	for (const [speakerId, speakerEvents] of Object.entries(props.fileData?.events ?? {})) {
+		speakerEvents.forEach((token, index) => {
+			if (props.kwicTokens.some((kwicToken) => kwicToken.text?.trim() === token.ortho?.trim())) {
+				positions.add(`${speakerId}-${index}`);
+			}
+		});
+	}
+
+	return positions;
+});
+
 const chunkedSpeakerEvents = computed(() => {
 	const fileData = props.fileData;
 	if (!fileData || !props.speakerIds.length) return [];
@@ -259,14 +240,24 @@ const chunkedSpeakerEvents = computed(() => {
 			const existing = eventsByTimestamp.get(key);
 
 			if (existing) {
-				existing.ortho.push({ text: token.ortho, hasTags });
+				existing.ortho.push({
+					text: token.ortho,
+					hasTags,
+					isKwic: isKwicToken(token.ortho),
+				});
 				existing.lu.push({ text: token.text_in_ortho, hasTags });
 				existing.phon.push({ text: token.phon, hasTags });
 			} else {
 				eventsByTimestamp.set(key, {
 					start: token.start_time,
 					end: token.end_time,
-					ortho: [{ text: token.ortho, hasTags }],
+					ortho: [
+						{
+							text: token.ortho,
+							hasTags,
+							isKwic: isKwicToken(token.ortho),
+						},
+					],
 					lu: [{ text: token.text_in_ortho, hasTags }],
 					phon: [{ text: token.phon, hasTags }],
 				});
@@ -304,14 +295,6 @@ const chunkedSpeakerEvents = computed(() => {
 
 	return blocks;
 });
-
-const maxEventsInBlock = (block: Record<number, Event[]>) => {
-	return Math.max(
-		...props.speakerIds
-			.filter((sp) => !props.hiddenSpeakers.has(sp))
-			.map((sp) => block[sp]?.length || 0),
-	);
-};
 
 const rowCount = computed(() => chunkedSpeakerEvents.value.length);
 
@@ -368,15 +351,18 @@ watch(
 
 watch(
 	highlightTargets,
-	async (targets) => {
+	async (targets, oldTargets) => {
 		if (!targets.length) {
-			currentHighlightIndex.value = null;
-			emit("update:current-highlight-index", 0);
+			if (oldTargets?.length) {
+				currentHighlightIndex.value = null;
+				currentHighlightedRowIndex.value = null;
+				resetCurrentSelection();
+				emit("update:current-highlight-index", 0);
+			}
 			return;
 		}
 
 		currentHighlightIndex.value = null;
-
 		await nextTick();
 		await jumpToHighlightedToken("next");
 	},

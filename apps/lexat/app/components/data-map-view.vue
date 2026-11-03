@@ -52,7 +52,6 @@ import {
 
 import CopyToClipboard from "./copy-to-clipboard.vue";
 
-const colorMode = useColorMode();
 const t = useTranslations();
 const router = useRouter();
 const route = useRoute();
@@ -1363,48 +1362,39 @@ watch(
 					:show-counts="false"
 					:show-percentages="showVariantPercentages"
 					:title="t('MapsPage.selection.legend')"
+					:truncate-labels="false"
 				/>
 				<div
 					v-if="features.length"
 					id="regionLegend"
-					class="absolute bottom-2 left-28 z-10 mr-2"
+					class="absolute bottom-2 left-28 z-10 mr-2 rounded-md border border-default bg-default p-3 text-xs text-default shadow-md"
 					data-testid="regionLegend"
 				>
-					<UCard
-						variant="outline"
-						class="text-sm shadow-md"
-						:ui="{
-							root: 'border border-default ring-0',
-							body: 'px-2 py-0.5 sm:px-2 sm:py-0.5',
-						}"
-					>
-						<ul class="gap-3 flex">
-							<li
-								v-for="region in regions.map((r) => ({ ...r, name: t(`Regions.${r.name}`) }))"
-								:key="region.id"
-								class="flex items-center gap-1 cursor-default hover:underline"
-								role="button"
-								tabindex="0"
-								@blur="highlightRegion('')"
-								@focus="highlightRegion(region.name)"
-								@mouseout="highlightRegion('')"
-								@mouseover="highlightRegion(region.name)"
-							>
-								<svg class="inline align-baseline" height="12" width="12">
-									<circle
-										cx="6"
-										cy="6"
-										:fill="region.color"
-										r="5"
-										:stroke="colorMode.value === 'dark' ? 'white' : 'black'"
-										stroke-align="inner"
-										stroke-width="1"
-									/>
-								</svg>
-								<span class="italic">{{ region.name }}</span>
-							</li>
-						</ul>
-					</UCard>
+					<ul class="gap-4 flex">
+						<li
+							v-for="region in regions.map((r) => ({ ...r, name: t(`Regions.${r.name}`) }))"
+							:key="region.id"
+							class="flex items-center gap-2 cursor-default hover:underline"
+							role="button"
+							tabindex="0"
+							@blur="highlightRegion('')"
+							@focus="highlightRegion(region.name)"
+							@mouseout="highlightRegion('')"
+							@mouseover="highlightRegion(region.name)"
+						>
+							<svg aria-hidden="true" class="size-3 shrink-0" viewBox="0 0 12 12">
+								<circle
+									cx="6"
+									cy="6"
+									:fill="region.color"
+									r="5"
+									stroke="currentColor"
+									stroke-width="1"
+								/>
+							</svg>
+							<span class="font-normal">{{ region.name }}</span>
+						</li>
+					</ul>
 				</div>
 				<div id="expand" class="absolute right-2 top-2 z-10">
 					<UButton
@@ -1432,26 +1422,24 @@ watch(
 				<div
 					v-if="filteredPoints?.length && numberOfInformants"
 					id="dataLegend"
-					class="absolute bottom-12 left-0 z-10 ml-2"
+					class="absolute bottom-16 left-0 z-10 ml-2 rounded-md border border-default bg-default p-3 text-xs text-default shadow-md"
 					data-testid="dataLegend"
 				>
-					<UCard
-						variant="outline"
-						class="text-sm shadow-md"
-						:ui="{ root: 'border border-default ring-0', body: 'p-3 sm:p-3' }"
-					>
-						<!-- html2canvas captures SVG icons, but does not support Nuxt Icon's CSS masks. -->
-						<div class="mb-1 flex items-center gap-1" data-testid="datapoints">
-							<UIcon name="i-lucide-map-pin" mode="svg" class="size-4" />
-							{{ t("MapsPage.map.datapoints") }}:
-							{{ filteredPoints.length }}
+					<!-- html2canvas captures SVG icons, but does not support Nuxt Icon's CSS masks. -->
+					<div class="space-y-1">
+						<div class="flex items-center gap-2" data-testid="datapoints">
+							<UIcon name="i-lucide-map-pin" mode="svg" class="size-3 shrink-0" />
+							<span class="font-normal">
+								{{ t("MapsPage.map.datapoints") }}: {{ filteredPoints.length }}
+							</span>
 						</div>
-						<div class="flex items-center gap-1" data-testid="informants">
-							<UIcon name="i-lucide-user" mode="svg" class="size-4" />
-							{{ t("MapsPage.map.informants") }}:
-							{{ numberOfInformants }}
+						<div class="flex items-center gap-2" data-testid="informants">
+							<UIcon name="i-lucide-user" mode="svg" class="size-3 shrink-0" />
+							<span class="font-normal">
+								{{ t("MapsPage.map.informants") }}: {{ numberOfInformants }}
+							</span>
 						</div>
-					</UCard>
+					</div>
 				</div>
 				<GeoMap
 					v-if="height && width"

@@ -12,7 +12,6 @@ import {
 	countRegisters,
 	type DistributionMode,
 	locatePoint,
-	regionalCooccurrences,
 	regionalDistributions,
 	surveyAnswers,
 } from "@/utils/map-insights";
@@ -144,16 +143,6 @@ const distribution = computed(() => {
 const heatMapData = computed(() =>
 	Object.fromEntries(distribution.value.map((entry) => [entry.label, entry.value])),
 );
-const cooccurrences = computed(() => {
-	const counts = regionalCooccurrences(
-		answers.value,
-		selectedVariants.value,
-		distributionMode.value,
-		groups.value,
-	);
-	const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
-	return overview(counts, total).filter((entry) => entry.abs > 0);
-});
 const regionalRows = computed(() =>
 	regionalDistributions(answers.value, distributionMode.value, groups.value),
 );
@@ -264,12 +253,6 @@ const tabItems = computed(() => [
 							>
 						</VariantBar>
 					</div>
-					<VariantOverviewCard
-						:colors="groupColors"
-						:data="cooccurrences"
-						:title="t('VariantOverviewCard.regional-cooccurrences')"
-						:subtitle="t(`VariantOverviewCard.cooccurrences-subtitle-${distributionMode}`)"
-					/>
 					<div class="rounded-lg p-3.5 border border-default">
 						<div class="uppercase font-semibold text-muted text-xs mb-2.5">
 							{{ t("RegionDistributionCard.title") }}

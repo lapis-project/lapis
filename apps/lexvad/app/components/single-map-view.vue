@@ -57,6 +57,7 @@ const { data, legendEntries, uniqueVariants, variantColors } = useMapData(
 				class="absolute bottom-4 right-0 z-10 mr-4 max-h-[70%] overflow-y-auto"
 				:data="legendEntries"
 				:format-count="(count) => t('MapsPage.sidebar.places', count)"
+				:show-counts="false"
 				:title="t('MapsPage.legend.title')"
 			/>
 			<div v-if="height && width" class="w-full h-full">

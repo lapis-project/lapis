@@ -3,6 +3,7 @@ export interface MapLegendEntry {
 	id: string;
 	label: string;
 	color?: string;
+	stroke?: string;
 	count: number;
 	percentage: string | number;
 	italic?: boolean;
@@ -44,7 +45,7 @@ withDefaults(
 							cy="6"
 							:fill="entry.color"
 							r="5"
-							stroke="currentColor"
+							:stroke="entry.stroke ?? 'currentColor'"
 							stroke-width="1"
 						/>
 					</svg>

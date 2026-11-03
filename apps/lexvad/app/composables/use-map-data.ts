@@ -1,5 +1,7 @@
 import type { MapQueryState } from "@/utils/map-query";
 
+const SPECIAL_LEXEMES = ["Sonstige", "Irrelevant", "keine Angabe", "ohne Angabe"];
+
 export function useMapData(
 	mapId: string,
 	datasetId: MaybeRefOrGetter<string>,
@@ -57,7 +59,9 @@ export function useMapData(
 					id: group.id,
 					label: groupDisplayLabel(group),
 					color: getColorForGroup(toValue(datasetId), toValue(question), group),
+					stroke: "#fff",
 					count,
+					italic: !SPECIAL_LEXEMES.includes(groupDisplayLabel(group)),
 					percentage: total > 0 ? ((100 * count) / total).toFixed(0) : "0",
 				};
 			})

@@ -5,6 +5,7 @@ import { HexagonLayer } from "@deck.gl/aggregation-layers";
 import { Deck, WebMercatorViewport } from "@deck.gl/core";
 import { MaskExtension } from "@deck.gl/extensions";
 import {
+	BitmapLayer,
 	GeoJsonLayer,
 	type GeoJsonLayerProps,
 	PolygonLayer,
@@ -22,6 +23,7 @@ import { hexagonRadius, type MapMode } from "@/utils/map-mode";
 
 const regions = regionsJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
 const bundeslaender = bundeslaenderJson as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
+const border = union(regions);
 
 type MapLayer = "none" | "regions" | "bundeslaender";
 
@@ -212,6 +214,72 @@ function createHexagonLayer() {
 	});
 }
 
+const { result: krigingResult, computing: krigingComputing, run: runKriging } = useKriging();
+
+const KRIGING_COLUMNS = 500;
+const KRIGING_UPSAMPLE = 8;
+const KRIGING_MAX_ALPHA = 200;
+
+function updateKriging() {
+	if (mapMode.value !== "kriging") return;
+	const categories = [...new Set(Object.values(props.colors))];
+	const samples = props.data.flatMap((entry) => {
+		const colors = entry.variants
+			.map((variant) => props.colors[variant])
+			.filter((color) => color !== undefined);
+		if (colors.length === 0) return [];
+		return [
+			{
+				coordinates: entry.coordinates,
+				shares: categories.map(
+					(category) => colors.filter((color) => color === category).length / colors.length,
+				),
+			},
+		];
+	});
+	runKriging({
+		categories,
+		samples,
+		bounds: bbox(regions) as [number, number, number, number],
+		columns: KRIGING_COLUMNS,
+		upsample: KRIGING_UPSAMPLE,
+		clip: border
+			? ((border.geometry.type === "Polygon"
+					? border.geometry.coordinates
+					: border.geometry.coordinates.flat()) as Array<Array<[number, number]>>)
+			: undefined,
+	});
+}
+
+// Dominant variant colour per cell, faded by how clearly it beats the runner-up.
+const krigingImage = computed(() => {
+	const result = krigingResult.value;
+	if (!result) return null;
+	const palette = result.categories.map((color) => hexToRgb(color));
+	const image = new ImageData(result.width, result.height);
+	const { data } = image;
+	result.dominant.forEach((category, pixel) => {
+		const [r = 0, g = 0, b = 0] = palette[category] ?? [];
+		data[pixel * 4] = r;
+		data[pixel * 4 + 1] = g;
+		data[pixel * 4 + 2] = b;
+		data[pixel * 4 + 3] = KRIGING_MAX_ALPHA * (0.3 + 0.7 * result.margin[pixel]!);
+	});
+	return image;
+});
+
+function createKrigingLayer() {
+	if (!krigingImage.value || !krigingResult.value) return null;
+	return new BitmapLayer({
+		id: "KrigingLayer",
+		image: krigingImage.value,
+		bounds: krigingResult.value.bounds,
+		textureParameters: { minFilter: "linear", magFilter: "linear" },
+		extensions: [new MaskExtension()],
+		maskId: "bordermask",
+	});
+}
+
 type RegionProperties = (typeof regions)["features"][0]["properties"];
 export type RegionFeature = GeoJSON.Feature<GeoJSON.Polygon, RegionProperties>;
 export type BundeslandFeature = (typeof bundeslaender)["features"][0];
@@ -265,7 +333,6 @@ function createOverlayLayers() {
 }
 
 function createMaskLayer() {
-	const border = union(regions);
 	if (!border) return;
 	return new GeoJsonLayer({
 		id: "bordermask",
@@ -286,6 +353,13 @@ function createLayers() {
 				createMaskLayer(),
 				...overlayLayers,
 				createVoronoiLayer(),
+				createScatterplotLayer(true),
+			];
+		case "kriging":
+			return [
+				createMaskLayer(),
+				...overlayLayers,
+				createKrigingLayer(),
 				createScatterplotLayer(true),
 			];
 	}
@@ -362,6 +436,8 @@ onMounted(() => {
 		},
 		layers: createLayers(),
 	});
+
+	updateKriging();
 });
 
 watch(
@@ -370,6 +446,12 @@ watch(
 		deck?.setProps({ layers: createLayers() });
 	},
 );
+
+watch(() => [props.data, props.colors, mapMode.value], updateKriging);
+
+watch(krigingImage, () => {
+	deck?.setProps({ layers: createLayers() });
+});
 
 onBeforeUnmount(() => {
 	const gl = deckCanvas.value?.getContext("webgl2");
@@ -385,6 +467,12 @@ const t = useTranslations();
 const areaMapModeItems = [
 	{ label: t("MapsPage.controls.point-map"), value: "point", icon: "i-lucide-map-pin" },
 	{ label: t("MapsPage.controls.voronoi"), value: "voronoi", icon: "i-gis-polygon-o" },
+	{
+		label: t("MapsPage.controls.kriging"),
+		value: "kriging",
+		icon: "i-carbon-heat-map-02",
+		tooltip: t("MapsPage.controls.kriging-tooltip"),
+	},
 	{ label: t("MapsPage.controls.hexagon"), value: "hexagon", icon: "i-lucide-hexagon" },
 ];
 
@@ -427,6 +515,17 @@ const layerItems = computed(() =>
 				}"
 				variant="pill"
 			>
+				<template #default="{ item }">
+					<UTooltip
+						v-if="item.tooltip"
+						:content="{ side: 'bottom' }"
+						:text="item.tooltip"
+						:ui="{ content: 'h-auto max-w-xs', text: 'whitespace-normal' }"
+					>
+						<span>{{ item.label }}</span>
+					</UTooltip>
+					<template v-else>{{ item.label }}</template>
+				</template>
 			</UTabs>
 			<template v-if="mapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
@@ -443,6 +542,11 @@ const layerItems = computed(() =>
 				</USlider>
 				<span class="text-muted-foreground mr-4">{{ (radius / 1000).toFixed(1) }} km</span>
 			</template>
+			<UIcon
+				v-if="mapMode === 'kriging' && krigingComputing"
+				class="size-4 mr-3 animate-spin text-muted-foreground"
+				name="i-lucide-loader-circle"
+			/>
 		</div>
 		<div class="absolute top-4 left-4 z-20 flex gap-4 flex-col">
 			<div class="bg-card border border-border rounded-lg text-xs shadow-lg flex flex-col">

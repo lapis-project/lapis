@@ -180,6 +180,8 @@
 			"area-map": "Flächenkarte",
 			"voronoi": "Voronoi",
 			"hexagon": "Hexagon",
+			"kriging": "Areale",
+			"kriging-tooltip": "Interpoliert für jeden Ort die wahrscheinlichste Variante aus den umliegenden Datenpunkten (Kriging). Blassere Farben bedeuten, dass die Varianten dort stärker gemischt sind.",
 			"layers": {
 				"none": "Keine Ebenen",
 				"regions": "Dialektregionen",

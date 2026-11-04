@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { BookmarkIcon, CopyIcon, DownloadIcon } from "@lucide/vue";
-import { AccordionContent, AccordionItem, AccordionRoot, AccordionTrigger } from "reka-ui";
+import { useRoute } from "vue-router";
 import { toast } from "vue-sonner";
 
 import type { APITranscriptsWithBookmark, KwicLine, SearchParams } from "@/types/api";
@@ -17,6 +17,25 @@ const emit = defineEmits<{
 }>();
 
 const { response, isPending, fetchTranscriptHits, generateCacheKey } = useHitsPerTranscript(2);
+const route = useRoute();
+
+const allowedTranscriptRouteQueryKeys = new Set([
+	"mode",
+	"word",
+	"lemma",
+	"page",
+	"fromp",
+	"pos",
+	"feats",
+]);
+
+const transcriptRouteQuery = computed(() =>
+	Object.fromEntries(
+		Object.entries(route.query).filter(
+			([key, value]) => allowedTranscriptRouteQueryKeys.has(key) && value != null && value !== "",
+		),
+	),
+);
 
 function getKwicTextTokenValue(token: { str?: string; strc?: string } | undefined) {
 	return token?.str ?? token?.strc ?? "";
@@ -78,6 +97,7 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 						class="text-black underline decoration-dotted transition hover:no-underline focus-visible:no-underline hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-offset-2"
 						:href="{
 							path: transcript.instance_id ? `/transcripts/${transcript.instance_id}` : '',
+							query: transcriptRouteQuery,
 						}"
 					>
 						{{ transcript.transcript_name ?? `Transcript ${transcript.instance_id}` }}
@@ -172,7 +192,9 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 													class="block min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
 												>
 													{{
-														line.Left?.map((token) => getKwicTextTokenValue(token)).join(" ") || ""
+														line.Left?.map((token: { str?: string; strc?: string }) =>
+															getKwicTextTokenValue(token),
+														).join(" ") || ""
 													}}
 												</span>
 											</div>
@@ -183,7 +205,11 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 												<span
 													class="block min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
 												>
-													{{ line.Kwic?.map((token) => token.str ?? "").join(" ") || "" }}
+													{{
+														line.Kwic?.map((token: { str?: string }) => token.str ?? "").join(
+															" ",
+														) || ""
+													}}
 												</span>
 											</div>
 
@@ -194,7 +220,9 @@ async function toggleTranscriptHits(id: number, params: SearchParams) {
 													class="block min-w-0 max-w-full overflow-hidden text-ellipsis whitespace-nowrap"
 												>
 													{{
-														line.Right?.map((token) => getKwicTextTokenValue(token)).join(" ") || ""
+														line.Right?.map((token: { str?: string; strc?: string }) =>
+															getKwicTextTokenValue(token),
+														).join(" ") || ""
 													}}
 												</span>
 											</div>

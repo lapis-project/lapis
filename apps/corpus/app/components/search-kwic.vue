@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Undo2, CircleQuestionMarkIcon } from "@lucide/vue";
+import { CircleQuestionMarkIcon, X } from "@lucide/vue";
 
 const mode = ref<"simple" | "regex">("simple");
 
@@ -15,6 +15,10 @@ const form = reactive({
 const emit = defineEmits<{
 	(e: "search"): void;
 }>();
+
+const hasSearchInput = computed(() =>
+	Boolean(form.word.trim() || form.lemma.trim() || form.pos.trim()),
+);
 
 function syncFormFromRoute() {
 	const query = route.query;
@@ -95,11 +99,11 @@ watch(
 		>
 			<div class="grid grid-rows-3 gap-4">
 				<div class="flex flex-col gap-1">
-					<Label>Wordform</Label>
+					<Label>Wortform</Label>
 					<div class="flex gap-2">
 						<Input v-model="form.word" placeholder="zB. gehen" />
 						<Button type="button" size="icon" variant="outline" @click="clearField('word')">
-							<Undo2 class="size-4" />
+							<X class="size-4" />
 						</Button>
 					</div>
 				</div>
@@ -109,7 +113,7 @@ watch(
 					<div class="flex gap-2">
 						<Input v-model="form.lemma" placeholder="zB. gehen" />
 						<Button type="button" size="icon" variant="outline" @click="clearField('lemma')">
-							<Undo2 class="size-4" />
+							<X class="size-4" />
 						</Button>
 					</div>
 				</div>
@@ -120,7 +124,9 @@ watch(
 						<TooltipProvider>
 							<Tooltip>
 								<TooltipTrigger as-child>
-									<CircleQuestionMarkIcon :size="16" class="text-gray-400 hover:text-gray-500" />
+									<button>
+										<CircleQuestionMarkIcon :size="16" class="text-gray-400 hover:text-gray-500" />
+									</button>
 								</TooltipTrigger>
 								<TooltipContent> Part-of-speech </TooltipContent>
 							</Tooltip>
@@ -129,35 +135,37 @@ watch(
 					<div class="flex gap-2">
 						<Input v-model="form.pos" placeholder="zB. VERB" />
 						<Button type="button" size="icon" variant="outline" @click="clearField('pos')">
-							<Undo2 class="size-4" />
+							<X class="size-4" />
 						</Button>
 					</div>
 				</div>
 			</div>
 
 			<Separator></Separator>
-			<div class="flex items-center my-3">
-				<div class="flex gap-2 w-full justify-center">
-					<Button
-						type="button"
-						size="sm"
-						:variant="mode === 'simple' ? 'default' : 'ghost'"
-						@click="mode = 'simple'"
-					>
-						Simple
-					</Button>
 
-					<Button
-						type="button"
-						size="sm"
-						:variant="mode === 'regex' ? 'default' : 'ghost'"
-						@click="mode = 'regex'"
-					>
-						Regex
-					</Button>
-				</div>
+			<div class="flex flex-col gap-1">
+				<Label>Mode</Label>
+				<Select
+					:model-value="mode"
+					@update:model-value="(value) => (mode = value as 'simple' | 'regex')"
+				>
+					<SelectTrigger class="w-full">
+						<SelectValue placeholder="Search mode" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="simple">Simple</SelectItem>
+						<SelectItem value="regex">Regex</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
-			<Button type="submit"> Suchen </Button>
+
+			<Button
+				:variant="!hasSearchInput ? 'secondary' : 'default'"
+				type="submit"
+				:disabled="!hasSearchInput"
+			>
+				Suchen
+			</Button>
 		</form>
 	</div>
 </template>

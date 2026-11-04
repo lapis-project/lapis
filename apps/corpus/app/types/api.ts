@@ -66,6 +66,7 @@ export type TimestampEvent = {
 export interface EventToken {
 	text: string | null;
 	hasTags: boolean;
+	isKwic?: boolean;
 }
 
 export type SearchParams = {

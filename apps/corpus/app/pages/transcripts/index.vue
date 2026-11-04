@@ -23,7 +23,16 @@ const currentSearchParams = ref<SearchParams | null>(null);
 
 const bookmarkedIds = ref<Array<string>>([]);
 
-const { response: searchResponse, search, status, isPending } = useSearch(2);
+const { response: searchResponse, search, isPending } = useSearch(2);
+
+const {
+	filterParams,
+	activeFilterTagEntries,
+	activeFilterCount,
+	hasKwicSearch,
+	removeFilterTag,
+	clearAllFilterTags,
+} = useActiveFilterTags();
 
 const transcripts = computed(() => {
 	if (route.query.gender === "divers") return null;
@@ -83,23 +92,6 @@ const kwic = computed(() => {
 });
 
 const limit = 50;
-const totalPages = computed(() => {
-	return kwic.value?.concsize ? Math.ceil(kwic.value.concsize / limit) : 0;
-});
-
-const currentPage = computed({
-	get: () => Number(route.query.page ?? 1),
-	set: (page: number) => {
-		const safePage = Math.min(Math.max(page, 1), totalPages.value || 1);
-		router.push({
-			query: {
-				...route.query,
-				page: String(safePage),
-				fromp: String(safePage),
-			},
-		});
-	},
-});
 
 const searchResults = ref<Array<APITranscript>>(initialData.transcripts);
 const showFirstColumn = ref(true);
@@ -168,31 +160,9 @@ watch(
 );
 
 watch(
-	() => route.query,
+	() => filterParams.value,
 	async (q) => {
-		const filters: SearchParams = {
-			word: q.word as string,
-			query: q.query as string,
-			lemma: q.lemma as string,
-			pos: q.pos as string,
-			mode: (q.mode as "simple" | "regex") ?? "simple",
-			feats: q.feats as string,
-			fromp: (q.fromp as string) ?? "1",
-			pagesize: String(limit),
-			locations: [Number(q.locations)],
-			state: q.state ? Number(q.state) : undefined,
-			gender: q.gender ? (q.gender as string) : undefined,
-			dialect_competence: q.dialect_competence ? Number(q.dialect_competence) : undefined,
-			standard_competence: q.standard_competence ? Number(q.standard_competence) : undefined,
-			age_lower: q.age_lower ? Number(q.age_lower) : undefined,
-			age_upper: q.age_upper ? Number(q.age_upper) : undefined,
-			projects: q.projects ? [Number(q.projects)] : undefined,
-			settings: q.settings ? [Number(q.settings)] : undefined,
-			transcript_name: q.transcript_name ? String(q.transcript_name) : undefined,
-			transcript_ids: q.instance_id ? [Number(q.instance_id)] : undefined,
-			has_bkms: q.has_bkms === "true",
-		};
-		const hasSearchFilters = Object.values(filters).some((value) => {
+		const hasSearchFilters = Object.values(q).some((value) => {
 			if (value === undefined || value === null) {
 				return false;
 			}
@@ -203,8 +173,8 @@ watch(
 		});
 
 		if (hasSearchFilters) {
-			await search(filters);
-			currentSearchParams.value = filters;
+			await search(q);
+			currentSearchParams.value = q;
 		}
 	},
 	{
@@ -212,14 +182,6 @@ watch(
 		deep: true,
 	},
 );
-
-const hasKwicSearch = computed(() => {
-	const q = route.query;
-	return Boolean(q.word || q.query || q.lemma || q.pos || q.feats || q.comment_search || q.mode);
-});
-
-const { activeFilterTagEntries, activeFilterCount, removeFilterTag, clearAllFilterTags } =
-	useActiveFilterTags();
 </script>
 
 <template>
@@ -278,32 +240,7 @@ const { activeFilterTagEntries, activeFilterCount, removeFilterTag, clearAllFilt
 								<Spinner />
 							</div>
 							<div class="ml-auto flex flex-wrap items-center justify-end gap-2">
-								<div v-if="activeFilterCount > 0" class="flex flex-wrap items-center gap-2">
-									<div
-										v-for="tag in activeFilterTagEntries"
-										:key="`${tag.key}-${tag.value}`"
-										class="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-foreground px-2.5 py-1 text-xs font-medium text-white"
-									>
-										<span>{{ tag.label }}</span>
-										<button
-											type="button"
-											class="inline-flex size-4 items-center justify-center rounded-full hover:bg-foreground/10"
-											:aria-label="`Filter ${tag.label} entfernen`"
-											@click="removeFilterTag(tag.key, tag.value)"
-										>
-											<X class="size-3" />
-										</button>
-									</div>
-									<Button
-										variant="outline"
-										size="sm"
-										class="h-7 px-2 text-xs"
-										@click="clearAllFilterTags"
-									>
-										Alle löschen
-									</Button>
-									<span class="text-foreground/10">|</span>
-								</div>
+								<FilterBadgeList />
 								<Button variant="ghost" size="sm" class="h-7 px-2 text-xs gap-2">
 									<DownloadIcon class="size-4" />
 								</Button>

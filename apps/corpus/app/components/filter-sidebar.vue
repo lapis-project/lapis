@@ -1,13 +1,6 @@
 ```vue
 <script setup lang="ts">
-import {
-	BookmarkIcon,
-	CircleQuestionMarkIcon,
-	FileText,
-	Folder,
-	FolderOpen,
-	Undo2,
-} from "@lucide/vue";
+import { BookmarkIcon, CircleQuestionMarkIcon, FileText, Folder, FolderOpen, X } from "@lucide/vue";
 import { TreeItem, TreeRoot } from "reka-ui";
 
 import { usePlaces } from "#imports";
@@ -211,8 +204,6 @@ const activeFilterCount = computed(() => {
 	return count;
 });
 
-const hasActiveFilters = computed(() => activeFilterCount.value > 0);
-
 const projectOptions = computed<Array<{ label: string; value: string }>>(() => {
 	return (filter.value?.projects ?? [])
 		.filter((project) => project.name != null)
@@ -316,29 +307,6 @@ function handleBookmark(transcript: FilterSidebarTranscript) {
 function handleSelection(id: string) {
 	emit("handleSelection", id);
 }
-
-function clearAllFilters() {
-	const query = { ...route.query };
-
-	for (const key of [
-		"projects",
-		"settings",
-		"locations",
-		"state",
-		"gender",
-		"age_lower",
-		"age_upper",
-		"standard_competence",
-		"dialect_competence",
-		"has_bkms",
-		"transcript_name",
-		"instance_id",
-	]) {
-		delete query[key];
-	}
-
-	return router.replace({ query });
-}
 </script>
 
 <template>
@@ -410,7 +378,7 @@ function clearAllFilters() {
 							<div class="flex gap-2">
 								<Input id="name-input" v-model="searchName" placeholder="Transkriptname eingeben" />
 								<Button size="icon" variant="outline" @click="searchName = ''">
-									<Undo2 class="size-4" />
+									<X class="size-4" />
 								</Button>
 							</div>
 						</div>
@@ -420,7 +388,7 @@ function clearAllFilters() {
 							<div class="flex gap-2">
 								<Input id="id-input" v-model="searchId" placeholder="Transkript ID eingeben" />
 								<Button size="icon" variant="outline" @click="searchId = ''">
-									<Undo2 class="size-4" />
+									<X class="size-4" />
 								</Button>
 							</div>
 						</div>
@@ -436,7 +404,7 @@ function clearAllFilters() {
 								placeholder="Projektkontext wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeContext = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -451,7 +419,7 @@ function clearAllFilters() {
 								placeholder="Setting wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeSetting = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -468,7 +436,7 @@ function clearAllFilters() {
 								placeholder="Ort wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeLocation = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -483,7 +451,7 @@ function clearAllFilters() {
 								placeholder="Bundesland wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeState = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -501,7 +469,7 @@ function clearAllFilters() {
 								placeholder="Altersgruppe wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeAgeGroup = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -516,7 +484,7 @@ function clearAllFilters() {
 								placeholder="Geschlecht wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeGender = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -536,10 +504,12 @@ function clearAllFilters() {
 								<TooltipProvider>
 									<Tooltip>
 										<TooltipTrigger as-child>
-											<CircleQuestionMarkIcon
-												:size="16"
-												class="text-gray-400 hover:text-gray-500"
-											/>
+											<button>
+												<CircleQuestionMarkIcon
+													:size="16"
+													class="text-gray-400 hover:text-gray-500"
+												/>
+											</button>
 										</TooltipTrigger>
 										<TooltipContent>
 											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)
@@ -581,10 +551,12 @@ function clearAllFilters() {
 								<TooltipProvider>
 									<Tooltip>
 										<TooltipTrigger as-child>
-											<CircleQuestionMarkIcon
-												:size="16"
-												class="text-gray-400 hover:text-gray-500"
-											/>
+											<button>
+												<CircleQuestionMarkIcon
+													:size="16"
+													class="text-gray-400 hover:text-gray-500"
+												/>
+											</button>
 										</TooltipTrigger>
 										<TooltipContent>
 											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)

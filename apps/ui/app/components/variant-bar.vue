@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
 	color?: string;
+	percentage: string;
 	secondary?: string;
 	/** Show counts below the label when horizontal space is limited. */
 	stacked?: boolean;
@@ -23,7 +24,7 @@ defineProps<{
 				:class="{ 'w-full justify-between': stacked }"
 			>
 				<span class="text-muted">{{ secondary }}</span>
-				<span>{{ (value * 100).toFixed(0) }}%</span>
+				<span>{{ percentage }}%</span>
 				<slot name="actions"></slot>
 			</span>
 		</div>

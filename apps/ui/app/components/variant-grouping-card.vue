@@ -10,7 +10,7 @@ import {
 } from "../utils/variant-groups";
 
 const props = defineProps<{
-	data: Array<{ id: string; label: string; value: number; secondary?: string }>;
+	data: Array<{ id: string; label: string; value: number; percentage: string; secondary?: string }>;
 	variants: Array<{ label: string; abs: number }>;
 	title?: string;
 	colors: Record<string, string>;
@@ -125,6 +125,7 @@ function commitRenaming(group: VariantGroup) {
 			<VariantBar
 				v-if="group.variants.length > 1"
 				:color="colors[group.id]"
+				:percentage="entryFor(group)?.percentage ?? '0'"
 				:secondary="entryFor(group)?.secondary"
 				:value="entryFor(group)?.value ?? 0"
 			>
@@ -194,6 +195,7 @@ function commitRenaming(group: VariantGroup) {
 						<VariantBar
 							v-else
 							:color="colors[group.id]"
+							:percentage="entryFor(group)?.percentage ?? '0'"
 							:secondary="entryFor(group)?.secondary"
 							:value="entryFor(group)?.value ?? 0"
 						>

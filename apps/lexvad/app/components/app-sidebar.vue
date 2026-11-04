@@ -2,6 +2,7 @@
 import { X } from "@lucide/vue";
 
 import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
+import { getPercentagesByKey } from "#layers/ui/app/utils/variant-percentages";
 import { useMapDataset } from "@/stores/use-dataset-store";
 
 const open = defineModel<boolean>("open", { default: false });
@@ -54,6 +55,7 @@ const groups = computed({
 const groupCount = computed(() => {
 	const counts = countAnswersForGroups(props.activeQuestion, groups.value);
 	const total = Object.values(counts).reduce((prev, curr) => prev + curr, 0);
+	const percentages = getPercentagesByKey(counts);
 	return groups.value
 		.map((group) => {
 			const abs = counts[group.id] ?? 0;
@@ -62,6 +64,7 @@ const groupCount = computed(() => {
 				label: groupDisplayLabel(group),
 				abs,
 				value: total > 0 ? abs / total : 0,
+				percentage: percentages.get(group.id) ?? "0",
 				secondary: `${t("MapsPage.sidebar.places", abs)}`,
 			};
 		})
@@ -109,12 +112,14 @@ const cooccurrences = computed(() => {
 	);
 	const total = Object.values(regionalCooccurrences).reduce((a, b) => a + b, 0);
 	const labels = byGroup(groups.value, groupDisplayLabel);
+	const percentages = getPercentagesByKey(regionalCooccurrences);
 	return Object.entries(regionalCooccurrences)
 		.toSorted((a, b) => b[1] - a[1])
 		.map(([id, count]) => ({
 			id,
 			label: labels[id] ?? id,
 			value: count / total,
+			percentage: percentages.get(id) ?? "0",
 			secondary: `${t("MapsPage.sidebar.places", count)}`,
 		}));
 });

@@ -5,6 +5,7 @@ import type { Feature, MultiPolygon, Polygon } from "geojson";
 import statesJson from "#layers/ui/app/assets/data/bundeslaender.json";
 import regionsJson from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json";
 import { groupDisplayLabel, type VariantGroup } from "#layers/ui/app/utils/variant-groups";
+import { getPercentagesByKey } from "#layers/ui/app/utils/variant-percentages";
 import type { SurveyResponse } from "@/types/feature-collection";
 import {
 	countGroups,
@@ -56,6 +57,7 @@ const groupColors = computed(() =>
 );
 
 function overview(counts: Record<string, number>, total: number) {
+	const percentages = getPercentagesByKey(counts);
 	return groups.value
 		.map((group) => {
 			const abs = counts[group.id] ?? 0;
@@ -64,6 +66,7 @@ function overview(counts: Record<string, number>, total: number) {
 				label: groupDisplayLabel(group),
 				abs,
 				value: total > 0 ? abs / total : 0,
+				percentage: percentages.get(group.id) ?? "0",
 				secondary: t("MapsPage.sidebar.answers", abs),
 			};
 		})
@@ -79,17 +82,20 @@ const variantCount = computed(() => {
 		counts.set(answer.annotation, (counts.get(answer.annotation) ?? 0) + 1);
 	return [...counts].map(([label, abs]) => ({ label, abs }));
 });
-const registerCount = computed(() =>
-	Object.entries(countRegisters(answers.value))
+const registerCount = computed(() => {
+	const counts = countRegisters(answers.value);
+	const percentages = getPercentagesByKey(counts);
+	return Object.entries(counts)
 		.map(([register, abs]) => ({
 			id: register,
 			label: register || t("RegisterGroupingCard.unspecified"),
 			abs,
 			value: answers.value.length > 0 ? abs / answers.value.length : 0,
+			percentage: percentages.get(register) ?? "0",
 			secondary: t("MapsPage.sidebar.answers", abs),
 		}))
-		.toSorted((a, b) => b.value - a.value),
-);
+		.toSorted((a, b) => b.value - a.value);
+});
 
 const selectedGroupId = ref("");
 watch(
@@ -132,11 +138,13 @@ const modeItems = computed(() => [
 const distribution = computed(() => {
 	const counts = countRegions(answers.value, selectedVariants.value, distributionMode.value);
 	const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+	const percentages = getPercentagesByKey(counts);
 	return Object.entries(counts)
 		.map(([label, count]) => ({
 			id: label,
 			label,
 			value: total > 0 ? count / total : 0,
+			percentage: percentages.get(label) ?? "0",
 			secondary: t("MapsPage.sidebar.answers", count),
 		}))
 		.toSorted((a, b) => b.value - a.value);
@@ -246,6 +254,7 @@ const tabItems = computed(() => [
 						<VariantBar
 							v-for="entry in distribution"
 							:key="entry.id"
+							:percentage="entry.percentage"
 							:secondary="entry.secondary"
 							:value="entry.value"
 						>

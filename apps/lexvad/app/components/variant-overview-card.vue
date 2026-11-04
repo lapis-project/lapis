@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-	data: Array<{ id: string; label: string; value: number; secondary?: string }>;
+	data: Array<{ id: string; label: string; value: number; percentage: string; secondary?: string }>;
 	title?: string;
 	subtitle?: string;
 	colors: Record<string, string>;
@@ -21,6 +21,7 @@ const t = useTranslations();
 			v-for="entry in data"
 			:key="entry.id"
 			:color="colors[entry.id]"
+			:percentage="entry.percentage"
 			:secondary="entry.secondary"
 			:value="entry.value"
 		>

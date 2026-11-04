@@ -1,3 +1,4 @@
+import { getPercentagesByKey } from "#layers/ui/app/utils/variant-percentages";
 import type { MapQueryState } from "@/utils/map-query";
 
 const SPECIAL_LEXEMES = ["Sonstige", "Irrelevant", "keine Angabe", "ohne Angabe"];
@@ -46,7 +47,7 @@ export function useMapData(
 
 	const legendEntries = computed(() => {
 		const counts = countAnswersForGroups(toValue(question), variantGroups.value);
-		const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+		const percentages = getPercentagesByKey(counts);
 		const selected = toValue(activeVariants);
 		return variantGroups.value
 			.filter(
@@ -62,7 +63,7 @@ export function useMapData(
 					stroke: "#fff",
 					count,
 					italic: !SPECIAL_LEXEMES.includes(groupDisplayLabel(group)),
-					percentage: total > 0 ? ((100 * count) / total).toFixed(0) : "0",
+					percentage: percentages.get(group.id) ?? "0",
 				};
 			})
 			.toSorted((a, b) => b.count - a.count);

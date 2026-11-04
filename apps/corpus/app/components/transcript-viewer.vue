@@ -372,26 +372,42 @@ watch(
 
 <template>
 	<div class="relative min-h-0 max-h-full h-full overflow-hidden">
-		<div class="absolute h-full right-6 py-4 z-50 flex flex-col gap-2">
-			<Button
-				variant="default"
-				size="icon"
-				class="shadow-lg bg-accent-foreground hover:!bg-highlight"
-				title="Zum Anfang springen"
-				@click="scrollToTop"
-			>
-				<ArrowUpIcon class="size-4" />
-			</Button>
+		<div class="absolute h-full justify-between right-6 py-4 z-50 flex flex-col gap-2">
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger>
+						<Button
+							variant="default"
+							size="icon"
+							class="shadow-lg bg-accent-foreground hover:!bg-highlight"
+							@click="scrollToTop"
+						>
+							<ArrowUpIcon class="size-4" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						<p>Zum Anfang springen</p>
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 
-			<Button
-				variant="default"
-				size="icon"
-				class="shadow-lg mt-auto bg-accent-foreground hover:!bg-highlight"
-				title="Zum Ende springen"
-				@click="scrollToBottom"
-			>
-				<ArrowDownIcon class="size-4" />
-			</Button>
+			<TooltipProvider>
+				<Tooltip>
+					<TooltipTrigger>
+						<Button
+							variant="default"
+							size="icon"
+							class="shadow-lg mt-auto bg-accent-foreground hover:!bg-highlight"
+							@click="scrollToBottom"
+						>
+							<ArrowDownIcon class="size-4" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						<p>Zum Ende springen</p>
+					</TooltipContent>
+				</Tooltip>
+			</TooltipProvider>
 		</div>
 		<div v-if="!chunkedSpeakerEvents.length" class="h-fit item-center m-auto">
 			<Spinner />

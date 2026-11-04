@@ -1,13 +1,6 @@
 ```vue
 <script setup lang="ts">
-import {
-	BookmarkIcon,
-	CircleQuestionMarkIcon,
-	FileText,
-	Folder,
-	FolderOpen,
-	Undo2,
-} from "@lucide/vue";
+import { BookmarkIcon, CircleQuestionMarkIcon, FileText, Folder, FolderOpen, X } from "@lucide/vue";
 import { TreeItem, TreeRoot } from "reka-ui";
 
 import { usePlaces } from "#imports";
@@ -385,7 +378,7 @@ function handleSelection(id: string) {
 							<div class="flex gap-2">
 								<Input id="name-input" v-model="searchName" placeholder="Transkriptname eingeben" />
 								<Button size="icon" variant="outline" @click="searchName = ''">
-									<Undo2 class="size-4" />
+									<X class="size-4" />
 								</Button>
 							</div>
 						</div>
@@ -395,7 +388,7 @@ function handleSelection(id: string) {
 							<div class="flex gap-2">
 								<Input id="id-input" v-model="searchId" placeholder="Transkript ID eingeben" />
 								<Button size="icon" variant="outline" @click="searchId = ''">
-									<Undo2 class="size-4" />
+									<X class="size-4" />
 								</Button>
 							</div>
 						</div>
@@ -411,7 +404,7 @@ function handleSelection(id: string) {
 								placeholder="Projektkontext wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeContext = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -426,7 +419,7 @@ function handleSelection(id: string) {
 								placeholder="Setting wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeSetting = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -443,7 +436,7 @@ function handleSelection(id: string) {
 								placeholder="Ort wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeLocation = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -458,7 +451,7 @@ function handleSelection(id: string) {
 								placeholder="Bundesland wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeState = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -476,7 +469,7 @@ function handleSelection(id: string) {
 								placeholder="Altersgruppe wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeAgeGroup = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -491,7 +484,7 @@ function handleSelection(id: string) {
 								placeholder="Geschlecht wählen..."
 							/>
 							<Button size="icon" variant="outline" @click="activeGender = undefined">
-								<Undo2 class="size-4" />
+								<X class="size-4" />
 							</Button>
 						</div>
 					</div>
@@ -511,10 +504,12 @@ function handleSelection(id: string) {
 								<TooltipProvider>
 									<Tooltip>
 										<TooltipTrigger as-child>
-											<CircleQuestionMarkIcon
-												:size="16"
-												class="text-gray-400 hover:text-gray-500"
-											/>
+											<button>
+												<CircleQuestionMarkIcon
+													:size="16"
+													class="text-gray-400 hover:text-gray-500"
+												/>
+											</button>
 										</TooltipTrigger>
 										<TooltipContent>
 											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)
@@ -556,10 +551,12 @@ function handleSelection(id: string) {
 								<TooltipProvider>
 									<Tooltip>
 										<TooltipTrigger as-child>
-											<CircleQuestionMarkIcon
-												:size="16"
-												class="text-gray-400 hover:text-gray-500"
-											/>
+											<button>
+												<CircleQuestionMarkIcon
+													:size="16"
+													class="text-gray-400 hover:text-gray-500"
+												/>
+											</button>
 										</TooltipTrigger>
 										<TooltipContent>
 											Selbstauskunft auf einer siebenstufigen Skala (Deutsch)

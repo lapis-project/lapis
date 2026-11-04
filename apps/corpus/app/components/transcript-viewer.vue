@@ -190,20 +190,6 @@ async function jumpToHighlightedToken(direction: "next" | "prev") {
 const isKwicToken = (text: string | null | undefined) =>
 	props.kwicTokens.some((kwicToken) => kwicToken.text?.trim() === text?.trim());
 
-const kwicTokenPositions = computed(() => {
-	const positions = new Set<string>();
-
-	for (const [speakerId, speakerEvents] of Object.entries(props.fileData?.events ?? {})) {
-		speakerEvents.forEach((token, index) => {
-			if (props.kwicTokens.some((kwicToken) => kwicToken.text?.trim() === token.ortho?.trim())) {
-				positions.add(`${speakerId}-${index}`);
-			}
-		});
-	}
-
-	return positions;
-});
-
 const chunkedSpeakerEvents = computed(() => {
 	const fileData = props.fileData;
 	if (!fileData || !props.speakerIds.length) return [];

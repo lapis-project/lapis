@@ -38,11 +38,7 @@ const currentId = computed<number | null>(() => {
 const transcriptViewer = useTemplateRef("transcriptViewer");
 const currentHighlightIndex = ref(0);
 
-const {
-	response: previewResponse,
-	isPending: previewIsPending,
-	refreshTranscripts: refreshPreview,
-} = useTranscriptPreview(currentId);
+const { response: previewResponse, isPending: previewIsPending } = useTranscriptPreview(currentId);
 
 const speakerIds = computed(() => {
 	return previewResponse.value?.unique_informant_ids.map((sp) => sp) ?? [];
@@ -344,10 +340,13 @@ watch(
 									class="mb-3 rounded border border-foreground/10 bg-muted/40 p-2"
 								>
 									<p class="text-[10px] uppercase tracking-wide text-gray-500">KWIC-Treffer</p>
-									<div v--if="!isPending" class="mt-1 flex items-baseline justify-between gap-2">
+									<div v-if="isPending(currentId!, filterParams)" class="item-center m-auto py-2">
+										<Spinner />
+									</div>
+									<div v-else class="mt-1 flex items-baseline justify-between gap-2">
 										<span class="text-lg font-semibold text-accent-foreground">{{ hits }}</span>
 
-										<div class="flex items-center gap-1">
+										<div v-if="currentHighlightIndex !== 0" class="flex items-center gap-1">
 											<Button
 												variant="ghost"
 												size="icon"
@@ -375,12 +374,12 @@ watch(
 									</div>
 								</div>
 
-								<div class="mb-4 rounded border border-foreground/10 bg-muted/30 p-2">
-									<p class="mb-2 text-xs text-gray-500">Word / Lemma / POS</p>
+								<div class="pb-4 rounded border-t border-b border-foreground/10">
+									<p class="pt-2 text-xs text-gray-500">Word / Lemma / POS</p>
 									<SearchKwic />
 								</div>
 
-								<div class="flex flex-col gap-2 text-sm">
+								<div class="flex flex-col gap-2 pt-2 text-sm">
 									<p class="text-xs text-gray-500">Spuren</p>
 
 									<div class="flex items-center gap-2 py-1">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Event, TimestampEvent } from "@/types/api";
+import type { TimestampEvent } from "@/types/api";
 
 const props = defineProps<{
 	block: TimestampEvent | undefined;
@@ -17,46 +17,6 @@ const props = defineProps<{
 		tokenIndex: number,
 	) => number;
 }>();
-
-const route = useRoute();
-
-const highlightTerms = computed(() => {
-	const query = route.query;
-	const rawTerms: Array<string> = [];
-
-	for (const key of ["word", "lemma", "query", "pos", "feats"]) {
-		const value = query[key];
-		const entries = Array.isArray(value) ? value : value != null ? [value] : [];
-		for (const entry of entries) {
-			if (typeof entry === "string" && entry.trim().length > 0) {
-				rawTerms.push(entry.trim());
-			}
-		}
-	}
-
-	return rawTerms.map((term) => term.toLowerCase());
-});
-
-function tokenMatchesHighlights(
-	token:
-		| {
-				text?: string | null;
-				text_in_ortho?: string | null;
-				phon?: string | null;
-				sppos?: string | null;
-				splemma?: string | null;
-		  }
-		| undefined,
-) {
-	if (highlightTerms.value.length === 0 || !token) return false;
-
-	const searchText = [token.text, token.text_in_ortho, token.phon, token.sppos, token.splemma]
-		.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
-		.join(" ")
-		.toLowerCase();
-
-	return highlightTerms.value.some((term) => searchText.includes(term.toLowerCase()));
-}
 </script>
 
 <template>
@@ -140,7 +100,7 @@ function tokenMatchesHighlights(
 									:class="[
 										token.hasTags ? 'text-accent-foreground font-semibold' : '',
 										token.isKwic
-											? 'rounded bg-highlight/30 text-accent-foreground font-bold ring-1 ring-accent-foreground/40'
+											? 'shrink-0 overflow-hidden rounded-md bg-accent-foreground/20 text-center px-1 font-semibold text-accent-foreground'
 											: '',
 									]"
 								>
@@ -152,7 +112,7 @@ function tokenMatchesHighlights(
 									class="px-0.5 whitespace-nowrap text-start text-gray-600 text-sm"
 									:class="{ invisible: !e.lu[index]?.text }"
 								>
-									{{ e.lu[index]?.text || "\u00A0" }}
+									{{ e.lu[index]?.text }}
 								</div>
 
 								<div
@@ -160,7 +120,7 @@ function tokenMatchesHighlights(
 									class="px-0.5 whitespace-nowrap text-start text-gray-500 text-sm"
 									:class="{ invisible: !e.phon[index]?.text }"
 								>
-									{{ e.phon[index]?.text || "\u00A0" }}
+									{{ e.phon[index]?.text }}
 								</div>
 
 								<div class="h-1 w-full rounded bg-gray-300 group-hover:bg-accent-foreground"></div>

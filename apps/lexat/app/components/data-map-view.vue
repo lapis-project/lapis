@@ -19,6 +19,10 @@ import {
 	type VariantGroup,
 } from "#layers/ui/app/utils/variant-groups";
 import {
+	getSortedVariants,
+	processUniqueVariants,
+} from "#layers/ui/app/utils/variant-percentages.ts";
+import {
 	basemapOptions,
 	getRegisterOptions,
 	regions,
@@ -44,11 +48,7 @@ import {
 	matchesDatasetAge,
 	resolveDatasetQuestion,
 } from "@/utils/dataset";
-import {
-	countUniqueVariants,
-	getSortedVariants,
-	processUniqueVariants,
-} from "@/utils/variant-helper";
+import { countUniqueVariants } from "@/utils/variant-helper";
 
 import CopyToClipboard from "./copy-to-clipboard.vue";
 
@@ -368,7 +368,7 @@ const entitiesById = computed(() => {
 });
 
 const filteredUniqueVariants = computed(() =>
-	processUniqueVariants(groupedPoints.value, specialOrder),
+	processUniqueVariants(countUniqueVariants(groupedPoints.value), specialOrder),
 );
 
 const uniqueVariants = computed(() => {

@@ -1,7 +1,7 @@
 import type { Feature, Geometry, Polygon } from "geojson";
 
+import { getSortedVariants } from "#layers/ui/app/utils/variant-percentages.ts";
 import type { Coalesce, RegionFeature, SurveyResponse } from "@/types/feature-collection";
-import { getSortedVariants } from "@/utils/variant-helper";
 
 export type GeoJsonFeature = Feature<
 	Geometry,

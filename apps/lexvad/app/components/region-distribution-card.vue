@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { VariantGroup } from "#layers/ui/app/utils/variant-groups";
+import { getPercentagesByKey } from "#layers/ui/app/utils/variant-percentages";
 
 const props = defineProps<{
 	datasetId: string;
@@ -48,6 +49,7 @@ const rows = computed(() =>
 		.map((region) => {
 			const values = new Map(region.entries.map((e) => [e.id, e.value]));
 			const total = region.entries.reduce((sum, e) => sum + e.value, 0);
+			const percentages = getPercentagesByKey(Object.fromEntries(values));
 			return {
 				label: region.label,
 				total,
@@ -56,6 +58,7 @@ const rows = computed(() =>
 						id,
 						label: labelFor(id),
 						value: values.get(id) ?? 0,
+						percentage: percentages.get(id) ?? "0",
 						color: props.colors[id],
 					}))
 					.filter((segment) => segment.value > 0),
@@ -99,7 +102,7 @@ const rows = computed(() =>
 						}"
 						:title="`${segment.label}: ${segment.value}`"
 					>
-						{{ ((segment.value / row.total) * 100).toFixed(0) }}% ({{ segment.value }})
+						{{ segment.percentage }}% ({{ segment.value }})
 					</div>
 				</div>
 			</div>

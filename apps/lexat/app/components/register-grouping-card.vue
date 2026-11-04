@@ -2,7 +2,14 @@
 import { getRegisterOptions } from "@/assets/data/static-filter-data";
 
 const props = defineProps<{
-	data: Array<{ id: string; label: string; abs: number; value: number; secondary?: string }>;
+	data: Array<{
+		id: string;
+		label: string;
+		abs: number;
+		value: number;
+		percentage: string;
+		secondary?: string;
+	}>;
 }>();
 
 const t = useTranslations();
@@ -66,6 +73,7 @@ const registerSections = computed(() => {
 				<VariantBar
 					v-for="entry in section.entries"
 					:key="entry.id"
+					:percentage="entry.percentage"
 					:secondary="entry.secondary"
 					:value="entry.value"
 					stacked

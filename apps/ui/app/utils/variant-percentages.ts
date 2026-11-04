@@ -33,6 +33,14 @@ interface ProcessedVariant {
 	remainder: number; // rawPercentage - floored
 }
 
+export const getPercentagesByKey = (counts: Record<string, number>) =>
+	new Map(
+		processUniqueVariants(new Map(Object.entries(counts))).map(({ anno, percentage }) => [
+			anno,
+			percentage,
+		]),
+	);
+
 // Utilizes largest remainder method https://www.polyas.com/election-glossary/hare-niemeyer
 export const processUniqueVariants = (
 	countedUniqueVariants: Map<string, number>,

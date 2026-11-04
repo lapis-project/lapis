@@ -3,6 +3,7 @@ import type { Feature, MultiPolygon, Polygon } from "geojson";
 
 import statesJson from "#layers/ui/app/assets/data/bundeslaender.json";
 import regionsJson from "#layers/ui/app/assets/data/dialektregionen-lexat21-optimized.geojson.json";
+import { getPercentagesByKey } from "#layers/ui/app/utils/variant-percentages";
 
 const regions = regionsJson.features as Array<Feature<Polygon | MultiPolygon>>;
 const states = statesJson.features as Array<Feature<Polygon | MultiPolygon>>;
@@ -24,17 +25,21 @@ const modeItems = computed(() => [
 
 const { getRegionColor, getColorForVariant } = useColorStore();
 
+const counts = computed(() => getRegionsForVariant(props.question, props.variants, mode.value));
+
 const data = computed(() =>
-	Object.entries(getRegionsForVariant(props.question, props.variants, mode.value))
+	Object.entries(counts.value)
 		.toSorted((a, b) => b[1] - a[1])
 		.map(([label, value]) => ({ label, value })),
 );
 
 const legendItems = computed(() => {
 	const total = data.value.reduce((sum, d) => sum + d.value, 0);
+	const percentages = getPercentagesByKey(counts.value);
 	return data.value.map((d) => ({
 		label: d.label,
 		value: total > 0 ? d.value / total : 0,
+		percentage: percentages.get(d.label) ?? "0",
 		secondary: t("MapsPage.sidebar.places", d.value),
 		color: getRegionColor(d.label),
 	}));
@@ -79,7 +84,7 @@ const mapColor = computed(
 				<span class="ml-2">{{ entry.label }}</span>
 				<span class="float-right">
 					<span class="mr-2 text-muted-foreground">{{ entry.secondary }}</span>
-					<span>{{ (entry.value * 100).toFixed(0) }}%</span></span
+					<span>{{ entry.percentage }}%</span></span
 				>
 			</div>
 			<svg class="block w-full" height="4">

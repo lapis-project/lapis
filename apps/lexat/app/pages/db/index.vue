@@ -719,9 +719,15 @@ await refresh(); // manually refetch using updated state
 							sideOffset: 8,
 						}"
 					>
-						<UButton id="citation" variant="outline" color="neutral" size="lg"
-							><UIcon name="i-lucide-quote" class="size-4" />{{ t("DbPage.citation") }}</UButton
+						<UButton
+							id="citation"
+							variant="outline"
+							color="neutral"
+							size="lg"
+							icon="i-lucide-quote"
 						>
+							{{ t("DbPage.citation") }}
+						</UButton>
 						<template #content>
 							<div class="p-5 max-w-lg">
 								<p class="italic mb-4">{{ citation }}</p>
@@ -734,21 +740,22 @@ await refresh(); // manually refetch using updated state
 						variant="outline"
 						color="neutral"
 						size="lg"
+						icon="i-lucide-circle-question-mark"
 						@click="resetOnboarding"
 					>
-						<UIcon name="i-lucide-circle-question-mark" class="size-5" />
-						{{ t("DbPage.help") }}</UButton
-					>
+						{{ t("DbPage.help") }}
+					</UButton>
 					<UButton
 						v-if="stimulusDialogRef?.hasImage"
 						id="showStimulus"
 						variant="outline"
 						color="neutral"
 						size="lg"
+						icon="i-lucide-image"
 						@click="handleShowImage"
 					>
-						<UIcon name="i-lucide-image" class="size-5" /> {{ t("DbPage.image") }}</UButton
-					>
+						{{ t("DbPage.show-stimulus") }}
+					</UButton>
 				</div>
 			</template>
 			<template #right>

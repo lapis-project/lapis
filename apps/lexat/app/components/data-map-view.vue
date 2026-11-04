@@ -1502,11 +1502,23 @@ watch(
 				</GeoMap>
 			</VisualisationContainer>
 			<div class="flex w-full items-start justify-between gap-8">
-				<CopyToClipboard
-					:text="fullRoute"
-					:copy-label="t('Clipboard.copy-url')"
-					:copied-label="t('Clipboard.copied-url')"
-				/>
+				<div class="flex gap-3">
+					<CopyToClipboard
+						:text="fullRoute"
+						:copy-label="t('Clipboard.copy-url')"
+						:copied-label="t('Clipboard.copied-url')"
+					/>
+					<UButton
+						v-if="stimulusDialogRef?.hasImage"
+						id="showStimulus"
+						variant="outline"
+						size="lg"
+						icon="i-lucide-image"
+						@click="handleShowImage"
+					>
+						{{ t("DbPage.show-stimulus") }}
+					</UButton>
+				</div>
 				<div class="flex flex-wrap justify-end gap-3">
 					<UButton
 						v-if="postAlias"
@@ -1542,7 +1554,7 @@ watch(
 						:aria-expanded="sidebarOpen"
 						@click="sidebarOpen = !sidebarOpen"
 					>
-						<span>{{ t("MapsPage.controls.open-sidebar") }}</span>
+						{{ t("MapsPage.controls.open-sidebar") }}
 					</UButton>
 				</div>
 			</div>

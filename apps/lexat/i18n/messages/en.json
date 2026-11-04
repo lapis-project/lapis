@@ -288,7 +288,7 @@
 		"download": "Download as CSV"
 	},
 	"DbPage": {
-		"image": "Show Stimulus",
+		"show-stimulus": "Show Stimulus",
 		"help": "Help",
 		"meta": {
 			"title": "Browse data",

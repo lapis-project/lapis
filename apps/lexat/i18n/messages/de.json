@@ -288,7 +288,7 @@
 		"download": "Als CSV herunterladen"
 	},
 	"DbPage": {
-		"image": "Impuls anzeigen",
+		"show-stimulus": "Stimulus anzeigen",
 		"help": "Hilfe",
 		"meta": {
 			"title": "Belegdatenbank",
@@ -402,7 +402,7 @@
 		"description": "Atlas zur lexikalischen Variation in Österreich im 21. Jahrhundert"
 	},
 	"MapsPage": {
-		"show-stimulus": "Impuls anzeigen",
+		"show-stimulus": "Stimulus anzeigen",
 		"meta": {
 			"title": "Kartierung",
 			"description": "Interaktives Mapping-Tool: Zugang zu Fragebogendaten, visualisiert lautliche, grammatische und lexikalische Variation der deutschen Sprache in Österreich."

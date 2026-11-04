@@ -2,7 +2,7 @@
 import { getRegisterOptions } from "@/assets/data/static-filter-data";
 
 const props = defineProps<{
-	data: Array<{ id: string; label: string; value: number; secondary?: string }>;
+	data: Array<{ id: string; label: string; abs: number; value: number; secondary?: string }>;
 }>();
 
 const t = useTranslations();
@@ -32,9 +32,15 @@ const registerSections = computed(() => {
 	const groupedIds = new Set(groups.flatMap((group) => group.entries.map((entry) => entry.id)));
 	const ungrouped = props.data.filter((entry) => !groupedIds.has(entry.id));
 
-	return ungrouped.length > 0
-		? [...groups, { id: "ungrouped", label: undefined, entries: ungrouped }]
-		: groups;
+	const sections =
+		ungrouped.length > 0
+			? [...groups, { id: "ungrouped", label: undefined, entries: ungrouped }]
+			: groups;
+	return sections.map((section) => ({
+		...section,
+		abs: section.entries.reduce((total, entry) => total + entry.abs, 0),
+		value: section.entries.reduce((total, entry) => total + entry.value, 0),
+	}));
 });
 </script>
 
@@ -49,16 +55,23 @@ const registerSections = computed(() => {
 			:aria-label="section.label"
 			class="mt-3"
 		>
-			<h3 v-if="section.label" class="text-xs font-semibold">{{ section.label }}</h3>
+			<div v-if="section.label" class="space-y-1 text-xs">
+				<h3 class="font-semibold wrap-anywhere">{{ section.label }}</h3>
+				<div class="flex items-center justify-between gap-2">
+					<span class="text-muted">{{ t("MapsPage.sidebar.answers", section.abs) }}</span>
+					<span>{{ (section.value * 100).toFixed(0) }}%</span>
+				</div>
+			</div>
 			<div :class="{ 'ml-1 mt-2 border-l border-default pl-3': section.label }">
 				<VariantBar
 					v-for="entry in section.entries"
 					:key="entry.id"
 					:secondary="entry.secondary"
 					:value="entry.value"
+					stacked
 				>
 					<template #label>
-						<span class="truncate" :title="entry.label">{{ entry.label }}</span>
+						<span class="min-w-0 flex-1 wrap-anywhere">{{ entry.label }}</span>
 					</template>
 				</VariantBar>
 			</div>

@@ -84,6 +84,7 @@ const registerCount = computed(() =>
 		.map(([register, abs]) => ({
 			id: register,
 			label: register || t("RegisterGroupingCard.unspecified"),
+			abs,
 			value: answers.value.length > 0 ? abs / answers.value.length : 0,
 			secondary: t("MapsPage.sidebar.answers", abs),
 		}))
@@ -201,7 +202,7 @@ const tabItems = computed(() => [
 						<div class="uppercase font-semibold text-muted text-xs">
 							{{ t("SelectedPhenomenonCard.title") }}
 						</div>
-						<div class="uppercase font-bold text-lg mt-1">{{ activeQuestion }}</div>
+						<div class="uppercase font-bold text-lg mt-1 wrap-anywhere">{{ activeQuestion }}</div>
 					</div>
 					<VariantGroupingCard
 						v-model:groups="groups"

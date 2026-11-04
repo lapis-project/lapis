@@ -2,6 +2,8 @@
 defineProps<{
 	color?: string;
 	secondary?: string;
+	/** Show counts below the label when horizontal space is limited. */
+	stacked?: boolean;
 	/** Share of all answers, between 0 and 1. */
 	value: number;
 }>();
@@ -9,14 +11,17 @@ defineProps<{
 
 <template>
 	<div class="my-2 text-xs">
-		<div class="my-0.5 flex items-center gap-2">
+		<div class="my-0.5 flex items-center gap-2" :class="{ 'flex-wrap gap-y-1': stacked }">
 			<span
 				v-if="color"
 				class="rounded-full size-2 inline-block shrink-0"
 				:style="{ backgroundColor: color }"
 			></span>
 			<slot name="label"></slot>
-			<span class="ml-auto flex shrink-0 items-center gap-2">
+			<span
+				class="ml-auto flex shrink-0 items-center gap-2"
+				:class="{ 'w-full justify-between': stacked }"
+			>
 				<span class="text-muted">{{ secondary }}</span>
 				<span>{{ (value * 100).toFixed(0) }}%</span>
 				<slot name="actions"></slot>

@@ -10,6 +10,7 @@ const props = defineProps<{
 	showPhon: boolean;
 	maxEventsPerRow: number;
 	currentTime?: number;
+	audioActive: boolean;
 	highlightTargetIndex: (
 		rowIndex: number,
 		speakerId: number,
@@ -49,7 +50,12 @@ function isActiveEvent(start: string, end: string): boolean {
 		return false;
 	}
 
-	return props.currentTime >= startTime && props.currentTime < endTime;
+	return (
+		props.audioActive &&
+		props.currentTime != null &&
+		props.currentTime >= parseTimestamp(start) &&
+		props.currentTime < parseTimestamp(end)
+	);
 }
 
 function seekToEvent(start: string) {

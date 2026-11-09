@@ -67,7 +67,7 @@ const toggleFirstColumn = () => {
 	showFirstColumn.value = !showFirstColumn.value;
 };
 
-const audioIsStopped = ref(false);
+const audioIsStopped = ref(true);
 const audioIsPlaying = ref(false);
 const isLoading = ref(false);
 
@@ -128,6 +128,7 @@ function togglePlayback() {
 	if (audioRef.value.paused) {
 		audioRef.value.play();
 		audioIsPlaying.value = true;
+		audioIsStopped.value = false;
 	} else {
 		audioRef.value.pause();
 		audioIsPlaying.value = false;
@@ -154,16 +155,17 @@ function stopPlayback() {
 	if (audioRef.value) {
 		audioRef.value.pause();
 		audioRef.value.currentTime = 0;
-		audioIsStopped.value = true;
 	}
 	audioIsPlaying.value = false;
+
 	timer = setTimeout(() => {
-		audioIsStopped.value = false;
+		audioIsStopped.value = true;
 	}, 300);
 }
 
 function resetAudio() {
 	audioIsPlaying.value = false;
+	audioIsStopped.value = true;
 	currentTime.value = 0;
 }
 
@@ -250,6 +252,7 @@ watch(
 
 <template>
 	<main class="max-w-full flex flex-col container py-8 pt-4 flex flex-col !overflow-y-hidden">
+		{{ audioIsStopped }}
 		<div v-if="previewIsPending" class="item-center m-auto">
 			<Spinner />
 		</div>
@@ -448,6 +451,7 @@ watch(
 						:showPhon="showPhon"
 						:kwic-tokens="kwicTokens"
 						:current-time="currentTime"
+						:audio-active="!audioIsStopped && isReady"
 						@update:current-highlight-index="currentHighlightIndex = $event"
 					/>
 					<section

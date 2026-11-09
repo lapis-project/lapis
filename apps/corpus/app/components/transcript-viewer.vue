@@ -13,6 +13,7 @@ const props = defineProps<{
 	showPhon: boolean;
 	kwicTokens: Array<{ toknum: number; text: string }>;
 	currentTime?: number;
+	audioActive: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -500,6 +501,7 @@ watch(
 					:hidden-speakers="hiddenSpeakers"
 					:show-lu="showLu"
 					:show-phon="showPhon"
+					:audio-active="props.audioActive"
 					:style="{
 						position: 'absolute',
 						width: '100%',

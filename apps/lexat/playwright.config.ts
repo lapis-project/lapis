@@ -1,20 +1,18 @@
 import { join } from "node:path";
 import os from "os";
 
+import { config as loadEnv } from "@dotenvx/dotenvx";
 import { defineConfig, devices } from "@playwright/test";
 import { isCI } from "ci-info";
-import { config as dotenv } from "dotenv";
-import { expand } from "dotenv-expand";
 
-for (const envFilePath of [
-	".env.dev.local",
-	".env.test.local",
-	".env.local",
-	".env.test",
-	".env",
-]) {
-	expand(dotenv({ path: join(process.cwd(), envFilePath) }));
-}
+// Load env files when Playwright starts from either the CLI or the VS Code extension.
+loadEnv({
+	path: [".env.dev.local", ".env.test.local", ".env.local", ".env.test", ".env"].map((filePath) =>
+		join(import.meta.dirname, filePath),
+	),
+	ignore: ["MISSING_ENV_FILE"],
+	quiet: true,
+});
 
 const frontendPort = 3000;
 const isMac = os.platform() === "darwin";

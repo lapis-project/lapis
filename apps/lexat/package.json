@@ -78,6 +78,7 @@
 	"devDependencies": {
 		"@acdh-oeaw/stylelint-config": "^3.0.3",
 		"@acdh-oeaw/tsconfig": "^1.5.1",
+		"@dotenvx/dotenvx": "^2.38.2",
 		"@nuxt/devtools": "^4.1.0",
 		"@playwright/test": "^1.65.0",
 		"@types/geojson": "^7946.0.16",
@@ -85,8 +86,6 @@
 		"axe-core": "^4.14.0",
 		"axe-playwright": "^2.2.2",
 		"ci-info": "^4.4.0",
-		"dotenv": "^17.3.1",
-		"dotenv-expand": "^12.0.3",
 		"npm-run-all2": "catalog:",
 		"schema-dts": "^2.1.0",
 		"stylelint": "^18.0.0",

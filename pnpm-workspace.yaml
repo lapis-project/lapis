@@ -2,21 +2,24 @@ packages:
   - "apps/*"
 
 catalog:
-  "@lucide/vue": ^1.45.0
-  lefthook: ^2.1.12
-  "npm-run-all2": ^9.0.3
-  nuxt: ^4.5.1
-  oxfmt: ^0.67.0
-  oxlint: ^1.82.0
-  vue: ^3.5.42
-  tailwindcss: ^4.3.3
+  "@lucide/vue": ^1.70.0
+  lefthook: ^2.2.2
+  "npm-run-all2": ^9.0.4
+  nuxt: ^4.6.4
+  oxfmt: ^0.77.0
+  oxlint: ^1.92.0
+  vue: ^3.5.45
+  tailwindcss: ^4.3.5
   typescript: ^6.0.2
-  vite: ^8.3.0
-  "vue-i18n": 11.4.9
-  "vue-router": ^5.3.1
+  vite: ^8.3.6
+  "vue-i18n": 11.4.18
+  "vue-router": ^5.4.0
 
 overrides:
   "vue-i18n": 11.4.9
+  # Keep until the shared Stylelint config updates its presets for Stylelint 18.
+  "@acdh-oeaw/stylelint-config>stylelint-config-hudochenkov": 14.0.0
+  "@acdh-oeaw/stylelint-config>stylelint-config-standard": 41.0.0
   # lexvad pins deck.gl 9.3.10; deck.gl 9.4 / luma.gl 9.4 break ScatterplotLayer and GPU
   # HexagonLayer on ANGLE D3D11 (Intel). deck.gl's `^9.3.3` luma range would pull in 9.4,
   # so luma.gl is forced here. Remove together with the deck.gl pin once fixed upstream.

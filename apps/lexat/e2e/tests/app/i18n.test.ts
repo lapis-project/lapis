@@ -6,6 +6,9 @@ import { expect, test } from "../../lib/test";
 
 const baseUrl = process.env.NUXT_PUBLIC_APP_BASE_URL!;
 
+/** Build the canonical absolute URL for a given pathname. */
+const abs = (pathname: string) => String(createUrl({ baseUrl, pathname }));
+
 test.describe("i18n", () => {
 	test.describe("should redirect root route to preferred locale", () => {
 		test.use({ locale: "en" });
@@ -67,9 +70,6 @@ test.describe("i18n", () => {
 	});
 
 	const pathnames = ["", "/db"];
-
-	/** Build the canonical absolute URL for a given pathname. */
-	const abs = (pathname: string) => String(createUrl({ baseUrl, pathname }));
 
 	test.describe.parallel("i18n alternate links", () => {
 		for (const pathname of pathnames) {

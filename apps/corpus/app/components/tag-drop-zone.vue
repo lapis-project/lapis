@@ -57,10 +57,7 @@ function loadCurrentChildren(node: TagNode) {
 		}"
 		item-key="value"
 		:list="props.modelValue"
-		@update:model-value="
-			emit('update:modelValue', $event);
-			activeZone && (activeZone = false);
-		"
+		@update:model-value="emit('update:modelValue', $event)"
 	>
 		<template #item="{ element }">
 			<TagChildRenderer

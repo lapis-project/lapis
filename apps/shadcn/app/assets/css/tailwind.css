@@ -167,8 +167,8 @@
 	:root,
 	body,
 	#__nuxt {
-		block-size: 100%;
 		isolation: isolate;
+		block-size: 100%;
 	}
 
 	.container {

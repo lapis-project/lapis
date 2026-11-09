@@ -157,10 +157,7 @@ function stopPlayback() {
 		audioRef.value.currentTime = 0;
 	}
 	audioIsPlaying.value = false;
-
-	timer = setTimeout(() => {
-		audioIsStopped.value = true;
-	}, 300);
+	audioIsStopped.value = true;
 }
 
 function resetAudio() {
@@ -252,7 +249,6 @@ watch(
 
 <template>
 	<main class="max-w-full flex flex-col container py-8 pt-4 flex flex-col !overflow-y-hidden">
-		{{ audioIsStopped }}
 		<div v-if="previewIsPending" class="item-center m-auto">
 			<Spinner />
 		</div>

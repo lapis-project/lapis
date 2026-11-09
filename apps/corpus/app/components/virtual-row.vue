@@ -127,8 +127,8 @@ function seekToEvent(start: string) {
 				:class="
 					isActiveEvent(e.start, e.end)
 						? speaker === speakers[0]
-							? 'bg-accent-foreground/50 border-accent-foreground shadow-md'
-							: 'bg-secondary-foreground/50 border-secondary-foreground shadow-md'
+							? 'bg-[color-mix(in_srgb,var(--accent-foreground)_50%,white)] border-accent-foreground shadow-md'
+							: 'bg-[color-mix(in_srgb,var(--secondary-foreground)_50%,white)] border-secondary-foreground shadow-md'
 						: 'bg-white border-foreground/20 hover:border-foreground/80'
 				"
 				@click="seekToEvent(e.start)"
@@ -148,7 +148,7 @@ function seekToEvent(start: string) {
 								class="flex flex-col justify-between h-full group hover:cursor-pointer"
 								:class="
 									isActiveEvent(e.start, e.end)
-										? 'hover:bg-indigo-400 hover:rounded'
+										? 'hover:bg-indigo-800/10 hover:rounded'
 										: 'hover:bg-gray-100'
 								"
 							>
@@ -189,7 +189,7 @@ function seekToEvent(start: string) {
 									class="h-1 w-full rounded"
 									:class="
 										isActiveEvent(e.start, e.end)
-											? 'bg-accent-foreground  rounded hover:border-accent-foreground'
+											? 'bg-indigo-500 rounded hover:border-accent-foreground'
 											: 'bg-gray-300 group-hover:bg-accent-foreground'
 									"
 								></div>

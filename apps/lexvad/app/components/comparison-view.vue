@@ -19,7 +19,7 @@ const datasetStore = useDatasetStore();
 const colorStore = useColorStore();
 const { byVariant, normaliseGroups } = useVariantGroups();
 
-const { sidebars, storedGroups, allGroups, allVariants, updateSidebar, matchColors } =
+const { sidebars, storedGroups, allGroups, allVariants, updateSidebar, matchColors, swapMaps } =
 	useMapSidebars({ split: true });
 
 function activeVariants(position: MapPosition) {
@@ -139,13 +139,6 @@ const comparisonStats = computed(() => {
 		},
 	];
 });
-
-function swapQuestions() {
-	sidebars.value = {
-		left: sidebars.value.right,
-		right: sidebars.value.left,
-	};
-}
 </script>
 
 <template>
@@ -171,7 +164,7 @@ function swapQuestions() {
 					></PhenomenonSelection>
 				</div>
 				<div class="my-auto">
-					<UButton icon="i-lucide-arrow-left-right" size="sm" @click="swapQuestions"></UButton>
+					<UButton icon="i-lucide-arrow-left-right" size="sm" @click="swapMaps"></UButton>
 				</div>
 				<div class="relative flex flex-1 flex-col gap-5">
 					<PhenomenonSelection

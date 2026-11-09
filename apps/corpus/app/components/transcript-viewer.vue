@@ -12,10 +12,12 @@ const props = defineProps<{
 	showLu: boolean;
 	showPhon: boolean;
 	kwicTokens: Array<{ toknum: number; text: string }>;
+	currentTime?: number;
 }>();
 
 const emit = defineEmits<{
 	"update:current-highlight-index": [current: number];
+	seek: [time: number];
 }>();
 
 defineExpose({
@@ -312,6 +314,18 @@ function handleResize() {
 	windowWidth.value = window.innerWidth;
 }
 
+function parseTimestamp(value: string): number {
+	if (!value?.trim()) return Number.NaN;
+
+	const numeric = Number(value);
+	if (Number.isFinite(numeric)) return numeric;
+
+	return value
+		.split(":")
+		.map(Number)
+		.reduce((total, part) => total * 60 + part, 0);
+}
+
 onMounted(async () => {
 	await nextTick();
 
@@ -353,6 +367,69 @@ watch(
 		await jumpToHighlightedToken("next");
 	},
 	{ immediate: true },
+);
+
+let lastScrolledRow: number | null = null;
+let lastActiveEvent: HTMLElement | null = null;
+let scrollRequest = 0;
+
+watch(
+	() => props.currentTime,
+	async (time) => {
+		if (time == null) return;
+
+		const targetRowIndex = chunkedSpeakerEvents.value.findIndex((block) =>
+			block.timestamps.some((timestamp) => {
+				const [start, end] = timestamp.split("-").map(parseTimestamp);
+				return time >= start && time < end;
+			}),
+		);
+
+		if (targetRowIndex === -1) return;
+
+		// Only move vertically when the virtual row changes.
+		if (targetRowIndex !== lastScrolledRow) {
+			lastScrolledRow = targetRowIndex;
+			const request = ++scrollRequest;
+
+			rowVirtualizer.value.scrollToIndex(targetRowIndex, {
+				align: "auto",
+				behavior: "auto",
+			});
+
+			await nextTick();
+			await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+			if (request !== scrollRequest) return;
+		} else {
+			await nextTick();
+		}
+
+		// Check the active event even when playback stays in the same row.
+		const activeEvent = eventContainer.value?.querySelector<HTMLElement>(
+			'[data-active-event="true"]',
+		);
+
+		if (!activeEvent || activeEvent === lastActiveEvent) return;
+
+		lastActiveEvent = activeEvent;
+
+		const container = eventContainer.value!;
+		const eventRect = activeEvent.getBoundingClientRect();
+		const containerRect = container.getBoundingClientRect();
+
+		const left =
+			container.scrollLeft +
+			eventRect.left -
+			containerRect.left -
+			(container.clientWidth - eventRect.width) / 2;
+
+		container.scrollTo({
+			left,
+			behavior: "smooth",
+		});
+	},
+	{ flush: "post" },
 );
 </script>
 
@@ -432,7 +509,9 @@ watch(
 						left: 0,
 					}"
 					:max-events-per-row="maxEventsPerRow"
+					:current-time="props.currentTime"
 					:highlight-target-index="isTarget"
+					@seek="emit('seek', $event)"
 				/>
 			</div>
 		</div>

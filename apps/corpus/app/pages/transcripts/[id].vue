@@ -447,6 +447,7 @@ watch(
 						:show-lu="showLu"
 						:showPhon="showPhon"
 						:kwic-tokens="kwicTokens"
+						:current-time="currentTime"
 						@update:current-highlight-index="currentHighlightIndex = $event"
 					/>
 					<section

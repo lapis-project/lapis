@@ -9,6 +9,7 @@ const props = defineProps<{
 	showLu: boolean;
 	showPhon: boolean;
 	maxEventsPerRow: number;
+	currentTime?: number;
 	highlightTargetIndex: (
 		rowIndex: number,
 		speakerId: number,
@@ -17,6 +18,47 @@ const props = defineProps<{
 		tokenIndex: number,
 	) => number;
 }>();
+
+const emit = defineEmits<{
+	seek: [time: number];
+}>();
+
+function parseTimestamp(value: string): number {
+	if (!value?.trim()) return Number.NaN;
+
+	// Supports both numeric seconds and HH:MM:SS.milliseconds.
+	const numeric = Number(value);
+
+	if (Number.isFinite(numeric)) return numeric;
+
+	const parts = value.split(":").map(Number);
+
+	if (parts.some((part) => !Number.isFinite(part))) {
+		return Number.NaN;
+	}
+
+	return parts.reduce((total, part) => total * 60 + part, 0);
+}
+
+function isActiveEvent(start: string, end: string): boolean {
+	if (props.currentTime == null) return false;
+	const startTime = parseTimestamp(start);
+	const endTime = parseTimestamp(end);
+
+	if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) {
+		return false;
+	}
+
+	return props.currentTime >= startTime && props.currentTime < endTime;
+}
+
+function seekToEvent(start: string) {
+	const time = parseTimestamp(start);
+
+	if (Number.isFinite(time)) {
+		emit("seek", time);
+	}
+}
 </script>
 
 <template>
@@ -75,7 +117,16 @@ const props = defineProps<{
 			<div
 				v-for="(e, idx) in block.speakerEvents[speaker]"
 				:key="speaker + '-event-' + idx"
-				class="h-full flex p-2 border rounded bg-white border-foreground/20 text-sm space-y-1 transition-transform duration-200 ease-in-out hover:scale-105 hover:border-foreground/80"
+				class="h-full flex p-2 border rounded text-sm space-y-1 cursor-pointer transition-transform ease-in-out hover:scale-105 duration-200"
+				:class="
+					isActiveEvent(e.start, e.end)
+						? speaker === speakers[0]
+							? 'bg-accent-foreground/50 border-accent-foreground shadow-md'
+							: 'bg-secondary-foreground/50 border-secondary-foreground shadow-md'
+						: 'bg-white border-foreground/20 hover:border-foreground/80'
+				"
+				@click="seekToEvent(e.start)"
+				:data-active-event="isActiveEvent(e.start, e.end) ? 'true' : undefined"
 			>
 				<Dialog>
 					<DialogTrigger as-child class="h-full">
@@ -88,7 +139,12 @@ const props = defineProps<{
 							<div
 								v-for="(token, index) in e.ortho"
 								:key="'token-group-' + index"
-								class="flex flex-col justify-between h-full group hover:cursor-pointer hover:bg-gray-100"
+								class="flex flex-col justify-between h-full group hover:cursor-pointer"
+								:class="
+									isActiveEvent(e.start, e.end)
+										? 'hover:bg-indigo-400 hover:rounded'
+										: 'hover:bg-gray-100'
+								"
 							>
 								<div
 									class="px-0.5 whitespace-nowrap text-start text-sm"
@@ -123,7 +179,14 @@ const props = defineProps<{
 									{{ e.phon[index]?.text }}
 								</div>
 
-								<div class="h-1 w-full rounded bg-gray-300 group-hover:bg-accent-foreground"></div>
+								<div
+									class="h-1 w-full rounded"
+									:class="
+										isActiveEvent(e.start, e.end)
+											? 'bg-accent-foreground  rounded hover:border-accent-foreground'
+											: 'bg-gray-300 group-hover:bg-accent-foreground'
+									"
+								></div>
 							</div>
 						</div>
 					</DialogTrigger>

@@ -53,7 +53,8 @@
 		"empty": "Noch keine eigenen Datensätze hochgeladen.",
 		"variables": "{n} Variable | {n} Variablen",
 		"show-on-map": "Auf Karte anzeigen",
-		"remove": "Datensatz löschen"
+		"remove": "Datensatz löschen",
+		"storage-error": "Der Browserspeicher ist nicht verfügbar. Änderungen bleiben nach dem Neuladen möglicherweise nicht erhalten."
 	},
 	"DatasetSwitcher": {
 		"label": "Datensatz",

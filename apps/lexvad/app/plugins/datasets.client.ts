@@ -4,6 +4,6 @@
  */
 export default defineNuxtPlugin(() => {
 	onNuxtReady(() => {
-		useDatasetStore().restore();
+		void useDatasetStore().restore();
 	});
 });

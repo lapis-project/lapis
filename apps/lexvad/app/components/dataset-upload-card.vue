@@ -88,11 +88,14 @@ function reset() {
 	clearParsedFile();
 }
 
-function save() {
+const saving = ref(false);
+
+async function save() {
 	const built = result.value;
 	if (!built || built.entries.length === 0) return;
 
-	const dataset = datasetStore.addDataset(name.value, built.entries);
+	saving.value = true;
+	const dataset = await datasetStore.addDataset(name.value, built.entries);
 	toast.add({
 		title: t("DatasetUpload.saved", { name: dataset.name }),
 		description: datasetStore.persistenceFailed
@@ -100,6 +103,7 @@ function save() {
 			: t("DatasetUpload.saved-hint"),
 		color: datasetStore.persistenceFailed ? "warning" : "success",
 	});
+	saving.value = false;
 	reset();
 }
 
@@ -236,7 +240,8 @@ const previewColumns = computed<Array<TableColumn<LocatedEntry>>>(() => [
 					</label>
 					<UButton
 						class="gap-2"
-						:disabled="result.report.imported === 0"
+						:disabled="result.report.imported === 0 || saving"
+						:loading="saving"
 						data-testid="save-dataset"
 						@click="save"
 					>

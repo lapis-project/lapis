@@ -24,7 +24,7 @@ export const requiredDatasetFields: Array<DatasetField> = [
 
 export type FieldMapping = Partial<Record<DatasetField, string>>;
 
-export const MAX_DATASET_ROWS = 100_000;
+export const MAX_DATASET_ROWS = 250_000;
 
 const fieldAliases: Record<DatasetField, Array<string>> = {
 	Item: [

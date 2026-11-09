@@ -53,7 +53,8 @@
 		"empty": "No custom datasets uploaded yet.",
 		"variables": "{n} variable | {n} variables",
 		"show-on-map": "Show on map",
-		"remove": "Delete dataset"
+		"remove": "Delete dataset",
+		"storage-error": "Browser storage is unavailable. Changes may not persist after reloading."
 	},
 	"DatasetSwitcher": {
 		"label": "Dataset",

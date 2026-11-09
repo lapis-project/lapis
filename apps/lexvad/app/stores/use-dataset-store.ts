@@ -21,11 +21,38 @@ export interface DatasetInfo {
 }
 
 const STORAGE_KEY = "lexvad.custom-datasets";
-const STORAGE_VERSION = 1;
 
 function createId() {
 	if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
 	return `dataset-${String(Date.now())}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+async function openDatabase() {
+	return new Promise<IDBDatabase>((resolve, reject) => {
+		const request = indexedDB.open(STORAGE_KEY, 1);
+		request.addEventListener("upgradeneeded", () =>
+			request.result.createObjectStore("datasets", { keyPath: "id" }),
+		);
+		request.addEventListener("success", () => resolve(request.result));
+		request.addEventListener("error", () => reject(request.error));
+	});
+}
+
+async function writeDataset(dataset: CustomDataset | string) {
+	const db = await openDatabase();
+	try {
+		await new Promise<void>((resolve, reject) => {
+			const transaction = db.transaction("datasets", "readwrite");
+			const store = transaction.objectStore("datasets");
+			if (typeof dataset === "string") store.delete(dataset);
+			else store.put(dataset);
+			transaction.addEventListener("complete", () => resolve());
+			transaction.addEventListener("error", () => reject(transaction.error));
+			transaction.addEventListener("abort", () => reject(transaction.error));
+		});
+	} finally {
+		db.close();
+	}
 }
 
 function isDataset(value: unknown): value is CustomDataset {
@@ -39,11 +66,11 @@ function isDataset(value: unknown): value is CustomDataset {
 }
 
 /**
- * Uploaded datasets never leave the browser: they live in this store and are mirrored into local
- * storage, so a reload keeps them but nothing is sent to the backend.
+ * Uploaded datasets never leave the browser: they live in this store and are mirrored into
+ * IndexedDB, so a reload keeps them but nothing is sent to the backend.
  */
 export const useDatasetStore = defineStore("datasets", () => {
-	const customDatasets = ref<Array<CustomDataset>>([]);
+	const customDatasets = shallowRef<Array<CustomDataset>>([]);
 	const datasetByMap = ref<Record<string, string>>({});
 	const persistenceFailed = ref(false);
 
@@ -88,35 +115,25 @@ export const useDatasetStore = defineStore("datasets", () => {
 		if (has(id)) datasetByMap.value[mapId] = id;
 	}
 
-	function persist() {
-		if (!import.meta.client) return;
+	async function restore() {
+		let db: IDBDatabase | undefined;
 		try {
-			localStorage.setItem(
-				STORAGE_KEY,
-				JSON.stringify({ version: STORAGE_VERSION, datasets: customDatasets.value }),
-			);
-			persistenceFailed.value = false;
+			db = await openDatabase();
+			const stored = await new Promise<Array<unknown>>((resolve, reject) => {
+				const request = db!.transaction("datasets", "readonly").objectStore("datasets").getAll();
+				request.addEventListener("success", () => resolve(request.result));
+				request.addEventListener("error", () => reject(request.error));
+			});
+			customDatasets.value = stored.filter(isDataset);
 		} catch {
 			persistenceFailed.value = true;
-		}
-	}
-
-	function restore() {
-		if (!import.meta.client) return;
-		try {
-			const stored = localStorage.getItem(STORAGE_KEY);
-			if (!stored) return;
-			const parsed = JSON.parse(stored) as { version?: number; datasets?: unknown };
-			if (parsed.version !== STORAGE_VERSION || !Array.isArray(parsed.datasets)) return;
-			customDatasets.value = parsed.datasets.filter(isDataset);
-		} catch {
-			localStorage.removeItem(STORAGE_KEY);
 		} finally {
+			db?.close();
 			restored.value = true;
 		}
 	}
 
-	function addDataset(name: string, entries: Array<LocatedEntry>) {
+	async function addDataset(name: string, entries: Array<LocatedEntry>) {
 		const dataset: CustomDataset = {
 			id: createId(),
 			name: name.trim() === "" ? "Dataset" : name.trim(),
@@ -124,13 +141,23 @@ export const useDatasetStore = defineStore("datasets", () => {
 			entries,
 		};
 		customDatasets.value = [...customDatasets.value, dataset];
-		persist();
+		try {
+			await writeDataset(dataset);
+			persistenceFailed.value = false;
+		} catch {
+			persistenceFailed.value = true;
+		}
 		return dataset;
 	}
 
-	function removeDataset(id: string) {
-		customDatasets.value = customDatasets.value.filter((dataset) => dataset.id !== id);
-		persist();
+	async function removeDataset(id: string) {
+		try {
+			await writeDataset(id);
+			customDatasets.value = customDatasets.value.filter((dataset) => dataset.id !== id);
+			persistenceFailed.value = false;
+		} catch {
+			persistenceFailed.value = true;
+		}
 	}
 
 	return {

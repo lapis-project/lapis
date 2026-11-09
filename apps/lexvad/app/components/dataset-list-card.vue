@@ -29,6 +29,13 @@ const datasets = computed(() =>
 			<p class="text-sm text-muted-foreground">{{ t("DatasetList.description") }}</p>
 		</div>
 
+		<UAlert
+			v-if="datasetStore.persistenceFailed"
+			color="warning"
+			:description="t('DatasetList.storage-error')"
+			icon="i-lucide-triangle-alert"
+			variant="subtle"
+		/>
 		<p v-if="datasets.length === 0" class="text-sm text-muted-foreground">
 			{{ t("DatasetList.empty") }}
 		</p>

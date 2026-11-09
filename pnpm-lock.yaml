@@ -200,6 +200,8 @@ catalogs:
 
 overrides:
   vue-i18n: 11.4.9
+  '@acdh-oeaw/stylelint-config>stylelint-config-hudochenkov': 14.0.0
+  '@acdh-oeaw/stylelint-config>stylelint-config-standard': 41.0.0
   '@luma.gl/core': 9.3.6
   '@luma.gl/engine': 9.3.6
   '@luma.gl/shadertools': 9.3.6
@@ -442,7 +444,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3
-        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
+        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
       '@acdh-oeaw/tsconfig':
         specifier: ^1.5.1
         version: 1.5.1(typescript@6.0.3)
@@ -620,7 +622,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3
-        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
+        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
       '@acdh-oeaw/tsconfig':
         specifier: ^1.5.1
         version: 1.5.1(typescript@6.0.3)
@@ -676,17 +678,17 @@ importers:
         specifier: ^1.0.6
         version: 1.0.7
       '@deck.gl/aggregation-layers':
-        specifier: 9.4.1
-        version: 9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@deck.gl/layers@9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
+        specifier: 9.3.10
+        version: 9.3.10(@deck.gl/core@9.3.10)(@deck.gl/layers@9.3.10(@deck.gl/core@9.3.10)(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
       '@deck.gl/core':
-        specifier: 9.4.1
-        version: 9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
+        specifier: 9.3.10
+        version: 9.3.10
       '@deck.gl/extensions':
-        specifier: 9.4.1
-        version: 9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
+        specifier: 9.3.10
+        version: 9.3.10(@deck.gl/core@9.3.10)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
       '@deck.gl/layers':
-        specifier: 9.4.1
-        version: 9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
+        specifier: 9.3.10
+        version: 9.3.10(@deck.gl/core@9.3.10)(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
       '@iconify-json/gis':
         specifier: ^1.2.6
         version: 1.2.6
@@ -765,7 +767,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3
-        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
+        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
       '@acdh-oeaw/tsconfig':
         specifier: ^1.5.1
         version: 1.5.1(typescript@6.0.3)
@@ -871,7 +873,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3
-        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
+        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
       '@acdh-oeaw/tsconfig':
         specifier: ^1.5.1
         version: 1.5.1(typescript@6.0.3)
@@ -977,7 +979,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3
-        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
+        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
       '@acdh-oeaw/tsconfig':
         specifier: ^1.5.1
         version: 1.5.1(typescript@6.0.3)
@@ -1032,7 +1034,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3
-        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
+        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
       '@acdh-oeaw/tsconfig':
         specifier: ^1.5.1
         version: 1.5.1(typescript@6.0.3)
@@ -1117,7 +1119,7 @@ importers:
     devDependencies:
       '@acdh-oeaw/stylelint-config':
         specifier: ^3.0.3
-        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
+        version: 3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
       '@acdh-oeaw/tsconfig':
         specifier: ^1.5.1
         version: 1.5.1(typescript@6.0.3)
@@ -1585,28 +1587,28 @@ packages:
     peerDependencies:
       postcss-selector-parser: ^7.1.1
 
-  '@deck.gl/aggregation-layers@9.4.1':
-    resolution: {integrity: sha512-dllv7obihrzTkvjSgnnVSGGfpWoyM0cen2x9AeHZUdRgpFXbmZCQs7n0Zk6jCjT0NFniGVbvvz97ezUvg66vVw==}
+  '@deck.gl/aggregation-layers@9.3.10':
+    resolution: {integrity: sha512-Fnb/Azwq9CHSP5sBgAewRbRTmHNrFiQEFZShlreEkzXDkv+nl8DJo2OzU51Uxo+m0JMO+bwYFNgQFV4Nc3DtfQ==}
     peerDependencies:
-      '@deck.gl/core': ~9.4.0
-      '@deck.gl/layers': ~9.4.0
+      '@deck.gl/core': ~9.3.0
+      '@deck.gl/layers': ~9.3.0
       '@luma.gl/core': 9.3.6
       '@luma.gl/engine': 9.3.6
 
-  '@deck.gl/core@9.4.1':
-    resolution: {integrity: sha512-DyZTcn4DIWbCKqi4W4PMcG57DD+B/CbEkNex9EKLLUvxl27i45UEEwbYu5Br+c3P3bkcH6tNvB8v/rbsxkCWWQ==}
+  '@deck.gl/core@9.3.10':
+    resolution: {integrity: sha512-BAJ6r+eRV4euuGcIi2SnlzrodgZ+sD2VuXsoL1DER0LwwKXmKmQu6WA8ax6DB9KFsBghLVoTUN5zaCGF6uKHuQ==}
 
-  '@deck.gl/extensions@9.4.1':
-    resolution: {integrity: sha512-btgLyKEqcRAl7MzWS+kEH1Ih6pvn3HdIoMhkHrtkXSvnsPW4FhFB+Z4ImPLAqU3ME1JG9wj2V5oxxl4MuJ1ogg==}
+  '@deck.gl/extensions@9.3.10':
+    resolution: {integrity: sha512-VT5NxR+SgUCwvaWeKFKkql5HV90KjyiPyXYlzKfxxXoE8wxlOgt5Enl2MTAOLcIhlCymLp9vtWO/HEgTfvlzDw==}
     peerDependencies:
-      '@deck.gl/core': ~9.4.0
+      '@deck.gl/core': ~9.3.0
       '@luma.gl/core': 9.3.6
       '@luma.gl/engine': 9.3.6
 
-  '@deck.gl/layers@9.4.1':
-    resolution: {integrity: sha512-a2i/HjbQFePZc0R0I+TFIzTdrjhmoPjfDKNvIo6SzktZ2XI+upUZt3nky3PEhcxbcQ0Sc1GHviETazAeA+S9EQ==}
+  '@deck.gl/layers@9.3.10':
+    resolution: {integrity: sha512-F9CRJlRWXvTKlgjKmmTotm0cA5V7I1zMtdnwJbjBZTyCJ4skuskbIIt6f+BSQ+rSxM2uW4q5/8VkcCJ2SePhXg==}
     peerDependencies:
-      '@deck.gl/core': ~9.4.0
+      '@deck.gl/core': ~9.3.0
       '@loaders.gl/core': ^4.4.3
       '@luma.gl/core': 9.3.6
       '@luma.gl/engine': 9.3.6
@@ -3079,14 +3081,6 @@ packages:
       '@luma.gl/core': 9.3.6
       '@luma.gl/shadertools': 9.3.6
 
-  '@luma.gl/gpgpu@9.4.2':
-    resolution: {integrity: sha512-LoEqoViPZqMHqQzvq/txFuOLsxI6sn8xmv+IZyovRFBqcWaV184PE/8Ieufww0pjVyJMfubhUCQmGuGrOME8oA==}
-    peerDependencies:
-      '@luma.gl/core': 9.3.6
-      '@luma.gl/engine': 9.3.6
-      '@luma.gl/shadertools': 9.3.6
-      '@luma.gl/webgpu': ~9.4.0
-
   '@luma.gl/shadertools@9.3.6':
     resolution: {integrity: sha512-dDuD8lCOkAE1L7hJGZEyZAi7upR1HG3wEEIQ1gCLaTTbJWC7tNtnVz853lqUA+VXgjgS9NiQFFRcosiIZmW4Vg==}
     peerDependencies:
@@ -3096,12 +3090,6 @@ packages:
     resolution: {integrity: sha512-tGm7FGWPmJKxGZMvkRPRi219x3tKmBxR7Uke09nTp2ujNak/O5V9xPIQ9lUBGTxqAb8U2yjKkXG8j+f/4b2+sw==}
     peerDependencies:
       '@luma.gl/core': 9.3.6
-
-  '@luma.gl/webgpu@9.4.2':
-    resolution: {integrity: sha512-24gDOmLyL81fVHxn+UXajnYN5jVln7XgB9fvobc1Yh3PAtXjlcAkmVTqYRvULVGeEamuqvqPDscAkaK/T+R1iQ==}
-    peerDependencies:
-      '@luma.gl/core': 9.3.6
-      '@luma.gl/shadertools': 9.3.6
 
   '@mapbox/jsonlint-lines-primitives@2.0.3':
     resolution: {integrity: sha512-0SElaV0uMxEnxzBhhX9WTuPyUeMsAN/SS0i16tjuba4/mio63MG9khjC1a0JAiPGXAwvwm4UfHJURCN7nyudQg==}
@@ -3114,9 +3102,6 @@ packages:
 
   '@mapbox/point-geometry@1.1.0':
     resolution: {integrity: sha512-YGcBz1cg4ATXDCM/71L9xveh4dynfGmcLDqufR+nQQy3fKwsAZsWd/x4621/6uJaeB9mwOHE6hPeDgXz9uViUQ==}
-
-  '@mapbox/tiny-sdf@2.2.0':
-    resolution: {integrity: sha512-LVL4wgI9YAum5V+LNVQO6QgFBPw7/MIIY4XJPNsPDMrjEwcE+JfKk1LuIl8GnF197ejVdC9QdPaxrx5gfgdGXg==}
 
   '@mapbox/tiny-sdf@2.3.0':
     resolution: {integrity: sha512-gBvcNDBBB66bgQYvnaJ6Jk+VCaMmVq5+IZR2kWPisT88Z8s0kBQt6hfVi8QgRW8Vpg0UWZzBA4ZSyzHHC+VeRA==}
@@ -6857,9 +6842,6 @@ packages:
   '@webcontainer/env@1.1.1':
     resolution: {integrity: sha512-6aN99yL695Hi9SuIk1oC88l9o0gmxL1nGWWQ/kNy81HigJ0FoaoTXpytCj6ItzgyCEwA9kF1wixsTuv5cjsgng==}
 
-  '@webgpu/types@0.1.74':
-    resolution: {integrity: sha512-lgiI4hbuLcI9unnm2cL/tvCaQU45dp0xcLWJh5uB/9MBGvIA4F8XIk7nSiBeg+K4xWGYwgZKn80LmERI5CxoTA==}
-
   '@workflow/serde@4.1.0':
     resolution: {integrity: sha512-pav4F2BoirECWR7Nf1TKt+2eETcBj7jj4cBefQ8VXQCA6NPkaKeLfj/zMgi+3zYV5ZIBT4GuUiphsj0/b9hPQQ==}
 
@@ -10254,8 +10236,8 @@ packages:
     resolution: {integrity: sha512-wWBro/7hJ40ye6TPiXkUQoXKCw23xSsjriUvqd7Uls9Sso3oLiON1flc18cCdnjgCRXw4fBVqUJJeOdDTh3P3g==}
     engines: {node: '>=4'}
 
-  postcss-sorting@9.1.0:
-    resolution: {integrity: sha512-Mn8KJ45HNNG6JBpBizXcyf6LqY/qyqetGcou/nprDnFwBFBLGj0j/sNKV2lj2KMOVOwdXu14aEzqJv8CIV6e8g==}
+  postcss-sorting@10.0.0:
+    resolution: {integrity: sha512-TXbU+h6vVRW+86c/+ewhWq9k7pr7ijASTnepVhCQiC87zAOTkvB1v2dHyWP+ggstSTX/PNvjzS+IOqzejndz9w==}
     peerDependencies:
       postcss: ^8.4.20
 
@@ -10935,29 +10917,29 @@ packages:
       postcss-html: ^1.0.0
       stylelint: '>=14.0.0'
 
-  stylelint-config-hudochenkov@12.0.1:
-    resolution: {integrity: sha512-a5Mtzk7OUBdFiY6qvaT0EMmU187akizxxBt/EomSX+o86v5dCdsI9ce/vhMKE5xX1yplnqc0hNbUtNFfmAawsQ==}
+  stylelint-config-hudochenkov@14.0.0:
+    resolution: {integrity: sha512-sDus0LW/2yo8A8v0J4JHJyX8uHLxDt1v3F0f4+NcENUOXGZVx9cko9s6JOYjtKP4qDLTU+oKgp6UkxFwIsBgrg==}
     peerDependencies:
-      stylelint: ^16.19.0 || ^17.0.0
-      stylelint-order: ^7.0.1
+      stylelint: ^18.0.0
+      stylelint-order: ^8.1.3
 
-  stylelint-config-recommended@18.0.0:
-    resolution: {integrity: sha512-mxgT2XY6YZ3HWWe3Di8umG6aBmWmHTblTgu/f10rqFXnyWxjKWwNdjSWkgkwCtxIKnqjSJzvFmPT5yabVIRxZg==}
+  stylelint-config-recommended@19.0.0:
+    resolution: {integrity: sha512-Y15XB19RManqBOpbRC42tF8R/Hfe314xYLzedRlnnYxYzZ0777RakDQIGcqYfrz9jWGoVyjaGTdpSl9F+roOOw==}
+    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
+    peerDependencies:
+      stylelint: ^18.0.0
+
+  stylelint-config-standard@41.0.0:
+    resolution: {integrity: sha512-EJIvMOMARieBOLhw2yzN7BaVFiIY2Ex8CkbXahxP6tQZK41+N8OVUo57Uvx9iTr862h+thqDoDH7vQbeth1ryg==}
+    engines: {node: ^22.22.2 || ^24.15.0 || >=26.0.0}
+    peerDependencies:
+      stylelint: ^18.0.0
+
+  stylelint-order@8.1.3:
+    resolution: {integrity: sha512-sItAojls5EBcn4iQMe0p0wwcs8twQoEZ3G36yBriXOM4okA0vxScP8XQnE2WfRpnxtEpVcaWmcaFYpxGMuo26w==}
     engines: {node: '>=20.19.0'}
     peerDependencies:
-      stylelint: ^17.0.0
-
-  stylelint-config-standard@40.0.0:
-    resolution: {integrity: sha512-EznGJxOUhtWck2r6dJpbgAdPATIzvpLdK9+i5qPd4Lx70es66TkBPljSg4wN3Qnc6c4h2n+WbUrUynQ3fanjHw==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      stylelint: ^17.0.0
-
-  stylelint-order@7.0.1:
-    resolution: {integrity: sha512-GWPei1zBVDDjxM+/BmcSCiOcHNd8rSqW6FUZtqQGlTRpD0Z5nSzspzWD8rtKif5KPdzUG68DApKEV/y/I9VbTw==}
-    engines: {node: '>=20.19.0'}
-    peerDependencies:
-      stylelint: ^16.18.0 || ^17.0.0
+      stylelint: ^16.18.0 || ^17.0.0 || ^18.0.0
 
   stylelint@18.0.0:
     resolution: {integrity: sha512-kI10GsHXQvsH/AcklVZdQgwDuxtHi+A+h1Ujzd7h9LDf3e5jQiLQkWFlPtpynX3E6oVWHG1wo9v6dL0Mr+nnSA==}
@@ -12238,12 +12220,12 @@ snapshots:
     dependencies:
       is-network-error: 1.3.2
 
-  '@acdh-oeaw/stylelint-config@3.0.3(postcss-html@1.8.1)(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)':
+  '@acdh-oeaw/stylelint-config@3.0.3(postcss-html@1.8.1)(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)':
     dependencies:
       stylelint: 18.0.0
       stylelint-config-html: 1.1.0(postcss-html@1.8.1)(stylelint@18.0.0)
-      stylelint-config-hudochenkov: 12.0.1(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0)
-      stylelint-config-standard: 40.0.0(stylelint@18.0.0)
+      stylelint-config-hudochenkov: 14.0.0(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0)
+      stylelint-config-standard: 41.0.0(stylelint@18.0.0)
     transitivePeerDependencies:
       - postcss-html
       - stylelint-order
@@ -12853,10 +12835,10 @@ snapshots:
     dependencies:
       postcss-selector-parser: 7.1.7
 
-  '@deck.gl/aggregation-layers@9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@deck.gl/layers@9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
+  '@deck.gl/aggregation-layers@9.3.10(@deck.gl/core@9.3.10)(@deck.gl/layers@9.3.10(@deck.gl/core@9.3.10)(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
     dependencies:
-      '@deck.gl/core': 9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
-      '@deck.gl/layers': 9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
+      '@deck.gl/core': 9.3.10
+      '@deck.gl/layers': 9.3.10(@deck.gl/core@9.3.10)(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
       '@luma.gl/core': 9.3.6
       '@luma.gl/engine': 9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))
       '@luma.gl/shadertools': 9.3.6(@luma.gl/core@9.3.6)
@@ -12864,13 +12846,12 @@ snapshots:
       '@math.gl/web-mercator': 4.1.0
       d3-hexbin: 0.2.2
 
-  '@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
+  '@deck.gl/core@9.3.10':
     dependencies:
       '@loaders.gl/core': 4.4.4
       '@loaders.gl/images': 4.4.4(@loaders.gl/core@4.4.4)
       '@luma.gl/core': 9.3.6
       '@luma.gl/engine': 9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))
-      '@luma.gl/gpgpu': 9.4.2(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
       '@luma.gl/shadertools': 9.3.6(@luma.gl/core@9.3.6)
       '@luma.gl/webgl': 9.3.6(@luma.gl/core@9.3.6)
       '@math.gl/core': 4.1.0
@@ -12883,28 +12864,26 @@ snapshots:
       '@types/offscreencanvas': 2019.7.3
       gl-matrix: 3.4.4
       mjolnir.js: 3.1.1
-    transitivePeerDependencies:
-      - '@luma.gl/webgpu'
 
-  '@deck.gl/extensions@9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
+  '@deck.gl/extensions@9.3.10(@deck.gl/core@9.3.10)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
     dependencies:
-      '@deck.gl/core': 9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
+      '@deck.gl/core': 9.3.10
       '@luma.gl/core': 9.3.6
       '@luma.gl/engine': 9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))
       '@luma.gl/shadertools': 9.3.6(@luma.gl/core@9.3.6)
       '@luma.gl/webgl': 9.3.6(@luma.gl/core@9.3.6)
       '@math.gl/core': 4.1.0
 
-  '@deck.gl/layers@9.4.1(@deck.gl/core@9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))))(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
+  '@deck.gl/layers@9.3.10(@deck.gl/core@9.3.10)(@loaders.gl/core@4.4.4)(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
     dependencies:
-      '@deck.gl/core': 9.4.1(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))
+      '@deck.gl/core': 9.3.10
       '@loaders.gl/core': 4.4.4
       '@loaders.gl/images': 4.4.4(@loaders.gl/core@4.4.4)
       '@loaders.gl/schema': 4.4.4
       '@luma.gl/core': 9.3.6
       '@luma.gl/engine': 9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))
       '@luma.gl/shadertools': 9.3.6(@luma.gl/core@9.3.6)
-      '@mapbox/tiny-sdf': 2.2.0
+      '@mapbox/tiny-sdf': 2.3.0
       '@math.gl/core': 4.1.0
       '@math.gl/polygon': 4.1.0
       '@math.gl/web-mercator': 4.1.0
@@ -14033,17 +14012,6 @@ snapshots:
       '@probe.gl/log': 4.1.1
       '@probe.gl/stats': 4.1.1
 
-  '@luma.gl/gpgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/engine@9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))(@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)))':
-    dependencies:
-      '@luma.gl/core': 9.3.6
-      '@luma.gl/engine': 9.3.6(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))
-      '@luma.gl/shadertools': 9.3.6(@luma.gl/core@9.3.6)
-      '@luma.gl/webgpu': 9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))
-      '@math.gl/core': 4.1.0
-      '@math.gl/types': 4.1.0
-      '@probe.gl/log': 4.1.1
-      '@probe.gl/stats': 4.1.1
-
   '@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6)':
     dependencies:
       '@luma.gl/core': 9.3.6
@@ -14055,13 +14023,6 @@ snapshots:
       '@luma.gl/core': 9.3.6
       '@math.gl/types': 4.1.0
       '@probe.gl/env': 4.1.1
-
-  '@luma.gl/webgpu@9.4.2(@luma.gl/core@9.3.6)(@luma.gl/shadertools@9.3.6(@luma.gl/core@9.3.6))':
-    dependencies:
-      '@luma.gl/core': 9.3.6
-      '@luma.gl/shadertools': 9.3.6(@luma.gl/core@9.3.6)
-      '@probe.gl/env': 4.1.1
-      '@webgpu/types': 0.1.74
 
   '@mapbox/jsonlint-lines-primitives@2.0.3': {}
 
@@ -14079,8 +14040,6 @@ snapshots:
       - supports-color
 
   '@mapbox/point-geometry@1.1.0': {}
-
-  '@mapbox/tiny-sdf@2.2.0': {}
 
   '@mapbox/tiny-sdf@2.3.0': {}
 
@@ -21012,8 +20971,6 @@ snapshots:
 
   '@webcontainer/env@1.1.1': {}
 
-  '@webgpu/types@0.1.74': {}
-
   '@workflow/serde@4.1.0': {}
 
   '@yuku-toolchain/darwin-arm64@0.27.0':
@@ -25966,9 +25923,9 @@ snapshots:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
 
-  postcss-sorting@9.1.0(postcss@8.5.28):
+  postcss-sorting@10.0.0(postcss@8.5.32):
     dependencies:
-      postcss: 8.5.28
+      postcss: 8.5.32
 
   postcss-value-parser@4.2.0: {}
 
@@ -26864,24 +26821,24 @@ snapshots:
       postcss-html: 1.8.1
       stylelint: 18.0.0
 
-  stylelint-config-hudochenkov@12.0.1(stylelint-order@7.0.1(stylelint@18.0.0))(stylelint@18.0.0):
+  stylelint-config-hudochenkov@14.0.0(stylelint-order@8.1.3(stylelint@18.0.0))(stylelint@18.0.0):
     dependencies:
       stylelint: 18.0.0
-      stylelint-order: 7.0.1(stylelint@18.0.0)
+      stylelint-order: 8.1.3(stylelint@18.0.0)
 
-  stylelint-config-recommended@18.0.0(stylelint@18.0.0):
+  stylelint-config-recommended@19.0.0(stylelint@18.0.0):
     dependencies:
       stylelint: 18.0.0
 
-  stylelint-config-standard@40.0.0(stylelint@18.0.0):
+  stylelint-config-standard@41.0.0(stylelint@18.0.0):
     dependencies:
       stylelint: 18.0.0
-      stylelint-config-recommended: 18.0.0(stylelint@18.0.0)
+      stylelint-config-recommended: 19.0.0(stylelint@18.0.0)
 
-  stylelint-order@7.0.1(stylelint@18.0.0):
+  stylelint-order@8.1.3(stylelint@18.0.0):
     dependencies:
-      postcss: 8.5.28
-      postcss-sorting: 9.1.0(postcss@8.5.28)
+      postcss: 8.5.32
+      postcss-sorting: 10.0.0(postcss@8.5.32)
       stylelint: 18.0.0
 
   stylelint@18.0.0:

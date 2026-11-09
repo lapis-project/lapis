@@ -106,8 +106,7 @@ watch(
 							<span class="font-medium text-foreground">Anzahl der Events:</span>
 							<span class="pl-1">{{ transcript..length }}</span>
 						</li>
-						-->
-						</ul>
+						--></ul>
 					</div>
 				</div>
 			</TabsContent>

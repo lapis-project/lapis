@@ -1464,8 +1464,9 @@ watch(
 						<article class="grid w-58 gap-1">
 							<div v-for="entity in popover.entities" :key="entity.id">
 								<p>
-									<strong>{{ entity.place_name }}</strong
-									>, {{ entity.plz }} ({{ getEntityTotal(entity) }})
+									<strong>{{ entity.place_name }}</strong>, {{ entity.plz }} ({{
+										getEntityTotal(entity)
+									}})
 								</p>
 								<ul>
 									<li v-for="(value, key) in getEntityOccurrences(entity)" :key="key">

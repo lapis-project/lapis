@@ -95,14 +95,8 @@ describe("countVariantFlow", () => {
 	});
 
 	it("splits a matched place by the shares of its groups on both sides", () => {
-		const answers = (...groups: Array<string>) =>
-			groups.map((group, index) => ({
-				id: String(index),
-				key: placeA,
-				groups: new Set([group]),
-			}));
-		const left = answers("Oma", "Oma", "Oma", "Omi");
-		const right = answers("Oma", "Oma", "Omi", "Omi");
+		const left = entries(placeA, ["Oma"], ["Oma"], ["Oma"], ["Omi"]);
+		const right = entries(placeA, ["Oma"], ["Oma"], ["Omi"], ["Omi"]);
 		expect(sorted(countVariantFlow(left, right, "location"))).toEqual([
 			{ source: "Oma", target: "Oma", value: 1.5 },
 			{ source: "Oma", target: "Omi", value: 1.5 },

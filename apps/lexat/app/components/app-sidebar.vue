@@ -258,9 +258,7 @@ const tabItems = computed(() => [
 							:secondary="entry.secondary"
 							:value="entry.value"
 						>
-							<template #label
-								><span>{{ entry.label }}</span></template
-							>
+							<template #label><span>{{ entry.label }}</span></template>
 						</VariantBar>
 					</div>
 					<div class="rounded-lg p-3.5 border border-default">

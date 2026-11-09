@@ -294,9 +294,9 @@ To use solid black or white as your primary color, set it directly in your main.
 	}
 
 	.article-detail .article-content :is(h2, h3, h4, h5, h6) {
+		scroll-margin-top: 6rem;
 		font-family: var(--font-sans);
 		line-height: 1.4;
-		scroll-margin-top: 6rem;
 	}
 
 	.article-detail .article-content h2 {
@@ -341,8 +341,8 @@ To use solid black or white as your primary color, set it directly in your main.
 	}
 
 	.article-detail .article-content a {
-		text-underline-offset: 0.2em;
 		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
 	}
 
 	.article-detail .article-content img {

@@ -44,10 +44,18 @@ async function onSubmit(event: FormSubmitEvent<SignInSchema>) {
 			body: { ...state },
 			credentials: "include",
 		});
-		const redirectPath = route.query.redirect;
 		if (response) {
 			user.value = response;
-			await navigateTo(localePath(redirectPath?.toString() ?? "/"));
+
+			const redirectPath = route.query.redirect;
+			let destination = localePath("/");
+			if (typeof redirectPath === "string" && /^\/(?![/\\\s])/.test(redirectPath)) {
+				// An HTTP redirect can carry the original fragment on the login URL itself.
+				const hash = redirectPath.includes("#") ? "" : route.hash;
+				destination = redirectPath + hash;
+			}
+
+			await navigateTo(destination, { replace: true });
 		}
 	} catch (error) {
 		console.error(error);

@@ -66,12 +66,13 @@ watch(idsAvailable, (available) => {
 	if (!available && comparisonMatchMode.value === "id") comparisonMatchMode.value = "location";
 });
 
-const { association, entryOverlap, flowHighlight, variantFlowData } = usePhenomenonComparison(
-	comparisonSide("left"),
-	comparisonSide("right"),
-	comparisonMatchMode,
-	comparisonMatchRadius,
-);
+const { association, entryOverlap, flowHighlight, matchedEntries, variantFlowData } =
+	usePhenomenonComparison(
+		comparisonSide("left"),
+		comparisonSide("right"),
+		comparisonMatchMode,
+		comparisonMatchRadius,
+	);
 
 function mapDataFor(position: MapPosition) {
 	return useMapData(
@@ -88,14 +89,20 @@ const rightMap = mapDataFor("right");
 const jointMapData = computed(() =>
 	pairEntries(leftMap.data.value, rightMap.data.value, (entry) =>
 		matchKey(entry, comparisonMatchMode.value),
-	).map(({ left, right }) => ({
-		...(left ?? right)!,
-		color: left?.color ?? "",
-		outlineColor: right?.color,
-		fillId: left && entryId(left, datasetStore.datasetForMap("left")),
-		outlineId: right && entryId(right, datasetStore.datasetForMap("right")),
-		entries: [left, right].filter((entry) => entry !== undefined),
-	})),
+	)
+		.map(({ left, right }) => ({
+			...(left ?? right)!,
+			color: left?.color ?? "",
+			outlineColor: right?.color,
+			fillId: left && entryId(left, datasetStore.datasetForMap("left")),
+			outlineId: right && entryId(right, datasetStore.datasetForMap("right")),
+			entries: [left, right].filter((entry) => entry !== undefined),
+		}))
+		.filter(
+			({ fillId, outlineId }) =>
+				(fillId !== undefined && matchedEntries.value.left.has(fillId)) ||
+				(outlineId !== undefined && matchedEntries.value.right.has(outlineId)),
+		),
 );
 
 const hoveredFlow = ref<{ source: string | undefined; target: string | undefined } | null>(null);

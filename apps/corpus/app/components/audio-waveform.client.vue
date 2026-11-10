@@ -105,14 +105,14 @@ watch(
 					{
 						overlay: true,
 						height: WAVEFORM_HEIGHT,
-						waveColor: "oklch(0.857 0.1011 174.04) / 0.8)",
-						progressColor: "#84E6CB",
+						waveColor: "oklch(0.7642 0.1257 249.46/ 0.5)",
+						progressColor: "oklch(0.7642 0.1257 249.46)",
 					},
 					{
 						overlay: true,
 						height: WAVEFORM_HEIGHT,
-						waveColor: "oklch(0.6361 0.2043 285.4 / 0.8)",
-						progressColor: "#8470ff",
+						waveColor: "oklch(0.6361 0.2043 285.4 / 0.5)",
+						progressColor: "oklch(0.6361 0.2043 285.4)",
 					},
 				],
 				hideScrollbar: false,

@@ -32,7 +32,6 @@
 import html2canvas from "html2canvas-pro";
 import type {
 	Map as MaplibreMap,
-	PointLike,
 	SourceSpecification,
 	StyleSpecification,
 	SymbolLayerSpecification,
@@ -68,6 +67,8 @@ export const defaultAttributionOptions: AttributionOptions = {
 	visibility: "visible",
 	position: "bottom-right",
 };
+
+const legendMargin = 8;
 
 export abstract class MapGeneratorBase {
 	protected map: MaplibreMap;
@@ -227,10 +228,17 @@ export abstract class MapGeneratorBase {
 
 		const processExport = async () => {
 			try {
-				// add Legends
-				await this.addLegend(renderMap, includeLegend, "variantLegend", "bottom-right-append", 40);
-				await this.addLegend(renderMap, includeLegend, "regionLegend", "bottom-left", 8);
-				await this.addLegend(renderMap, includeLegend, "dataLegend", "bottom-left-append", 40);
+				if (includeLegend) {
+					await this.addLegend(renderMap, "variantLegend", "bottom-right", 40);
+					const regionHeight = await this.addLegend(
+						renderMap,
+						"regionLegend",
+						"bottom-left",
+						legendMargin,
+					);
+					const dataBottom = regionHeight > 0 ? regionHeight + 2 * legendMargin : legendMargin;
+					await this.addLegend(renderMap, "dataLegend", "bottom-left", dataBottom);
+				}
 
 				// Wait for the style and attribution control to load before adding attribution.
 				if (!renderMap.loaded()) {
@@ -285,55 +293,25 @@ export abstract class MapGeneratorBase {
 	 *
 	 * @param renderMap Map object
 	 * @param position Position of element inserted
-	 * @param offset Offset value to adjust position
-	 * @returns Pixels [width, height]
+	 * @param horizontalOffset Distance from the left or right edge
+	 * @param verticalOffset Distance from the top or bottom edge
+	 * @returns The position as [x, y] in map pixels
 	 */
 	private getElementPosition(
 		renderMap: MaplibreMap,
-		position:
-			| "bottom-left"
-			| "bottom-right-append"
-			| "bottom-right"
-			| "top-left"
-			| "top-right"
-			| "bottom-left-append",
-		offset = 0,
-	) {
+		position: "bottom-left" | "bottom-right" | "top-left" | "top-right",
+		horizontalOffset: number,
+		verticalOffset = horizontalOffset,
+	): [number, number] {
 		const containerDiv = renderMap.getContainer();
-		let width = 0;
-		let height = 0;
+		const x = position.endsWith("right")
+			? parseInt(containerDiv.style.width) - horizontalOffset
+			: horizontalOffset;
+		const y = position.startsWith("bottom")
+			? parseInt(containerDiv.style.height) - verticalOffset
+			: verticalOffset;
 
-		switch (position) {
-			case "top-left":
-				width = 0 + offset;
-				height = 0 + offset;
-				break;
-			case "top-right":
-				width = parseInt(containerDiv.style.width.replace("px", "")) - offset;
-				height = 0 + offset;
-				break;
-			case "bottom-left":
-				width = 0 + offset;
-				height = parseInt(containerDiv.style.height.replace("px", "")) - offset;
-				break;
-			case "bottom-right":
-				width = parseInt(containerDiv.style.width.replace("px", "")) - offset;
-				height = parseInt(containerDiv.style.height.replace("px", "")) - offset;
-				break;
-			case "bottom-right-append":
-				width = parseInt(containerDiv.style.width.replace("px", "")) - 8;
-				height = parseInt(containerDiv.style.height.replace("px", "")) - offset;
-				break;
-			case "bottom-left-append":
-				width = 8;
-				height = parseInt(containerDiv.style.height.replace("px", "")) - offset;
-				break;
-			default:
-				break;
-		}
-
-		const pixels = [width, height] as PointLike;
-		return pixels;
+		return [x, y];
 	}
 
 	private addAttributions(renderMap: MaplibreMap) {
@@ -432,93 +410,63 @@ export abstract class MapGeneratorBase {
 		return true;
 	}
 
-	/**
-	 * Add HTMLElement with ID "variantLegend" or "regionLegend" to map object
-	 *
-	 * @param renderMap Map object
-	 * @returns Void
-	 */
-	private addLegend(
+	/** Add a legend to the export and return its rendered height in map pixels. */
+	private async addLegend(
 		renderMap: MaplibreMap,
-		includeLegend: boolean,
 		elementId: "variantLegend" | "regionLegend" | "dataLegend",
-		elementPosition: "bottom-left" | "bottom-right-append" | "bottom-left-append",
-		offset: number,
+		anchor: "bottom-left" | "bottom-right",
+		bottomOffset: number,
 	) {
-		if (!includeLegend) {
-			return Promise.resolve();
-		}
-
 		const legendElement = document.getElementById(elementId);
 		if (!legendElement) {
-			console.error(`Element with ID "${elementId}" not found`);
-			return Promise.resolve();
+			return 0;
 		}
 
-		// Capture the element with html2canvas
-		return new Promise<void>((resolve) => {
-			html2canvas(legendElement, {
-				useCORS: true, // Enable CORS support
-				allowTaint: true, // Allow cross-origin images
-				scrollX: 0, // Adjust if capturing a scrolled element
-				scrollY: 0, // Adjust if capturing a scrolled element
-				scale: 3, // Capture at a higher scale for better resolution
-			}).then((canvas) => {
-				const imageDataUrl = canvas.toDataURL("image/png");
-				renderMap.loadImage(imageDataUrl).then((image) => {
-					// Determine the position for the legend image on the map
-					const pixels = this.getElementPosition(renderMap, elementPosition, offset);
-					const lngLat = renderMap.unproject(pixels);
-
-					// Use the mode to define the image name
-					const imageName = elementId;
-					renderMap.addImage(imageName, image.data, { pixelRatio: 3 });
-
-					// Add a geojson source for the point
-					const sourceId = `${elementId}-single-point`;
-					renderMap.addSource(sourceId, {
-						type: "geojson",
-						data: {
-							type: "FeatureCollection",
-							features: [
-								{
-									type: "Feature",
-									geometry: {
-										type: "Point",
-										coordinates: [lngLat.lng, lngLat.lat],
-									},
-								},
-							],
-						},
-					});
-
-					let iconAnchor;
-					switch (elementPosition) {
-						case "bottom-right-append":
-							iconAnchor = "bottom-right";
-							break;
-						case "bottom-left":
-						case "bottom-left-append":
-							iconAnchor = "bottom-left";
-							break;
-					}
-					// Add a symbol layer to display the legend image
-					renderMap.addLayer({
-						id: `${elementId}-legend-layer`,
-						type: "symbol",
-						source: sourceId,
-						layout: {
-							"icon-image": imageName,
-							"icon-size": 1,
-							"icon-anchor": iconAnchor,
-							"icon-allow-overlap": true,
-							"icon-ignore-placement": true,
-						},
-					});
-					resolve();
-				});
-			});
+		const scale = 3;
+		const canvas = await html2canvas(legendElement, {
+			useCORS: true,
+			allowTaint: true,
+			scrollX: 0,
+			scrollY: 0,
+			scale,
 		});
+		const image = await renderMap.loadImage(canvas.toDataURL("image/png"));
+		const pixels = this.getElementPosition(renderMap, anchor, legendMargin, bottomOffset);
+		const lngLat = renderMap.unproject(pixels);
+		renderMap.addImage(elementId, image.data, { pixelRatio: scale });
+
+		const sourceId = `${elementId}-single-point`;
+		renderMap.addSource(sourceId, {
+			type: "geojson",
+			data: {
+				type: "FeatureCollection",
+				features: [
+					{
+						type: "Feature",
+						geometry: {
+							type: "Point",
+							coordinates: [lngLat.lng, lngLat.lat],
+						},
+						properties: {},
+					},
+				],
+			},
+		});
+
+		renderMap.addLayer({
+			id: `${elementId}-legend-layer`,
+			type: "symbol",
+			source: sourceId,
+			layout: {
+				"icon-image": elementId,
+				"icon-size": 1,
+				"icon-anchor": anchor,
+				"icon-allow-overlap": true,
+				"icon-ignore-placement": true,
+			},
+		});
+
+		return canvas.height / scale;
 	}
 
 	private exportImage(renderMap: MaplibreMap, hiddenDiv: HTMLElement, actualPixelRatio: number) {

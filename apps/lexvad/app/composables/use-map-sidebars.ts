@@ -31,7 +31,7 @@ interface SidebarState {
 export function useMapSidebars(options: { split?: boolean } = {}) {
 	const datasetStore = useDatasetStore();
 	const colorStore = useColorStore();
-	const { groupsForMap } = useVariantGroupStore();
+	const { groupsForMap, swapGroups } = useVariantGroupStore();
 	// Survives page changes, so the map and comparison views start from the same selection.
 	const storedSelections = useState<Partial<Record<MapPosition, StoredSelection>>>(
 		"map-selections",
@@ -251,6 +251,28 @@ export function useMapSidebars(options: { split?: boolean } = {}) {
 		);
 	}
 
+	function swapMaps() {
+		const { left, right } = sidebars.value;
+		const leftDataset = datasetStore.datasetForMap("left");
+		const rightDataset = datasetStore.datasetForMap("right");
+		storedSelections.value = {
+			left: {
+				dataset: rightDataset,
+				question: right.question,
+				variants: [...right.selectedVariants],
+			},
+			right: {
+				dataset: leftDataset,
+				question: left.question,
+				variants: [...left.selectedVariants],
+			},
+		};
+		datasetStore.setDatasetForMap("left", rightDataset);
+		datasetStore.setDatasetForMap("right", leftDataset);
+		swapGroups("left", "right");
+		sidebars.value = { left: right, right: left };
+	}
+
 	return {
 		allGroups,
 		allVariants,
@@ -259,6 +281,7 @@ export function useMapSidebars(options: { split?: boolean } = {}) {
 		sidebars,
 		splitMode,
 		storedGroups,
+		swapMaps,
 		updateSidebar,
 	};
 }

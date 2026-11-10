@@ -104,6 +104,17 @@ export function usePhenomenonComparison(
 		),
 	);
 
+	const matchedEntries = computed(() =>
+		entriesInFlow(
+			leftEntries.value,
+			rightEntries.value,
+			undefined,
+			undefined,
+			toValue(matchBy),
+			toValue(matchRadius),
+		),
+	);
+
 	const association = computed(() => variantFlowAssociation(flowCounts.value));
 
 	function flowHighlight(source: string | undefined, target: string | undefined) {
@@ -123,5 +134,5 @@ export function usePhenomenonComparison(
 		};
 	}
 
-	return { association, entryOverlap, flowHighlight, variantFlowData };
+	return { association, entryOverlap, flowHighlight, matchedEntries, variantFlowData };
 }

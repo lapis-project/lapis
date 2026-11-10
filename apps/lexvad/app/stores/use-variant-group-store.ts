@@ -32,9 +32,18 @@ export const useVariantGroupStore = defineStore("variantGroups", () => {
 		});
 	}
 
+	function swapGroups(firstMapId: string, secondMapId: string) {
+		groupsByMap.value = {
+			...groupsByMap.value,
+			[firstMapId]: groupsByMap.value[secondMapId] ?? {},
+			[secondMapId]: groupsByMap.value[firstMapId] ?? {},
+		};
+	}
+
 	return {
 		groupsForMap,
 		getGroupsForMap,
 		setGroupsForMap,
+		swapGroups,
 	};
 });

@@ -340,6 +340,20 @@ describe("entriesInFlow", () => {
 		});
 	});
 
+	it("finds every matched entry when both sides are left out", () => {
+		const far = "49.000,16.000";
+		const left = [...entries(place, ["a"]), ...entries(far, ["a"])];
+		const right = entries(nearby, ["b"]);
+		expect(entriesInFlow(left, right, undefined, undefined, "location")).toEqual({
+			left: new Set(),
+			right: new Set(),
+		});
+		expect(entriesInFlow(left, right, undefined, undefined, "location", 2000)).toEqual({
+			left: new Set([`${place}#0`]),
+			right: new Set([`${nearby}#0`]),
+		});
+	});
+
 	it("covers all flows of a variant when the other side is left out", () => {
 		const left = [...entries(place, ["a"], ["x"]), ...entries(nearby, ["x"])];
 		const right = [...entries(place, ["b"], ["y"]), ...entries(nearby, ["b"])];

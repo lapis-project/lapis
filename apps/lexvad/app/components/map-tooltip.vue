@@ -35,6 +35,7 @@ const multipleEntries = computed(() => (props.entry?.Variante?.split(";")?.lengt
 
 				<span class="text-muted">Dialektform: </span>
 				<span class="text-xs font-serif tracking-wider">{{ item.Variante }} </span>
+				<div class="divider col-span-2 border mt-1" v-if="shown.length > 1"></div>
 			</template>
 
 			<span class="text-muted mt-1">Bundesland: </span>

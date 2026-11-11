@@ -39,8 +39,8 @@ const links = computed(() => {
 					title="Austrian Centre for Digital Humanities"
 					to="https://www.oeaw.ac.at/acdh/acdh-home"
 				>
-					<LazySvgoAcdhBlackWithText class="h-10 hidden dark:block" />
-					<LazySvgoAcdhWhiteWithText class="h-10 block dark:hidden" />
+					<LazySvgoAcdhWhiteWithText class="h-10 hidden dark:block" />
+					<LazySvgoAcdhBlackWithText class="h-10 block dark:hidden" />
 				</ULink>
 				<ULink
 					target="_blank"

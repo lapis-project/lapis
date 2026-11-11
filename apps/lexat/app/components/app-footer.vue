@@ -41,11 +41,11 @@ const links = computed(() => {
 				</NuxtLinkLocale>
 				<NuxtLinkLocale
 					target="_blank"
-					title="Austrian Centre for Digital Humanities and Cultural Heritage"
-					to="https://www.oeaw.ac.at/acdh/acdh-ch-home"
+					title="Austrian Centre for Digital Humanities"
+					to="https://www.oeaw.ac.at/acdh/acdh-home"
 				>
-					<LazySvgoAcdhChDark class="h-10 hidden dark:block" />
-					<LazySvgoAcdhCh class="h-10 block dark:hidden" />
+					<LazySvgoAcdhBlackWithText class="h-10 hidden dark:block" />
+					<LazySvgoAcdhWhiteWithText class="h-10 block dark:hidden" />
 				</NuxtLinkLocale>
 			</div>
 		</div>

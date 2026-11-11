@@ -36,11 +36,11 @@ const links = computed(() => {
 				</ULink>
 				<ULink
 					target="_blank"
-					title="Austrian Centre for Digital Humanities and Cultural Heritage"
-					to="https://www.oeaw.ac.at/acdh/acdh-ch-home"
+					title="Austrian Centre for Digital Humanities"
+					to="https://www.oeaw.ac.at/acdh/acdh-home"
 				>
-					<LazySvgoAcdhChDark class="h-10 hidden dark:block" />
-					<LazySvgoAcdhCh class="h-10 block dark:hidden" />
+					<LazySvgoAcdhWhiteWithText class="h-10 hidden dark:block" />
+					<LazySvgoAcdhBlackWithText class="h-10 block dark:hidden" />
 				</ULink>
 				<ULink
 					target="_blank"

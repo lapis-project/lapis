@@ -3,7 +3,6 @@ import { Readable } from "node:stream";
 
 import { log } from "@acdh-oeaw/lib";
 import { Hono, type Context } from "hono";
-import { stream } from "hono/streaming";
 
 import type { AppEnv } from "@/lib/context.ts";
 import {
@@ -25,21 +24,72 @@ function generateETag(stat: fs.Stats): string {
 	return `"${stat.mtime.getTime().toString(16)}-${stat.size.toString(16)}"`;
 }
 
+function matchesIfNoneMatch(headerValue: string | undefined, etag: string): boolean {
+	if (!headerValue) return false;
+	return headerValue.split(",").some((value) => {
+		const trimmed = value.trim();
+		return trimmed === "*" || trimmed === etag || trimmed === `W/${etag}`;
+	});
+}
+
+function isNotModifiedSince(
+	ifNoneMatch: string | undefined,
+	ifModifiedSince: string | undefined,
+	stat: fs.Stats,
+): boolean {
+	if (ifNoneMatch != null) return false;
+	const modifiedSince = ifModifiedSince == null ? Number.NaN : Date.parse(ifModifiedSince);
+	return (
+		Number.isFinite(modifiedSince) &&
+		Math.floor(stat.mtimeMs / 1000) <= Math.floor(modifiedSince / 1000)
+	);
+}
+
+function matchesIfRange(ifRange: string | undefined, etag: string, stat: fs.Stats): boolean {
+	if (!ifRange) return true;
+	const trimmed = ifRange.trim();
+	if (trimmed === etag) return true;
+	if (trimmed.startsWith('"') || trimmed.startsWith("W/")) return false;
+
+	const rangeDate = Date.parse(trimmed);
+	return (
+		Number.isFinite(rangeDate) && Math.floor(stat.mtimeMs / 1000) <= Math.floor(rangeDate / 1000)
+	);
+}
+
 function streamAudioFile(
 	c: Context<AppEnv>,
 	filePath: string,
 	options?: { end?: number; start?: number },
 ) {
 	const fileNodeStream = fs.createReadStream(filePath, options);
+	const reader = (
+		Readable.toWeb(fileNodeStream) as unknown as ReadableStream<Uint8Array>
+	).getReader();
+	let cancelled = false;
 
-	return stream(c, async (responseStream) => {
-		// Browsers regularly cancel in-flight requests when seeking. Closing the underlying
-		// descriptor prevents the server from continuing to read a large audio file.
-		responseStream.onAbort(() => {
-			fileNodeStream.destroy();
-		});
-		await responseStream.pipe(Readable.toWeb(fileNodeStream) as unknown as ReadableStream);
-	});
+	return c.body(
+		new ReadableStream<Uint8Array>({
+			async pull(controller) {
+				try {
+					const { done, value } = await reader.read();
+					if (cancelled) return;
+					if (done) controller.close();
+					else controller.enqueue(value);
+				} catch (error) {
+					if (cancelled) return;
+					log.error(`Failed to stream audio file: ${filePath}`, error);
+					controller.error(error);
+				}
+			},
+			cancel(reason) {
+				// Seeking and metadata probes regularly cancel requests. The Node adapter destroys
+				// the file stream on cancellation, closing its underlying descriptor.
+				cancelled = true;
+				return reader.cancel(reason);
+			},
+		}),
+	);
 }
 
 // Shared logic for streaming audio files
@@ -69,16 +119,23 @@ async function handleAudioStream(c: Context<AppEnv>, isHeadRequest = false) {
 	c.header("Last-Modified", stat.mtime.toUTCString());
 	c.header("ETag", etag);
 
-	// Handle conditional requests (If-None-Match)
 	const ifNoneMatch = c.req.header("if-none-match");
-	if (ifNoneMatch === etag) {
+	const ifModifiedSince = c.req.header("if-modified-since");
+
+	// Cache preconditions take precedence over Range, including for byte-range probes.
+	if (
+		matchesIfNoneMatch(ifNoneMatch, etag) ||
+		isNotModifiedSince(ifNoneMatch, ifModifiedSince, stat)
+	) {
 		c.status(304);
 		return c.body(null);
 	}
 
-	if (range) {
-		// Parse "bytes=start-end"
-		const m = /^bytes=(\d*)-(\d*)$/.exec(range);
+	const ifRange = c.req.header("if-range");
+	// Multiple ranges are unsupported; ignore them and serve the full representation.
+	if (range && !range.includes(",") && matchesIfRange(ifRange, etag, stat)) {
+		// Parse a single "bytes=start-end" range.
+		const m = /^bytes=(\d*)-(\d*)$/.exec(range.trim());
 		if (!m || (!m[1] && !m[2])) {
 			return c.text("Invalid Range header", 400);
 		}
@@ -131,7 +188,7 @@ async function handleAudioStream(c: Context<AppEnv>, isHeadRequest = false) {
 		return streamAudioFile(c, audioPath, { start, end });
 	}
 
-	// Full file (no Range): return 200 and the whole file
+	// Return the full file when Range is absent, ignored, or its If-Range validator differs.
 	c.status(200);
 	c.header("Content-Length", String(stat.size));
 
@@ -167,14 +224,11 @@ audio.get("/waveform/:instanceId", async (c) => {
 
 	const ifNoneMatch = c.req.header("if-none-match");
 	const ifModifiedSince = c.req.header("if-modified-since");
-	const matchesETag = ifNoneMatch?.split(",").some((value) => value.trim() === etag) ?? false;
-	const modifiedSince = ifModifiedSince == null ? Number.NaN : Date.parse(ifModifiedSince);
-	const notModifiedSince =
-		ifNoneMatch == null &&
-		Number.isFinite(modifiedSince) &&
-		Math.floor(waveformFile.stat.mtimeMs / 1000) <= Math.floor(modifiedSince / 1000);
 
-	if (matchesETag || notModifiedSince) {
+	if (
+		matchesIfNoneMatch(ifNoneMatch, etag) ||
+		isNotModifiedSince(ifNoneMatch, ifModifiedSince, waveformFile.stat)
+	) {
 		c.status(304);
 		return c.body(null);
 	}

@@ -1,7 +1,15 @@
+import { createReadStream, type ReadStream } from "node:fs";
 import { mkdir, rm, utimes, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { Readable } from "node:stream";
 
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { log } from "@acdh-oeaw/lib";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+
+vi.mock("node:fs", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("node:fs")>();
+	return { ...actual, createReadStream: vi.fn(actual.createReadStream) };
+});
 
 const TEST_AUDIO_DIR = "./test-audio-files";
 const audioLocations = new Map<number, { audio_link: string; comment: string }>();
@@ -59,6 +67,10 @@ async function createTestWaveform(instanceId: number): Promise<string> {
 }
 
 describe("Audio Handler", () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	beforeAll(async () => {
 		// Create test directory and audio files
 		await mkdir(TEST_AUDIO_DIR, { recursive: true });
@@ -98,6 +110,79 @@ describe("Audio Handler", () => {
 			expect(response.headers.get("Accept-Ranges")).toBe("bytes");
 			expect(response.headers.get("Content-Length")).toBe("4096");
 		});
+
+		it.each([undefined, { Range: "bytes=0-1023" }])(
+			"logs file-read failures and errors the response body (headers: %j)",
+			async (headers) => {
+				const readError = new Error("Audio disk read failed");
+				const source = new Readable({
+					read() {
+						this.destroy(readError);
+					},
+				});
+				vi.mocked(createReadStream).mockReturnValueOnce(source as ReadStream);
+				const errorLog = vi.spyOn(log, "error").mockImplementation(() => {});
+
+				const response = await audio.request("/stream/163", { headers });
+
+				expect(response.status).toBe(headers ? 206 : 200);
+				await expect(response.arrayBuffer()).rejects.toThrow("Audio disk read failed");
+				expect(errorLog).toHaveBeenCalledWith(
+					expect.stringContaining("Failed to stream audio file:"),
+					readError,
+				);
+				expect(source.destroyed).toBe(true);
+			},
+		);
+
+		it("propagates a read failure after part of the audio has been streamed", async () => {
+			let sent = false;
+			const source = new Readable({
+				read() {
+					if (sent) return;
+					sent = true;
+					this.push(Buffer.from("audio"));
+				},
+			});
+			vi.mocked(createReadStream).mockReturnValueOnce(source as ReadStream);
+			const errorLog = vi.spyOn(log, "error").mockImplementation(() => {});
+			const response = await audio.request("/stream/163");
+			const reader = response.body!.getReader();
+			expect((await reader.read()).value).toEqual(new Uint8Array(Buffer.from("audio")));
+
+			source.destroy(new Error("Audio read interrupted"));
+
+			await expect(reader.read()).rejects.toThrow("Audio read interrupted");
+			expect(errorLog).toHaveBeenCalledOnce();
+		});
+
+		it.each([false, true])(
+			"closes the source without logging when the client cancels (read first: %j)",
+			async (readFirst) => {
+				let sent = false;
+				const source = new Readable({
+					read() {
+						if (sent) return;
+						sent = true;
+						this.push(Buffer.from("audio"));
+					},
+				});
+				vi.mocked(createReadStream).mockReturnValueOnce(source as ReadStream);
+				const errorLog = vi.spyOn(log, "error").mockImplementation(() => {});
+				const closed = new Promise<void>((resolve) => source.once("close", resolve));
+				const response = await audio.request("/stream/163", {
+					headers: { Range: "bytes=0-1023" },
+				});
+				const reader = response.body!.getReader();
+				if (readFirst) await reader.read();
+
+				await reader.cancel();
+				await closed;
+
+				expect(source.destroyed).toBe(true);
+				expect(errorLog).not.toHaveBeenCalled();
+			},
+		);
 
 		it("should return 404 when audio file does not exist", async () => {
 			const response = await audio.request("/stream/999");
@@ -244,6 +329,85 @@ describe("Audio Handler", () => {
 				expect(response.headers.get("Content-Range")).toBe("bytes 0-8191/8192");
 				expect(response.headers.get("Content-Length")).toBe("8192");
 			});
+
+			it.each(["bytes=0-1023, 7168-8191", "bytes=10000-20000,0-1023"])(
+				"should serve the full file for unsupported multiple ranges: %s",
+				async (range) => {
+					const response = await audio.request("/stream/163", {
+						headers: {
+							Range: range,
+						},
+					});
+
+					expect(response.status).toBe(200);
+					expect(response.headers.get("Content-Range")).toBeNull();
+					expect(response.headers.get("Content-Length")).toBe("8192");
+					expect((await response.arrayBuffer()).byteLength).toBe(8192);
+				},
+			);
+
+			it("should return 304 when Range is sent alongside matching If-None-Match", async () => {
+				const initial = await audio.request("/stream/163", {
+					headers: { Range: "bytes=0-1023" },
+				});
+				const etag = initial.headers.get("ETag")!;
+
+				const tailProbe = await audio.request("/stream/163", {
+					headers: {
+						Range: "bytes=7168-8191",
+						"If-None-Match": etag,
+					},
+				});
+
+				expect(tailProbe.status).toBe(304);
+				expect(tailProbe.headers.get("Content-Range")).toBeNull();
+				expect((await tailProbe.arrayBuffer()).byteLength).toBe(0);
+			});
+
+			it("should evaluate date preconditions before Range and let If-None-Match take precedence", async () => {
+				const initial = await audio.request("/stream/163", { method: "HEAD" });
+				const lastModified = initial.headers.get("Last-Modified")!;
+				const dateResponse = await audio.request("/stream/163", {
+					headers: { Range: "bytes=7168-8191", "If-Modified-Since": lastModified },
+				});
+				expect(dateResponse.status).toBe(304);
+				expect(dateResponse.headers.get("Content-Range")).toBeNull();
+				expect((await dateResponse.arrayBuffer()).byteLength).toBe(0);
+
+				const changedResponse = await audio.request("/stream/163", {
+					headers: {
+						Range: "bytes=7168-8191",
+						"If-Modified-Since": lastModified,
+						"If-None-Match": '"stale-etag"',
+					},
+				});
+				expect(changedResponse.status).toBe(206);
+				expect(changedResponse.headers.get("Content-Range")).toBe("bytes 7168-8191/8192");
+				expect((await changedResponse.arrayBuffer()).byteLength).toBe(1024);
+			});
+
+			it("should honour If-Range when ETag matches and return 200 when ETag differs", async () => {
+				const initial = await audio.request("/stream/163");
+				const etag = initial.headers.get("ETag")!;
+
+				const matchingRange = await audio.request("/stream/163", {
+					headers: {
+						Range: "bytes=0-1023",
+						"If-Range": etag,
+					},
+				});
+				expect(matchingRange.status).toBe(206);
+				expect(matchingRange.headers.get("Content-Length")).toBe("1024");
+
+				const mismatchedRange = await audio.request("/stream/163", {
+					headers: {
+						Range: "bytes=0-1023",
+						"If-Range": '"stale-etag"',
+					},
+				});
+				expect(mismatchedRange.status).toBe(200);
+				expect(mismatchedRange.headers.get("Content-Length")).toBe("8192");
+			});
 		});
 
 		describe("HEAD /stream/:filename", () => {
@@ -305,6 +469,22 @@ describe("Audio Handler", () => {
 
 				expect(response.headers.get("Cache-Control")).toBe("public, max-age=31536000");
 				expect(response.headers.get("Last-Modified")).toBeTruthy();
+			});
+
+			it("should return 304 for matching If-None-Match or If-Modified-Since on non-Range requests", async () => {
+				const first = await audio.request("/stream/161");
+				const etag = first.headers.get("ETag")!;
+				const lastModified = first.headers.get("Last-Modified")!;
+
+				const etagResponse = await audio.request("/stream/161", {
+					headers: { "If-None-Match": `"other", ${etag}` },
+				});
+				const dateResponse = await audio.request("/stream/161", {
+					headers: { "If-Modified-Since": lastModified },
+				});
+
+				expect(etagResponse.status).toBe(304);
+				expect(dateResponse.status).toBe(304);
 			});
 		});
 	});

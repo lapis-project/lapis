@@ -426,7 +426,8 @@
 			"show-regions": "Show dialect regions",
 			"show-state-capitals": "State capitals",
 			"show-urban-locations": "Locations (w/o state capitals)",
-			"show-variant-percentages": "Values as percentages",
+			"show-variant-counts": "Absolute counts",
+			"show-variant-percentages": "Relative values",
 			"variable": {
 				"title": "Phenomenon",
 				"placeholder": "phenomenon",

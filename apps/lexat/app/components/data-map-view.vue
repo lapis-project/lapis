@@ -119,6 +119,7 @@ const showStateCapitals = ref<boolean>(true);
 const showUrbanLocations = ref<boolean>(true);
 const open = ref(false);
 const sidebarOpen = ref(false);
+const showVariantCounts = ref(false);
 const showVariantPercentages = ref<boolean>(true);
 const highlightedRegion = ref<string>("");
 
@@ -1215,9 +1216,7 @@ watch(
 										<div class="mb-1 ml-1 text-sm font-semibold">
 											{{ t("MapsPage.selection.display-options") }}
 										</div>
-										<div
-											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
-										>
+										<div class="mb-2 flex w-64 items-center gap-2 rounded border border-muted p-2">
 											<UCheckbox id="showData" v-model="simplifiedView" />
 											<label
 												class="flex items-center gap-1 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1234,9 +1233,7 @@ watch(
 												</UTooltip>
 											</label>
 										</div>
-										<div
-											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
-										>
+										<div class="mb-2 flex w-64 items-center gap-2 rounded border border-muted p-2">
 											<UCheckbox id="showRegions" v-model="showRegions" />
 											<label
 												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1257,9 +1254,7 @@ watch(
 										<label class="mb-1 ml-1 block text-sm font-semibold" for="location-filter">
 											{{ t("MapsPage.selection.filter-locations") }}
 										</label>
-										<div
-											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
-										>
+										<div class="mb-2 flex w-64 items-center gap-2 rounded border border-muted p-2">
 											<UCheckbox id="showStateCapitals" v-model="showStateCapitals" />
 											<label
 												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1268,9 +1263,7 @@ watch(
 												{{ t("MapsPage.selection.show-state-capitals") }}
 											</label>
 										</div>
-										<div
-											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
-										>
+										<div class="mb-2 flex w-64 items-center gap-2 rounded border border-muted p-2">
 											<UCheckbox id="showUrbanLocations" v-model="showUrbanLocations" />
 											<label
 												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1295,15 +1288,22 @@ watch(
 											{{ t("MapsPage.selection.legend") }}
 										</div>
 
-										<div
-											class="mb-2 flex w-64 space-x-2 self-center rounded border border-muted p-2"
-										>
+										<div class="mb-2 flex w-64 items-center gap-2 rounded border border-muted p-2">
 											<UCheckbox id="showVariantPercentages" v-model="showVariantPercentages" />
 											<label
 												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 												for="showVariantPercentages"
 											>
 												{{ t("MapsPage.selection.show-variant-percentages") }}
+											</label>
+										</div>
+										<div class="mb-2 flex w-64 items-center gap-2 rounded border border-muted p-2">
+											<UCheckbox id="showVariantCounts" v-model="showVariantCounts" />
+											<label
+												class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+												for="showVariantCounts"
+											>
+												{{ t("MapsPage.selection.show-variant-counts") }}
 											</label>
 										</div>
 										<div class="flex flex-wrap gap-2">
@@ -1359,7 +1359,7 @@ watch(
 					id="variantLegend"
 					class="absolute bottom-12 right-0 z-10 mr-2"
 					:data="legendEntries"
-					:show-counts="false"
+					:show-counts="showVariantCounts"
 					:show-percentages="showVariantPercentages"
 					:title="t('MapsPage.selection.legend')"
 					:truncate-labels="false"

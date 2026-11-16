@@ -6,7 +6,7 @@ For details on the project's architecture, see [Architecture](architecture.md).
 
 ## Requirements
 
-- `Node` 26.12.1 (pinned in `.nvmrc` and `package.json`; CI uses `.nvmrc`)
+- `Node` 26.13.1 (pinned in `.nvmrc` and `package.json`; CI uses `.nvmrc`)
 - `pnpm` 12.14.0 (pinned in `package.json`; install via `npm install --global pnpm@12.14.0`)
 - [docker](https://docs.docker.com/engine/install/ubuntu/) (for local development)
 - Optional: [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) for node
@@ -15,7 +15,7 @@ For details on the project's architecture, see [Architecture](architecture.md).
 ## Quick Start
 
 1. Clone the repository
-2. Use Node 26.12.1 (`nvm install` and `nvm use` if using nvm) and install pnpm as above
+2. Use Node 26.13.1 (`nvm install` and `nvm use` if using nvm) and install pnpm as above
 3. Install dependencies in the project root via `pnpm i`
 4. Build all shared nuxt layers via `Tasks: Run Task` > `Build Nuxt Layers`
 5. Setup a PostgreSQL container via `Tasks: Run Task` > `Start DB Container`

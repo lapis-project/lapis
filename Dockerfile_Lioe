@@ -4,7 +4,7 @@
 # @see https://sharp.pixelplumbing.com/install#linux-memory-allocator
 
 # ---- Build Stage ----
-FROM node:26.12.1-alpine AS build
+FROM node:26.13.1-alpine AS build
 
 # Node 26 does not bundle Corepack; install the version pinned in package.json.
 RUN npm install --global pnpm@12.14.0
@@ -57,7 +57,7 @@ RUN echo "Cache Bust V1" && pnpm run -F lioe build
 
 # ---- Serve Stage ----
 # This is the final, minimal image that will run in production.
-FROM node:26.12.1-alpine AS serve
+FROM node:26.13.1-alpine AS serve
 
 # Create and set up the same non-root user and working directory
 RUN mkdir /app && chown -R node:node /app

@@ -426,7 +426,8 @@
 			"show-regions": "Dialektregionen anzeigen",
 			"show-state-capitals": "Landeshauptstädte",
 			"show-urban-locations": "Orte (ohne Landeshauptstädte)",
-			"show-variant-percentages": "Werte in Prozent",
+			"show-variant-counts": "Absolute Werte",
+			"show-variant-percentages": "Relative Werte (in Prozent)",
 			"variable": {
 				"title": "Phänomen",
 				"placeholder": "Phänomen",

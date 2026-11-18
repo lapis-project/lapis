@@ -42,7 +42,8 @@
 		"nuxt-svgo": "^5.3.2",
 		"tailwindcss": "catalog:",
 		"tailwindcss-animate": "^1.0.7",
-		"vue": "catalog:"
+		"vue": "catalog:",
+		"write-excel-file": "^4.1.1"
 	},
 	"devDependencies": {
 		"@acdh-oeaw/stylelint-config": "^3.0.3",

@@ -111,9 +111,13 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		NODE_ENV: process.env.NODE_ENV,
+		dbCollectionsBaseUrl: "",
+		dbElasticBaseUrl: "",
+		dbUseMock: false,
 		public: {
 			appBaseUrl: process.env.NUXT_PUBLIC_APP_BASE_URL,
 			bots: process.env.NUXT_PUBLIC_BOTS,
+			dbImageBaseUrl: "",
 			matomoBaseUrl: process.env.NUXT_PUBLIC_MATOMO_BASE_URL,
 			matomoId: process.env.NUXT_PUBLIC_MATOMO_ID,
 			redmineId: process.env.NUXT_PUBLIC_REDMINE_ID,

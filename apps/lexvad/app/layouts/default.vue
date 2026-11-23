@@ -8,7 +8,7 @@ const t = useTranslations();
 
 		<AppHeader />
 		<UMain id="main-content" :tabindex="-1" :ui="{ base: 'flex-1 min-h-0 overflow-y-auto' }">
-			<NuxtPage />
+			<slot />
 		</UMain>
 	</div>
 </template>

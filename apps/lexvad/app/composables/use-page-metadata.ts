@@ -30,7 +30,7 @@ export function usePageMetadata(params: UsePageMetadataParams): void {
 			params.jsonld && typeof params.jsonld === "object" && Object.keys(params.jsonld).length > 0
 				? [
 						{
-							hid: "breadcrumbs-json-ld",
+							key: "breadcrumbs-json-ld",
 							type: "application/ld+json",
 							textContent: JSON.stringify(params.jsonld),
 						},

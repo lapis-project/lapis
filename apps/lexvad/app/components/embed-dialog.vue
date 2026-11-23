@@ -27,7 +27,7 @@ const snippet = computed(() => {
 	const title = t("EmbedPage.title", { question: props.question });
 	return `<iframe
 	src="${src}"
-	title=""${escapeAttribute(title)}"
+	title="${escapeAttribute(title)}"
 	width="100%"
 	height="600"
 	style="border: 0"

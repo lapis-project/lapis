@@ -2,6 +2,8 @@
 import * as locales from "@nuxt/ui/locale";
 
 const { locale } = useI18n();
+
+useSiteHead();
 </script>
 
 <template>

@@ -1,4 +1,8 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const t = useTranslations();
+
+usePageMetadata({ title: t("AboutPage.meta.title") });
+</script>
 
 <template>
 	<div class="container mx-auto py-16">

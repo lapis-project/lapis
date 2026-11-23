@@ -13,11 +13,10 @@ const isNotFoundPage = computed(() => {
 	return props.error?.statusCode === 404;
 });
 
-/** `error.vue` is _not_ wrapped in default layout out of the box. */
+/** `error.vue` replaces `app.vue`, so it needs the shared head tags as well. */
+useSiteHead();
+
 useHead({
-	titleTemplate: computed(() => {
-		return ["%s", t("DefaultLayout.meta.title")].join(" | ");
-	}),
 	title: computed(() => {
 		return isNotFoundPage.value ? t("NotFoundPage.meta.title") : t("ErrorPage.meta.title");
 	}),

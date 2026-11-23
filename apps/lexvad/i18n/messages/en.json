@@ -195,7 +195,9 @@
 			"settings": "Map settings",
 			"zoom-in": "Zoom in",
 			"zoom-out": "Zoom out",
-			"embed": "Embed"
+			"embed": "Embed",
+			"radius": "Radius",
+			"toggle-layers": "Toggle layers"
 		},
 		"settings": {
 			"colors": {
@@ -210,6 +212,12 @@
 		},
 		"legend": {
 			"title": "Legend"
+		},
+		"tooltip": {
+			"variant": "Variant",
+			"dialect-form": "Dialect form",
+			"state": "Federal state",
+			"district": "District"
 		},
 		"sidebar": {
 			"variable": "Phenomenon",

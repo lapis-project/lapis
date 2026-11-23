@@ -212,7 +212,7 @@ const comparisonStats = computed(() => {
 					<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
 						{{ t("Comparison.variant-flow") }}
 						<template v-if="comparisonMatchMode === 'location'">
-							<span class="ml-auto uppercase text-xs">Radius</span>
+							<span class="ml-auto uppercase text-xs">{{ t("MapsPage.controls.radius") }}</span>
 							<USlider
 								v-model="comparisonMatchRadius"
 								class="w-36"

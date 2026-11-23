@@ -195,7 +195,9 @@
 			"settings": "Karteneinstellungen",
 			"zoom-in": "Vergrößern",
 			"zoom-out": "Verkleinern",
-			"embed": "Einbetten"
+			"embed": "Einbetten",
+			"radius": "Radius",
+			"toggle-layers": "Ebenen ein- oder ausblenden"
 		},
 		"settings": {
 			"colors": {
@@ -210,6 +212,12 @@
 		},
 		"legend": {
 			"title": "Legende"
+		},
+		"tooltip": {
+			"variant": "Variante",
+			"dialect-form": "Dialektform",
+			"state": "Bundesland",
+			"district": "Kreis"
 		},
 		"sidebar": {
 			"variable": "Phänomen",

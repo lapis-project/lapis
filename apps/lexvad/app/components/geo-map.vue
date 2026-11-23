@@ -546,7 +546,9 @@ const layerItems = computed(() =>
 			</UTabs>
 			<template v-if="mapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
-				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
+				<span class="uppercase text-muted-foreground font-semibold">{{
+					t("MapsPage.controls.radius")
+				}}</span>
 				<USlider
 					v-model="radius"
 					class="w-36"
@@ -596,7 +598,7 @@ const layerItems = computed(() =>
 					:class="{ 'text-background bg-foreground hover:bg-foreground': activeLayer !== 'none' }"
 					type="button"
 				>
-					<span class="sr-only">Toggle Layers</span>
+					<span class="sr-only">{{ t("MapsPage.controls.toggle-layers") }}</span>
 					<LayersIcon class="size-4"></LayersIcon>
 				</button>
 			</UDropdownMenu>

@@ -72,7 +72,6 @@ useSeoMeta({
 						:colors="variantColors"
 						:controls="false"
 						:data="data"
-						fit
 						:mode="state?.mode"
 						:radius="state?.radius"
 					/>

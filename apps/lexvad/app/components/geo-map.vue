@@ -52,7 +52,7 @@ interface MapProps {
 		| undefined;
 }
 
-const props = withDefaults(defineProps<MapProps>(), { controls: true, fit: false });
+const props = withDefaults(defineProps<MapProps>(), { controls: true });
 
 const style = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 

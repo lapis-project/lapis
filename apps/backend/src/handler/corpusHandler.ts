@@ -133,6 +133,7 @@ const SearchQuerySchema = object({
 	lemma: optional(string()),
 	pos: optional(string()),
 	feats: optional(string()),
+	phon: optional(string()),
 
 	mode: optional(union([literal("simple"), literal("regex")]), "simple"),
 
@@ -214,12 +215,91 @@ const SearchQuerySchema = object({
 	),
 });
 
-type RunCgiResponse =
+type RawRunCgiResponse =
 	paths["/search/concordance"]["get"]["responses"]["200"]["content"]["application/json"];
-type KwicLine = NonNullable<RunCgiResponse["Lines"]>[number];
+type RawKwicLine = NonNullable<RawRunCgiResponse["Lines"]>[number];
+type RawKwicToken = NonNullable<RawKwicLine["Kwic"]>[number] & {
+	attr?: string;
+	strc?: string;
+};
+type KwicToken = Omit<RawKwicToken, "attr"> & {
+	phon?: string | null;
+	token_id?: number | null;
+};
+type KwicLine = Omit<RawKwicLine, "Kwic"> & {
+	Kwic?: Array<KwicToken>;
+};
+type RunCgiResponse = Omit<RawRunCgiResponse, "Lines"> & {
+	Lines?: Array<KwicLine>;
+};
 type KwicContextItem = { str?: string; strc?: string };
 type Transcript = Awaited<ReturnType<typeof getAllTranscripts>>[number];
 type XmlHit = { refs: string; content: string };
+
+function parseKwicTokenAttr(attr: string): { phon: string | null; token_id: number | null } {
+	if (!attr.startsWith("/")) {
+		return { phon: null, token_id: null };
+	}
+
+	const lastSlashIndex = attr.lastIndexOf("/");
+	if (lastSlashIndex <= 0) {
+		const singleValue = attr.slice(1);
+		if (/^\d+$/.test(singleValue)) {
+			const numericId = Number(singleValue);
+			if (Number.isSafeInteger(numericId)) {
+				return { phon: null, token_id: numericId };
+			}
+		}
+		return { phon: singleValue && singleValue !== "-" ? singleValue : null, token_id: null };
+	}
+
+	const rawPhon = attr.slice(1, lastSlashIndex);
+	const rawTokenId = attr.slice(lastSlashIndex + 1);
+	const phon = rawPhon && rawPhon !== "-" ? rawPhon : null;
+	const parsedId = /^\d+$/.test(rawTokenId) ? Number(rawTokenId) : Number.NaN;
+	const token_id = Number.isSafeInteger(parsedId) ? parsedId : null;
+
+	return { phon, token_id };
+}
+
+function normalizeKwicToken(token: RawKwicToken): KwicToken {
+	if (!token || typeof token !== "object") {
+		return token;
+	}
+
+	const { attr, ...rest } = token;
+	const normalizedStr = typeof rest.str === "string" ? rest.str.trim() : rest.str;
+	if (typeof attr !== "string") {
+		return normalizedStr === rest.str ? rest : { ...rest, str: normalizedStr };
+	}
+
+	const { phon, token_id } = parseKwicTokenAttr(attr);
+	return {
+		...rest,
+		...(normalizedStr !== undefined ? { str: normalizedStr } : {}),
+		phon,
+		token_id,
+	};
+}
+
+function normalizeKwicResponse(kwic: RawRunCgiResponse): RunCgiResponse {
+	if (!kwic.Lines) {
+		return kwic;
+	}
+
+	return {
+		...kwic,
+		Lines: kwic.Lines.map((line) => {
+			if (!Array.isArray(line.Kwic)) {
+				return line;
+			}
+			return {
+				...line,
+				Kwic: line.Kwic.map((token) => normalizeKwicToken(token as RawKwicToken)),
+			};
+		}),
+	};
+}
 
 const DIOE_PROJECT_ID = 2;
 const OPENING_TAG_REGEX = /<doc(?=[\s>]|$)/;
@@ -550,7 +630,7 @@ async function requestKwic(
 		}
 
 		try {
-			const data = (await response.json()) as RunCgiResponse & { error?: string };
+			const data = (await response.json()) as RawRunCgiResponse & { error?: string };
 			if (
 				!data ||
 				typeof data !== "object" ||
@@ -571,7 +651,7 @@ async function requestKwic(
 			) {
 				throw new Error(data?.error || "Invalid NoSketch JSON response");
 			}
-			return { data, error: null };
+			return { data: normalizeKwicResponse(data), error: null };
 		} catch (error) {
 			return {
 				data: null,
@@ -754,13 +834,17 @@ async function resolveSearchContext(
 
 	const wordInput = result.output.word ?? result.output.query;
 	const hasLexicalCriterion = Boolean(
-		wordInput || result.output.lemma || result.output.pos || result.output.feats,
+		wordInput ||
+		result.output.lemma ||
+		result.output.pos ||
+		result.output.feats ||
+		result.output.phon,
 	);
 	if (options?.requireLexicalCriterion && !hasLexicalCriterion) {
 		return {
 			errorResponse: {
 				body: {
-					error: "At least one search parameter (word, lemma, pos, feats) is required",
+					error: "At least one search parameter (word, lemma, pos, feats, phon) is required",
 				},
 				status: 400,
 			},
@@ -971,6 +1055,7 @@ async function resolveLexicalSearchCql(ctx: SearchContext): Promise<
 				lemma: ctx.output.lemma,
 				pos: ctx.output.pos,
 				feats: ctx.output.feats,
+				phon: ctx.output.phon,
 				transcripts: candidateIds,
 				projects: projectNames,
 				settings: ctx.settings.map(
@@ -1039,6 +1124,7 @@ const corpus = new Hono<AppEnv>()
 			lemma,
 			pos,
 			feats,
+			phon,
 			mode,
 			fromp,
 			refs,
@@ -1059,9 +1145,9 @@ const corpus = new Hono<AppEnv>()
 		const wordInput = word ?? query;
 
 		// Ensure at least one search criteria is present
-		if (!wordInput && !lemma && !pos && !feats) {
+		if (!wordInput && !lemma && !pos && !feats && !phon) {
 			return c.json(
-				{ error: "At least one search parameter (word, lemma, pos, feats) is required" },
+				{ error: "At least one search parameter (word, lemma, pos, feats, phon) is required" },
 				400,
 			);
 		}
@@ -1072,6 +1158,7 @@ const corpus = new Hono<AppEnv>()
 				lemma,
 				pos,
 				feats,
+				phon,
 				transcripts,
 				projects,
 				settings,
@@ -1092,9 +1179,9 @@ const corpus = new Hono<AppEnv>()
 				console.error(`NoSke Error: ${response.statusText}`);
 				return c.json({ error: "Upstream service error" }, 502);
 			}
-			const data = (await response.json()) as RunCgiResponse;
+			const data = (await response.json()) as RawRunCgiResponse;
 
-			return c.json(data, 200);
+			return c.json(normalizeKwicResponse(data), 200);
 		} catch (error) {
 			console.error(error);
 			return c.json({ error: "Internal Server Error" }, 500);

@@ -28,6 +28,7 @@ interface CqlCriteria {
 	lemma?: string;
 	pos?: string;
 	feats?: string;
+	phon?: string;
 	transcripts?: Array<number>;
 	projects?: Array<string>;
 	settings?: Array<string>;
@@ -72,6 +73,7 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 	addCondition(parts_query, "word", criteria.word ?? "", true);
 	addCondition(parts_query, "lemma", criteria.lemma ?? "");
 	addCondition(parts_query, "pos", criteria.pos ?? "");
+	addCondition(parts_query, "phon", criteria.phon ?? "");
 
 	// -----------------------------------------------------------------
 	// FEATS: split by whitespace, enforce distinct space-delimited match

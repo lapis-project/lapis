@@ -8,6 +8,7 @@
 		"links": {
 			"about": "About the project",
 			"compare": "Comparison",
+			"database": "Browse data",
 			"home": "Home",
 			"map": "Map"
 		},
@@ -57,6 +58,20 @@
 		"association-strong": "strong",
 		"cramers-v-unavailable": "Needs at least two variants per side"
 	},
+	"DatasetFields": {
+		"Item": "Variable",
+		"Benennungsvariante": "Variant",
+		"Latitude": "Latitude",
+		"Longitude": "Longitude",
+		"Ort": "Place",
+		"Variante": "Dialect form",
+		"Kreis": "District",
+		"Land": "Country",
+		"PLZ": "Postal code",
+		"Id": "ID",
+		"bundesland": "Federal state",
+		"region": "Dialectal region"
+	},
 	"DatasetList": {
 		"title": "Stored datasets",
 		"description": "The datasets you uploaded in this browser.",
@@ -89,7 +104,6 @@
 		"saved": "“{name}” was saved",
 		"saved-hint": "The dataset can now be selected on the maps page.",
 		"limit": "At most {max} rows are imported.",
-		"region": "Dialectal region",
 		"outside": "outside the mapped area",
 		"summary": {
 			"imported": "Imported rows",
@@ -109,19 +123,19 @@
 			"parse": "The file could not be read. CSV, TSV, JSON or GeoJSON with a header row is expected.",
 			"missing-fields": "Please map these fields as well: {fields}.",
 			"storage": "The dataset is too large for browser storage and is only available in this session."
-		},
-		"fields": {
-			"Item": "Variable",
-			"Benennungsvariante": "Variant",
-			"Latitude": "Latitude",
-			"Longitude": "Longitude",
-			"Ort": "Place",
-			"Variante": "Dialect form",
-			"Kreis": "District",
-			"Land": "Country",
-			"PLZ": "Postal code",
-			"Id": "ID"
 		}
+	},
+	"DbPage": {
+		"meta": {
+			"title": "Browse data"
+		},
+		"results": "{n} entry | {n} entries",
+		"results-filtered": "{n} of {total} entry | {n} of {total} entries",
+		"search": "Search table…",
+		"show-on-map": "Show on map",
+		"download": "Download CSV",
+		"no-matches": "No entries match your search",
+		"no-entries": "No entries for this selection"
 	},
 	"DefaultLayout": {
 		"meta": {

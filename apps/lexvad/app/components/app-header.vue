@@ -6,6 +6,7 @@ const links = computed(() => {
 		{ to: "/", label: t("AppHeader.links.home"), class: "lg:hidden uppercase text-foreground" },
 		{ to: "/about", label: t("AppHeader.links.about"), class: "uppercase text-foreground" },
 		{ to: "/map", label: t("AppHeader.links.map"), class: "uppercase text-foreground" },
+		{ to: "/db", label: t("AppHeader.links.database"), class: "uppercase text-foreground" },
 		{ to: "/compare", label: t("AppHeader.links.compare"), class: "uppercase text-foreground" },
 		{
 			to: "/custom-data",

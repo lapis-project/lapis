@@ -3,14 +3,12 @@ import { MapIcon, RotateCcwIcon } from "@lucide/vue";
 import type { TableColumn } from "@nuxt/ui";
 
 import type { LocatedEntry } from "@/utils/dataset";
+import { datasetFields, type EntryField, requiredDatasetFields } from "@/utils/dataset-fields";
 import {
 	buildDatasetEntries,
-	type DatasetField,
-	datasetFields,
 	detectFieldMapping,
 	type FieldMapping,
 	MAX_DATASET_ROWS,
-	requiredDatasetFields,
 } from "@/utils/dataset-import";
 import { readTabularFile, type TabularData } from "@/utils/tabular-data";
 
@@ -107,8 +105,8 @@ async function save() {
 	reset();
 }
 
-function fieldLabel(field: DatasetField) {
-	return t(`DatasetUpload.fields.${field}`);
+function fieldLabel(field: EntryField) {
+	return t(`DatasetFields.${field}`);
 }
 
 const previewColumns = computed<Array<TableColumn<LocatedEntry>>>(() => [
@@ -123,7 +121,7 @@ const previewColumns = computed<Array<TableColumn<LocatedEntry>>>(() => [
 	{
 		id: "region",
 		accessorFn: (entry) => entry.region ?? t("DatasetUpload.outside"),
-		header: t("DatasetUpload.region"),
+		header: fieldLabel("region"),
 	},
 ]);
 </script>

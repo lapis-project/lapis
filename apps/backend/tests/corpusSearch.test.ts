@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { getNoskeAuthHeaders } from "@/search/auth.ts";
 import { searchRequest } from "@/search/index.ts";
 import { requestTranscriptMatches } from "@/search/transcriptMatches.ts";
 
@@ -17,6 +18,8 @@ beforeEach(() => {
 	vi.stubGlobal("fetch", fetchMock);
 	vi.stubEnv("NOSKE_INTERNAL_URL", "https://noske.test/bonito/run.cgi/");
 	vi.stubEnv("NOSKE_CORPUS_NAME", "configured-corpus");
+	vi.stubEnv("NOSKE_USERNAME", "");
+	vi.stubEnv("NOSKE_PASSWORD", "");
 });
 
 afterEach(() => {
@@ -170,6 +173,7 @@ describe("Corpus concordance transport", () => {
 				format,
 				pagesize: "25",
 				viewmode: "kwic",
+				...(format === "json" ? { attrs: "word,phon,token_id", attr_allpos: "kw" } : {}),
 				fromp: "3",
 				structs: "doc,doc.id",
 				refs: "doc.id,u.who",
@@ -182,6 +186,85 @@ describe("Corpus concordance transport", () => {
 		await searchRequest('[lc="kirche"]', "1", "concordance", "", "50");
 		const [url, init] = fetchMock.mock.calls[0]!;
 		expect(init).toBeUndefined();
-		expect(new URL(String(url)).searchParams.get("q")).toBe('q[lc="kirche"]');
+		const searchParams = new URL(String(url)).searchParams;
+		expect(searchParams.get("q")).toBe('q[lc="kirche"]');
+		expect(searchParams.get("attrs")).toBe("word,phon,token_id");
+		expect(searchParams.get("attr_allpos")).toBe("kw");
+	});
+
+	it("sends HTTP Basic Auth headers on POST and GET when credentials are configured", async () => {
+		vi.stubEnv("NOSKE_USERNAME", "corpus-user");
+		vi.stubEnv("NOSKE_PASSWORD", "s3cr€t:pass");
+		const expectedAuth = `Basic ${Buffer.from("corpus-user:s3cr€t:pass", "utf8").toString("base64")}`;
+
+		fetchMock.mockResolvedValue(new Response());
+		await searchRequest('[lc="kirche"]', "1", "concordance", "", "50", "json", "POST");
+		await searchRequest('[lc="kirche"]', "1", "concordance", "", "50", "json", "GET");
+
+		expect(fetchMock.mock.calls[0]?.[1]?.headers).toEqual({ Authorization: expectedAuth });
+		expect(fetchMock.mock.calls[1]?.[1]?.headers).toEqual({ Authorization: expectedAuth });
+	});
+
+	it("sends HTTP Basic Auth headers on all paginated frequency requests", async () => {
+		vi.stubEnv("NOSKE_USERNAME", "corpus-user");
+		vi.stubEnv("NOSKE_PASSWORD", "secret-pass");
+		const expectedAuth = `Basic ${Buffer.from("corpus-user:secret-pass", "utf8").toString("base64")}`;
+
+		fetchMock.mockResolvedValueOnce(respond(page([item(1)], 2, 0, 2)));
+		fetchMock.mockResolvedValueOnce(respond(page([item(2)], 2, 1, 2)));
+
+		const result = await requestTranscriptMatches('[lc="kirche"]');
+		expect(result.error).toBeNull();
+		expect(result.data).toEqual(
+			new Map([
+				[1, 1],
+				[2, 1],
+			]),
+		);
+		expect(fetchMock.mock.calls[0]?.[1]?.headers).toEqual({ Authorization: expectedAuth });
+		expect(fetchMock.mock.calls[1]?.[1]?.headers).toEqual({ Authorization: expectedAuth });
+	});
+
+	it("reports HTTP 401 when NoSketch Engine rejects credentials", async () => {
+		vi.stubEnv("NOSKE_USERNAME", "corpus-user");
+		vi.stubEnv("NOSKE_PASSWORD", "wrong-pass");
+		fetchMock.mockResolvedValueOnce(
+			new Response("Unauthorized", { status: 401, statusText: "Unauthorized" }),
+		);
+
+		expect(await requestTranscriptMatches('[lc="kirche"]')).toEqual({
+			data: null,
+			error: { status: 401, message: "Unauthorized" },
+		});
+	});
+
+	it.each([
+		["corpus-user", ""],
+		["", "secret-pass"],
+	])(
+		"fails fast without calling fetch when credentials are incomplete (%s / %s)",
+		async (username, password) => {
+			vi.stubEnv("NOSKE_USERNAME", username);
+			vi.stubEnv("NOSKE_PASSWORD", password);
+
+			expect(() => getNoskeAuthHeaders()).toThrow(/NOSKE_USERNAME.*NOSKE_PASSWORD/);
+			await expect(
+				searchRequest('[lc="kirche"]', "1", "concordance", "", "50", "json", "POST"),
+			).rejects.toThrow(/NOSKE_USERNAME.*NOSKE_PASSWORD/);
+
+			const freqResult = await requestTranscriptMatches('[lc="kirche"]');
+			expect(freqResult.data).toBeNull();
+			expect(freqResult.error?.status).toBeNull();
+			expect(freqResult.error?.message).toMatch(/NOSKE_USERNAME.*NOSKE_PASSWORD/);
+			expect(fetchMock).not.toHaveBeenCalled();
+		},
+	);
+
+	it("rejects usernames containing a colon without calling fetch", () => {
+		vi.stubEnv("NOSKE_USERNAME", "bad:user");
+		vi.stubEnv("NOSKE_PASSWORD", "secret-pass");
+
+		expect(() => getNoskeAuthHeaders()).toThrow(/not allowed in HTTP Basic auth/);
+		expect(fetchMock).not.toHaveBeenCalled();
 	});
 });

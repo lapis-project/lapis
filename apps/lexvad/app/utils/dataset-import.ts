@@ -1,66 +1,14 @@
 import { type DataEntry, type LocatedEntry, locateEntry } from "@/utils/dataset";
-
-export const datasetFields = [
-	"Item",
-	"Benennungsvariante",
-	"Latitude",
-	"Longitude",
-	"Ort",
-	"Variante",
-	"Kreis",
-	"Land",
-	"PLZ",
-	"Id",
-] as const;
-
-export type DatasetField = (typeof datasetFields)[number];
-
-export const requiredDatasetFields: Array<DatasetField> = [
-	"Item",
-	"Benennungsvariante",
-	"Latitude",
-	"Longitude",
-];
+import {
+	type DatasetField,
+	datasetFields,
+	fieldAliases,
+	optionalDatasetFields,
+} from "@/utils/dataset-fields";
 
 export type FieldMapping = Partial<Record<DatasetField, string>>;
 
 export const MAX_DATASET_ROWS = 250_000;
-
-const fieldAliases: Record<DatasetField, Array<string>> = {
-	Item: [
-		"item",
-		"variable",
-		"phaenomen",
-		"phanomen",
-		"konzept",
-		"concept",
-		"frage",
-		"question",
-		"begriff",
-		"lemma",
-		"stimulus",
-	],
-	Benennungsvariante: [
-		"benennungsvariante",
-		"benennung",
-		"variant",
-		"variants",
-		"antwort",
-		"answer",
-		"type",
-		"typ",
-		"wortform",
-		"bezeichnung",
-	],
-	Latitude: ["latitude", "lat", "breite", "breitengrad", "ycoord", "y"],
-	Longitude: ["longitude", "lon", "lng", "long", "laenge", "lange", "laengengrad", "xcoord", "x"],
-	Ort: ["ort", "ortsname", "place", "placename", "location", "city", "town", "gemeinde", "name"],
-	Variante: ["variante", "dialektform", "notation", "schreibweise", "form", "beleg"],
-	Kreis: ["kreis", "bezirk", "district", "county"],
-	Land: ["land", "country", "staat", "state"],
-	PLZ: ["plz", "postleitzahl", "zip", "zipcode", "postcode", "postalcode"],
-	Id: ["id", "iddoc", "informant", "informantid", "sprecher", "speaker", "gewahrsperson"],
-};
 
 function normalise(value: string) {
 	return value
@@ -86,11 +34,11 @@ export function detectFieldMapping(columns: Array<string>): FieldMapping {
 	}
 
 	for (const field of datasetFields) claim(field, (key) => key === normalise(field));
-	for (const field of datasetFields) claim(field, (key) => fieldAliases[field].includes(key));
+	for (const field of datasetFields) claim(field, (key) => fieldAliases(field).includes(key));
 	// Very short aliases would match inside unrelated names, e.g. "id" in "Augenlid".
 	for (const field of datasetFields)
 		claim(field, (key) =>
-			fieldAliases[field].some((alias) => alias.length > 2 && key.includes(alias)),
+			fieldAliases(field).some((alias) => alias.length > 2 && key.includes(alias)),
 		);
 
 	return mapping;
@@ -172,20 +120,17 @@ export function buildDatasetEntries(
 		}
 
 		const place = cell(row, "Ort");
-		const id = cell(row, "Id");
-		if (mapping.Id && id === "") report.missingIds++;
+		if (mapping.Id && cell(row, "Id") === "") report.missingIds++;
 		const entry: DataEntry = {
+			...Object.fromEntries(
+				optionalDatasetFields.map((field) => [field, cell(row, field) || undefined]),
+			),
 			iddoc: entries.length + 1,
-			Id: id || undefined,
 			Ort: place === "" ? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}` : place,
 			Latitude: String(latitude),
 			Longitude: String(longitude),
 			Item: item,
 			Benennungsvariante: variant,
-			Variante: cell(row, "Variante") || undefined,
-			Kreis: cell(row, "Kreis") || undefined,
-			Land: cell(row, "Land") || undefined,
-			PLZ: cell(row, "PLZ") || undefined,
 		};
 
 		const located = locateEntry(entry);

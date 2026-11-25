@@ -5,10 +5,12 @@ const props = withDefaults(
 	defineProps<{
 		mapId: string;
 		splitMode?: boolean;
+		compare?: boolean;
 		embedQuery?: LocationQueryRaw;
 	}>(),
 	{
 		splitMode: false,
+		compare: true,
 	},
 );
 const t = useTranslations();
@@ -105,7 +107,7 @@ const settingsOpen = ref(false);
 			></div>
 			<div class="flex gap-2" :class="splitMode ? 'w-full justify-end' : 'ml-auto'">
 				<UButton
-					v-if="!splitMode"
+					v-if="!splitMode && compare"
 					class="hidden gap-2 md:inline-flex"
 					variant="outline"
 					@click="emit('toggle-compare-mode')"

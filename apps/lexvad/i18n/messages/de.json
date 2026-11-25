@@ -8,6 +8,7 @@
 		"links": {
 			"about": "Über das Projekt",
 			"compare": "Vergleichsansicht",
+			"database": "Belegdatenbank",
 			"home": "Startseite",
 			"map": "Kartierung"
 		},
@@ -57,6 +58,20 @@
 		"association-strong": "stark",
 		"cramers-v-unavailable": "Benötigt mindestens zwei Varianten je Seite"
 	},
+	"DatasetFields": {
+		"Item": "Variable",
+		"Benennungsvariante": "Benennungsvariante",
+		"Latitude": "Breitengrad",
+		"Longitude": "Längengrad",
+		"Ort": "Ort",
+		"Variante": "Dialektform",
+		"Kreis": "Kreis",
+		"Land": "Land",
+		"PLZ": "PLZ",
+		"Id": "ID",
+		"bundesland": "Bundesland",
+		"region": "Dialektregion"
+	},
 	"DatasetList": {
 		"title": "Gespeicherte Datensätze",
 		"description": "Ihre hochgeladenen Datensätze in diesem Browser.",
@@ -89,7 +104,6 @@
 		"saved": "„{name}“ wurde gespeichert",
 		"saved-hint": "Der Datensatz steht jetzt auf der Kartierungsseite zur Auswahl.",
 		"limit": "Es werden maximal {max} Zeilen übernommen.",
-		"region": "Dialektregion",
 		"outside": "außerhalb des Kartenausschnitts",
 		"summary": {
 			"imported": "Übernommene Zeilen",
@@ -109,19 +123,19 @@
 			"parse": "Die Datei konnte nicht gelesen werden. Erwartet werden CSV, TSV, JSON oder GeoJSON mit Kopfzeile.",
 			"missing-fields": "Bitte ordnen Sie noch folgende Felder zu: {fields}.",
 			"storage": "Der Datensatz ist zu groß für den Browserspeicher und steht nur in dieser Sitzung zur Verfügung."
-		},
-		"fields": {
-			"Item": "Variable",
-			"Benennungsvariante": "Benennungsvariante",
-			"Latitude": "Breitengrad",
-			"Longitude": "Längengrad",
-			"Ort": "Ort",
-			"Variante": "Dialektform",
-			"Kreis": "Kreis",
-			"Land": "Land",
-			"PLZ": "PLZ",
-			"Id": "ID"
 		}
+	},
+	"DbPage": {
+		"meta": {
+			"title": "Belegdatenbank"
+		},
+		"results": "{n} Beleg | {n} Belege",
+		"results-filtered": "{n} von {total} Beleg | {n} von {total} Belegen",
+		"search": "Tabelle durchsuchen…",
+		"show-on-map": "Auf Karte anzeigen",
+		"download": "CSV herunterladen",
+		"no-matches": "Keine Belege entsprechen der Suche",
+		"no-entries": "Keine Belege für diese Auswahl"
 	},
 	"DefaultLayout": {
 		"meta": {

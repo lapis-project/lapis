@@ -73,7 +73,8 @@ export const buildCql = (criteria: CqlCriteria, mode: "simple" | "regex"): strin
 	addCondition(parts_query, "word", criteria.word ?? "", true);
 	addCondition(parts_query, "lemma", criteria.lemma ?? "");
 	addCondition(parts_query, "pos", criteria.pos ?? "");
-	addCondition(parts_query, "phon", criteria.phon ?? "");
+	const phonOperator = mode === "simple" ? "==" : "=";
+	addCondition(parts_query, "phon", criteria.phon ?? "", false, phonOperator);
 
 	// -----------------------------------------------------------------
 	// FEATS: split by whitespace, enforce distinct space-delimited match

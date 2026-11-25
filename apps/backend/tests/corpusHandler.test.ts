@@ -1287,19 +1287,19 @@ describe("Corpus Handler", () => {
 		expect(searchRequest).toHaveBeenCalledWith(expect.any(String), "1", "concordance", "", "50");
 	});
 
-	it("accepts phon as a lexical search criterion on /search/:id, /search/:id/hits, and /search/kwic", async () => {
+	it("uses literal phon matching by default and allows regex matching", async () => {
 		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
-		const encodedPhon = encodeURIComponent("aɔ̯x");
+		const encodedPhon = encodeURIComponent("a(ɔ̯)x");
 
 		const overviewResponse = await corpus.request(`/search/2?phon=${encodedPhon}`);
 		expect(overviewResponse.status).toBe(200);
-		expect(requestTranscriptMatches).toHaveBeenCalledWith('[phon="aɔ̯x"]');
+		expect(requestTranscriptMatches).toHaveBeenCalledWith('[phon=="a(ɔ̯)x"]');
 
 		const hitsResponse = await corpus.request(`/search/2/hits?phon=${encodedPhon}&lemma=auch`);
 		expect(hitsResponse.status).toBe(200);
 		expect(searchRequest).toHaveBeenNthCalledWith(
 			1,
-			'[lemma="auch" & phon="aɔ̯x"]',
+			'[lemma="auch" & phon=="a(ɔ̯)x"]',
 			"1",
 			"concordance",
 			"",
@@ -1309,7 +1309,7 @@ describe("Corpus Handler", () => {
 		);
 		expect(searchRequest).toHaveBeenNthCalledWith(
 			2,
-			'[lemma="auch" & phon="aɔ̯x"]',
+			'[lemma="auch" & phon=="a(ɔ̯)x"]',
 			"1",
 			"concordance",
 			"",
@@ -1319,10 +1319,30 @@ describe("Corpus Handler", () => {
 		);
 
 		searchRequest.mockClear();
-		searchRequest.mockResolvedValueOnce(new Response(JSON.stringify({ Lines: [] })));
-		const kwicResponse = await corpus.request(`/search/kwic?phon=${encodedPhon}&mode=regex`);
-		expect(kwicResponse.status).toBe(200);
-		expect(searchRequest).toHaveBeenCalledWith('[phon="aɔ̯x"]', "1", "concordance", "", "50");
+		searchRequest
+			.mockResolvedValueOnce(new Response(JSON.stringify({ Lines: [] })))
+			.mockResolvedValueOnce(new Response(JSON.stringify({ Lines: [] })));
+		const simpleKwicResponse = await corpus.request(`/search/kwic?phon=${encodedPhon}`);
+		expect(simpleKwicResponse.status).toBe(200);
+		expect(searchRequest).toHaveBeenNthCalledWith(
+			1,
+			'[phon=="a(ɔ̯)x"]',
+			"1",
+			"concordance",
+			"",
+			"50",
+		);
+
+		const regexKwicResponse = await corpus.request(`/search/kwic?phon=${encodedPhon}&mode=regex`);
+		expect(regexKwicResponse.status).toBe(200);
+		expect(searchRequest).toHaveBeenNthCalledWith(
+			2,
+			'[phon="a(ɔ̯)x"]',
+			"1",
+			"concordance",
+			"",
+			"50",
+		);
 	});
 
 	it("extracts token_id and phon from Bonito KWIC attributes on /search/:id/hits and /search/kwic", async () => {

@@ -13,7 +13,7 @@ import {
 } from "@deck.gl/layers";
 import { LayersIcon, MinusIcon, PlusIcon } from "@lucide/vue";
 import { bbox, featureCollection, point, union, voronoi } from "@turf/turf";
-import { Map, setWorkerUrl } from "maplibre-gl";
+import { Map as MaplibreMap, setWorkerUrl } from "maplibre-gl";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 
 import bundeslaenderJson from "#layers/ui/app/assets/data/bundeslaender.json";
@@ -52,7 +52,7 @@ interface MapProps {
 		| undefined;
 }
 
-const props = withDefaults(defineProps<MapProps>(), { controls: true, fit: false });
+const props = withDefaults(defineProps<MapProps>(), { controls: true });
 
 const style = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
@@ -81,7 +81,7 @@ interface TooltipState {
 }
 const tooltip = ref<TooltipState | null>(null);
 
-let map: Map | null = null;
+let map: MaplibreMap | null = null;
 let deck: Deck | null = null;
 let viewState: typeof INITIAL_VIEW_STATE = INITIAL_VIEW_STATE;
 
@@ -175,36 +175,53 @@ function createVoronoiLayer() {
 	});
 }
 
-function _getDominantVariant(d: Array<GeoJSON.Feature<GeoJSON.Point>>) {
-	const variantCount: Record<string, number> = {};
-	d.forEach((entry) =>
-		entry.properties?.variants.forEach((v: string) => {
-			if (!(v in variantCount)) variantCount[v] = 0;
-			variantCount[v]!++;
-		}),
-	);
-	const sortedVariants = Object.entries(variantCount).toSorted((a, b) => b[1] - a[1]);
-	return sortedVariants[0]![0];
+/** The most frequent variant among the points of a hexagon; ties go to the first one seen. */
+function dominantVariant(points: Array<GeoJSON.Feature<GeoJSON.Point>>) {
+	const counts = new Map<string, number>();
+	for (const point of points) {
+		for (const variant of (point.properties?.variants ?? []) as Array<string>) {
+			counts.set(variant, (counts.get(variant) ?? 0) + 1);
+		}
+	}
+	let dominant: string | undefined;
+	let max = 0;
+	counts.forEach((count, variant) => {
+		if (count > max) {
+			max = count;
+			dominant = variant;
+		}
+	});
+	return dominant;
 }
 
 const colorsArray = computed(() => Object.entries(props.colors));
+
+const colorIndex = computed(() => {
+	const indices = new Map<string, number>();
+	colorsArray.value.forEach(([, color], index) => {
+		if (!indices.has(color)) indices.set(color, index);
+	});
+	return indices;
+});
+
+function getDominantColorIndex(points: Array<GeoJSON.Feature<GeoJSON.Point>>) {
+	const variant = dominantVariant(points);
+	return colorIndex.value.get(props.colors[variant ?? ""] ?? "") ?? -1;
+}
 
 function createHexagonLayer() {
 	return new HexagonLayer<GeoJSON.Feature<GeoJSON.Point>>({
 		id: "HexagonLayer",
 		data: points.value,
-		gpuAggregation: true,
+		gpuAggregation: false,
 		coverage: 0.92,
 		getPosition: (d) => d.geometry.coordinates as [number, number],
 		radius: radius.value,
 		elevationScale: 1,
 		extruded: false,
 		colorScaleType: "quantize",
-		getColorValue: (d) =>
-			colorsArray.value.findIndex(([_, c]) => {
-				const color = props.colors[_getDominantVariant(d)!];
-				return color === c;
-			}),
+		getColorValue: getDominantColorIndex,
+		updateTriggers: { getColorValue: props.colors },
 		colorDomain: [0, colorsArray.value.length - 1],
 		colorRange: colorsArray.value.map(([_, c]) => hexToRgb(c, 180)),
 		pickable: true,
@@ -390,7 +407,7 @@ onMounted(() => {
 	setWorkerUrl(maplibreWorkerUrl);
 	viewState = fittedViewState();
 
-	map = new Map({
+	map = new MaplibreMap({
 		container: mapContainer.value!,
 		style,
 		center: [viewState.longitude, viewState.latitude],
@@ -529,7 +546,9 @@ const layerItems = computed(() =>
 			</UTabs>
 			<template v-if="mapMode === 'hexagon'">
 				<USeparator orientation="vertical"></USeparator>
-				<span class="uppercase text-muted-foreground font-semibold">Radius</span>
+				<span class="uppercase text-muted-foreground font-semibold">{{
+					t("MapsPage.controls.radius")
+				}}</span>
 				<USlider
 					v-model="radius"
 					class="w-36"
@@ -579,7 +598,7 @@ const layerItems = computed(() =>
 					:class="{ 'text-background bg-foreground hover:bg-foreground': activeLayer !== 'none' }"
 					type="button"
 				>
-					<span class="sr-only">Toggle Layers</span>
+					<span class="sr-only">{{ t("MapsPage.controls.toggle-layers") }}</span>
 					<LayersIcon class="size-4"></LayersIcon>
 				</button>
 			</UDropdownMenu>

@@ -19,16 +19,29 @@ export interface DataEntry {
 
 export type LocatedEntry = DataEntry & { region?: string; bundesland?: string };
 
+type Location = Pick<LocatedEntry, "region" | "bundesland">;
+
+const locations = new Map<string, Location>();
+
+function locate(longitude: string, latitude: string): Location {
+	const key = `${longitude},${latitude}`;
+	let location = locations.get(key);
+	if (!location) {
+		const p = point([Number(longitude), Number(latitude)]);
+		location = {
+			region: regions.features.find((region) => booleanPointInPolygon(p, region.geometry as never))
+				?.properties.Dialektregion_Name,
+			bundesland: bundeslaender.features.find((region) =>
+				booleanPointInPolygon(p, region.geometry as never),
+			)?.properties.name,
+		};
+		locations.set(key, location);
+	}
+	return location;
+}
+
 export function locateEntry<T extends DataEntry>(entry: T): T & LocatedEntry {
-	const p = point([Number(entry.Longitude), Number(entry.Latitude)]);
-	return {
-		...entry,
-		region: regions.features.find((region) => booleanPointInPolygon(p, region.geometry as never))
-			?.properties.Dialektregion_Name,
-		bundesland: bundeslaender.features.find((region) =>
-			booleanPointInPolygon(p, region.geometry as never),
-		)?.properties.name,
-	};
+	return { ...entry, ...locate(entry.Longitude, entry.Latitude) };
 }
 
 export function datasetScopedKey(datasetId: string, question: string) {

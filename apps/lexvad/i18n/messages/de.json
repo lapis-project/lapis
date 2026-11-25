@@ -1,4 +1,9 @@
 {
+	"AboutPage": {
+		"meta": {
+			"title": "Über das Projekt"
+		}
+	},
 	"AppHeader": {
 		"links": {
 			"about": "Über das Projekt",
@@ -26,6 +31,11 @@
 		"button": "{placeholder} wählen...",
 		"empty": "Keine {placeholder} gefunden",
 		"search": "{placeholder} suchen..."
+	},
+	"ComparePage": {
+		"meta": {
+			"title": "Vergleichsansicht"
+		}
 	},
 	"Comparison": {
 		"comparison-view": "Vergleichsansicht",
@@ -116,14 +126,13 @@
 	"DefaultLayout": {
 		"meta": {
 			"description": "Sample description",
-			"title": "LexVAD"
+			"title": "LexVAD20"
 		},
 		"skip-to-main-content": "Zum Hauptinhalt springen"
 	},
 	"EmbedPage": {
 		"open": "In LexVAD20 öffnen",
-		"unavailable": "Diese Karte verwendet einen hochgeladenen Datensatz und kann nicht eingebettet werden.",
-		"title": "LexVAD20: {question}"
+		"unavailable": "Diese Karte verwendet einen hochgeladenen Datensatz und kann nicht eingebettet werden."
 	},
 	"ErrorBoundary": {
 		"error": "Fehler"
@@ -164,6 +173,9 @@
 		"description": "Sample description"
 	},
 	"MapsPage": {
+		"meta": {
+			"title": "Kartierung"
+		},
 		"selection": {
 			"variable": {
 				"title": "Phänomen",
@@ -195,7 +207,9 @@
 			"settings": "Karteneinstellungen",
 			"zoom-in": "Vergrößern",
 			"zoom-out": "Verkleinern",
-			"embed": "Einbetten"
+			"embed": "Einbetten",
+			"radius": "Radius",
+			"toggle-layers": "Ebenen ein- oder ausblenden"
 		},
 		"settings": {
 			"colors": {
@@ -210,6 +224,12 @@
 		},
 		"legend": {
 			"title": "Legende"
+		},
+		"tooltip": {
+			"variant": "Variante",
+			"dialect-form": "Dialektform",
+			"state": "Bundesland",
+			"district": "Kreis"
 		},
 		"sidebar": {
 			"variable": "Phänomen",

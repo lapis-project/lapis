@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { InfoIcon } from "@lucide/vue";
+import { refDebounced } from "@vueuse/core";
 
 import {
 	type MapQueryPosition as MapPosition,
@@ -47,6 +48,7 @@ function comparisonSide(position: MapPosition) {
 
 const comparisonMatchMode = ref<ComparisonMatchMode>("location");
 const comparisonMatchRadius = ref<number>(locationMatchRadius.default);
+const debouncedMatchRadius = refDebounced(comparisonMatchRadius, 250);
 const idsAvailable = computed(() =>
 	positions.every(
 		(position) => datasetStore.datasetInfo(datasetStore.datasetForMap(position)).hasIds,
@@ -71,7 +73,7 @@ const { association, entryOverlap, flowHighlight, matchedEntries, variantFlowDat
 		comparisonSide("left"),
 		comparisonSide("right"),
 		comparisonMatchMode,
-		comparisonMatchRadius,
+		debouncedMatchRadius,
 	);
 
 function mapDataFor(position: MapPosition) {
@@ -212,7 +214,7 @@ const comparisonStats = computed(() => {
 					<div class="mb-1 flex items-center gap-1 text-sm font-semibold text-muted-foreground">
 						{{ t("Comparison.variant-flow") }}
 						<template v-if="comparisonMatchMode === 'location'">
-							<span class="ml-auto uppercase text-xs">Radius</span>
+							<span class="ml-auto uppercase text-xs">{{ t("MapsPage.controls.radius") }}</span>
 							<USlider
 								v-model="comparisonMatchRadius"
 								class="w-36"

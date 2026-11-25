@@ -8,6 +8,7 @@ import {
 	locationMatchRadius,
 	type MatchedEntry,
 	matchKey,
+	matchKeys,
 	variantFlowAssociation,
 } from "@/utils/variant-flow";
 
@@ -80,8 +81,12 @@ export function usePhenomenonComparison(
 		groupedEntries(toValue(right), filterRight, toValue(matchBy)),
 	);
 
+	const pairs = computed(() =>
+		matchKeys(leftEntries.value, rightEntries.value, toValue(matchBy), toValue(matchRadius)),
+	);
+
 	const flowCounts = computed(() =>
-		countVariantFlow(leftEntries.value, rightEntries.value, toValue(matchBy), toValue(matchRadius)),
+		countVariantFlow(leftEntries.value, rightEntries.value, pairs.value),
 	);
 
 	const variantFlowData = computed<Array<VariantFlowLink>>(() => {
@@ -96,23 +101,11 @@ export function usePhenomenonComparison(
 	});
 
 	const entryOverlap = computed(() =>
-		countEntryOverlap(
-			leftEntries.value,
-			rightEntries.value,
-			toValue(matchBy),
-			toValue(matchRadius),
-		),
+		countEntryOverlap(leftEntries.value, rightEntries.value, pairs.value),
 	);
 
 	const matchedEntries = computed(() =>
-		entriesInFlow(
-			leftEntries.value,
-			rightEntries.value,
-			undefined,
-			undefined,
-			toValue(matchBy),
-			toValue(matchRadius),
-		),
+		entriesInFlow(leftEntries.value, rightEntries.value, pairs.value),
 	);
 
 	const association = computed(() => variantFlowAssociation(flowCounts.value));
@@ -121,10 +114,9 @@ export function usePhenomenonComparison(
 		const { left: fill, right: outline } = entriesInFlow(
 			leftEntries.value,
 			rightEntries.value,
+			pairs.value,
 			source,
 			target,
-			toValue(matchBy),
-			toValue(matchRadius),
 		);
 		return {
 			fill,

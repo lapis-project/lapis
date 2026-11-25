@@ -1,4 +1,9 @@
 {
+	"AboutPage": {
+		"meta": {
+			"title": "About the project"
+		}
+	},
 	"AppHeader": {
 		"links": {
 			"about": "About the project",
@@ -26,6 +31,11 @@
 		"button": "Select {placeholder}...",
 		"empty": "No {placeholder} found",
 		"search": "Search {placeholder}..."
+	},
+	"ComparePage": {
+		"meta": {
+			"title": "Comparison"
+		}
 	},
 	"Comparison": {
 		"comparison-view": "Comparison view",
@@ -116,14 +126,13 @@
 	"DefaultLayout": {
 		"meta": {
 			"description": "Sample description",
-			"title": "LexVAD"
+			"title": "LexVAD20"
 		},
 		"skip-to-main-content": "Skip to main content"
 	},
 	"EmbedPage": {
 		"open": "Open in LexVAD20",
-		"unavailable": "This map uses an uploaded dataset and cannot be embedded.",
-		"title": "LexVAD20: {question}"
+		"unavailable": "This map uses an uploaded dataset and cannot be embedded."
 	},
 	"ErrorBoundary": {
 		"error": "Error"
@@ -164,6 +173,9 @@
 		"description": "Sample description"
 	},
 	"MapsPage": {
+		"meta": {
+			"title": "Map"
+		},
 		"selection": {
 			"variable": {
 				"title": "Phenomenon",
@@ -195,7 +207,9 @@
 			"settings": "Map settings",
 			"zoom-in": "Zoom in",
 			"zoom-out": "Zoom out",
-			"embed": "Embed"
+			"embed": "Embed",
+			"radius": "Radius",
+			"toggle-layers": "Toggle layers"
 		},
 		"settings": {
 			"colors": {
@@ -210,6 +224,12 @@
 		},
 		"legend": {
 			"title": "Legend"
+		},
+		"tooltip": {
+			"variant": "Variant",
+			"dialect-form": "Dialect form",
+			"state": "Federal state",
+			"district": "District"
 		},
 		"sidebar": {
 			"variable": "Phenomenon",

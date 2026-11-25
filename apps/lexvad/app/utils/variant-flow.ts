@@ -82,25 +82,32 @@ function sharesByKey(entries: Array<MatchedEntry>): Map<MatchKey, Map<string, nu
 	return counts;
 }
 
-function matchedPairs(
-	leftKeys: Array<MatchKey>,
-	rightKeys: Array<MatchKey>,
+export type MatchPair = [MatchKey, MatchKey];
+
+function uniqueKeys(entries: Array<MatchedEntry>) {
+	return [...new Set(entries.map((entry) => entry.key))];
+}
+
+export function matchKeys(
+	left: Array<MatchedEntry>,
+	right: Array<MatchedEntry>,
 	mode: ComparisonMatchMode,
-	radius: number,
-): Array<[MatchKey, MatchKey]> {
+	radius: number = locationMatchRadius.default,
+): Array<MatchPair> {
+	const rightKeys = uniqueKeys(right);
 	const known = new Set(rightKeys);
 	const neighbours = createNeighbours(mode, radius, rightKeys);
-	return leftKeys.flatMap((key) =>
+	return uniqueKeys(left).flatMap((key) =>
 		neighbours(key)
 			.filter((neighbour) => known.has(neighbour))
-			.map((neighbour): [MatchKey, MatchKey] => [key, neighbour]),
+			.map((neighbour): MatchPair => [key, neighbour]),
 	);
 }
 
 function pairWeights(
 	left: Array<MatchedEntry>,
 	right: Array<MatchedEntry>,
-	pairs: Array<[MatchKey, MatchKey]>,
+	pairs: Array<MatchPair>,
 ): Array<number> {
 	const pairsByEntry = new Map<string, Set<number>>();
 	function collect(entries: Array<MatchedEntry>, side: 0 | 1) {
@@ -133,12 +140,10 @@ function pairWeights(
 export function countVariantFlow(
 	left: Array<MatchedEntry>,
 	right: Array<MatchedEntry>,
-	mode: ComparisonMatchMode,
-	radius: number = locationMatchRadius.default,
+	pairs: Array<MatchPair>,
 ): Array<VariantFlowCount> {
 	const leftShares = sharesByKey(left);
 	const rightShares = sharesByKey(right);
-	const pairs = matchedPairs([...leftShares.keys()], [...rightShares.keys()], mode, radius);
 	const entryWeights = pairWeights(left, right, pairs);
 
 	const weights = new Map<string, Map<string, number>>();
@@ -187,21 +192,21 @@ export function pairEntries<T>(
 export function entriesInFlow(
 	left: Array<MatchedEntry>,
 	right: Array<MatchedEntry>,
-	source: string | undefined,
-	target: string | undefined,
-	mode: ComparisonMatchMode,
-	radius: number = locationMatchRadius.default,
+	pairs: Array<MatchPair>,
+	source?: string,
+	target?: string,
 ): { left: Set<string>; right: Set<string> } {
 	const sources = left.filter((entry) => source === undefined || entry.groups.has(source));
 	const targets = right.filter((entry) => target === undefined || entry.groups.has(target));
-	const pairs = matchedPairs(
-		[...new Set(sources.map((entry) => entry.key))],
-		[...new Set(targets.map((entry) => entry.key))],
-		mode,
-		radius,
-	);
-	const matchedSources = new Set(pairs.map(([key]) => key));
-	const matchedTargets = new Set(pairs.map(([, key]) => key));
+	const sourceKeys = new Set(sources.map((entry) => entry.key));
+	const targetKeys = new Set(targets.map((entry) => entry.key));
+	const matchedSources = new Set<MatchKey>();
+	const matchedTargets = new Set<MatchKey>();
+	for (const [leftKey, rightKey] of pairs) {
+		if (!sourceKeys.has(leftKey) || !targetKeys.has(rightKey)) continue;
+		matchedSources.add(leftKey);
+		matchedTargets.add(rightKey);
+	}
 	return {
 		left: new Set(
 			sources.filter((entry) => matchedSources.has(entry.key)).map((entry) => entry.id),
@@ -221,15 +226,8 @@ interface Overlap {
 export function countEntryOverlap(
 	left: Array<MatchedEntry>,
 	right: Array<MatchedEntry>,
-	mode: ComparisonMatchMode,
-	radius: number = locationMatchRadius.default,
+	pairs: Array<MatchPair>,
 ): Overlap {
-	const pairs = matchedPairs(
-		[...new Set(left.map((entry) => entry.key))],
-		[...new Set(right.map((entry) => entry.key))],
-		mode,
-		radius,
-	);
 	const matchedLeft = new Set(pairs.map(([key]) => key));
 	const matchedRight = new Set(pairs.map(([, key]) => key));
 

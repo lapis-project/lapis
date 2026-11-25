@@ -8,6 +8,7 @@ import {
 	entriesInFlow,
 	type MatchedEntry,
 	matchKey,
+	matchKeys,
 	pairEntries,
 	variantFlowAssociation,
 	type VariantFlowCount,
@@ -87,7 +88,7 @@ describe("countVariantFlow", () => {
 			...entries("2", ["Oma", "Omi"]),
 			...entries("4", ["Omi"]),
 		];
-		expect(sorted(countVariantFlow(left, right, "id"))).toEqual([
+		expect(sorted(countVariantFlow(left, right, matchKeys(left, right, "id")))).toEqual([
 			{ source: "Oma", target: "Oma", value: 1 },
 			{ source: "Omi", target: "Oma", value: 0.5 },
 			{ source: "Omi", target: "Omi", value: 0.5 },
@@ -97,7 +98,7 @@ describe("countVariantFlow", () => {
 	it("splits a matched place by the shares of its groups on both sides", () => {
 		const left = entries(placeA, ["Oma"], ["Oma"], ["Oma"], ["Omi"]);
 		const right = entries(placeA, ["Oma"], ["Oma"], ["Omi"], ["Omi"]);
-		expect(sorted(countVariantFlow(left, right, "location"))).toEqual([
+		expect(sorted(countVariantFlow(left, right, matchKeys(left, right, "location")))).toEqual([
 			{ source: "Oma", target: "Oma", value: 1.5 },
 			{ source: "Oma", target: "Omi", value: 1.5 },
 			{ source: "Omi", target: "Oma", value: 0.5 },
@@ -108,7 +109,7 @@ describe("countVariantFlow", () => {
 	it("weights a place by its number of entries", () => {
 		const left = [...repeat(placeA, "Oma", 10), ...repeat(placeB, "Omi", 1)];
 		const right = [...repeat(placeA, "Oma", 10), ...repeat(placeB, "Omi", 1)];
-		expect(sorted(countVariantFlow(left, right, "location"))).toEqual([
+		expect(sorted(countVariantFlow(left, right, matchKeys(left, right, "location")))).toEqual([
 			{ source: "Oma", target: "Oma", value: 10 },
 			{ source: "Omi", target: "Omi", value: 1 },
 		]);
@@ -120,7 +121,8 @@ describe("countVariantFlow", () => {
 			{ id: "2", key: placeA, groups: new Set(["Omi"]) },
 			{ id: "3", key: placeB, groups: new Set(["Oida"]) },
 		];
-		expect(sorted(countVariantFlow(left, right, "location", 1500))).toEqual([
+		const pairs = matchKeys(left, right, "location", 1500);
+		expect(sorted(countVariantFlow(left, right, pairs))).toEqual([
 			{ source: "Oma", target: "Oida", value: 1.5 },
 			{ source: "Oma", target: "Omi", value: 1.5 },
 		]);
@@ -130,11 +132,9 @@ describe("countVariantFlow", () => {
 		const left = [...repeat(placeA, "Oma", 3), ...repeat(placeB, "Omi", 2)];
 		const right = [...repeat(placeA, "Oma", 1), ...repeat(placeB, "Oma", 4)];
 		for (const radius of [0, 2000]) {
-			const total = countVariantFlow(left, right, "location", radius).reduce(
-				(sum, { value }) => sum + value,
-				0,
-			);
-			expect(total).toBeCloseTo(countEntryOverlap(left, right, "location", radius).common);
+			const pairs = matchKeys(left, right, "location", radius);
+			const total = countVariantFlow(left, right, pairs).reduce((sum, { value }) => sum + value, 0);
+			expect(total).toBeCloseTo(countEntryOverlap(left, right, pairs).common);
 		}
 	});
 
@@ -147,8 +147,10 @@ describe("countVariantFlow", () => {
 		const right = [...repeat(placeA, "Großmutter", 2), ...repeat(placeB, "Oma", 1)];
 		for (const radius of [0, 2000]) {
 			// Rounded because summing in a different order can differ in the last float digits.
-			expect(rounded(sorted(countVariantFlow(right, left, "location", radius)))).toEqual(
-				rounded(sorted(swapped(countVariantFlow(left, right, "location", radius)))),
+			const pairs = matchKeys(left, right, "location", radius);
+			const swappedPairs = matchKeys(right, left, "location", radius);
+			expect(rounded(sorted(countVariantFlow(right, left, swappedPairs)))).toEqual(
+				rounded(sorted(swapped(countVariantFlow(left, right, pairs)))),
 			);
 		}
 	});
@@ -156,9 +158,9 @@ describe("countVariantFlow", () => {
 	it("only matches other places within the radius", () => {
 		const left = repeat(placeA, "Oma", 2);
 		const right = repeat(placeB, "Omi", 3);
-		expect(countVariantFlow(left, right, "location", 0)).toEqual([]);
-		expect(countVariantFlow(left, right, "location", 1000)).toEqual([]);
-		expect(countVariantFlow(left, right, "location", 1500)).toEqual([
+		expect(countVariantFlow(left, right, matchKeys(left, right, "location", 0))).toEqual([]);
+		expect(countVariantFlow(left, right, matchKeys(left, right, "location", 1000))).toEqual([]);
+		expect(countVariantFlow(left, right, matchKeys(left, right, "location", 1500))).toEqual([
 			{ source: "Oma", target: "Omi", value: 5 },
 		]);
 	});
@@ -166,13 +168,14 @@ describe("countVariantFlow", () => {
 	it("ignores the radius when matching by id", () => {
 		const left = entries("1", ["Oma"]);
 		const right = entries("2", ["Omi"]);
-		expect(countVariantFlow(left, right, "id", 20000)).toEqual([]);
+		expect(countVariantFlow(left, right, matchKeys(left, right, "id", 20000))).toEqual([]);
 	});
 
 	it("counts each group of an answer with several groups towards the shares", () => {
 		const left = entries(placeA, ["Oma"]);
 		const right = entries(placeA, ["Oma"], ["Oma", "Omi"]);
-		expect(rounded(sorted(countVariantFlow(left, right, "location")))).toEqual(
+		const pairs = matchKeys(left, right, "location");
+		expect(rounded(sorted(countVariantFlow(left, right, pairs)))).toEqual(
 			rounded([
 				{ source: "Oma", target: "Oma", value: 4 / 3 },
 				{ source: "Oma", target: "Omi", value: 2 / 3 },
@@ -185,7 +188,7 @@ describe("countEntryOverlap", () => {
 	it("counts shared and one-sided ids", () => {
 		const left = [...entries("1", ["Oma"]), ...entries("2", ["Omi"]), ...entries("3", ["Oma"])];
 		const right = [...entries("1", ["Oma"]), ...entries("4", ["Omi"])];
-		expect(countEntryOverlap(left, right, "id")).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "id"))).toEqual({
 			common: 1,
 			onlyLeft: 2,
 			onlyRight: 1,
@@ -201,7 +204,7 @@ describe("countEntryOverlap", () => {
 			{ id: "1", key: placeA, groups: new Set(["Omi"]) },
 			{ id: "2", key: placeA, groups: new Set(["Omi"]) },
 		];
-		expect(countEntryOverlap(left, right, "location")).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "location"))).toEqual({
 			common: 2,
 			onlyLeft: 0,
 			onlyRight: 0,
@@ -214,7 +217,7 @@ describe("countEntryOverlap", () => {
 			{ id: "2", key: placeA, groups: new Set(["Omi"]) },
 			{ id: "3", key: placeA, groups: new Set(["Omi"]) },
 		];
-		expect(countEntryOverlap(left, right, "location")).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "location"))).toEqual({
 			common: 3,
 			onlyLeft: 0,
 			onlyRight: 0,
@@ -227,7 +230,7 @@ describe("countEntryOverlap", () => {
 			{ id: "1", key: placeA, groups: new Set(["Omi"]) },
 		];
 		const right = [{ id: "1", key: placeA, groups: new Set(["Oma"]) }];
-		expect(countEntryOverlap(left, right, "location")).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "location"))).toEqual({
 			common: 1,
 			onlyLeft: 0,
 			onlyRight: 0,
@@ -240,7 +243,7 @@ describe("countEntryOverlap", () => {
 			{ id: "2", key: placeA, groups: new Set(["Oma"]) },
 		];
 		const right = [{ id: "3", key: placeB, groups: new Set(["Omi"]) }];
-		expect(countEntryOverlap(left, right, "location")).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "location"))).toEqual({
 			common: 0,
 			onlyLeft: 2,
 			onlyRight: 1,
@@ -253,7 +256,7 @@ describe("countEntryOverlap", () => {
 			{ id: "1", key: placeA, groups: new Set(["Omi"]) },
 			{ id: "2", key: placeB, groups: new Set(["Omi"]) },
 		];
-		expect(countEntryOverlap(left, right, "location", 1500)).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "location", 1500))).toEqual({
 			common: 2,
 			onlyLeft: 0,
 			onlyRight: 0,
@@ -263,12 +266,12 @@ describe("countEntryOverlap", () => {
 	it("bridges places within the radius", () => {
 		const left = repeat(placeA, "Oma", 1);
 		const right = repeat(placeB, "Omi", 1);
-		expect(countEntryOverlap(left, right, "location", 0)).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "location", 0))).toEqual({
 			common: 0,
 			onlyLeft: 1,
 			onlyRight: 1,
 		});
-		expect(countEntryOverlap(left, right, "location", 1500)).toEqual({
+		expect(countEntryOverlap(left, right, matchKeys(left, right, "location", 1500))).toEqual({
 			common: 2,
 			onlyLeft: 0,
 			onlyRight: 0,
@@ -325,7 +328,7 @@ describe("entriesInFlow", () => {
 	it("finds the entries of one flow at a shared place", () => {
 		const left = entries(place, ["a"], ["x"]);
 		const right = entries(place, ["b"], ["y"]);
-		expect(entriesInFlow(left, right, "a", "y", "location")).toEqual({
+		expect(entriesInFlow(left, right, matchKeys(left, right, "location"), "a", "y")).toEqual({
 			left: new Set([`${place}#0`]),
 			right: new Set([`${place}#1`]),
 		});
@@ -334,7 +337,7 @@ describe("entriesInFlow", () => {
 	it("skips entries whose place has no partner", () => {
 		const left = [...entries(place, ["a"]), ...entries(nearby, ["a"])];
 		const right = entries(place, ["b"]);
-		expect(entriesInFlow(left, right, "a", "b", "location")).toEqual({
+		expect(entriesInFlow(left, right, matchKeys(left, right, "location"), "a", "b")).toEqual({
 			left: new Set([`${place}#0`]),
 			right: new Set([`${place}#0`]),
 		});
@@ -344,11 +347,11 @@ describe("entriesInFlow", () => {
 		const far = "49.000,16.000";
 		const left = [...entries(place, ["a"]), ...entries(far, ["a"])];
 		const right = entries(nearby, ["b"]);
-		expect(entriesInFlow(left, right, undefined, undefined, "location")).toEqual({
+		expect(entriesInFlow(left, right, matchKeys(left, right, "location"))).toEqual({
 			left: new Set(),
 			right: new Set(),
 		});
-		expect(entriesInFlow(left, right, undefined, undefined, "location", 2000)).toEqual({
+		expect(entriesInFlow(left, right, matchKeys(left, right, "location", 2000))).toEqual({
 			left: new Set([`${place}#0`]),
 			right: new Set([`${nearby}#0`]),
 		});
@@ -357,11 +360,11 @@ describe("entriesInFlow", () => {
 	it("covers all flows of a variant when the other side is left out", () => {
 		const left = [...entries(place, ["a"], ["x"]), ...entries(nearby, ["x"])];
 		const right = [...entries(place, ["b"], ["y"]), ...entries(nearby, ["b"])];
-		expect(entriesInFlow(left, right, "a", undefined, "location")).toEqual({
+		expect(entriesInFlow(left, right, matchKeys(left, right, "location"), "a")).toEqual({
 			left: new Set([`${place}#0`]),
 			right: new Set([`${place}#0`, `${place}#1`]),
 		});
-		expect(entriesInFlow(left, right, undefined, "y", "location")).toEqual({
+		expect(entriesInFlow(left, right, matchKeys(left, right, "location"), undefined, "y")).toEqual({
 			left: new Set([`${place}#0`, `${place}#1`]),
 			right: new Set([`${place}#1`]),
 		});
@@ -370,8 +373,10 @@ describe("entriesInFlow", () => {
 	it("follows the radius", () => {
 		const left = entries(place, ["a"]);
 		const right = entries(nearby, ["b"]);
-		expect(entriesInFlow(left, right, "a", "b", "location").left.size).toBe(0);
-		expect(entriesInFlow(left, right, "a", "b", "location", 2000)).toEqual({
+		const pairs = matchKeys(left, right, "location");
+		expect(entriesInFlow(left, right, pairs, "a", "b").left.size).toBe(0);
+		const widerPairs = matchKeys(left, right, "location", 2000);
+		expect(entriesInFlow(left, right, widerPairs, "a", "b")).toEqual({
 			left: new Set([`${place}#0`]),
 			right: new Set([`${nearby}#0`]),
 		});

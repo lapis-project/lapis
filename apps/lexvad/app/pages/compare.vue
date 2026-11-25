@@ -1,4 +1,8 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+const t = useTranslations();
+
+usePageMetadata({ title: t("ComparePage.meta.title") });
+</script>
 
 <template>
 	<div class="py-8">

@@ -46,7 +46,7 @@ const { data, legendEntries, variantColors } = useMapData(
 const fullMapLink = computed(() => localePath({ path: "/map", query: route.query }));
 
 useSeoMeta({
-	title: t("EmbedPage.title", { question }),
+	title: question,
 	robots: "noindex",
 });
 </script>
@@ -72,7 +72,6 @@ useSeoMeta({
 						:colors="variantColors"
 						:controls="false"
 						:data="data"
-						fit
 						:mode="state?.mode"
 						:radius="state?.radius"
 					/>

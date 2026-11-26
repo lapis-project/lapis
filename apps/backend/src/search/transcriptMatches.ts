@@ -1,3 +1,5 @@
+import { getNoskeAuthHeaders } from "@/search/auth.ts";
+
 export type NoSketchError = { status: number | null; message: string };
 export type TranscriptMatchesResult = {
 	data: Map<number, number> | null;
@@ -30,6 +32,7 @@ export async function requestTranscriptMatches(cql: string): Promise<TranscriptM
 	const collect = async (): Promise<TranscriptMatchesResult> => {
 		const baseUrl = process.env.NOSKE_INTERNAL_URL ?? "http://localhost:8080/bonito/run.cgi/";
 		const corpus = process.env.NOSKE_CORPUS_NAME ?? "dioedbcorpus";
+		const headers = getNoskeAuthHeaders();
 		const matches = new Map<number, number>();
 		let total: number | undefined;
 		let concsize: number | undefined;
@@ -39,6 +42,7 @@ export async function requestTranscriptMatches(cql: string): Promise<TranscriptM
 			const response = await fetch(`${baseUrl}freqs`, {
 				method: "POST",
 				signal: controller.signal,
+				...(headers ? { headers } : {}),
 				body: new URLSearchParams({
 					corpname: corpus,
 					q: `q${cql}`,

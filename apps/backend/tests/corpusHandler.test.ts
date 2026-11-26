@@ -326,7 +326,7 @@ describe("Corpus Handler", () => {
 
 		expect(response.status).toBe(400);
 		expect(await response.json()).toEqual({
-			error: "At least one search parameter (word, lemma, pos, feats) is required",
+			error: "At least one search parameter (word, lemma, pos, feats, phon) is required",
 		});
 		expect(getCorpusSearchMetadata).not.toHaveBeenCalled();
 		expect(getAllTranscripts).not.toHaveBeenCalled();
@@ -1285,5 +1285,114 @@ describe("Corpus Handler", () => {
 		expect(response.status).toBe(200);
 		expect(await response.json()).toEqual({ Lines: [{ Kwic: [] }] });
 		expect(searchRequest).toHaveBeenCalledWith(expect.any(String), "1", "concordance", "", "50");
+	});
+
+	it("uses literal phon matching by default and allows regex matching", async () => {
+		getAllTranscripts.mockResolvedValue([{ instance_id: 7 }]);
+		const encodedPhon = encodeURIComponent("a(ɔ̯)x");
+
+		const overviewResponse = await corpus.request(`/search/2?phon=${encodedPhon}`);
+		expect(overviewResponse.status).toBe(200);
+		expect(requestTranscriptMatches).toHaveBeenCalledWith('[phon=="a(ɔ̯)x"]');
+
+		const hitsResponse = await corpus.request(`/search/2/hits?phon=${encodedPhon}&lemma=auch`);
+		expect(hitsResponse.status).toBe(200);
+		expect(searchRequest).toHaveBeenNthCalledWith(
+			1,
+			'[lemma="auch" & phon=="a(ɔ̯)x"]',
+			"1",
+			"concordance",
+			"",
+			"50",
+			"json",
+			"POST",
+		);
+		expect(searchRequest).toHaveBeenNthCalledWith(
+			2,
+			'[lemma="auch" & phon=="a(ɔ̯)x"]',
+			"1",
+			"concordance",
+			"",
+			"50",
+			"xml",
+			"POST",
+		);
+
+		searchRequest.mockClear();
+		searchRequest
+			.mockResolvedValueOnce(new Response(JSON.stringify({ Lines: [] })))
+			.mockResolvedValueOnce(new Response(JSON.stringify({ Lines: [] })));
+		const simpleKwicResponse = await corpus.request(`/search/kwic?phon=${encodedPhon}`);
+		expect(simpleKwicResponse.status).toBe(200);
+		expect(searchRequest).toHaveBeenNthCalledWith(
+			1,
+			'[phon=="a(ɔ̯)x"]',
+			"1",
+			"concordance",
+			"",
+			"50",
+		);
+
+		const regexKwicResponse = await corpus.request(`/search/kwic?phon=${encodedPhon}&mode=regex`);
+		expect(regexKwicResponse.status).toBe(200);
+		expect(searchRequest).toHaveBeenNthCalledWith(
+			2,
+			'[phon="a(ɔ̯)x"]',
+			"1",
+			"concordance",
+			"",
+			"50",
+		);
+	});
+
+	it("extracts token_id and phon from Bonito KWIC attributes on /search/:id/hits and /search/kwic", async () => {
+		const rawLines = [
+			{
+				toknum: 10,
+				Refs: ["transcript_7"],
+				Left: [{ str: "das" }],
+				Kwic: [
+					{ coll: 1, str: " Haus", attr: "/haɔ̯s/1172055" },
+					{ coll: 1, str: " läuft", attr: "/-/1167650" },
+					{ coll: 1, str: " f", attr: "/fɾʏ//1672045" },
+				],
+				Right: [{ str: "dort" }],
+			},
+		];
+		const expectedLines = [
+			{
+				toknum: 10,
+				Refs: ["transcript_7"],
+				Left: [{ str: "das" }],
+				Kwic: [
+					{ coll: 1, str: "Haus", phon: "haɔ̯s", token_id: 1172055 },
+					{ coll: 1, str: "läuft", phon: null, token_id: 1167650 },
+					{ coll: 1, str: "f", phon: "fɾʏ/", token_id: 1672045 },
+				],
+				Right: [{ str: "dort" }],
+			},
+		];
+
+		searchRequest.mockImplementation((_cql, _fromp, _path, _refs, _pagesize, format) =>
+			Promise.resolve(
+				format === "xml"
+					? new Response("<export><concordance /></export>")
+					: new Response(JSON.stringify({ Lines: rawLines })),
+			),
+		);
+
+		const hitsResponse = await corpus.request("/search/2/hits?word=Haus");
+		const hitsBody = await hitsResponse.json();
+
+		expect(hitsResponse.status).toBe(200);
+		expect(hitsBody.kwic.Lines).toEqual(expectedLines);
+		expect(hitsBody.matchesByTranscript["7"].lines).toEqual(expectedLines);
+
+		searchRequest.mockResolvedValueOnce(new Response(JSON.stringify({ Lines: rawLines })));
+		const kwicResponse = await corpus.request("/search/kwic?word=Haus");
+		const kwicBody = await kwicResponse.json();
+
+		expect(kwicResponse.status).toBe(200);
+		expect(kwicBody.Lines).toEqual(expectedLines);
 	});
 });
